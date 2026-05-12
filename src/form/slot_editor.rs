@@ -12,7 +12,18 @@ use eframe::egui;
 
 /// Per-row slot subkey selector. Variants + `as_str()` ordering match
 /// `crates/mnemonic-toolkit/src/slot_input.rs:13-28, 44-55` exactly.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[derive(
+    Debug,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    Hash,
+    PartialOrd,
+    Ord,
+    serde::Serialize,
+    serde::Deserialize,
+)]
 pub enum SlotSubkey {
     Phrase,
     Entropy,
@@ -62,7 +73,7 @@ impl SlotSubkey {
 
 /// One row in the SlotEditor — a (slot index, subkey, value) triple.
 /// The repeating argv form is `--slot @<index>.<subkey>=<value>`.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct SlotRow {
     pub index: u8,
     pub subkey: SlotSubkey,
@@ -83,7 +94,7 @@ impl Default for SlotRow {
 /// `allows_slots == true`. Rows are stored in user-add order; emission
 /// re-sorts by `index` ascending (SPEC §6.4 + upstream
 /// `cmd::bundle::resolve_slots` BTreeMap iteration).
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
 pub struct SlotState {
     pub rows: Vec<SlotRow>,
 }

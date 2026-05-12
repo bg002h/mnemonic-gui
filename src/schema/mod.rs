@@ -138,7 +138,7 @@ pub type FlagVisibility = Vec<(&'static str, Visibility)>;
 /// the widget; `assemble_argv` (Phase 2) emits `--slot @N.subkey=value`
 /// pairs from this field in slot-index ascending order at the position
 /// where `--slot` appears in the schema's flag iteration.
-#[derive(Default, Debug, Clone)]
+#[derive(Default, Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct FormState {
     pub values: Vec<(String, FlagValue)>,
     pub slots: crate::form::slot_editor::SlotState,
@@ -211,7 +211,7 @@ fn flag_value_is_present(v: &FlagValue) -> bool {
 /// Typed value mirroring `FlagKind`. The form widget renderer holds these
 /// per-flag; the argv assembler consumes them per the SPEC §6.7 emission
 /// rules.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum FlagValue {
     Text(String),
     Number(i64),
@@ -229,13 +229,13 @@ pub enum FlagValue {
     Path(String),
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum TimestampValue {
     Now,
     Unix(u64),
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum TaggedOrIndexedValue {
     Tag(String),
     Indexed(u8),
