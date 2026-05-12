@@ -20,8 +20,12 @@ pub enum ShellFlavor {
     /// POSIX shells (bash, zsh, fish). `shlex::try_quote` does the heavy
     /// lifting; multi-token argv joined with single spaces.
     Posix,
-    /// Windows `cmd.exe`. Double-quote each arg; embedded `"` becomes `""`.
-    /// Lines joined with ` ^\r\n  ` for shell-side line continuation.
+    /// Windows `cmd.exe` + `CommandLineToArgvW`. Double-quote each arg;
+    /// embedded `"` is encoded as `\"` per the `ArgvQuote` odd-backslash
+    /// rule (see `cmd_quote` doc-comment for full rules — `""` is NOT a
+    /// valid literal-`"` escape under `CommandLineToArgvW`). Lines joined
+    /// with ` ^\r\n  ` for shell-side line continuation.
+    /// R2 C-1 / R3 I-1 fold.
     WindowsCmd,
 }
 

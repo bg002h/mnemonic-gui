@@ -1,8 +1,10 @@
 //! Copy-command shell-quoting tests (SPEC §6.6, Phase 2 R1 I-4).
 //!
 //! The render output is for display copy-paste only; it is NEVER re-parsed
-//! or used to spawn the subprocess. Posix uses `shlex::try_quote`; Windows
-//! uses double-quote-doubling per cmd.exe conventions.
+//! or used to spawn the subprocess. POSIX uses `shlex::try_quote`; Windows
+//! uses ArgvQuote (odd-backslash) encoding per `CommandLineToArgvW`
+//! convention — see `src/form/invocation.rs::cmd_quote` for the full rules.
+//! R2 C-1 / R3 I-1 fold.
 
 use mnemonic_gui::form::invocation::{render_copy_command, ShellFlavor};
 
