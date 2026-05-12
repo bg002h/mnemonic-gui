@@ -27,8 +27,13 @@ bin = "mnemonic"
 workspace-member-path = "crates/mnemonic-toolkit"
 
 [md]
+# Phase 6 R0: bumped from v0.3.0 to v0.4.3 to match the binary version
+# currently installed locally (md --version → "md 0.4.3"). Schema and
+# pinned-upstream tag must move in lockstep so the runtime soft-check
+# can't fire a false-positive banner. R1 reviewer may flag if a
+# different tag is preferable.
 url = "https://github.com/bg002h/descriptor-mnemonic"
-tag = "descriptor-mnemonic-md-cli-v0.3.0"
+tag = "descriptor-mnemonic-md-cli-v0.4.3"
 bin = "md"
 workspace-member-path = "crates/md-cli"
 

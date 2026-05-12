@@ -32,12 +32,32 @@ pub struct SubcommandSchema {
     pub human_name: &'static str,
     /// Every flag the upstream clap-derive `Args` block declares.
     pub flags: &'static [FlagSchema],
+    /// Positional args (no `--name` prefix), emitted at the end of argv
+    /// after all flags. Phase 6 introduced this for `md inspect`,
+    /// `ms inspect`, `mk inspect` which take an `<MD1>` / `[MS1]` /
+    /// `[MK1_STRINGS]...` positional. mnemonic-toolkit's subcommands
+    /// have zero positionals — they pass slot data via `--slot`. Empty
+    /// slice for subcommands with no positionals.
+    pub positional_args: &'static [PositionalArgSchema],
     /// True for `bundle` / `verify-bundle` / `export-wallet` — subcommands
     /// that accept the `--slot @N.<subkey>=<value>` repeating grammar.
     pub allows_slots: bool,
     /// Optional conditional-visibility function. Phase 5 fills these in;
     /// Phase 1 leaves them all `None`.
     pub conditional: Option<fn(&FormState) -> FlagVisibility>,
+}
+
+/// Positional argument schema (no `--name` prefix). Phase 6.
+pub struct PositionalArgSchema {
+    /// Human label for the form widget (e.g. `"md1-strings"`).
+    pub name: &'static str,
+    /// True for clap-required positionals (`<NAME>`), false for clap-
+    /// optional (`[NAME]`).
+    pub required: bool,
+    /// True for `<NAME>...` / `[NAME]...` (clap `num_args = 1..`).
+    pub repeating: bool,
+    /// Tooltip text.
+    pub help: &'static str,
 }
 
 /// One flag (e.g. `--template`).
@@ -122,6 +142,11 @@ pub type FlagVisibility = Vec<(&'static str, Visibility)>;
 pub struct FormState {
     pub values: Vec<(String, FlagValue)>,
     pub slots: crate::form::slot_editor::SlotState,
+    /// Positional args in `positional_args` declaration order. For
+    /// repeating positionals, multiple entries may share the same
+    /// schema index (the form widget renders multiple input rows).
+    /// Empty strings are dropped at emit time (SPEC §6.7 parity).
+    pub positionals: Vec<String>,
 }
 
 impl FormState {
@@ -133,6 +158,7 @@ impl FormState {
         Self {
             values: iter.into_iter().map(|(k, v)| (k.into(), v)).collect(),
             slots: crate::form::slot_editor::SlotState::new(),
+            positionals: Vec::new(),
         }
     }
 
@@ -141,6 +167,15 @@ impl FormState {
         slots: crate::form::slot_editor::SlotState,
     ) -> Self {
         self.slots = slots;
+        self
+    }
+
+    pub fn with_positionals<I, S>(mut self, iter: I) -> Self
+    where
+        I: IntoIterator<Item = S>,
+        S: Into<String>,
+    {
+        self.positionals = iter.into_iter().map(Into::into).collect();
         self
     }
 

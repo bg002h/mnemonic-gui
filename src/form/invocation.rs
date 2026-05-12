@@ -68,6 +68,14 @@ pub fn assemble_argv(
         }
     }
 
+    // Positional args (Phase 6) — emit at the end of argv in form-state
+    // order, skipping empty strings (SPEC §6.7 parity).
+    for pos in &state.positionals {
+        if !pos.is_empty() {
+            argv.push(pos.clone());
+        }
+    }
+
     argv
 }
 

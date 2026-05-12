@@ -6,7 +6,7 @@
 //! tabs and to render the "install via …" tooltip.
 
 use std::ffi::OsString;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Detected {
@@ -14,11 +14,21 @@ pub enum Detected {
     NotFound,
 }
 
-/// Resolve `name` against `$PATH`. On Windows, also tries each
-/// `$PATHEXT` extension when `name` has no extension (so `detect("md")`
-/// finds `md.exe`).
+/// Resolve `name` against the process's `$PATH`. On Windows, also tries
+/// each `$PATHEXT` extension when `name` has no extension.
 pub fn detect(name: &str) -> Detected {
-    let path_env = std::env::var_os("PATH").unwrap_or_else(|| OsString::from(""));
+    detect_in(
+        name,
+        std::env::var_os("PATH"),
+        std::env::var_os("PATHEXT"),
+    )
+}
+
+/// Testable variant: resolve `name` against the supplied `$PATH` and
+/// `$PATHEXT` env values. Pass `None` for either to behave as if the
+/// variable were unset.
+pub fn detect_in(name: &str, path_env: Option<OsString>, pathext: Option<OsString>) -> Detected {
+    let path_env = path_env.unwrap_or_else(|| OsString::from(""));
     for dir in std::env::split_paths(&path_env) {
         if dir.as_os_str().is_empty() {
             continue;
@@ -27,20 +37,21 @@ pub fn detect(name: &str) -> Detected {
         if is_executable_file(&candidate) {
             return Detected::Found(candidate);
         }
-        // Windows-style extensions: try each $PATHEXT suffix when the
-        // candidate name lacks an extension.
-        if cfg!(windows) {
-            if let Some(pathext) = std::env::var_os("PATHEXT") {
-                for ext in std::env::split_paths(&pathext) {
+        // Windows-style extension search. Gated by cfg!(windows) for
+        // production code; tests can exercise it on Unix by passing a
+        // pathext Some(...) value with a corresponding fixture file.
+        if cfg!(windows) || pathext.is_some() {
+            if let Some(ref pe) = pathext {
+                for ext in std::env::split_paths(pe) {
                     let mut alt = candidate.clone().into_os_string();
-                    alt.push(ext);
+                    alt.push(ext.as_os_str());
                     let alt_path = PathBuf::from(alt);
                     if is_executable_file(&alt_path) {
                         return Detected::Found(alt_path);
                     }
                 }
-            } else {
-                // No PATHEXT — fall back to .exe.
+            } else if cfg!(windows) {
+                // Windows with no PATHEXT — fall back to .exe.
                 let alt = candidate.with_extension("exe");
                 if is_executable_file(&alt) {
                     return Detected::Found(alt);
@@ -51,8 +62,12 @@ pub fn detect(name: &str) -> Detected {
     Detected::NotFound
 }
 
+fn is_executable_file(p: &Path) -> bool {
+    is_executable_file_impl(p)
+}
+
 #[cfg(unix)]
-fn is_executable_file(p: &std::path::Path) -> bool {
+fn is_executable_file_impl(p: &Path) -> bool {
     use std::os::unix::fs::PermissionsExt;
     p.is_file()
         && p.metadata()
@@ -61,6 +76,6 @@ fn is_executable_file(p: &std::path::Path) -> bool {
 }
 
 #[cfg(not(unix))]
-fn is_executable_file(p: &std::path::Path) -> bool {
+fn is_executable_file_impl(p: &Path) -> bool {
     p.is_file()
 }

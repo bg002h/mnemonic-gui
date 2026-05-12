@@ -11,7 +11,12 @@
 //! upstream `conflicts_with` / `required_unless_present_any` constraints
 //! into hand-coded `fn(&FormState) -> FlagVisibility` callbacks here.
 
-use super::{FlagKind, FlagSchema, Schema, SubcommandSchema};
+use super::{FlagKind, FlagSchema, PositionalArgSchema, Schema, SubcommandSchema};
+
+/// Empty positional-args slice — all five mnemonic-toolkit subcommands
+/// take their input via flags (`--slot`, `--from`, etc.) with zero
+/// positionals.
+const NO_POSITIONALS: &[PositionalArgSchema] = &[];
 
 // ─── Shared dropdown option lists ───────────────────────────────────────
 
@@ -734,6 +739,7 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
         name: "bundle",
         human_name: "Bundle (emit 3-card)",
         flags: BUNDLE_FLAGS,
+        positional_args: NO_POSITIONALS,
         allows_slots: true,
         conditional: Some(crate::form::conditional::bundle),
     },
@@ -741,6 +747,7 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
         name: "verify-bundle",
         human_name: "Verify Bundle (round-trip)",
         flags: VERIFY_BUNDLE_FLAGS,
+        positional_args: NO_POSITIONALS,
         allows_slots: true,
         conditional: Some(crate::form::conditional::verify_bundle),
     },
@@ -748,6 +755,7 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
         name: "convert",
         human_name: "Convert (between formats)",
         flags: CONVERT_FLAGS,
+        positional_args: NO_POSITIONALS,
         allows_slots: false,
         conditional: Some(crate::form::conditional::convert),
     },
@@ -755,6 +763,7 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
         name: "export-wallet",
         human_name: "Export Wallet (watch-only)",
         flags: EXPORT_WALLET_FLAGS,
+        positional_args: NO_POSITIONALS,
         allows_slots: true,
         conditional: Some(crate::form::conditional::export_wallet),
     },
@@ -762,6 +771,7 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
         name: "derive-child",
         human_name: "Derive Child (BIP-85)",
         flags: DERIVE_CHILD_FLAGS,
+        positional_args: NO_POSITIONALS,
         allows_slots: false,
         conditional: None,
     },
