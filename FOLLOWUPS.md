@@ -24,12 +24,12 @@ files and assert set-equality.
 
 **Companion entries (per CLAUDE.md cross-repo discipline):**
 
-| Sibling repo | Companion file | Pinned tag for v0.1 |
-|--------------|----------------|---------------------|
-| `bg002h/mnemonic-toolkit` | `design/FOLLOWUPS.md` | `mnemonic-toolkit-v0.8.1` |
-| `bg002h/descriptor-mnemonic` | `design/FOLLOWUPS.md` | `descriptor-mnemonic-md-cli-v0.4.3` |
-| `bg002h/mnemonic-secret` | `design/FOLLOWUPS.md` | `ms-cli-v0.1.0` |
-| `bg002h/mnemonic-key` | `design/FOLLOWUPS.md` | `mk-cli-v0.2.0` |
+| Sibling repo | Companion file | Pinned tag for v0.1 | Activation PR |
+|--------------|----------------|---------------------|---------------|
+| `bg002h/mnemonic-toolkit` | `design/FOLLOWUPS.md` | `mnemonic-toolkit-v0.8.1` | [#13](https://github.com/bg002h/mnemonic-toolkit/pull/13) |
+| `bg002h/descriptor-mnemonic` | `design/FOLLOWUPS.md` | `descriptor-mnemonic-md-cli-v0.4.3` | [#28](https://github.com/bg002h/descriptor-mnemonic/pull/28) |
+| `bg002h/mnemonic-secret` | `design/FOLLOWUPS.md` | `ms-cli-v0.1.0` | [#4](https://github.com/bg002h/mnemonic-secret/pull/4) |
+| `bg002h/mnemonic-key` | `design/FOLLOWUPS.md` | `mk-cli-v0.2.0` | [#7](https://github.com/bg002h/mnemonic-key/pull/7) |
 
 Each sibling-repo entry must cross-cite this entry + the
 `mnemonic-gui` repo URL + this `mnemonic-gui-schema-mirror`
