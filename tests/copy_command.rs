@@ -118,3 +118,57 @@ fn windows_line_continuation_separator_is_caret_crlf_indent() {
     let s = render_copy_command(&argv, ShellFlavor::WindowsCmd);
     assert!(s.contains(" ^\r\n  "));
 }
+
+// R1 I-1 fold: Windows path ending in `\` must not consume the close-quote.
+// `CommandLineToArgvW` treats `\` immediately before `"` as an escape, so
+// `"C:\tmp\"` parses as the unclosed token `C:\tmp"`. The fix is to double
+// any backslash run that precedes a `"` (interior or closing).
+
+#[test]
+fn windows_trailing_backslash_does_not_break_close_quote() {
+    let argv = vec!["mnemonic".into(), "--output".into(), r"C:\tmp\".into()];
+    let s = render_copy_command(&argv, ShellFlavor::WindowsCmd);
+    // Expected encoded form: "C:\tmp\\" — the single trailing backslash
+    // is doubled so the close-quote is unambiguous.
+    assert!(
+        s.contains(r#""C:\tmp\\""#),
+        "expected doubled trailing backslash in: {}",
+        s
+    );
+}
+
+#[test]
+fn windows_interior_backslash_run_unchanged() {
+    // Pure interior backslashes (not followed by `"`) pass through.
+    let argv = vec!["a".into(), r"C:\Users\Alice\file.txt".into()];
+    let s = render_copy_command(&argv, ShellFlavor::WindowsCmd);
+    assert!(s.contains(r#""C:\Users\Alice\file.txt""#), "interior backslashes mangled: {}", s);
+}
+
+#[test]
+fn windows_backslash_immediately_before_embedded_quote_is_doubled() {
+    // Input contains exactly: a, `\`, `"`, b. The `\` IS immediately
+    // followed by `"`, so it must be doubled to disambiguate from the
+    // `\"` escape sequence CommandLineToArgvW would otherwise interpret.
+    // Expected encoded form: "a\\""b" — `\\` (doubled) then `""` (literal).
+    let argv = vec!["literal".into(), "a\\\"b".into()];
+    let s = render_copy_command(&argv, ShellFlavor::WindowsCmd);
+    assert!(
+        s.contains(r#""a\\""b""#),
+        "expected `\\` before `\"` to be doubled in: {}",
+        s
+    );
+}
+
+#[test]
+fn windows_double_backslash_before_quote_is_doubled_to_four() {
+    // Input: a, `\`, `\`, `"`, b. Two backslashes immediately before `"`.
+    // Both must be doubled → 4 backslashes, then literal `""`.
+    let argv = vec!["literal".into(), "a\\\\\"b".into()];
+    let s = render_copy_command(&argv, ShellFlavor::WindowsCmd);
+    assert!(
+        s.contains(r#""a\\\\""b""#),
+        "expected 2 backslashes before `\"` to become 4 in: {}",
+        s
+    );
+}

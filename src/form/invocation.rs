@@ -164,10 +164,46 @@ fn posix_quote(s: &str) -> String {
     }
 }
 
-/// Windows `cmd.exe` quoting. Always wraps in double quotes; embedded
-/// double quotes are doubled (cmd.exe convention, per Microsoft docs).
-/// Empty string → `""`.
+/// Windows quoting compatible with `CommandLineToArgvW` parsing (which
+/// `cmd.exe`, PowerShell, and the Windows C runtime all use under the
+/// hood). Wraps the token in `"..."`; doubles embedded `"`; and — the
+/// load-bearing rule absent from the naive cmd.exe doc — doubles any run
+/// of backslashes that immediately precedes a `"` (including the closing
+/// `"`), so a trailing `\` does not consume the close-quote. Without this,
+/// any Windows path ending in `\` (e.g. `C:\tmp\`) renders as `"C:\tmp\"`
+/// and the close-`"` is consumed as a literal, leaving the token unclosed.
+/// R1 I-1 fold.
 fn cmd_quote(s: &str) -> String {
-    let escaped = s.replace('"', "\"\"");
-    format!("\"{}\"", escaped)
+    let mut out = String::with_capacity(s.len() + 2);
+    out.push('"');
+    let mut chars = s.chars().peekable();
+    while let Some(c) = chars.next() {
+        if c == '\\' {
+            // Count the run of consecutive backslashes.
+            let mut n = 1usize;
+            while chars.peek() == Some(&'\\') {
+                chars.next();
+                n += 1;
+            }
+            // If a `"` or end-of-string follows, double the run; the
+            // doubled backslashes are themselves literal AND the
+            // subsequent `"` (whether interior or our close-`"`) is then
+            // unambiguously a quote-delimiter (interior) or quote-close.
+            let next_is_quote_or_end =
+                matches!(chars.peek(), Some(&'"')) || chars.peek().is_none();
+            let to_write = if next_is_quote_or_end { n * 2 } else { n };
+            for _ in 0..to_write {
+                out.push('\\');
+            }
+        } else if c == '"' {
+            // Embedded literal `"` → `""` (cmd.exe-style; also accepted by
+            // CommandLineToArgvW since the doubling means: close, reopen).
+            out.push('"');
+            out.push('"');
+        } else {
+            out.push(c);
+        }
+    }
+    out.push('"');
+    out
 }
