@@ -106,14 +106,22 @@ pub enum Visibility {
 /// friendly downstream and the iteration order deterministic.
 pub type FlagVisibility = Vec<(&'static str, Visibility)>;
 
-/// Per-subcommand form state. Phase 2 fills in the typed-value carrier.
+/// Per-subcommand form state. Phase 2 wires `values`; Phase 3 wires
+/// `slots`.
 ///
 /// Repeating flags (`FlagSchema.repeating == true`) may appear multiple
 /// times in `values`; ordering is preserved (slot-index ascending for the
 /// SlotEditor path, row-add order for other repeating flags — see SPEC §6.3).
+///
+/// `slots` is only consulted for subcommands where
+/// `SubcommandSchema.allows_slots == true`. The SlotEditor (Phase 3) owns
+/// the widget; `assemble_argv` (Phase 2) emits `--slot @N.subkey=value`
+/// pairs from this field in slot-index ascending order at the position
+/// where `--slot` appears in the schema's flag iteration.
 #[derive(Default, Debug, Clone)]
 pub struct FormState {
     pub values: Vec<(String, FlagValue)>,
+    pub slots: crate::form::slot_editor::SlotState,
 }
 
 impl FormState {
@@ -124,7 +132,16 @@ impl FormState {
     {
         Self {
             values: iter.into_iter().map(|(k, v)| (k.into(), v)).collect(),
+            slots: crate::form::slot_editor::SlotState::new(),
         }
+    }
+
+    pub fn with_slots(
+        mut self,
+        slots: crate::form::slot_editor::SlotState,
+    ) -> Self {
+        self.slots = slots;
+        self
     }
 }
 

@@ -49,6 +49,16 @@ pub fn assemble_argv(
     argv.push(subcommand.name.to_string());
 
     for flag in subcommand.flags {
+        // SPEC §6.4: when allows_slots == true, the `--slot` flag is
+        // emitted from SlotState (not from `values`), in slot-index
+        // ascending order. The schema still carries a `--slot` FlagSchema
+        // entry so the schema-mirror flag-name test sees it.
+        if flag.name == "--slot" && subcommand.allows_slots {
+            for token in state.slots.to_slot_argv() {
+                argv.push(token);
+            }
+            continue;
+        }
         if flag.repeating {
             for (_, value) in state.values.iter().filter(|(k, _)| k == flag.name) {
                 emit_one(flag, value, &mut argv);
