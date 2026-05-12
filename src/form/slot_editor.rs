@@ -94,9 +94,11 @@ impl SlotState {
     }
 
     /// Iterator over rows in slot-index ascending order. Stable sort —
-    /// rows with the same `index` preserve insertion order (matches
-    /// `cmd::bundle::resolve_slots` BTreeMap semantics where (index,
-    /// subkey) pairs are the key).
+    /// rows with the same `index` preserve insertion order. Upstream
+    /// `cmd::bundle::resolve_slots` keys its `BTreeMap<u8, Vec<&SlotInput>>`
+    /// by `u8` index alone; duplicate `(index, subkey)` pairs for the same
+    /// slot are rejected by `validate_slot_set` (`duplicate-subkey` error),
+    /// NOT by BTreeMap-key collision. R1 I-1 fold (clarifies prior comment).
     pub fn rows_sorted(&self) -> Vec<&SlotRow> {
         let mut v: Vec<&SlotRow> = self.rows.iter().collect();
         v.sort_by_key(|r| r.index);
