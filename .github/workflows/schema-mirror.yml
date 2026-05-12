@@ -25,28 +25,28 @@ jobs:
           cargo install --locked \
             --git https://github.com/bg002h/mnemonic-toolkit \
             --tag mnemonic-toolkit-v0.8.1 \
-            --bin mnemonic
+            mnemonic-toolkit
 
       - name: install-md-cli
         run: |
           cargo install --locked \
             --git https://github.com/bg002h/descriptor-mnemonic \
             --tag descriptor-mnemonic-md-cli-v0.4.3 \
-            --bin md
+            md-cli
 
       - name: install-ms-cli
         run: |
           cargo install --locked \
             --git https://github.com/bg002h/mnemonic-secret \
             --tag ms-cli-v0.1.0 \
-            --bin ms
+            ms-cli
 
       - name: install-mk-cli
         run: |
           cargo install --locked \
             --git https://github.com/bg002h/mnemonic-key \
             --tag mk-cli-v0.2.0 \
-            --bin mk
+            mk-cli
 
       - name: clone-upstream-mnemonic-toolkit
         run: |
