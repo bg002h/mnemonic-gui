@@ -34,8 +34,12 @@ Tabs for CLIs not present on `$PATH` are greyed at launch.
 
 ## Design
 
-See `/home/bcg/.claude/plans/declarative-tumbling-shell.md` (top-level plan,
-3 sections: brainstorm / SPEC / IMPL_PLAN; all 0C/0I converged 2026-05-12).
+Architecture: schema-driven generic form overlay; one bespoke `SlotEditor`
+composite widget for the `--slot @N.<subkey>=<value>` repeating grammar.
+10-phase build plan with per-phase TDD + architect-reviewer-until-0C/0I
+discipline (brainstorm / SPEC / IMPL_PLAN converged 2026-05-12).
+
+Per-phase build logs live under [`design/agent-reports/`](design/agent-reports/).
 
 ## License
 
