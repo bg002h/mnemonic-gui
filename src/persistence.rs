@@ -115,13 +115,20 @@ pub fn redact_persisted_state(state: &PersistedState) -> PersistedState {
 
 /// Serialize + write the redacted state to `path`. The on-disk JSON
 /// NEVER contains secret-class entries.
+///
+/// R1 I-1 fold: `schema_version` is stamped to `SCHEMA_VERSION`
+/// unconditionally regardless of the caller-supplied value. This makes
+/// `save()` self-contained — callers cannot accidentally write a stale
+/// or zero version (which would cause the next `load()` to rename the
+/// file to `.bak` and silently discard state on cold start).
 pub fn save(state: &PersistedState, path: &Path) -> std::io::Result<()> {
     if let Some(parent) = path.parent() {
         if !parent.as_os_str().is_empty() {
             fs::create_dir_all(parent)?;
         }
     }
-    let redacted = redact_persisted_state(state);
+    let mut redacted = redact_persisted_state(state);
+    redacted.schema_version = SCHEMA_VERSION;
     let body = serde_json::to_string_pretty(&redacted)
         .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidData, e))?;
     fs::write(path, body)

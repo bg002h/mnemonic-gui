@@ -162,12 +162,26 @@ fn cell_2_never_persist_audit_strips_all_secret_flags() {
             on_disk
         );
     }
-    // Slot subkeys serialize as PascalCase variant names ("Phrase", "Wif")
-    // since SlotSubkey derives Serialize without a rename. Check both
-    // the snake_case as_str() form AND the PascalCase variant form.
+    // R1 I-2 fold: `SlotSubkey` derives Serialize WITHOUT
+    // #[serde(rename_all = "snake_case")], so serde emits PascalCase
+    // variant names. The lowercase as_str() form (defence-in-depth)
+    // passes vacuously because serde never produces it; the load-bearing
+    // check is the PascalCase form, which exercises the actual
+    // serialization path.
+    const SECRET_SUBKEY_PASCAL: &[&str] = &["Phrase", "Entropy", "Wif", "Xprv"];
+    for name in SECRET_SUBKEY_PASCAL {
+        let quoted = format!("\"{}\"", name);
+        assert!(
+            !on_disk.contains(&quoted),
+            "secret slot subkey {} (PascalCase) found in on-disk JSON — \
+             redact_for_persistence is broken",
+            quoted
+        );
+    }
+    // Lowercase form retained as defence-in-depth: if a future
+    // #[serde(rename_all = "snake_case")] annotation lands, this guard
+    // catches the migration without rewriting the test.
     for subkey in SECRET_SLOT_SUBKEYS {
-        // The as_str() form ("phrase", "wif", etc.) shouldn't appear
-        // either (defence in depth — values shouldn't be on disk).
         let quoted_lc = format!("\"{}\"", subkey);
         assert!(
             !on_disk.contains(&quoted_lc),
@@ -320,6 +334,27 @@ fn cell_9_redact_persisted_state_idempotent() {
     assert_eq!(
         serde_json::to_string(&once).unwrap(),
         serde_json::to_string(&twice).unwrap()
+    );
+}
+
+#[test]
+fn cell_11_save_stamps_current_schema_version_even_with_default_input() {
+    // R1 I-1 fold regression guard. PersistedState::default() has
+    // schema_version: 0; pre-fold save() would write 0 → load() rename
+    // to .bak + None → state lost on every cold start.
+    let dir = tempfile::TempDir::new().unwrap();
+    let path = dir.path().join("state.json");
+    let default_state = PersistedState::default();
+    assert_eq!(default_state.schema_version, 0, "default must be 0");
+    save(&default_state, &path).unwrap();
+
+    // Reload and verify schema_version got stamped to SCHEMA_VERSION.
+    let loaded = load(&path).expect("default round-trip must succeed");
+    assert_eq!(loaded.schema_version, SCHEMA_VERSION);
+    let bak = path.with_extension("json.bak");
+    assert!(
+        !bak.exists(),
+        "no .bak should be created — save() stamped current version"
     );
 }
 
