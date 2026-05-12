@@ -246,6 +246,31 @@ fn cell_11_export_wallet_template_conflicts_descriptor() {
     );
 }
 
+/// Phase 5 R1 I-1 fold: export-wallet runtime pre-check at
+/// `export_wallet.rs:215-219` rejects with BadInput when neither
+/// `--template` nor `--descriptor` is supplied. The GUI conditional marks
+/// both as Required to surface this pre-Run rather than after a
+/// surprise non-zero exit. This is the only runtime-pre-check constraint
+/// folded into Phase 5; if more similar pre-checks surface in future
+/// upstream versions, model them via the same pattern.
+#[test]
+fn cell_12_export_wallet_template_or_descriptor_required_when_neither_set() {
+    let empty = FormState::default();
+    let vis = run_conditional("export-wallet", &empty);
+    assert_eq!(vis_of(&vis, "--template"), Visibility::Required);
+    assert_eq!(vis_of(&vis, "--descriptor"), Visibility::Required);
+
+    // With either populated, neither is Required (the runtime check passes).
+    let with_template = FormState::from_pairs(vec![(
+        "--template",
+        FlagValue::Dropdown("bip84".into()),
+    )]);
+    let vis = run_conditional("export-wallet", &with_template);
+    assert_ne!(vis_of(&vis, "--template"), Visibility::Required);
+    // --descriptor is Disabled (via cell_11 path), not Required.
+    assert_eq!(vis_of(&vis, "--descriptor"), Visibility::Disabled);
+}
+
 // ─── coverage guard ──────────────────────────────────────────────────────
 
 #[test]

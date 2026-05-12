@@ -102,8 +102,15 @@ pub fn convert(state: &FormState) -> FlagVisibility {
 
 /// `export-wallet` subcommand conditionals.
 ///
-/// Upstream (`crates/mnemonic-toolkit/src/cmd/export_wallet.rs`):
-///   :43 `--template` conflicts_with = "descriptor"
+/// Upstream:
+///   `cmd/export_wallet.rs:43`      — `--template conflicts_with = "descriptor"`
+///   `cmd/export_wallet.rs:215-219` — runtime pre-check: neither flag set → BadInput
+///                                    "export-wallet requires either --template or --descriptor"
+///
+/// Phase 5 R1 I-1 fold: model BOTH the clap conflicts_with AND the runtime
+/// required-one-of pre-check, since the upstream help text already labels
+/// the pair "Mutually-required-one-of." (Same posture would apply to any
+/// similar runtime pre-check in a future subcommand.)
 pub fn export_wallet(state: &FormState) -> FlagVisibility {
     let mut vis = Vec::new();
     let has_descriptor = state.has_value("--descriptor");
@@ -114,6 +121,13 @@ pub fn export_wallet(state: &FormState) -> FlagVisibility {
     }
     if has_template {
         vis.push(("--descriptor", Visibility::Disabled));
+    }
+    // Runtime pre-check (export_wallet.rs:215-219): if neither is set,
+    // upstream refuses with BadInput. Mark both as Required so the form
+    // signals the constraint pre-Run.
+    if !has_descriptor && !has_template {
+        vis.push(("--template", Visibility::Required));
+        vis.push(("--descriptor", Visibility::Required));
     }
     vis
 }
