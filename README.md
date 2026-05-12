@@ -34,6 +34,20 @@ cargo install --locked --git https://github.com/bg002h/mnemonic-key         --ta
 
 Tabs for CLIs not present on `$PATH` are greyed at launch.
 
+## Screenshots
+
+`mnemonic bundle` (the seed-engraving primary flow):
+
+![mnemonic bundle](screenshots/01-mnemonic-bundle.png)
+
+`mnemonic export-wallet` — Sparrow multisig descriptor with 3 cosigner xpubs in the SlotEditor:
+
+![mnemonic export-wallet](screenshots/02-mnemonic-export-wallet.png)
+
+`mnemonic convert` — `--from <node>=<value>` composite widget showing the BIP-39 phrase → entropy conversion:
+
+![mnemonic convert](screenshots/03-mnemonic-convert.png)
+
 ## First launch (unsigned binaries)
 
 v0.1.0 binaries are not code-signed; first-launch instructions:

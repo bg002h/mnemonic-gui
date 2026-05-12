@@ -13,7 +13,7 @@
 use crate::path_detect::{self, Detected};
 
 /// One of the four constellation CLIs.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum CliTab {
     Mnemonic,
     Md,
