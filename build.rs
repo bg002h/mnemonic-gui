@@ -71,6 +71,14 @@ fn main() {
         return;
     }
 
+    // R1 C-1 fold: register the resolved upstream source files as rerun
+    // triggers. Without this, a developer who edits convert.rs or
+    // slot_input.rs in their local MNEMONIC_GUI_UPSTREAM_ROOT checkout
+    // would NOT trigger build.rs to regenerate secrets_generated.rs;
+    // cargo build would silently ship stale SECRET_* constants.
+    println!("cargo:rerun-if-changed={}", convert_path.display());
+    println!("cargo:rerun-if-changed={}", slot_input_path.display());
+
     let secret_nodes =
         extract_secret_variants(&convert_path, "NodeType").expect("extract NodeType");
     let secret_subkeys =

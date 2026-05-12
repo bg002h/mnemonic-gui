@@ -170,9 +170,11 @@ mod source_audit {
                 for m in &imp.items {
                     if let syn::ImplItem::Fn(f) = m {
                         if f.sig.ident == "is_secret_bearing" {
-                            variants = extract_secret_variants_from_block(&f.block);
+                            variants =
+                                extract_secret_variants_from_block_with_type(&f.block, target_type);
                         } else if f.sig.ident == "as_str" {
-                            as_str_map = extract_as_str_map_from_block(&f.block);
+                            as_str_map =
+                                extract_as_str_map_from_block_with_type(&f.block, target_type);
                         }
                     }
                 }
@@ -190,7 +192,26 @@ mod source_audit {
             .collect()
     }
 
-    fn extract_secret_variants_from_block(block: &syn::Block) -> Vec<syn::Ident> {
+    /// R1 I-1 fold: thread target_type through to mirror build.rs's
+    /// two-segment guard (Self::Variant or target_type::Variant only).
+    fn extract_secret_variants_from_block_with_type(
+        block: &syn::Block,
+        target_type: &str,
+    ) -> Vec<syn::Ident> {
+        extract_secret_variants_from_block_filtered(block, |path: &syn::Path| {
+            two_segment_guard(path, target_type)
+        })
+    }
+
+    fn two_segment_guard(path: &syn::Path, target_type: &str) -> bool {
+        let segs: Vec<_> = path.segments.iter().map(|s| s.ident.to_string()).collect();
+        segs.len() == 2 && (segs[0] == target_type || segs[0] == "Self")
+    }
+
+    fn extract_secret_variants_from_block_filtered(
+        block: &syn::Block,
+        accept: impl Fn(&syn::Path) -> bool + Copy,
+    ) -> Vec<syn::Ident> {
         use syn::{Expr, Pat, Stmt};
         let mut out: Vec<syn::Ident> = Vec::new();
         for stmt in &block.stmts {
@@ -208,7 +229,7 @@ mod source_audit {
                             Pat::parse_multi_with_leading_vert,
                             pat_str,
                         ) {
-                            collect_variants(&pat, &mut out);
+                            collect_variants_filtered(&pat, accept, &mut out);
                         }
                     }
                     continue;
@@ -222,7 +243,7 @@ mod source_audit {
                     }) = &*arm.body
                     {
                         if b.value() {
-                            collect_variants(&arm.pat, &mut out);
+                            collect_variants_filtered(&arm.pat, accept, &mut out);
                         }
                     }
                 }
@@ -231,7 +252,10 @@ mod source_audit {
         out
     }
 
-    fn extract_as_str_map_from_block(block: &syn::Block) -> Vec<(syn::Ident, String)> {
+    fn extract_as_str_map_from_block_with_type(
+        block: &syn::Block,
+        target_type: &str,
+    ) -> Vec<(syn::Ident, String)> {
         use syn::{Expr, Stmt};
         let mut out = Vec::new();
         for stmt in &block.stmts {
@@ -247,7 +271,11 @@ mod source_audit {
                     _ => continue,
                 };
                 let mut vs: Vec<syn::Ident> = Vec::new();
-                collect_variants(&arm.pat, &mut vs);
+                collect_variants_filtered(
+                    &arm.pat,
+                    |p: &syn::Path| two_segment_guard(p, target_type),
+                    &mut vs,
+                );
                 for v in vs {
                     out.push((v, lit.clone()));
                 }
@@ -256,25 +284,36 @@ mod source_audit {
         out
     }
 
-    fn collect_variants(pat: &syn::Pat, out: &mut Vec<syn::Ident>) {
+    /// R1 I-1 fold: filter-aware variant collector. Mirrors
+    /// `build.rs::extract_variant_ident`'s two-segment guard so the
+    /// test-side audit accepts exactly the same patterns build.rs does.
+    fn collect_variants_filtered(
+        pat: &syn::Pat,
+        accept: impl Fn(&syn::Path) -> bool + Copy,
+        out: &mut Vec<syn::Ident>,
+    ) {
         use syn::Pat;
         match pat {
             Pat::Or(or_pat) => {
                 for p in &or_pat.cases {
-                    collect_variants(p, out);
+                    collect_variants_filtered(p, accept, out);
                 }
             }
             Pat::Path(pp) => {
-                if let Some(last) = pp.path.segments.last() {
-                    if !out.iter().any(|i| i == &last.ident) {
-                        out.push(last.ident.clone());
+                if accept(&pp.path) {
+                    if let Some(last) = pp.path.segments.last() {
+                        if !out.iter().any(|i| i == &last.ident) {
+                            out.push(last.ident.clone());
+                        }
                     }
                 }
             }
             Pat::TupleStruct(ts) => {
-                if let Some(last) = ts.path.segments.last() {
-                    if !out.iter().any(|i| i == &last.ident) {
-                        out.push(last.ident.clone());
+                if accept(&ts.path) {
+                    if let Some(last) = ts.path.segments.last() {
+                        if !out.iter().any(|i| i == &last.ident) {
+                            out.push(last.ident.clone());
+                        }
                     }
                 }
             }
