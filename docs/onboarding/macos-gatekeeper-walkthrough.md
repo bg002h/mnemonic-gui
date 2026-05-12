@@ -1,9 +1,9 @@
 # macOS Gatekeeper walkthrough — first-launch instructions
 
 `mnemonic-gui` v0.1.0 binaries are NOT signed with an Apple Developer ID
-(code-signing is deferred to v0.2 per FOLLOWUPS
-`gui-secret-buffer-allocator-residue` and §B.14). On first launch, macOS
-Gatekeeper will refuse to open the binary with a message like:
+(code-signing is deferred to v0.2 per `FOLLOWUPS.md` slug
+`gui-code-signing-mac-developer-id` and SPEC §B.14). On first launch,
+macOS Gatekeeper will refuse to open the binary with a message like:
 
 > "mnemonic-gui" cannot be opened because the developer cannot be verified.
 

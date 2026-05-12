@@ -60,6 +60,14 @@ companion `mnemonic-gui` PR that bumps the schema + the
 
 Named for explicit closure per SPEC §14:
 
+- `gui-code-signing-mac-developer-id` — v0.1.0 ships unsigned macOS
+  binaries; users need to right-click → Open or `xattr -d com.apple.quarantine`
+  on first launch (see `docs/onboarding/macos-gatekeeper-walkthrough.md`).
+  v0.2 plan: paid Apple Developer ID + notarization roundtrip.
+- `gui-code-signing-windows` — v0.1.0 ships unsigned Windows binaries;
+  users need to click SmartScreen "More info → Run anyway" on first launch
+  (see `docs/onboarding/windows-smartscreen-walkthrough.md`). v0.2 plan:
+  Authenticode certificate (EV variant for SmartScreen reputation).
 - `gui-secret-buffer-allocator-residue` — `SecretBuffer` is best-effort
   on `String`; full `Zeroizing<Vec<u8>>` requires custom widget +
   manual buffer management. Phase 7 ships v0.1 zeroize on String.
@@ -76,6 +84,19 @@ Named for explicit closure per SPEC §14:
 - 15 subcommands not in v0.1 coverage (`md encode/decode/verify/...`,
   `ms encode/decode/...`, `mk encode/decode/...`) — Section A coverage
   table v0.1 scope.
+
+## Process notes
+
+### v0.2: enforce PR-CI gate before tag-push
+
+**Phase 10 R1 I-2 finding (confidence 85).** v0.1.0 was tagged via direct
+push to master on a fresh repo, bypassing the `pull_request` build.yml
+trigger that SPEC §B.12 R1 I-3 fold explicitly required ("PR must pass
+full matrix BEFORE tag"). For v0.1.0 on a fresh repo with no prior master
+history, this was mechanically the only path. For v0.2 and beyond — when
+master has history and PRs are the normal flow — feature work must land
+via PR with full 5-target CI green before tagging. This entry exists so
+the v0.2 release prep doesn't repeat the v0.1 deviation.
 
 ## Resolved
 
