@@ -116,24 +116,32 @@ impl MnemonicGuiApp {
         // so the eframe shutdown path runs (on_exit zeroize sweep,
         // window-close confirmation if any). If the event loop is
         // unresponsive, escalates to process::exit after a 3 s grace.
-        let ctx_sig = cc.egui_ctx.clone();
-        std::thread::Builder::new()
-            .name("signal-handler".into())
-            .spawn(move || {
-                let mut signals = signal_hook::iterator::Signals::new([
-                    signal_hook::consts::SIGINT,
-                    signal_hook::consts::SIGTERM,
-                ])
-                .expect("install signal-hook handlers");
-                for sig in signals.forever() {
-                    tracing::info!("received signal {sig}; requesting clean shutdown");
-                    ctx_sig.send_viewport_cmd(egui::ViewportCommand::Close);
-                    std::thread::sleep(std::time::Duration::from_secs(3));
-                    tracing::warn!("clean shutdown timed out; exiting via process::exit");
-                    std::process::exit(130);
-                }
-            })
-            .expect("spawn signal-handler thread");
+        // Unix-only: signal-hook's iterator API is gated on
+        // cfg(not(windows)). Windows uses a different Ctrl-C handler
+        // model (Console CtrlC handler); v0.2 candidate to add via
+        // the `ctrlc` crate if a user reports wanting graceful Ctrl-C
+        // on Windows.
+        #[cfg(unix)]
+        {
+            let ctx_sig = cc.egui_ctx.clone();
+            std::thread::Builder::new()
+                .name("signal-handler".into())
+                .spawn(move || {
+                    let mut signals = signal_hook::iterator::Signals::new([
+                        signal_hook::consts::SIGINT,
+                        signal_hook::consts::SIGTERM,
+                    ])
+                    .expect("install signal-hook handlers");
+                    for sig in signals.forever() {
+                        tracing::info!("received signal {sig}; requesting clean shutdown");
+                        ctx_sig.send_viewport_cmd(egui::ViewportCommand::Close);
+                        std::thread::sleep(std::time::Duration::from_secs(3));
+                        tracing::warn!("clean shutdown timed out; exiting via process::exit");
+                        std::process::exit(130);
+                    }
+                })
+                .expect("spawn signal-handler thread");
+        }
 
         let mut active_subcommand = BTreeMap::new();
         active_subcommand.insert(CliTab::Mnemonic, "bundle".to_string());

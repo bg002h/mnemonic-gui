@@ -19,6 +19,8 @@ tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 zeroize = "1"
 shlex = "1"
+
+[target.'cfg(unix)'.dependencies]
 signal-hook = "0.3"
 
 [dev-dependencies]
