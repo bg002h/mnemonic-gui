@@ -189,7 +189,7 @@ fn secret_flag_names_include_all_passphrase_class() {
 
 #[test]
 fn secret_buffer_zeroize_overwrites_bytes() {
-    let mut buf = SecretBuffer::from_str("hunter2");
+    let mut buf = SecretBuffer::from_text("hunter2");
     use zeroize::Zeroize;
     buf.zeroize();
     // After zeroize, the visible string is empty (String::zeroize clears

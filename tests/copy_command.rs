@@ -243,7 +243,7 @@ fn assert_cmd_roundtrip(input: &str) {
         .map(|s| {
             // Reuse the actual cmd_quote via render_copy_command on a
             // single-element vec, then strip the wrapping.
-            render_copy_command(&[s.clone()], ShellFlavor::WindowsCmd)
+            render_copy_command(std::slice::from_ref(s), ShellFlavor::WindowsCmd)
         })
         .collect();
     let line = rendered_parts.join(" ");

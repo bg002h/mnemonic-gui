@@ -114,7 +114,7 @@ impl SecretBuffer {
         Self::default()
     }
 
-    pub fn from_str(s: &str) -> Self {
+    pub fn from_text(s: &str) -> Self {
         Self(s.to_string())
     }
 

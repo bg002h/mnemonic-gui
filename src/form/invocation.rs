@@ -81,22 +81,20 @@ pub fn assemble_argv(
 
 fn emit_one(flag: &FlagSchema, value: &FlagValue, argv: &mut Vec<String>) {
     match (&flag.kind, value) {
-        (FlagKind::Text, FlagValue::Text(v)) => {
-            if !v.is_empty() {
+        (FlagKind::Text, FlagValue::Text(v))
+            if !v.is_empty() => {
                 argv.push(flag.name.to_string());
                 argv.push(v.clone());
             }
-        }
         (FlagKind::Number { .. }, FlagValue::Number(n)) => {
             argv.push(flag.name.to_string());
             argv.push(n.to_string());
         }
-        (FlagKind::Dropdown(_), FlagValue::Dropdown(v)) => {
-            if !v.is_empty() {
+        (FlagKind::Dropdown(_), FlagValue::Dropdown(v))
+            if !v.is_empty() => {
                 argv.push(flag.name.to_string());
                 argv.push(v.clone());
             }
-        }
         (FlagKind::Boolean, FlagValue::Boolean(true)) => {
             argv.push(flag.name.to_string());
         }
@@ -117,15 +115,14 @@ fn emit_one(flag: &FlagSchema, value: &FlagValue, argv: &mut Vec<String>) {
         (
             FlagKind::NodeValueComposite(_),
             FlagValue::NodeValueComposite { node, value },
-        ) => {
+        )
             // SPEC §6.7 R3 I-3 fold: empty value → omit (matches Text/Path
             // empty-value rule and avoids upstream's "value is empty"
             // rejection from `parse_from_input` at convert.rs:128-132).
-            if !value.is_empty() {
+            if !value.is_empty() => {
                 argv.push(flag.name.to_string());
                 argv.push(format!("{}={}", node, value));
             }
-        }
         (FlagKind::TaggedOrIndexed(_), FlagValue::TaggedOrIndexed(tv)) => {
             argv.push(flag.name.to_string());
             argv.push(match tv {
@@ -191,16 +188,16 @@ fn posix_quote(s: &str) -> String {
 /// Implements Daniel Colascione's canonical `ArgvQuote` rules from the
 /// Microsoft "Everyone quotes command line arguments the wrong way" post:
 ///
-///   1. Wrap the token in `"…"`.
-///   2. For each run of `n` consecutive `\`:
-///      a. If followed by a literal `"` (interior): emit `2n+1` `\` + `"`.
-///         The odd-count rule produces a literal `"` and preserves
-///         in-quotes mode.
-///      b. If followed by end-of-string (i.e. before the close-`"`): emit
-///         `2n` `\`. The even-count rule produces `n` literal `\` and
-///         toggles in-quotes mode (closing the wrapper).
-///      c. Otherwise (interior): emit `n` `\` (pass-through).
-///   3. A bare `"` (no preceding `\`) is encoded as `\"` (n=0 → 1 `\`).
+/// 1. Wrap the token in `"…"`.
+/// 2. For each run of `n` consecutive `\` followed by a literal `"`
+///    (interior): emit `2n+1` `\` + `"`. The odd-count rule produces a
+///    literal `"` and preserves in-quotes mode.
+/// 3. For each run of `n` consecutive `\` at end-of-string (before the
+///    close-`"`): emit `2n` `\`. The even-count rule produces `n`
+///    literal `\` and toggles in-quotes mode (closing the wrapper).
+/// 4. For each interior run of `n` consecutive `\` (not followed by a
+///    `"`): emit `n` `\` (pass-through).
+/// 5. A bare `"` (no preceding `\`) is encoded as `\"` (n=0 → 1 `\`).
 ///
 /// R1 I-1 / R2 C-1 fold: prior implementations used `""` for embedded
 /// `"`, which `CommandLineToArgvW` does NOT recognize as a literal-`"`

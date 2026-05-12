@@ -299,24 +299,22 @@ mod source_audit {
                     collect_variants_filtered(p, accept, out);
                 }
             }
-            Pat::Path(pp) => {
-                if accept(&pp.path) {
+            Pat::Path(pp)
+                if accept(&pp.path) => {
                     if let Some(last) = pp.path.segments.last() {
                         if !out.iter().any(|i| i == &last.ident) {
                             out.push(last.ident.clone());
                         }
                     }
                 }
-            }
-            Pat::TupleStruct(ts) => {
-                if accept(&ts.path) {
+            Pat::TupleStruct(ts)
+                if accept(&ts.path) => {
                     if let Some(last) = ts.path.segments.last() {
                         if !out.iter().any(|i| i == &last.ident) {
                             out.push(last.ident.clone());
                         }
                     }
                 }
-            }
             _ => {}
         }
     }
