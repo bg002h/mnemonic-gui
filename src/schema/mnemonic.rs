@@ -56,28 +56,54 @@ const EXPORT_FORMATS: &[&str] = &[
     "green",
 ];
 
+// R1 C-2 fold: NODE_TYPES exactly mirrors upstream
+// `NodeType::as_str()` ordering in
+// `crates/mnemonic-toolkit/src/cmd/convert.rs:48-64`. Drift here is invisible
+// to the schema-mirror flag-name test, so we hand-pin against the upstream
+// source. Master xpub / fingerprint plumbing for cosigner identification
+// lives in SlotSubkey (slot_input.rs), NOT NodeType — `--from`/`--to`
+// never see those tokens.
 const NODE_TYPES: &[&str] = &[
     "phrase",
     "entropy",
     "xpub",
-    "master_xpub",
     "xprv",
     "wif",
+    "fingerprint",
+    "path",
     "ms1",
     "mk1",
-    "md1",
     "bip38",
+    "minikey",
     "electrum-phrase",
     "address",
-    "fingerprint",
 ];
 
-const BIP85_APPLICATIONS: &[&str] =
-    &["bip39", "wif", "xprv", "hd-seed", "rsa", "rsa-gpg", "dice"];
+// R1 C-extra fold (caught during R1 verification): BIP-85 applications
+// exactly mirror upstream `cmd::derive_child.rs:121-176` match-arm tokens
+// plus the rsa/rsa-gpg refusal arm at line 117. `dice` IS parse-valid
+// upstream despite the --help text labeling it "out-of-scope" — the GUI
+// follows the parser, not the help-text prose.
+const BIP85_APPLICATIONS: &[&str] = &[
+    "bip39",
+    "hd-seed",
+    "xprv",
+    "hex",
+    "password-base64",
+    "password-base85",
+    "dice",
+    "rsa",
+    "rsa-gpg",
+];
 
 const SCRIPT_TYPES: &[&str] = &["p2wpkh", "p2sh-p2wpkh", "p2tr"];
 
-const ELECTRUM_VERSIONS: &[&str] = &["standard", "segwit", "2fa", "2fa-segwit"];
+// R1 C-1 fold: upstream `parse_electrum_version_arg` (convert.rs:272-286)
+// accepts ONLY "standard" and "segwit". "standard-2fa" / "segwit-2fa" /
+// "101" / "102" are explicitly REFUSED with a specific 2FA-unsupported
+// error. Other strings produce a generic "must be one of" error. So the
+// GUI dropdown must offer only the two accepted tokens.
+const ELECTRUM_VERSIONS: &[&str] = &["standard", "segwit"];
 
 // ─── bundle ──────────────────────────────────────────────────────────────
 
@@ -296,8 +322,15 @@ const VERIFY_BUNDLE_FLAGS: &[FlagSchema] = &[
     },
     FlagSchema {
         name: "--bundle-json",
+        // R1 C-3 fold: upstream `VerifyBundleArgs::bundle_json` is
+        // `Option<PathBuf>` and `load_bundle_json_into_args`
+        // (verify_bundle.rs:526) calls `std::fs::read_to_string(path)`
+        // unconditionally — there is no `-` → stdin code path. Setting
+        // `stdio_sentinel: false` so the emitter cannot generate the
+        // upstream-rejected `--bundle-json -` argv. Future stdin support
+        // is an upstream feature first; FOLLOWUPS cross-cite at that time.
         kind: FlagKind::Path {
-            stdio_sentinel: true,
+            stdio_sentinel: false,
         },
         required: false,
         repeating: false,
@@ -731,8 +764,17 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
     },
 ];
 
+// R1 I-1 fold: `pinned_version` MUST match the literal `--version` output
+// string that the runtime soft-check (SPEC §11) reads at GUI launch. The
+// upstream `mnemonic-toolkit-v0.8.1` git tag did NOT bump the crate
+// package version from `0.8.0`, so `mnemonic --version` emits
+// `"mnemonic 0.8.0"`. The git-tag string remains the source of truth for
+// CI install commands and lives in `pinned-upstream.toml`'s `[mnemonic].tag`
+// field; `pinned_version` here is the comparison string for the runtime
+// banner. Phase 9's `schema_check.rs` reads BOTH: tag for CI install,
+// `pinned_version` for runtime soft-check.
 pub const SCHEMA: Schema = Schema {
     cli_name: "mnemonic",
-    pinned_version: "mnemonic-toolkit-v0.8.1",
+    pinned_version: "mnemonic 0.8.0",
     subcommands: SUBCOMMANDS,
 };

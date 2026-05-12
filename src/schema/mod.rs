@@ -13,8 +13,11 @@ pub mod ms;
 pub struct Schema {
     /// Binary name (`"mnemonic"`, `"md"`, `"ms"`, `"mk"`).
     pub cli_name: &'static str,
-    /// Pinned upstream tag (e.g. `"mnemonic-toolkit-v0.8.1"`). Source of
-    /// truth for the schema-mirror CI gate (SPEC §11).
+    /// Pinned `--version` output string that the runtime soft-check
+    /// (SPEC §11) compares against `<cli> --version`. Example for
+    /// mnemonic-toolkit-v0.8.1: `"mnemonic 0.8.0"` (the v0.8.1 git tag
+    /// did NOT bump the crate package version). The git-tag string for CI
+    /// install lives separately in `pinned-upstream.toml`. R1 I-1 fold.
     pub pinned_version: &'static str,
     /// All subcommands the GUI surfaces. Subset of upstream — v0.1 covers
     /// the 5 most-used per Section A coverage table.
