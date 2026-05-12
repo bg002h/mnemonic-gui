@@ -73,9 +73,14 @@ fn cell_2_mnemonic_only_others_missing() {
     make_executable(dir.path(), "mnemonic");
     let path_env = path_env_for(&[dir.path()]);
 
-    matches!(
-        detect_in("mnemonic", Some(path_env.clone()), None),
-        Detected::Found(_)
+    // R1 I-1 fold: bare `matches!` is a no-op expression. Wrap in
+    // `assert!` so the positive-arm check actually fires.
+    assert!(
+        matches!(
+            detect_in("mnemonic", Some(path_env.clone()), None),
+            Detected::Found(_)
+        ),
+        "mnemonic must be Found when present in PATH"
     );
     for name in ["md", "ms", "mk"] {
         assert_eq!(
@@ -171,5 +176,42 @@ fn cell_7_empty_or_missing_path_yields_notfound() {
     assert_eq!(
         detect_in("mnemonic", Some(OsString::from("")), None),
         Detected::NotFound
+    );
+}
+
+// R1 I-3 fold: AppState data-layer wiring tests. The eframe-side
+// rendering is Phase 7+, but the data layer (per-CLI Detected, tab
+// availability bool, tooltip text) ships in Phase 6.
+
+#[test]
+fn cell_8_app_state_tab_available_reflects_detected() {
+    use mnemonic_gui::app::{AppState, CliTab};
+    use mnemonic_gui::path_detect::Detected;
+    let state = AppState {
+        mnemonic_detect: Detected::Found(PathBuf::from("/usr/bin/mnemonic")),
+        md_detect: Detected::NotFound,
+        ms_detect: Detected::NotFound,
+        mk_detect: Detected::Found(PathBuf::from("/usr/bin/mk")),
+        active_tab: CliTab::Mnemonic,
+    };
+    assert!(state.tab_available(CliTab::Mnemonic));
+    assert!(!state.tab_available(CliTab::Md));
+    assert!(!state.tab_available(CliTab::Ms));
+    assert!(state.tab_available(CliTab::Mk));
+}
+
+#[test]
+fn cell_9_missing_binary_tooltip_byte_exact_per_spec_8() {
+    use mnemonic_gui::app::{missing_binary_tooltip, CliTab};
+    let t = missing_binary_tooltip(CliTab::Md);
+    assert!(
+        t.contains("`md` binary not found on $PATH."),
+        "tooltip must name the missing CLI: {}",
+        t
+    );
+    assert!(
+        t.contains("cargo install --locked --git"),
+        "tooltip must include install instructions: {}",
+        t
     );
 }
