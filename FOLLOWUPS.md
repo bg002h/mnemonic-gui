@@ -100,4 +100,49 @@ the v0.2 release prep doesn't repeat the v0.1 deviation.
 
 ## Resolved
 
-(empty — pre-v0.1.0)
+### gui-glow-wayland-loop-broken (resolved in v0.1.1 by renderer swap)
+
+**Symptom:** With `eframe = "0.29"` + `egui_glow` renderer on KDE/KWin
+Wayland, the eframe event loop went stuck after the first 1-2 paint
+cycles. Cross-thread `Context::request_repaint()` and
+`Context::send_viewport_cmd(ViewportCommand::Close)` calls were silently
+dropped — they didn't wake winit's event loop. Symptoms observed during
+v0.1.1 dev:
+
+- `update()` called 2 times at startup, never again over 90+ seconds of
+  runtime (despite a background keepalive thread calling
+  `request_repaint()` at perfect 1 Hz cadence).
+- KWin sent `xdg_toplevel.close` via the wayland protocol after a
+  Scripting `closeWindow()` call — the GUI process did not process the
+  close, did not call `on_exit()`, and stayed alive until SIGKILL.
+- Signal-hook handler thread sent `ViewportCommand::Close` on SIGINT —
+  ignored the same way; only a `process::exit(130)` fallback after 3 s
+  could terminate the process.
+- KDE's title bar marked the window "Not Responding" because the
+  surface stopped committing frames between input events.
+
+**Root cause:** Bug in the `egui_glow`/`egui_winit` wayland integration's
+cross-thread wakeup. Verified across `eframe = "0.29"`, `"0.30"`, and
+`"0.31"` — same broken behavior in all three.
+
+**Fix:** Switched eframe to the `wgpu` renderer (Vulkan via Mesa) by
+configuring `eframe = { version = "0.31", default-features = false,
+features = ["wgpu", "default_fonts", "wayland", "x11"] }` in Cargo.toml.
+With wgpu:
+
+- `update()` runs at the keepalive's 1 Hz cadence (CPU still ~0 % at idle)
+- Cross-thread `request_repaint()` works
+- Cross-thread `send_viewport_cmd(Close)` works
+- SIGINT/SIGTERM → handler → `ViewportCommand::Close` → `on_exit()`
+  fires cleanly within ~2.5 s (well under the 3 s timeout grace)
+
+A residual cosmetic issue: `egui_wgpu` logs `Dropped frame with error:
+A timeout was encountered while trying to acquire the next frame` at the
+1 Hz keepalive cadence. These are suppressed at the default WARN level
+via the `init_tracing` filter (`wgpu_hal=error,egui_wgpu=error`); only
+visible under `--debug` / `RUST_LOG=info`. They don't affect
+functionality.
+
+**Files changed in v0.1.1:** `Cargo.toml` (eframe feature flags +
+signal-hook), `src/main.rs` (signal-hook handler, keepalive thread,
+on_exit signature for wgpu renderer, tracing filter for wgpu warnings).

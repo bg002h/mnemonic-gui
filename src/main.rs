@@ -37,7 +37,6 @@ fn main() -> eframe::Result<()> {
     let native_options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
             .with_inner_size([920.0, 720.0])
-            .with_position([100.0, 100.0])
             .with_title("mnemonic-gui"),
         ..Default::default()
     };
@@ -49,9 +48,16 @@ fn main() -> eframe::Result<()> {
 }
 
 fn init_tracing(debug_flag: bool) {
-    let default_level = if debug_flag { "debug" } else { "warn" };
+    // Default filter suppresses noisy wgpu swap-chain warnings that
+    // occur during idle 1 Hz keepalive repaints. RUST_LOG env-var
+    // overrides everything.
+    let default_filter = if debug_flag {
+        "debug"
+    } else {
+        "warn,wgpu_hal=error,wgpu_core=error,egui_wgpu=error,naga=error"
+    };
     let filter = EnvFilter::try_from_default_env()
-        .unwrap_or_else(|_| EnvFilter::new(default_level));
+        .unwrap_or_else(|_| EnvFilter::new(default_filter));
     let _ = tracing_subscriber::fmt()
         .with_env_filter(filter)
         .with_writer(std::io::stderr)
@@ -78,7 +84,57 @@ struct MnemonicGuiApp {
 }
 
 impl MnemonicGuiApp {
-    fn new(_cc: &eframe::CreationContext<'_>) -> Self {
+    fn new(cc: &eframe::CreationContext<'_>) -> Self {
+        // Wayland compositor liveness keepalive. egui's reactive paint loop
+        // only wakes `update()` on input events, so an idle window can go
+        // many seconds between Wayland surface commits — long enough that
+        // KDE/KWin flags the client "Not Responding" in the title bar.
+        // The egui-documented pattern is to call `request_repaint()` from
+        // ANOTHER THREAD (inline calls within `update()` are no-ops because
+        // update is itself the response to an existing repaint request).
+        // 1 Hz is plenty to satisfy KWin's multi-second threshold; idle
+        // CPU stays near zero because each woken frame does no real GPU
+        // work when state is unchanged.
+        // Wayland compositor keepalive. egui's reactive paint loop
+        // doesn't tick when idle, so KDE/KWin marks idle clients
+        // "Not Responding" in the title bar. A 1 Hz request_repaint() from
+        // a background thread keeps the surface healthy; egui's
+        // reactive mode skips actual GPU work on unchanged frames, so
+        // idle CPU stays at ~0%. Note: this only works with the wgpu
+        // renderer; egui_glow on Wayland silently drops cross-thread
+        // wake events (see FOLLOWUPS `gui-glow-wayland-loop-broken`).
+        let ctx_keepalive = cc.egui_ctx.clone();
+        std::thread::Builder::new()
+            .name("wayland-keepalive".into())
+            .spawn(move || loop {
+                std::thread::sleep(std::time::Duration::from_secs(1));
+                ctx_keepalive.request_repaint();
+            })
+            .expect("spawn wayland-keepalive thread");
+
+        // SIGINT / SIGTERM handler. Routes through ViewportCommand::Close
+        // so the eframe shutdown path runs (on_exit zeroize sweep,
+        // window-close confirmation if any). If the event loop is
+        // unresponsive, escalates to process::exit after a 3 s grace.
+        let ctx_sig = cc.egui_ctx.clone();
+        std::thread::Builder::new()
+            .name("signal-handler".into())
+            .spawn(move || {
+                let mut signals = signal_hook::iterator::Signals::new([
+                    signal_hook::consts::SIGINT,
+                    signal_hook::consts::SIGTERM,
+                ])
+                .expect("install signal-hook handlers");
+                for sig in signals.forever() {
+                    tracing::info!("received signal {sig}; requesting clean shutdown");
+                    ctx_sig.send_viewport_cmd(egui::ViewportCommand::Close);
+                    std::thread::sleep(std::time::Duration::from_secs(3));
+                    tracing::warn!("clean shutdown timed out; exiting via process::exit");
+                    std::process::exit(130);
+                }
+            })
+            .expect("spawn signal-handler thread");
+
         let mut active_subcommand = BTreeMap::new();
         active_subcommand.insert(CliTab::Mnemonic, "bundle".to_string());
         active_subcommand.insert(CliTab::Md, "inspect".to_string());
@@ -393,7 +449,8 @@ impl eframe::App for MnemonicGuiApp {
         }
     }
 
-    fn on_exit(&mut self, _gl: Option<&eframe::glow::Context>) {
+    fn on_exit(&mut self) {
+        tracing::info!("on_exit() called — clean shutdown via wayland close event");
         // SPEC §9: best-effort zeroize sweep on close.
         for state in self.form_state.values_mut() {
             secrets::zeroize_form_state(state);
