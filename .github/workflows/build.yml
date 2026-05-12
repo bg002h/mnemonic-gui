@@ -39,7 +39,6 @@ jobs:
       - name: install-rust
         uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: 1.85.0
           targets: ${{ matrix.target }}
 
       - name: cargo-cache
