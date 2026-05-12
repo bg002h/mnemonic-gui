@@ -1,0 +1,45 @@
+# pinned-upstream.toml — schema-mirror pin map (SPEC §11)
+#
+# Consumed by:
+#   1. build.rs codegen of SECRET_NODE_TYPES / SECRET_SLOT_SUBKEYS (Phase 7).
+#   2. .github/workflows/schema-mirror.yml CI gate (Phase 9).
+#   3. src/schema_check.rs runtime soft-check (Phase 9).
+#
+# Resolution order for build.rs (SPEC §B.11):
+#   1. MNEMONIC_GUI_UPSTREAM_ROOT env var (overrides everything).
+#   2. [upstream].checkout-root field (relative to mnemonic-gui repo root).
+#   3. target/upstream/<tag>/ auto-clone — ONLY when
+#      MNEMONIC_GUI_ALLOW_UPSTREAM_CLONE=1 is set (opt-in for offline-
+#      friendly builds).
+#   4. Stub fallback: empty SECRET_* constants + cargo:warning= banner.
+
+[upstream]
+# Empty = use resolution-order steps 1, 3, 4.
+# Local dev convenience: set this to your local mnemonic-toolkit checkout
+# (e.g., "/scratch/code/shibboleth/mnemonic-toolkit") OR export
+# MNEMONIC_GUI_UPSTREAM_ROOT before running cargo.
+checkout-root = ""
+
+[mnemonic]
+url = "https://github.com/bg002h/mnemonic-toolkit"
+tag = "mnemonic-toolkit-v0.8.1"
+bin = "mnemonic"
+workspace-member-path = "crates/mnemonic-toolkit"
+
+[md]
+url = "https://github.com/bg002h/descriptor-mnemonic"
+tag = "descriptor-mnemonic-md-cli-v0.3.0"
+bin = "md"
+workspace-member-path = "crates/md-cli"
+
+[ms]
+url = "https://github.com/bg002h/mnemonic-secret"
+tag = "ms-cli-v0.1.0"
+bin = "ms"
+workspace-member-path = "crates/ms-cli"
+
+[mk]
+url = "https://github.com/bg002h/mnemonic-key"
+tag = "mk-cli-v0.2.0"
+bin = "mk"
+workspace-member-path = "crates/mk-cli"
