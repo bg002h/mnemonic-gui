@@ -164,44 +164,66 @@ fn posix_quote(s: &str) -> String {
     }
 }
 
-/// Windows quoting compatible with `CommandLineToArgvW` parsing (which
-/// `cmd.exe`, PowerShell, and the Windows C runtime all use under the
-/// hood). Wraps the token in `"..."`; doubles embedded `"`; and — the
-/// load-bearing rule absent from the naive cmd.exe doc — doubles any run
-/// of backslashes that immediately precedes a `"` (including the closing
-/// `"`), so a trailing `\` does not consume the close-quote. Without this,
-/// any Windows path ending in `\` (e.g. `C:\tmp\`) renders as `"C:\tmp\"`
-/// and the close-`"` is consumed as a literal, leaving the token unclosed.
-/// R1 I-1 fold.
+/// Windows quoting compatible with `CommandLineToArgvW` (the universal
+/// Win32 parser used by cmd.exe → CreateProcess → target-binary startup).
+/// Implements Daniel Colascione's canonical `ArgvQuote` rules from the
+/// Microsoft "Everyone quotes command line arguments the wrong way" post:
+///
+///   1. Wrap the token in `"…"`.
+///   2. For each run of `n` consecutive `\`:
+///      a. If followed by a literal `"` (interior): emit `2n+1` `\` + `"`.
+///         The odd-count rule produces a literal `"` and preserves
+///         in-quotes mode.
+///      b. If followed by end-of-string (i.e. before the close-`"`): emit
+///         `2n` `\`. The even-count rule produces `n` literal `\` and
+///         toggles in-quotes mode (closing the wrapper).
+///      c. Otherwise (interior): emit `n` `\` (pass-through).
+///   3. A bare `"` (no preceding `\`) is encoded as `\"` (n=0 → 1 `\`).
+///
+/// R1 I-1 / R2 C-1 fold: prior implementations used `""` for embedded
+/// `"`, which `CommandLineToArgvW` does NOT recognize as a literal-`"`
+/// escape — it parses as (close-quote, reopen-quote) and the literal `"`
+/// is lost from the resulting argv. The odd-backslash rule is the only
+/// universal encoding.
 fn cmd_quote(s: &str) -> String {
+    let chars: Vec<char> = s.chars().collect();
     let mut out = String::with_capacity(s.len() + 2);
     out.push('"');
-    let mut chars = s.chars().peekable();
-    while let Some(c) = chars.next() {
-        if c == '\\' {
-            // Count the run of consecutive backslashes.
-            let mut n = 1usize;
-            while chars.peek() == Some(&'\\') {
-                chars.next();
+    let mut i = 0;
+    while i < chars.len() {
+        if chars[i] == '\\' {
+            let mut n = 0usize;
+            while i < chars.len() && chars[i] == '\\' {
                 n += 1;
+                i += 1;
             }
-            // If a `"` or end-of-string follows, double the run; the
-            // doubled backslashes are themselves literal AND the
-            // subsequent `"` (whether interior or our close-`"`) is then
-            // unambiguously a quote-delimiter (interior) or quote-close.
-            let next_is_quote_or_end =
-                matches!(chars.peek(), Some(&'"')) || chars.peek().is_none();
-            let to_write = if next_is_quote_or_end { n * 2 } else { n };
-            for _ in 0..to_write {
-                out.push('\\');
+            if i == chars.len() {
+                // 2b: end of input; double the run so close-`"` is
+                // unambiguously the quote-close, not the escape target.
+                for _ in 0..(n * 2) {
+                    out.push('\\');
+                }
+            } else if chars[i] == '"' {
+                // 2a: emit 2n+1 backslashes + the literal `"`.
+                for _ in 0..(n * 2 + 1) {
+                    out.push('\\');
+                }
+                out.push('"');
+                i += 1;
+            } else {
+                // 2c: interior; pass through.
+                for _ in 0..n {
+                    out.push('\\');
+                }
             }
-        } else if c == '"' {
-            // Embedded literal `"` → `""` (cmd.exe-style; also accepted by
-            // CommandLineToArgvW since the doubling means: close, reopen).
+        } else if chars[i] == '"' {
+            // Rule 3: lone literal `"` → `\"`.
+            out.push('\\');
             out.push('"');
-            out.push('"');
+            i += 1;
         } else {
-            out.push(c);
+            out.push(chars[i]);
+            i += 1;
         }
     }
     out.push('"');

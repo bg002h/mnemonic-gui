@@ -96,11 +96,15 @@ fn windows_simple_argv_double_quoted() {
 }
 
 #[test]
-fn windows_embedded_double_quote_is_doubled() {
-    // cmd.exe convention: `"` inside `"…"` is escaped as `""`.
+fn windows_embedded_double_quote_escaped_as_backslash_quote() {
+    // ArgvQuote canonical rule: lone `"` (no preceding `\`) is encoded as
+    // `\"` (n=0 → 2n+1 = 1 backslash + literal `"`). The `""` form is
+    // NOT recognized by CommandLineToArgvW as a literal-`"` escape —
+    // it parses as (close-quote, reopen-quote) and the literal `"` is
+    // lost. R2 C-1 fold.
     let argv = vec!["mnemonic".into(), r#"a"b"#.into()];
     let s = render_copy_command(&argv, ShellFlavor::WindowsCmd);
-    assert_eq!(s, "\"mnemonic\" ^\r\n  \"a\"\"b\"");
+    assert_eq!(s, "\"mnemonic\" ^\r\n  \"a\\\"b\"");
 }
 
 #[test]
@@ -146,29 +150,116 @@ fn windows_interior_backslash_run_unchanged() {
 }
 
 #[test]
-fn windows_backslash_immediately_before_embedded_quote_is_doubled() {
-    // Input contains exactly: a, `\`, `"`, b. The `\` IS immediately
-    // followed by `"`, so it must be doubled to disambiguate from the
-    // `\"` escape sequence CommandLineToArgvW would otherwise interpret.
-    // Expected encoded form: "a\\""b" — `\\` (doubled) then `""` (literal).
+fn windows_backslash_immediately_before_embedded_quote_emits_three_backslashes() {
+    // Input: 4 chars — a, `\`, `"`, b. Preceding `\` count n=1; emit
+    // 2n+1 = 3 backslashes + literal `"`. R2 C-1 fold.
     let argv = vec!["literal".into(), "a\\\"b".into()];
     let s = render_copy_command(&argv, ShellFlavor::WindowsCmd);
+    // Expected encoded form: "a\\\"b" — 3 backslashes (the input's `\`
+    // tripled per the 2n+1 rule), then the literal `"`, then `b`.
     assert!(
-        s.contains(r#""a\\""b""#),
-        "expected `\\` before `\"` to be doubled in: {}",
+        s.contains("\"a\\\\\\\"b\""),
+        "expected `2n+1 = 3` backslashes before `\"` in: {}",
         s
     );
 }
 
 #[test]
-fn windows_double_backslash_before_quote_is_doubled_to_four() {
-    // Input: a, `\`, `\`, `"`, b. Two backslashes immediately before `"`.
-    // Both must be doubled → 4 backslashes, then literal `""`.
+fn windows_double_backslash_before_quote_emits_five_backslashes() {
+    // Input: 5 chars — a, `\`, `\`, `"`, b. Preceding `\` count n=2; emit
+    // 2n+1 = 5 backslashes + literal `"`. R2 C-1 fold.
     let argv = vec!["literal".into(), "a\\\\\"b".into()];
     let s = render_copy_command(&argv, ShellFlavor::WindowsCmd);
+    // Expected: "a\\\\\\\"b" — 5 backslashes then `"` then `b`.
     assert!(
-        s.contains(r#""a\\\\""b""#),
-        "expected 2 backslashes before `\"` to become 4 in: {}",
+        s.contains("\"a\\\\\\\\\\\"b\""),
+        "expected `2n+1 = 5` backslashes before `\"` in: {}",
         s
     );
+}
+
+/// Round-trip helper: parse `s` per `CommandLineToArgvW` rules and
+/// return the argv vector. Used by R2 C-1 fold to verify our quoting
+/// roundtrips correctly. Implements rules 1-3 from `cmd_quote`'s
+/// doc-comment in reverse.
+fn parse_cmdline_argv_w(line: &str) -> Vec<String> {
+    let chars: Vec<char> = line.chars().collect();
+    let mut argv: Vec<String> = Vec::new();
+    let mut cur = String::new();
+    let mut in_quotes = false;
+    let mut i = 0;
+    while i < chars.len() {
+        if chars[i] == '\\' {
+            let mut n = 0usize;
+            while i < chars.len() && chars[i] == '\\' {
+                n += 1;
+                i += 1;
+            }
+            if i < chars.len() && chars[i] == '"' {
+                // n backslashes followed by `"`. Emit n/2 literal `\`.
+                for _ in 0..(n / 2) {
+                    cur.push('\\');
+                }
+                if n % 2 == 1 {
+                    cur.push('"');
+                } else {
+                    in_quotes = !in_quotes;
+                }
+                i += 1;
+            } else {
+                for _ in 0..n {
+                    cur.push('\\');
+                }
+            }
+        } else if chars[i] == '"' {
+            in_quotes = !in_quotes;
+            i += 1;
+        } else if chars[i].is_whitespace() && !in_quotes {
+            if !cur.is_empty() {
+                argv.push(std::mem::take(&mut cur));
+            }
+            i += 1;
+        } else {
+            cur.push(chars[i]);
+            i += 1;
+        }
+    }
+    if !cur.is_empty() {
+        argv.push(cur);
+    }
+    argv
+}
+
+/// Round-trip a single argv element through `cmd_quote` →
+/// `parse_cmdline_argv_w`; assert recovery.
+fn assert_cmd_roundtrip(input: &str) {
+    let argv_in = vec!["bin".to_string(), input.to_string()];
+    // Render the way the real GUI does, but skip the multiline `^\r\n`
+    // separator — collapse to plain spaces for parse-time.
+    let rendered_parts: Vec<String> = argv_in
+        .iter()
+        .map(|s| {
+            // Reuse the actual cmd_quote via render_copy_command on a
+            // single-element vec, then strip the wrapping.
+            render_copy_command(&[s.clone()], ShellFlavor::WindowsCmd)
+        })
+        .collect();
+    let line = rendered_parts.join(" ");
+    let parsed = parse_cmdline_argv_w(&line);
+    assert_eq!(parsed, argv_in, "roundtrip broke for input {:?}", input);
+}
+
+#[test]
+fn windows_roundtrip_all_embedded_quote_shapes() {
+    // The GUI's assemble_argv layer omits empty Text/Path values per
+    // SPEC §6.7, so empty argv elements are not a real GUI emission.
+    // The roundtrip set below pins the real-world shapes that DO reach
+    // render_copy_command.
+    assert_cmd_roundtrip("simple");
+    assert_cmd_roundtrip("with space");
+    assert_cmd_roundtrip(r#"a"b"#); // lone `"`
+    assert_cmd_roundtrip("a\\\"b"); // 1 `\` + `"`
+    assert_cmd_roundtrip("a\\\\\"b"); // 2 `\` + `"`
+    assert_cmd_roundtrip(r"C:\tmp\"); // trailing `\`
+    assert_cmd_roundtrip(r"C:\Users\Alice\file.txt"); // interior `\`
 }
