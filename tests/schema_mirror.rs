@@ -380,6 +380,66 @@ mod source_audit {
     }
 }
 
+// ── Phase 9: CI workflow snapshot regression guard ─────────────────────
+//
+// Phase 9 IMPL_PLAN: tests/schema_mirror.rs::ci_workflow_snapshot reads
+// .github/workflows/schema-mirror.yml and asserts the YAML's required
+// step names are present. Authored AFTER the workflow YAML is on disk
+// (post-implementation snapshot, NOT RED-driver) — guards against
+// accidental workflow regression (e.g., future maintainer dropping the
+// clone-upstream step).
+
+#[test]
+fn ci_workflow_snapshot() {
+    let workflow_path =
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join(".github/workflows/schema-mirror.yml");
+    let body = std::fs::read_to_string(&workflow_path)
+        .unwrap_or_else(|e| panic!("read {:?}: {}", workflow_path, e));
+
+    // Required step names (substring assertion — simpler + more
+    // diff-resistant than full YAML parsing).
+    let required_steps = [
+        "install-mnemonic-toolkit",
+        "install-md-cli",
+        "install-ms-cli",
+        "install-mk-cli",
+        "clone-upstream-mnemonic-toolkit",
+        "cargo-test-schema-mirror",
+    ];
+    for step in &required_steps {
+        assert!(
+            body.contains(step),
+            "schema-mirror.yml must contain step `{}`",
+            step
+        );
+    }
+
+    // Required pinned tags — the workflow installs the binaries that
+    // tests/schema_mirror.rs cells run against. If the pin drifts
+    // here without the schema also drifting, the CI gate fails.
+    let required_tags = [
+        "mnemonic-toolkit-v0.8.1",
+        "descriptor-mnemonic-md-cli-v0.4.3",
+        "ms-cli-v0.1.0",
+        "mk-cli-v0.2.0",
+    ];
+    for tag in &required_tags {
+        assert!(
+            body.contains(tag),
+            "schema-mirror.yml must pin tag `{}`",
+            tag
+        );
+    }
+
+    // MNEMONIC_GUI_UPSTREAM_ROOT must be set before running the
+    // schema_mirror test so build.rs resolves upstream from the temp
+    // clone (not the stub fallback).
+    assert!(
+        body.contains("MNEMONIC_GUI_UPSTREAM_ROOT"),
+        "schema-mirror.yml must set MNEMONIC_GUI_UPSTREAM_ROOT env var"
+    );
+}
+
 #[test]
 fn extract_flag_names_handles_basic_help_text() {
     let sample = "Options:\n  --network <NETWORK>  [possible values: mainnet]\n  --template <T>\n  -h, --help\n";

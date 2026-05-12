@@ -1,0 +1,77 @@
+name: schema-mirror
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  schema-mirror:
+    name: schema-mirror gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout-mnemonic-gui
+        uses: actions/checkout@v4
+
+      - name: install-rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: 1.85.0
+
+      - name: cargo-cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: install-mnemonic-toolkit
+        run: |
+          cargo install --locked \
+            --git https://github.com/bg002h/mnemonic-toolkit \
+            --tag mnemonic-toolkit-v0.8.1 \
+            --bin mnemonic
+
+      - name: install-md-cli
+        run: |
+          cargo install --locked \
+            --git https://github.com/bg002h/descriptor-mnemonic \
+            --tag descriptor-mnemonic-md-cli-v0.4.3 \
+            --bin md
+
+      - name: install-ms-cli
+        run: |
+          cargo install --locked \
+            --git https://github.com/bg002h/mnemonic-secret \
+            --tag ms-cli-v0.1.0 \
+            --bin ms
+
+      - name: install-mk-cli
+        run: |
+          cargo install --locked \
+            --git https://github.com/bg002h/mnemonic-key \
+            --tag mk-cli-v0.2.0 \
+            --bin mk
+
+      - name: clone-upstream-mnemonic-toolkit
+        run: |
+          mkdir -p /tmp/upstream
+          git clone --depth 1 \
+            --branch mnemonic-toolkit-v0.8.1 \
+            https://github.com/bg002h/mnemonic-toolkit \
+            /tmp/upstream/mnemonic-toolkit
+
+      - name: cargo-test-schema-mirror
+        env:
+          MNEMONIC_GUI_UPSTREAM_ROOT: /tmp/upstream/mnemonic-toolkit
+          MNEMONIC_BIN: mnemonic
+          MD_BIN: md
+          MS_BIN: ms
+          MK_BIN: mk
+        run: cargo test --test schema_mirror
+
+      - name: cargo-test-full-suite
+        env:
+          MNEMONIC_GUI_UPSTREAM_ROOT: /tmp/upstream/mnemonic-toolkit
+          MNEMONIC_BIN: mnemonic
+          MD_BIN: md
+          MS_BIN: ms
+          MK_BIN: mk
+        run: cargo test --workspace
