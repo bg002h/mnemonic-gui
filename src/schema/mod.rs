@@ -106,11 +106,57 @@ pub enum Visibility {
 /// friendly downstream and the iteration order deterministic.
 pub type FlagVisibility = Vec<(&'static str, Visibility)>;
 
-/// Per-subcommand form state. Phase 5 elaborates the contents; Phase 1
-/// declares the shape so `conditional` function pointers can typecheck.
-#[derive(Default)]
+/// Per-subcommand form state. Phase 2 fills in the typed-value carrier.
+///
+/// Repeating flags (`FlagSchema.repeating == true`) may appear multiple
+/// times in `values`; ordering is preserved (slot-index ascending for the
+/// SlotEditor path, row-add order for other repeating flags — see SPEC §6.3).
+#[derive(Default, Debug, Clone)]
 pub struct FormState {
-    /// One entry per flag the user has populated in the form. Phase 5 wires
-    /// real population; Phase 1 keeps this empty.
-    pub values: Vec<(&'static str, String)>,
+    pub values: Vec<(String, FlagValue)>,
+}
+
+impl FormState {
+    pub fn from_pairs<I, S>(iter: I) -> Self
+    where
+        I: IntoIterator<Item = (S, FlagValue)>,
+        S: Into<String>,
+    {
+        Self {
+            values: iter.into_iter().map(|(k, v)| (k.into(), v)).collect(),
+        }
+    }
+}
+
+/// Typed value mirroring `FlagKind`. The form widget renderer holds these
+/// per-flag; the argv assembler consumes them per the SPEC §6.7 emission
+/// rules.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum FlagValue {
+    Text(String),
+    Number(i64),
+    Dropdown(String),
+    Boolean(bool),
+    /// Comma-separated `<u32>,<u32>` form. SPEC §6.7.
+    Range(u32, u32),
+    Timestamp(TimestampValue),
+    /// `--name <node>=<value>` composite. SPEC §6.7.
+    NodeValueComposite { node: String, value: String },
+    TaggedOrIndexed(TaggedOrIndexedValue),
+    /// File path. Empty → omitted at emit time. `"-"` is emitted verbatim
+    /// when the flag's `FlagKind::Path { stdio_sentinel }` is true; the
+    /// stdio-sentinel decision belongs to the schema, not the value.
+    Path(String),
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum TimestampValue {
+    Now,
+    Unix(u64),
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum TaggedOrIndexedValue {
+    Tag(String),
+    Indexed(u8),
 }
