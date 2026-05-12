@@ -143,6 +143,34 @@ impl FormState {
         self.slots = slots;
         self
     }
+
+    /// True iff `name` appears in `values` with a "present" value. Used by
+    /// the Phase 5 conditional-visibility engine to check upstream
+    /// `conflicts_with` / `required_unless_present_any` constraints.
+    /// Semantics:
+    ///   - Text / Dropdown / Path: present iff non-empty.
+    ///   - Boolean: present iff `true` (matches SPEC §6.7 emission rule:
+    ///     Boolean(false) is omitted from argv, so it's "not present").
+    ///   - NodeValueComposite: present iff `value` is non-empty.
+    ///   - Number / Range / Timestamp / TaggedOrIndexed: always present
+    ///     once in the map (no empty-form sentinel).
+    pub fn has_value(&self, name: &str) -> bool {
+        self.values
+            .iter()
+            .any(|(k, v)| k == name && flag_value_is_present(v))
+    }
+}
+
+fn flag_value_is_present(v: &FlagValue) -> bool {
+    match v {
+        FlagValue::Text(s) | FlagValue::Dropdown(s) | FlagValue::Path(s) => !s.is_empty(),
+        FlagValue::Boolean(b) => *b,
+        FlagValue::NodeValueComposite { value, .. } => !value.is_empty(),
+        FlagValue::Number(_)
+        | FlagValue::Range(_, _)
+        | FlagValue::Timestamp(_)
+        | FlagValue::TaggedOrIndexed(_) => true,
+    }
 }
 
 /// Typed value mirroring `FlagKind`. The form widget renderer holds these

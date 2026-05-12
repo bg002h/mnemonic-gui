@@ -726,34 +726,37 @@ const DERIVE_CHILD_FLAGS: &[FlagSchema] = &[
 
 // ─── SCHEMA constant ─────────────────────────────────────────────────────
 
+// Phase 5: wire the conditional-visibility fn pointers per subcommand.
+// `derive-child` has no clap conflicts_with / required_unless_present
+// constraints in v0.8.1 — stays None.
 const SUBCOMMANDS: &[SubcommandSchema] = &[
     SubcommandSchema {
         name: "bundle",
         human_name: "Bundle (emit 3-card)",
         flags: BUNDLE_FLAGS,
         allows_slots: true,
-        conditional: None,
+        conditional: Some(crate::form::conditional::bundle),
     },
     SubcommandSchema {
         name: "verify-bundle",
         human_name: "Verify Bundle (round-trip)",
         flags: VERIFY_BUNDLE_FLAGS,
         allows_slots: true,
-        conditional: None,
+        conditional: Some(crate::form::conditional::verify_bundle),
     },
     SubcommandSchema {
         name: "convert",
         human_name: "Convert (between formats)",
         flags: CONVERT_FLAGS,
         allows_slots: false,
-        conditional: None,
+        conditional: Some(crate::form::conditional::convert),
     },
     SubcommandSchema {
         name: "export-wallet",
         human_name: "Export Wallet (watch-only)",
         flags: EXPORT_WALLET_FLAGS,
         allows_slots: true,
-        conditional: None,
+        conditional: Some(crate::form::conditional::export_wallet),
     },
     SubcommandSchema {
         name: "derive-child",
