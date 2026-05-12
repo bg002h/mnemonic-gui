@@ -3,6 +3,63 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## [0.1.1] — 2026-05-12
+
+First functional GUI release. v0.1.0 shipped the full architecture
+(schema, form widgets, slot editor, runner, secrets, persistence, CI
+gates) but its eframe loop was wired against the `egui_glow` renderer,
+which is broken on KDE/KWin Wayland: after the initial 1–2 paint
+cycles, the wayland event loop went stuck, ignoring cross-thread
+`request_repaint()` and `send_viewport_cmd(Close)`, ignoring KWin's
+`xdg_toplevel.close` events, and never reaching `on_exit()` for clean
+shutdown. KDE marked the window "Not Responding" in its title bar.
+
+v0.1.1 swaps `egui_glow` → `egui_wgpu` (Vulkan via Mesa). With the
+wgpu renderer, every cross-thread wake mechanism works: `update()`
+runs at the 1 Hz keepalive cadence (CPU still ~0 % at idle), KWin
+sees regular surface commits (no "Not Responding" label), SIGINT /
+SIGTERM route through `ViewportCommand::Close` to `on_exit()` in
+~2.5 s. Real user clicks would have failed under v0.1.0; they work
+under v0.1.1.
+
+### Changed
+
+- `eframe = "0.31"` with `default-features = false` and explicit
+  `features = ["wgpu", "default_fonts", "wayland", "x11"]` (was
+  `eframe = "0.29"` with default glow renderer).
+- `egui = "0.31"` (was `egui = "0.29"`).
+
+### Added
+
+- `signal-hook = "0.3"` dependency.
+- SIGINT / SIGTERM handler thread that routes through
+  `ViewportCommand::Close` for graceful shutdown (zeroize sweep +
+  `on_exit()`), with `process::exit(130)` fallback after 3 s if the
+  event loop is unresponsive.
+- 1 Hz `wayland-keepalive` background thread keeping the surface
+  alive for compositor liveness heuristics.
+- `init_tracing` filter suppresses `egui_wgpu` / `wgpu_hal`
+  swap-chain timeout warnings at default WARN level; visible under
+  `--debug` / `RUST_LOG=info`.
+- 3 demo screenshots in `screenshots/` against the working wgpu
+  build (replacing the v0.1.0 captures that showed the
+  frozen-at-first-paint "Not Responding" GUI).
+
+### Fixed
+
+- The event-loop-stuck bug described above (see
+  `FOLLOWUPS.md` → Resolved → `gui-glow-wayland-loop-broken`).
+- `on_exit()` signature updated to match the wgpu integration's
+  `fn(&mut Self)` (was `fn(&mut Self, Option<&glow::Context>)`).
+
+### Removed
+
+- Diagnostic instrumentation added during v0.1.1 dev (TICK label,
+  HEARTBEAT dialog, update() counter, keepalive tracing log) — kept
+  only the working production code paths.
+- Unused `with_position` viewport hint (Wayland ignores absolute
+  window positioning by protocol design).
+
 ## [0.1.0] — 2026-05-12
 
 First release. Cross-platform GUI overlay for the m-format constellation

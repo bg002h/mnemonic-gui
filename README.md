@@ -12,14 +12,15 @@ beyond display. The CLI remains the byte-exact source of truth.
 
 ## Status
 
-Released `mnemonic-gui-v0.1.0` on 2026-05-12. See
+Released `mnemonic-gui-v0.1.1` on 2026-05-12 (first functional GUI;
+v0.1.0 shipped a broken event loop, see CHANGELOG). See
 [`design/agent-reports/`](design/agent-reports/) for the phase-by-phase
 build log and [`CHANGELOG.md`](CHANGELOG.md) for the full release notes.
 
 ## Install from source
 
 ```bash
-cargo install --locked --git https://github.com/bg002h/mnemonic-gui --tag mnemonic-gui-v0.1.0
+cargo install --locked --git https://github.com/bg002h/mnemonic-gui --tag mnemonic-gui-v0.1.1
 ```
 
 The GUI subprocess-runs the four underlying CLIs; install each separately
