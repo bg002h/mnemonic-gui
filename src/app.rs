@@ -100,7 +100,10 @@ impl AppState {
 }
 
 /// Tooltip text for a greyed-out (NotFound) tab, per SPEC §8 error class 1.
-/// Returns `None` if the tab IS available (no tooltip needed).
+/// Call only when `tab_available(tab) == false`; always returns the full
+/// tooltip string (never `None` — the prior `Option<String>` design was
+/// dropped during Phase 6 R1 fold; R2 I-1 corrects this doc comment to
+/// match the actual unconditional-String contract).
 pub fn missing_binary_tooltip(tab: CliTab) -> String {
     format!(
         "`{cli}` binary not found on $PATH.\n\
