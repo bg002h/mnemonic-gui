@@ -1,4 +1,4 @@
-//! Pinned schema for the `mnemonic` CLI from mnemonic-toolkit-v0.8.1.
+//! Pinned schema for the `mnemonic` CLI from mnemonic-toolkit-v0.9.0.
 //!
 //! Five subcommands covered in v0.1 (Section A coverage table):
 //!   - bundle

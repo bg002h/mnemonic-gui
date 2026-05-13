@@ -1,4 +1,4 @@
-//! Pinned schema for the `mk` CLI (mk-cli-v0.2.0).
+//! Pinned schema for the `mk` CLI (mk-cli-v0.3.0).
 //!
 //! v0.2 scope: `inspect` (from v0.1) plus `encode`, `decode`, `verify`,
 //! `vectors`. See Phase D.1 audit report at

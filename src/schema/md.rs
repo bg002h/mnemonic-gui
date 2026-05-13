@@ -1,4 +1,4 @@
-//! Pinned schema for the `md` CLI (descriptor-mnemonic-md-cli-v0.4.3).
+//! Pinned schema for the `md` CLI (descriptor-mnemonic-md-cli-v0.5.0).
 //!
 //! v0.2 scope: `inspect` (from v0.1) plus `encode`, `decode`, `verify`,
 //! `bytecode`, `vectors`, `compile`, `address`. See Phase D.1 audit report
