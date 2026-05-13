@@ -40,6 +40,12 @@ jobs:
           REF_NAME: ${{ github.ref_name }}
         run: |
           VERSION="${REF_NAME#mnemonic-gui-}"
+          # Sanitize slashes — PR refs are `<N>/merge`, which would
+          # break tar/7z when interpolated into a filename (the `/`
+          # is taken as a directory separator). Replace with `-` so
+          # the artifact name stays a valid single-segment filename.
+          # Tag refs have no slash and are unaffected.
+          VERSION="${VERSION//\//-}"
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
 
       - name: install-rust

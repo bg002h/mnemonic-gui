@@ -501,6 +501,24 @@ fn ci_build_version_step_present() {
          `compute-version` step) in artifact-name templates."
     );
 
+    // Required (Phase E follow-up to Phase A.1): the compute-version
+    // step must sanitize slashes in the stripped VERSION. PR refs
+    // are `<N>/merge` (head merge-ref); interpolating that raw into
+    // `mnemonic-gui-${VERSION}-<suffix>.tar.gz` makes tar/7z try to
+    // create a path with a directory separator in the basename and
+    // fail with "Failed to open". The fix replaces `/` with `-` so
+    // any ref (PR or tag) yields a single-segment filename. The
+    // exact bash form `${VERSION//\//-}` is searched for here so a
+    // future maintainer accidentally dropping the sanitize fails the
+    // snapshot rather than the macOS package step.
+    assert!(
+        body.contains("${VERSION//\\//-}"),
+        "build.yml `compute-version` step must sanitize slashes in \
+         VERSION via the bash `${{VERSION//\\//-}}` form. PR refs \
+         like `1/merge` would otherwise break tar/7z when \
+         interpolated into the artifact filename."
+    );
+
     // Required: artifact-name templates use `env.VERSION`. Four sites
     // mirror the four template locations in build.yml: `package-unix`
     // ARTIFACT, `package-windows` ARTIFACT, `upload-artifact` name,
