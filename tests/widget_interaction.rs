@@ -169,3 +169,120 @@ fn cell_2_conditional_visibility_toggle() {
 fn vis_for(vis: &mnemonic_gui::schema::FlagVisibility, flag: &str) -> Option<Visibility> {
     vis.iter().find(|(k, _)| *k == flag).map(|(_, v)| *v)
 }
+
+// ── Phase D.4 (v0.2): kittest cells 4+5 for representative new subcommands ───
+
+#[test]
+fn cell_4_ms_encode_xor_phrase_hex_via_harness() {
+    // Drives the v0.2 D.2 `ms encode` --phrase XOR --hex conditional
+    // through the harness. Synthetic probe pattern (cell 2 reuse):
+    // mutate FormState via probe buttons, then query
+    // `conditional::ms_encode()` for the SPEC §5 visibility map.
+    use mnemonic_gui::form::conditional;
+    use mnemonic_gui::schema::FormState;
+
+    let initial = FormState::default();
+    let mut harness = Harness::new_ui_state(
+        |ui, state| {
+            if ui.button("set-phrase").clicked() {
+                state.values.push((
+                    "--phrase".to_string(),
+                    FlagValue::Text("abandon abandon ...".into()),
+                ));
+            }
+            if ui.button("set-hex").clicked() {
+                state.values.push((
+                    "--hex".to_string(),
+                    FlagValue::Text("00112233".into()),
+                ));
+            }
+            if ui.button("clear-form").clicked() {
+                state.values.clear();
+            }
+        },
+        initial,
+    );
+
+    // Baseline: neither set → both Required.
+    let vis = conditional::ms_encode(harness.state());
+    assert_eq!(vis_for(&vis, "--phrase"), Some(Visibility::Required));
+    assert_eq!(vis_for(&vis, "--hex"), Some(Visibility::Required));
+
+    // Set --phrase → --hex Disabled.
+    harness.get_by_label("set-phrase").click();
+    harness.run();
+    let vis = conditional::ms_encode(harness.state());
+    assert_eq!(vis_for(&vis, "--hex"), Some(Visibility::Disabled));
+
+    // Clear, set --hex → --phrase Disabled AND --language Hidden.
+    harness.get_by_label("clear-form").click();
+    harness.run();
+    harness.get_by_label("set-hex").click();
+    harness.run();
+    let vis = conditional::ms_encode(harness.state());
+    assert_eq!(vis_for(&vis, "--phrase"), Some(Visibility::Disabled));
+    assert_eq!(vis_for(&vis, "--language"), Some(Visibility::Hidden));
+}
+
+#[test]
+fn cell_5_md_encode_dropdown_value_inspect_via_harness() {
+    // Drives the v0.2 D.3 `md encode` --context value-inspect
+    // conditional through the harness. This is the first
+    // dropdown-value-dependent conditional (D.1 finding #2) and the
+    // first egui_kittest cell that exercises a Dropdown FlagValue.
+    use mnemonic_gui::form::conditional;
+    use mnemonic_gui::schema::FormState;
+
+    let initial = FormState::default();
+    let mut harness = Harness::new_ui_state(
+        |ui, state| {
+            if ui.button("set-from-policy").clicked() {
+                state.values.push((
+                    "--from-policy".to_string(),
+                    FlagValue::Text("pk(@0)".into()),
+                ));
+            }
+            if ui.button("set-context-tap").clicked() {
+                state.values.push((
+                    "--context".to_string(),
+                    FlagValue::Dropdown("tap".into()),
+                ));
+            }
+            if ui.button("set-context-segwitv0").clicked() {
+                state.values.push((
+                    "--context".to_string(),
+                    FlagValue::Dropdown("segwitv0".into()),
+                ));
+            }
+        },
+        initial,
+    );
+
+    // Set --from-policy + --context=tap → --unspendable-key NOT
+    // disabled (tap is the only context that supports unspendable
+    // internal keys).
+    harness.get_by_label("set-from-policy").click();
+    harness.run();
+    harness.get_by_label("set-context-tap").click();
+    harness.run();
+    let vis = conditional::md_encode(harness.state());
+    assert_ne!(
+        vis_for(&vis, "--unspendable-key"),
+        Some(Visibility::Disabled),
+        "--unspendable-key should not be Disabled when --context=tap"
+    );
+
+    // Change to --context=segwitv0 → --unspendable-key Disabled.
+    // (state.values now has two --context entries; conditional sees
+    // the LATER segwitv0 via dropdown_value's find iteration which
+    // returns the first match — so we clear and re-set.)
+    harness.state_mut().values.retain(|(k, _)| k != "--context");
+    harness.get_by_label("set-context-segwitv0").click();
+    harness.run();
+    let vis = conditional::md_encode(harness.state());
+    assert_eq!(
+        vis_for(&vis, "--unspendable-key"),
+        Some(Visibility::Disabled),
+        "--unspendable-key should be Disabled when --context=segwitv0"
+    );
+}
