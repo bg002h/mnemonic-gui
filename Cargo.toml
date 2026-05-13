@@ -19,6 +19,11 @@ tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 zeroize = "1"
 shlex = "1"
+# v0.2 Phase C.1: pinned-upstream.toml reader in schema_check.rs.
+# Was [dev-dependencies] only in v0.1; promoted to runtime dep in
+# v0.2 since the GUI now reads the pinned table at runtime to decide
+# the regex vs gui-schema-JSON path per CLI.
+toml = "0.8"
 
 [target.'cfg(unix)'.dependencies]
 signal-hook = "0.3"

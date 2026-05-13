@@ -501,6 +501,80 @@ fn ci_build_version_step_present() {
     );
 }
 
+// ── Phase C.1 (v0.2): `--gui-schema` JSON consumer ─────────────────────
+
+#[test]
+fn schema_check_json_parse_returns_flag_names() {
+    use mnemonic_gui::schema_check::parse_gui_schema_json;
+    // SPEC §7 sample: minimal JSON with one subcommand + one flag.
+    let json = r#"{
+        "version": 1,
+        "cli": "md",
+        "subcommands": [
+            {
+                "name": "encode",
+                "flags": [
+                    { "name": "--output", "required": false, "kind": "path", "choices": null }
+                ],
+                "positionals": []
+            }
+        ]
+    }"#;
+    let names = parse_gui_schema_json(json, "encode")
+        .expect("encode subcommand present + version 1");
+    assert!(names.contains("--output"));
+}
+
+#[test]
+fn schema_check_json_rejects_non_version_1() {
+    use mnemonic_gui::schema_check::parse_gui_schema_json;
+    // SPEC §7: GUI rejects non-1 versions and falls back to regex path.
+    let json = r#"{"version":2,"cli":"md","subcommands":[]}"#;
+    assert!(parse_gui_schema_json(json, "encode").is_none());
+}
+
+#[test]
+fn schema_check_json_returns_none_for_missing_subcommand() {
+    use mnemonic_gui::schema_check::parse_gui_schema_json;
+    let json = r#"{"version":1,"cli":"md","subcommands":[{"name":"decode","flags":[]}]}"#;
+    assert!(parse_gui_schema_json(json, "encode").is_none());
+}
+
+#[test]
+fn schema_check_json_falls_back_on_non_capable_cli() {
+    // All four CLIs have gui-schema-capable = false in pinned-upstream.toml
+    // at C.1 (flipped to true per-CLI in C.3 after C.2 PRs merge).
+    // json_flag_names returns None; caller falls back to regex path.
+    for cli in ["mnemonic", "md", "ms", "mk"] {
+        let result = mnemonic_gui::schema_check::json_flag_names(cli, "encode");
+        assert!(
+            result.is_none(),
+            "gui-schema-capable should be false for {cli} at v0.2 C.1; got {result:?}"
+        );
+    }
+}
+
+#[test]
+fn pinned_upstream_gui_schema_capable_default_false() {
+    // C.1 invariant: all four CLI sections carry
+    // `gui-schema-capable = false` at the v0.2 C.1 commit. C.3 flips
+    // them per-CLI in lockstep with sibling-repo PR merges + tag bumps.
+    let body = std::fs::read_to_string(
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("pinned-upstream.toml"),
+    )
+    .expect("read pinned-upstream.toml");
+    let occurrences = body.matches("gui-schema-capable = false").count();
+    assert_eq!(
+        occurrences, 4,
+        "expected 4 'gui-schema-capable = false' occurrences in pinned-upstream.toml; got {}",
+        occurrences
+    );
+    assert!(
+        !body.contains("gui-schema-capable = true"),
+        "no CLI should be gui-schema-capable = true until Phase C.3"
+    );
+}
+
 // ── Phase B.2 (v0.2): platform module compile gate ─────────────────────
 
 #[test]
