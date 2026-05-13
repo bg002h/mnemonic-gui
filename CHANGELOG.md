@@ -3,6 +3,53 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## [0.1.2] — 2026-05-12
+
+Dropdown-bug hotfix. The three `egui::ComboBox` instances in
+`src/form/widget.rs` (the `FlagKind::Dropdown` selector, the
+`NodeValueComposite` node selector, and the `TaggedOrIndexed` tag
+selector) all used `ComboBox::from_label("")` or `from_label(" ")`.
+`from_label(label)` derives the egui widget ID from `label`; egui then
+keys popup open-state, hover-state, and selection-state by that ID.
+With multiple ComboBoxes on the same page all using `""` (or `" "`)
+they shared an ID, so:
+
+- The popup failed to open ("no list opens" — egui couldn't
+  disambiguate which popup state to drive), and
+- Hover and selection state leaked across every ComboBox on the page
+  ("every list on the page gets highlighted when one list is clicked
+  on" — they all shared interaction state via the shared ID).
+
+v0.1.2 switches each ComboBox to `ComboBox::from_id_salt((const,
+flag.name))`, where `flag.name: &'static str` is unique per flag. This
+matches the convention already used by `src/form/slot_editor.rs:160`
+(`from_id_salt(("slot_subkey", i))`).
+
+### Fixed
+
+- `src/form/widget.rs:26` — `Dropdown` selector now
+  `from_id_salt(("flag_dropdown", flag.name))`.
+- `src/form/widget.rs:60` — `NodeValueComposite` node selector now
+  `from_id_salt(("flag_nodevalue", flag.name))`.
+- `src/form/widget.rs:84` — `TaggedOrIndexed` tag selector now
+  `from_id_salt(("flag_tagged", flag.name))`.
+
+### Added
+
+- `tests/dropdown_id_salt.rs` — source-audit regression that fails if
+  any future edit reintroduces `ComboBox::from_label` in `widget.rs` or
+  removes the `from_id_salt` invariant. Pattern follows the existing
+  Phase 7 source-audit tests.
+
+### Unchanged
+
+- `src/main.rs:291` uses `ComboBox::from_label("subcommand")` — the
+  literal `"subcommand"` label is unique and there is only one such
+  ComboBox in the application, so no ID collision. Not affected by the
+  bug; not touched by the fix (scope discipline).
+- `src/form/slot_editor.rs:160` was already correct
+  (`from_id_salt(("slot_subkey", i))`).
+
 ## [0.1.1] — 2026-05-12
 
 First functional GUI release. v0.1.0 shipped the full architecture

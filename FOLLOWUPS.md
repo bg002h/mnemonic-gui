@@ -100,6 +100,53 @@ the v0.2 release prep doesn't repeat the v0.1 deviation.
 
 ## Resolved
 
+### gui-combobox-id-collision (resolved in v0.1.2 by from_id_salt switch)
+
+**Symptom (reported 2026-05-12, post-v0.1.1):**
+
+> "There is a bug involving every dropdown list. No list opens and
+> sometimes every list on the page gets highlighted when one list is
+> clicked on."
+
+**Root cause:** The three `egui::ComboBox` instances in
+`src/form/widget.rs` (the `FlagKind::Dropdown` selector at line 26, the
+`FlagKind::NodeValueComposite` node selector at line 60, and the
+`FlagKind::TaggedOrIndexed` tag selector at line 84) all used
+`ComboBox::from_label("")` or `from_label(" ")`.
+`ComboBox::from_label(label)` derives the egui widget ID from `label`,
+and egui keys popup open-state, hover-state, and selection-state by ID.
+All ComboBoxes sharing the same `""`/`" "` label thus shared an ID:
+
+- "no list opens" — egui couldn't disambiguate which popup-state to
+  drive when the click landed on a widget with a non-unique ID.
+- "every list on the page gets highlighted when one is clicked" — the
+  hover and selection state propagated to every widget sharing the ID.
+
+**Fix:** Switched each of the three sites to
+`ComboBox::from_id_salt((const, flag.name))` — the
+`flag.name: &'static str` field is unique per `FlagSchema`, so each
+ComboBox gets a unique egui widget ID. This matches the convention
+already used by `src/form/slot_editor.rs:160`, which had been correct
+since v0.1.0 (`from_id_salt(("slot_subkey", i))`).
+
+**Audit pinned at `tests/dropdown_id_salt.rs`:** the test reads
+`src/form/widget.rs` and asserts (a) no `ComboBox::from_label` calls
+remain and (b) `ComboBox::from_id_salt` is used. Future regressions —
+e.g., someone reaching for the quicker-typing `from_label("")` again —
+fail the audit at test-time.
+
+**Out of scope (left intentionally):** `src/main.rs:291` uses
+`ComboBox::from_label("subcommand")`. The label is non-empty and
+unique, and there is only one such ComboBox in the application, so no
+ID collision occurs. Not touched by this hotfix; the
+`from_id_salt`-everywhere stylistic sweep can be a v0.2+ janitorial
+follow-up if desired.
+
+**Files changed in v0.1.2:** `src/form/widget.rs` (3 `from_label` →
+`from_id_salt` swaps), `tests/dropdown_id_salt.rs` (new audit),
+`Cargo.toml` (version bump 0.1.1 → 0.1.2), `CHANGELOG.md` (`[0.1.2]`
+entry), this `FOLLOWUPS.md` (Resolved entry).
+
 ### gui-glow-wayland-loop-broken (resolved in v0.1.1 by renderer swap)
 
 **Symptom:** With `eframe = "0.29"` + `egui_glow` renderer on KDE/KWin

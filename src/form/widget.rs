@@ -23,7 +23,7 @@ pub fn render(ui: &mut egui::Ui, flag: &FlagSchema, value: &mut FlagValue) {
                 ui.add(egui::DragValue::new(n).range(*min..=*max));
             }
             (FlagKind::Dropdown(opts), FlagValue::Dropdown(sel)) => {
-                egui::ComboBox::from_label("")
+                egui::ComboBox::from_id_salt(("flag_dropdown", flag.name))
                     .selected_text(sel.as_str())
                     .show_ui(ui, |ui| {
                         for opt in *opts {
@@ -57,7 +57,7 @@ pub fn render(ui: &mut egui::Ui, flag: &FlagSchema, value: &mut FlagValue) {
                 FlagKind::NodeValueComposite(opts),
                 FlagValue::NodeValueComposite { node, value },
             ) => {
-                egui::ComboBox::from_label("")
+                egui::ComboBox::from_id_salt(("flag_nodevalue", flag.name))
                     .selected_text(node.as_str())
                     .show_ui(ui, |ui| {
                         for opt in *opts {
@@ -81,7 +81,7 @@ pub fn render(ui: &mut egui::Ui, flag: &FlagSchema, value: &mut FlagValue) {
                             tags.first().map(|s| (*s).to_string()).unwrap_or_default()
                         }
                     };
-                    egui::ComboBox::from_label(" ")
+                    egui::ComboBox::from_id_salt(("flag_tagged", flag.name))
                         .selected_text(s.as_str())
                         .show_ui(ui, |ui| {
                             for opt in *tags {
