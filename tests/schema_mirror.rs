@@ -432,8 +432,8 @@ fn ci_workflow_snapshot() {
     let required_tags = [
         "mnemonic-toolkit-v0.9.0",
         "descriptor-mnemonic-md-cli-v0.5.0",
-        "ms-cli-v0.2.0",
-        "mk-cli-v0.3.0",
+        "ms-cli-v0.2.1",
+        "mk-cli-v0.3.1",
     ];
     for tag in &required_tags {
         assert!(

@@ -45,14 +45,14 @@ gui-schema-capable = true
 
 [ms]
 url = "https://github.com/bg002h/mnemonic-secret"
-tag = "ms-cli-v0.2.0"
+tag = "ms-cli-v0.2.1"
 bin = "ms"
 workspace-member-path = "crates/ms-cli"
 gui-schema-capable = true
 
 [mk]
 url = "https://github.com/bg002h/mnemonic-key"
-tag = "mk-cli-v0.3.0"
+tag = "mk-cli-v0.3.1"
 bin = "mk"
 workspace-member-path = "crates/mk-cli"
 gui-schema-capable = true
