@@ -57,9 +57,10 @@ fn cell_1_slot_editor_add_remove_writeback() {
         "click on `+ Add slot` should append one row to the SlotState"
     );
 
-    // The new row has default values: index = 0, subkey = SlotSubkey::Phrase
-    // (first variant of the const ALL — see slot_editor.rs:39-46),
-    // value = "".
+    // The new row has default values: index = 0, subkey = SlotSubkey::Xpub
+    // (hard-coded in SlotRow::default() at slot_editor.rs:83-90 — note
+    // that this is NOT SlotSubkey::ALL[0] which is Phrase; the default
+    // impl picks Xpub explicitly), value = "".
 
     // Remove the first row by clicking the ✕ button. Width-1 emoji
     // label; per the v0.1.2 dropdown-id fix convention, the button has

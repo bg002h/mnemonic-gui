@@ -56,6 +56,47 @@ companion `mnemonic-gui` PR that bumps the schema + the
 `pinned-upstream.toml` tag for this CLI.
 ```
 
+### gui-accesskit-production-side-effect (accepted in v0.2 Phase A.3)
+
+**What:** v0.2 Phase A.3 introduced `egui_kittest = "0.31"` as a
+dev-dependency (the egui-driven integration test harness). Cargo
+feature unification then activates `egui/accesskit` globally because
+`egui_kittest 0.31.1 → kittest 0.1.0 → accesskit 0.17.1` requires it,
+and `egui-winit 0.31.1`'s `PlatformOutput` is destructured
+exhaustively — without the matching feature on egui-winit, the build
+fails. The minimal fix was to add `"accesskit"` to eframe's feature
+list in `Cargo.toml`, which propagates the feature to both
+`egui/accesskit` and `egui-winit/accesskit` (per eframe 0.31
+`[features]`).
+
+**Production-binary consequence:** the GUI binary now links the
+accesskit family on all platforms (`accesskit_winit` 0.23.1,
+`accesskit_unix` 0.13.1 + `atspi-*` transitive on Linux,
+`accesskit_macos` 0.18.1, `accesskit_windows` 0.24.1). The
+accessibility tree is active at runtime — screen readers and
+accessibility tools can traverse the GUI's widgets.
+
+**Disposition: accepted.** No cargo mechanism scopes a feature
+activation to dev/test builds only (features are strictly additive
+across the dep graph). No accesskit-free egui-0.31 testing harness
+exists. The side effect is behaviorally benign (active accessibility
+support is a positive externality), not a security concern.
+
+**Revisit triggers:**
+
+- If egui_kittest 0.32+ decouples the kittest/accesskit dep and a
+  future GUI version drops the harness, the accesskit feature could
+  be removed from eframe.
+- If the accessibility tree exposure of mnemonic input fields becomes
+  a threat-model concern (e.g., a screen-reader API leaks the secret
+  buffer), revisit and audit the accesskit_winit accessible-name
+  surface on `SecretLineEdit`.
+
+**Trace:** v0.2 plan Phase A.3 R5 fold N-2 in
+`/home/bcg/.claude/plans/v0_2-mnemonic-gui.md` Section C iterative
+review log; report at
+`design/agent-reports/v0_2-phase-A3-kittest-scaffold-r1.md`.
+
 ## Deferred v0.2
 
 Named for explicit closure per SPEC §14:
