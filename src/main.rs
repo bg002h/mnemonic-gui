@@ -112,15 +112,19 @@ impl MnemonicGuiApp {
             })
             .expect("spawn wayland-keepalive thread");
 
-        // SIGINT / SIGTERM handler. Routes through ViewportCommand::Close
-        // so the eframe shutdown path runs (on_exit zeroize sweep,
-        // window-close confirmation if any). If the event loop is
-        // unresponsive, escalates to process::exit after a 3 s grace.
-        // Unix-only: signal-hook's iterator API is gated on
-        // cfg(not(windows)). Windows uses a different Ctrl-C handler
-        // model (Console CtrlC handler); v0.2 candidate to add via
-        // the `ctrlc` crate if a user reports wanting graceful Ctrl-C
-        // on Windows.
+        // Graceful Ctrl-C / SIGTERM handler. Routes through
+        // ViewportCommand::Close so the eframe shutdown path runs
+        // (on_exit zeroize sweep, window-close confirmation if any).
+        // If the event loop is unresponsive, escalates to process::exit
+        // after a 3 s grace.
+        //
+        // Unix (signal-hook): SIGINT + SIGTERM via the iterator API.
+        // signal-hook's iterator is gated on cfg(not(windows)).
+        //
+        // Windows (ctrlc, v0.2 Phase A.2 / SPEC §5): Console CtrlC
+        // handler. SIGTERM has no Windows equivalent — Ctrl-C only.
+        // Both blocks share the same shape: clone egui::Context, send
+        // ViewportCommand::Close, then process::exit(130) fallback.
         #[cfg(unix)]
         {
             let ctx_sig = cc.egui_ctx.clone();
@@ -141,6 +145,19 @@ impl MnemonicGuiApp {
                     }
                 })
                 .expect("spawn signal-handler thread");
+        }
+
+        #[cfg(windows)]
+        {
+            let ctx_ctrlc = cc.egui_ctx.clone();
+            ctrlc::set_handler(move || {
+                tracing::info!("Ctrl-C received (Windows); requesting clean shutdown");
+                ctx_ctrlc.send_viewport_cmd(egui::ViewportCommand::Close);
+                std::thread::sleep(std::time::Duration::from_secs(3));
+                tracing::warn!("clean shutdown timed out (Windows); exiting via process::exit");
+                std::process::exit(130);
+            })
+            .expect("install ctrlc handler (Windows)");
         }
 
         let mut active_subcommand = BTreeMap::new();
