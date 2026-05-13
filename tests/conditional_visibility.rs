@@ -311,11 +311,18 @@ fn coverage_all_constrained_subcommands_have_conditional_fn() {
     }
     assert!(subcommand("derive-child").conditional.is_none());
 
-    // v0.2 D.2: ms/mk new constrained subcommands also carry conditionals.
-    for (cli, name) in [("ms", "encode"), ("mk", "encode")] {
+    // v0.2 D.2 + D.3: ms/mk/md new constrained subcommands also carry conditionals.
+    for (cli, name) in [
+        ("ms", "encode"),
+        ("mk", "encode"),
+        ("md", "encode"),
+        ("md", "compile"),
+        ("md", "address"),
+    ] {
         let schema_for_cli: &schema::Schema = match cli {
             "ms" => &schema::ms::SCHEMA,
             "mk" => &schema::mk::SCHEMA,
+            "md" => &schema::md::SCHEMA,
             _ => unreachable!(),
         };
         let sub = schema_for_cli
@@ -386,4 +393,51 @@ fn cell_d2_mk_encode_origin_fingerprint_conflicts_privacy_preserving() {
         ),
         Visibility::Disabled
     );
+}
+
+// ─── v0.2 D.3: md encode / compile / address constraints ─────────────────
+
+#[test]
+fn cell_d3_md_encode_positional_template_disables_from_policy() {
+    let state = FormState::default().with_positionals(vec!["wpkh(@0/**)"]);
+    let vis = run_conditional_for_cli("encode", &state, "md");
+    assert_eq!(vis_of(&vis, "--from-policy"), Visibility::Disabled);
+    assert_eq!(vis_of(&vis, "--context"), Visibility::Hidden);
+}
+
+#[test]
+fn cell_d3_md_encode_from_policy_requires_context() {
+    let state = FormState::from_pairs(vec![
+        ("--from-policy", FlagValue::Text("pk(@0)".into())),
+    ]);
+    let vis = run_conditional_for_cli("encode", &state, "md");
+    assert_eq!(vis_of(&vis, "--context"), Visibility::Required);
+}
+
+#[test]
+fn cell_d3_md_encode_unspendable_key_disabled_by_segwitv0() {
+    let state = FormState::from_pairs(vec![
+        ("--from-policy", FlagValue::Text("pk(@0)".into())),
+        ("--context", FlagValue::Dropdown("segwitv0".into())),
+    ]);
+    let vis = run_conditional_for_cli("encode", &state, "md");
+    assert_eq!(vis_of(&vis, "--unspendable-key"), Visibility::Disabled);
+}
+
+#[test]
+fn cell_d3_md_compile_unspendable_key_disabled_by_segwitv0() {
+    let state = FormState::from_pairs(vec![
+        ("--context", FlagValue::Dropdown("segwitv0".into())),
+    ]);
+    let vis = run_conditional_for_cli("compile", &state, "md");
+    assert_eq!(vis_of(&vis, "--unspendable-key"), Visibility::Disabled);
+}
+
+#[test]
+fn cell_d3_md_address_phrases_disables_template_and_substitutions() {
+    let state = FormState::default().with_positionals(vec!["md1abcd..."]);
+    let vis = run_conditional_for_cli("address", &state, "md");
+    assert_eq!(vis_of(&vis, "--template"), Visibility::Disabled);
+    assert_eq!(vis_of(&vis, "--key"), Visibility::Disabled);
+    assert_eq!(vis_of(&vis, "--fingerprint"), Visibility::Disabled);
 }
