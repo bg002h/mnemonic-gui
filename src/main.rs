@@ -85,6 +85,24 @@ struct MnemonicGuiApp {
 
 impl MnemonicGuiApp {
     fn new(cc: &eframe::CreationContext<'_>) -> Self {
+        // v0.2 Phase B.2: OS-snapshot occlusion. macOS:
+        // NSWindowSharingType::None; Windows: WDA_EXCLUDEFROMCAPTURE;
+        // Linux: no-op (no compositor API at v0.2 — documented at
+        // FOLLOWUPS `gui-os-snapshot-secret-occlusion`). Applied
+        // here in `new()` so the protection is active for the entire
+        // session, including the secret-bearing paste-warn modal.
+        {
+            use raw_window_handle::HasWindowHandle;
+            if let Ok(handle) = cc.window_handle() {
+                mnemonic_gui::platform::apply_window_capture_protection(handle);
+            } else {
+                tracing::warn!(
+                    "OS-snapshot occlusion: cc.window_handle() failed; \
+                     protection NOT applied (snapshots may leak)"
+                );
+            }
+        }
+
         // Wayland compositor liveness keepalive. egui's reactive paint loop
         // only wakes `update()` on input events, so an idle window can go
         // many seconds between Wayland surface commits — long enough that

@@ -1994,8 +1994,11 @@ dependencies = [
  "eframe",
  "egui",
  "egui_kittest",
+ "objc2 0.5.2",
+ "objc2-app-kit 0.2.2",
  "proc-macro2",
  "quote",
+ "raw-window-handle",
  "serde",
  "serde_json",
  "shlex",
@@ -2005,6 +2008,7 @@ dependencies = [
  "toml",
  "tracing",
  "tracing-subscriber",
+ "windows",
  "zeroize",
 ]
 

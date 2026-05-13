@@ -113,9 +113,13 @@ Named for explicit closure per SPEC §14:
   on `String`; full `Zeroizing<Vec<u8>>` requires custom widget +
   manual buffer management. Phase 7 ships v0.1 zeroize on String.
 - `gui-os-snapshot-secret-occlusion` — Mac App Switcher /
-  Windows Task View may snapshot the visible window. v0.1 acknowledges
-  the risk via paste-warn modal copy; mitigation
-  (`NSWindowSharingNone` / `WDA_EXCLUDEFROMCAPTURE`) deferred to v0.2.
+  Windows Task View may snapshot the visible window. v0.2 Phase B.2
+  applies `NSWindowSharingType::None` (macOS via objc2-app-kit) and
+  `SetWindowDisplayAffinity(WDA_EXCLUDEFROMCAPTURE)` (Windows via
+  windows-rs) from `MnemonicGuiApp::new()`. Linux has no compositor
+  API at v0.2 and remains open — see `src/platform.rs` cfg-not-any
+  branch for the deferral notice. Tracking entry kept open for the
+  Linux gap.
 - `gui-headless-test-harness-evaluation` — Phase 2/3 widget rendering
   is unexercised by tests; evaluate egui headless harness for v0.2.
 - `gui-schema-json-subcommand-evaluation` — v0.1 uses regex flag-name

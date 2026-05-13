@@ -59,7 +59,6 @@ fn paste_warn_modal_text_byte_exact_to_spec_9() {
     assert!(PASTE_WARN_MODAL_TEXT.contains("BIP-39 phrase"));
     assert!(PASTE_WARN_MODAL_TEXT.contains("BIP-38 ciphertext"));
     assert!(PASTE_WARN_MODAL_TEXT.contains("ms1 share"));
-    assert!(PASTE_WARN_MODAL_TEXT.contains("v0.2 deferred per FOLLOWUPS"));
     assert!(PASTE_WARN_MODAL_TEXT.contains("gui-os-snapshot-secret-occlusion"));
     assert!(PASTE_WARN_MODAL_TEXT.contains("gui-secret-buffer-allocator-residue"));
     // v0.2 Phase B.1: allocator-residue paragraph rewritten to describe
@@ -67,6 +66,17 @@ fn paste_warn_modal_text_byte_exact_to_spec_9() {
     assert!(PASTE_WARN_MODAL_TEXT.contains("Zeroizing<Vec<u8>>"));
     assert!(PASTE_WARN_MODAL_TEXT.contains("zeroed on drop"));
     assert!(PASTE_WARN_MODAL_TEXT.contains("undo ring"));
+    // v0.2 Phase B.2: OS-snapshot paragraph rewritten to confirm
+    // macOS/Windows suppression is active; Linux remains unmitigated.
+    // Match the wrapped form (source wraps at ~76 chars).
+    assert!(PASTE_WARN_MODAL_TEXT.contains("now suppress OS screenshot APIs"));
+    assert!(PASTE_WARN_MODAL_TEXT.contains("Linux remains unmitigated"));
+    // The "v0.2 deferred per FOLLOWUPS" wording was dropped by B.2
+    // (only the FOLLOWUPS slug remains for traceability).
+    assert!(
+        !PASTE_WARN_MODAL_TEXT.contains("v0.2 deferred per FOLLOWUPS"),
+        "v0.2 B.2 must remove the 'v0.2 deferred' OS-snapshot language"
+    );
 }
 
 // ─── v0.2 Phase B.1: SecretLineEdit ───────────────────────────────────────

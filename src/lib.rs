@@ -8,6 +8,7 @@ pub mod app;
 pub mod form;
 pub mod path_detect;
 pub mod persistence;
+pub mod platform;
 pub mod runner;
 pub mod schema;
 pub mod schema_check;

@@ -501,6 +501,44 @@ fn ci_build_version_step_present() {
     );
 }
 
+// ── Phase B.2 (v0.2): platform module compile gate ─────────────────────
+
+#[test]
+fn platform_module_compiles_linux() {
+    // SPEC §4 / Phase B.2 plan line 801: assert the platform module
+    // signature is importable and exposes the expected function. The
+    // test cannot drive a live WindowHandle in a unit-test context;
+    // it asserts the public function type-checks. Linux CI implicitly
+    // exercises the cfg-not-any branch; macOS/Windows CI implicitly
+    // exercise their cfg-gated branches.
+    use raw_window_handle::WindowHandle;
+    let f: fn(WindowHandle<'_>) = mnemonic_gui::platform::apply_window_capture_protection;
+    // Use `f` so the binding doesn't get dead-code-eliminated. (The
+    // function is never invoked here — no live WindowHandle exists.)
+    let _ = f;
+
+    // Linux build must not emit any `unsafe` block from this module
+    // (cfg-not-any branch is pure tracing::debug). Spot-check via
+    // source-substring: there is no `unsafe` token inside the
+    // cfg-not-any branch.
+    let src = std::fs::read_to_string(
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("src/platform.rs"),
+    )
+    .expect("read src/platform.rs");
+    let linux_branch_start = src
+        .find("#[cfg(not(any(target_os = \"macos\", windows)))]")
+        .expect("Linux cfg-not-any branch present");
+    let linux_branch_end = src[linux_branch_start..]
+        .find("\n}")
+        .map(|n| linux_branch_start + n)
+        .unwrap_or(src.len());
+    let linux_branch = &src[linux_branch_start..linux_branch_end];
+    assert!(
+        !linux_branch.contains("unsafe"),
+        "Linux branch of src/platform.rs must contain no `unsafe`"
+    );
+}
+
 #[test]
 fn extract_flag_names_handles_basic_help_text() {
     let sample = "Options:\n  --network <NETWORK>  [possible values: mainnet]\n  --template <T>\n  -h, --help\n";
