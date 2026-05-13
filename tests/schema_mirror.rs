@@ -438,6 +438,69 @@ fn ci_workflow_snapshot() {
     );
 }
 
+// ── Phase A.1 (v0.2): doubled-prefix artifact fix snapshot ─────────────
+//
+// SPEC §9 / Phase A.1: build.yml computes a `VERSION` env var by
+// stripping the `mnemonic-gui-` prefix from `github.ref_name`, and
+// templates artifact filenames against `${{ env.VERSION }}`. Pre-fix,
+// the workflow templated against `${{ env.REF_NAME }}` (raw ref name),
+// producing doubled-prefix artifacts like
+// `mnemonic-gui-mnemonic-gui-v0.1.0-x86_64-linux.tar.gz`. This cell
+// pins the fix: future edits that drop `compute-version` or reintroduce
+// `env.REF_NAME` in any artifact-name template fail this snapshot.
+//
+// Authored AFTER the workflow YAML is on disk (post-implementation
+// snapshot, NOT RED-driver) — Phase A.1 declared a RED-test exception
+// because CI YAML correctness is not reachable from `cargo test`.
+
+#[test]
+fn ci_build_version_step_present() {
+    let workflow_path =
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join(".github/workflows/build.yml");
+    let body = std::fs::read_to_string(&workflow_path)
+        .unwrap_or_else(|e| panic!("read {:?}: {}", workflow_path, e));
+
+    // Required: a `compute-version` step exists and uses `shell: bash`
+    // (Windows runners default to PowerShell; bash makes the strip
+    // portable across all five matrix targets).
+    assert!(
+        body.contains("name: compute-version"),
+        "build.yml must contain a `compute-version` step that strips \
+         the `mnemonic-gui-` prefix from github.ref_name into a \
+         `VERSION` env var (Phase A.1 / SPEC §9)"
+    );
+    assert!(
+        body.contains("shell: bash"),
+        "build.yml `compute-version` step must declare `shell: bash` \
+         so the prefix-strip parameter expansion works on the Windows \
+         runner (PowerShell default would break it)"
+    );
+
+    // Forbidden: any GitHub Actions template expression accessing the
+    // raw `env.REF_NAME` value (which carries the doubled prefix).
+    // Artifact-name templates must use `env.VERSION` instead.
+    assert!(
+        !body.contains("env.REF_NAME"),
+        "build.yml must not reference `env.REF_NAME` — that's the \
+         pre-Phase-A.1 raw ref name that produced doubled-prefix \
+         artifacts. Use `env.VERSION` (computed by the \
+         `compute-version` step) in artifact-name templates."
+    );
+
+    // Required: artifact-name templates use `env.VERSION`. Four sites
+    // mirror the four template locations in build.yml: `package-unix`
+    // ARTIFACT, `package-windows` ARTIFACT, `upload-artifact` name,
+    // `upload-artifact` path.
+    let env_version_count = body.matches("env.VERSION").count();
+    assert_eq!(
+        env_version_count, 4,
+        "build.yml must reference `env.VERSION` exactly 4 times (one \
+         each for package-unix ARTIFACT, package-windows ARTIFACT, \
+         upload-artifact name, upload-artifact path) — found {}",
+        env_version_count
+    );
+}
+
 #[test]
 fn extract_flag_names_handles_basic_help_text() {
     let sample = "Options:\n  --network <NETWORK>  [possible values: mainnet]\n  --template <T>\n  -h, --help\n";
