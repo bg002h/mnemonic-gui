@@ -8,8 +8,70 @@
 use eframe::egui;
 
 use crate::schema::{
-    FlagKind, FlagSchema, FlagValue, TaggedOrIndexedValue, TimestampValue,
+    FlagKind, FlagSchema, FlagValue, FormState, TaggedOrIndexedValue, TimestampValue,
 };
+
+/// Render the widget for `flag`, dispatching secret-class flags
+/// (`secrets::flag_is_secret(flag) && FlagKind::Text`) to the
+/// `SecretLineEdit` widget owned by `state.secret_widgets`, and non-secret
+/// flags to the existing [`render`] FlagValue-based path (SPEC §3 / B.1).
+///
+/// The secret path does NOT write to `state.values`; the secret buffer
+/// lives in `state.secret_widgets[flag.name]` and is consumed by
+/// `assemble_argv` via the secret-flag branch. This preserves the
+/// never-persist invariant by type — `secret_widgets` is `#[serde(skip)]`.
+pub fn render_with_dispatch(ui: &mut egui::Ui, flag: &FlagSchema, state: &mut FormState) {
+    if crate::secrets::flag_is_secret(flag) && matches!(flag.kind, FlagKind::Text) {
+        ui.horizontal(|ui| {
+            let widget = state.secret_widgets.entry(flag.name.to_string()).or_default();
+            widget.show(ui, flag.name, flag.help);
+            if flag.required {
+                ui.colored_label(egui::Color32::from_rgb(220, 60, 60), "*");
+            }
+        });
+        return;
+    }
+
+    // Non-secret path: look up FlagValue from state.values, render via
+    // the existing FlagValue-based renderer, then write back.
+    let idx = state.values.iter().position(|(k, _)| k == flag.name);
+    let mut value = match idx {
+        Some(i) => state.values[i].1.clone(),
+        None => default_flag_value_for(&flag.kind),
+    };
+    render(ui, flag, &mut value);
+    match idx {
+        Some(i) => state.values[i].1 = value,
+        None => state.values.push((flag.name.to_string(), value)),
+    }
+}
+
+/// Construct the default `FlagValue` for a given `FlagKind`. Mirrors the
+/// per-variant defaults previously used by the form-state initializer in
+/// `main.rs`; centralized here so `render_with_dispatch` and the legacy
+/// caller share one source of truth.
+pub fn default_flag_value_for(kind: &FlagKind) -> FlagValue {
+    match kind {
+        FlagKind::Text => FlagValue::Text(String::new()),
+        FlagKind::Number { min, .. } => FlagValue::Number(*min),
+        FlagKind::Dropdown(opts) => FlagValue::Dropdown(
+            opts.first().map(|s| (*s).to_string()).unwrap_or_default(),
+        ),
+        FlagKind::Boolean => FlagValue::Boolean(false),
+        FlagKind::Range => FlagValue::Range(0, 999),
+        FlagKind::Timestamp => FlagValue::Timestamp(TimestampValue::Now),
+        FlagKind::NodeValueComposite(opts) => FlagValue::NodeValueComposite {
+            node: opts.first().map(|s| (*s).to_string()).unwrap_or_default(),
+            value: String::new(),
+        },
+        FlagKind::TaggedOrIndexed(tags) => FlagValue::TaggedOrIndexed(
+            TaggedOrIndexedValue::Tag(
+                tags.first().map(|s| (*s).to_string()).unwrap_or_default(),
+            ),
+        ),
+        FlagKind::Path { .. } => FlagValue::Path(String::new()),
+    }
+}
 
 /// Render the widget appropriate for `flag.kind`, mutating `value` in place.
 pub fn render(ui: &mut egui::Ui, flag: &FlagSchema, value: &mut FlagValue) {

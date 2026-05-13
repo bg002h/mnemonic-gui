@@ -62,6 +62,67 @@ fn paste_warn_modal_text_byte_exact_to_spec_9() {
     assert!(PASTE_WARN_MODAL_TEXT.contains("v0.2 deferred per FOLLOWUPS"));
     assert!(PASTE_WARN_MODAL_TEXT.contains("gui-os-snapshot-secret-occlusion"));
     assert!(PASTE_WARN_MODAL_TEXT.contains("gui-secret-buffer-allocator-residue"));
+    // v0.2 Phase B.1: allocator-residue paragraph rewritten to describe
+    // the Zeroizing<Vec<u8>> primary buffer + undo-ring residue gap.
+    assert!(PASTE_WARN_MODAL_TEXT.contains("Zeroizing<Vec<u8>>"));
+    assert!(PASTE_WARN_MODAL_TEXT.contains("zeroed on drop"));
+    assert!(PASTE_WARN_MODAL_TEXT.contains("undo ring"));
+}
+
+// ─── v0.2 Phase B.1: SecretLineEdit ───────────────────────────────────────
+
+#[test]
+fn secret_line_edit_zeroize_empties_buffer() {
+    use mnemonic_gui::form::secret_widget::SecretLineEdit;
+    let mut w = SecretLineEdit::from_text("hunter2");
+    assert!(!w.is_empty());
+    assert_eq!(w.as_string(), "hunter2");
+    w.zeroize();
+    assert!(w.is_empty());
+    assert!(w.as_string().is_empty());
+}
+
+#[test]
+fn secret_line_edit_debug_impl_does_not_expose_content() {
+    use mnemonic_gui::form::secret_widget::SecretLineEdit;
+    let w = SecretLineEdit::from_text("super-secret-passphrase");
+    let dbg = format!("{:?}", w);
+    assert!(
+        !dbg.contains("super-secret-passphrase"),
+        "Debug impl must not expose buffer contents; got: {}",
+        dbg
+    );
+    assert!(
+        dbg.contains("len"),
+        "Debug impl should expose len-only metadata; got: {}",
+        dbg
+    );
+}
+
+#[test]
+fn form_state_secret_widgets_never_serialized() {
+    use mnemonic_gui::form::secret_widget::SecretLineEdit;
+    use mnemonic_gui::schema::FormState;
+    let mut state = FormState::default();
+    state
+        .secret_widgets
+        .insert("--passphrase".into(), SecretLineEdit::from_text("hunter2"));
+    let json = serde_json::to_string(&state).expect("FormState serialize");
+    assert!(
+        !json.contains("--passphrase"),
+        "secret_widgets must not appear in JSON via #[serde(skip)]; got: {}",
+        json
+    );
+    assert!(
+        !json.contains("hunter2"),
+        "secret buffer contents must not appear in JSON; got: {}",
+        json
+    );
+    assert!(
+        !json.contains("secret_widgets"),
+        "the secret_widgets key itself must not appear in JSON; got: {}",
+        json
+    );
 }
 
 // ─── Run-confirm modal ───────────────────────────────────────────────────

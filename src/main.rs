@@ -136,7 +136,13 @@ impl MnemonicGuiApp {
                         signal_hook::consts::SIGTERM,
                     ])
                     .expect("install signal-hook handlers");
-                    for sig in signals.forever() {
+                    // Single-shot: handler body always exits the process,
+                    // so the `for ... forever()` loop never iterates more
+                    // than once. `if let Some` is semantically identical
+                    // and satisfies `clippy::never_loop`. v0.2 Phase B.1
+                    // pickup of the v0.1.x pre-existing finding (CI for
+                    // v0.1 did not run clippy --all-targets; v0.2 does).
+                    if let Some(sig) = signals.forever().next() {
                         tracing::info!("received signal {sig}; requesting clean shutdown");
                         ctx_sig.send_viewport_cmd(egui::ViewportCommand::Close);
                         std::thread::sleep(std::time::Duration::from_secs(3));
@@ -362,24 +368,17 @@ impl eframe::App for MnemonicGuiApp {
                     if matches!(v, mnemonic_gui::schema::Visibility::Hidden) {
                         continue;
                     }
-                    let mut value = match state.values.iter().find(|(k, _)| k == flag.name) {
-                        Some((_, val)) => val.clone(),
-                        None => default_value_for_flag(&flag.kind),
-                    };
+                    // v0.2 Phase B.1: render_with_dispatch handles both
+                    // secret (SecretLineEdit via state.secret_widgets) and
+                    // non-secret (FlagValue via state.values) paths,
+                    // centralizing the get-or-default + write-back dance
+                    // and the secret/non-secret dispatch in one place.
                     ui.add_enabled_ui(
                         !matches!(v, mnemonic_gui::schema::Visibility::Disabled),
                         |ui| {
-                            widget::render(ui, flag, &mut value);
+                            widget::render_with_dispatch(ui, flag, state);
                         },
                     );
-                    // Write back.
-                    if let Some(slot) =
-                        state.values.iter_mut().find(|(k, _)| k == flag.name)
-                    {
-                        slot.1 = value;
-                    } else {
-                        state.values.push((flag.name.to_string(), value));
-                    }
                 }
                 // SlotEditor.
                 if sub.allows_slots {
@@ -513,31 +512,5 @@ fn spawn_and_capture(app: &mut MnemonicGuiApp, argv: Vec<String>) {
     }
 }
 
-fn default_value_for_flag(kind: &schema::FlagKind) -> FlagValue {
-    use schema::FlagKind;
-    match kind {
-        FlagKind::Text => FlagValue::Text(String::new()),
-        FlagKind::Number { min, .. } => FlagValue::Number(*min),
-        FlagKind::Dropdown(opts) => FlagValue::Dropdown(
-            opts.first().map(|s| (*s).to_string()).unwrap_or_default(),
-        ),
-        FlagKind::Boolean => FlagValue::Boolean(false),
-        FlagKind::Range => FlagValue::Range(0, 999),
-        FlagKind::Timestamp => {
-            FlagValue::Timestamp(schema::TimestampValue::Now)
-        }
-        FlagKind::NodeValueComposite(opts) => FlagValue::NodeValueComposite {
-            node: opts
-                .first()
-                .map(|s| (*s).to_string())
-                .unwrap_or_default(),
-            value: String::new(),
-        },
-        FlagKind::TaggedOrIndexed(tags) => FlagValue::TaggedOrIndexed(
-            schema::TaggedOrIndexedValue::Tag(
-                tags.first().map(|s| (*s).to_string()).unwrap_or_default(),
-            ),
-        ),
-        FlagKind::Path { .. } => FlagValue::Path(String::new()),
-    }
-}
+// `default_value_for_flag` migrated to `widget::default_flag_value_for`
+// in v0.2 Phase B.1 (centralized for use by `render_with_dispatch`).

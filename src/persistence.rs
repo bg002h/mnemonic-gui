@@ -30,7 +30,14 @@ use crate::secrets::{SECRET_FLAG_NAMES, SECRET_NODE_TYPES, SECRET_SLOT_SUBKEYS};
 pub const SCHEMA_VERSION: u32 = 1;
 
 /// On-disk shape — what's actually written to `state.json`.
-#[derive(Default, Debug, Clone, Serialize, Deserialize)]
+///
+/// `Clone` was removed in v0.2 Phase B.1 (SPEC §3 R2 C-1 fold).
+/// `BTreeMap<String, FormState>: Clone` requires `V: Clone`, and `FormState`
+/// dropped its `Clone` derive when `SecretLineEdit` (which deliberately
+/// does not implement `Clone`) was added. No v0.1.1 call site depended on
+/// `PersistedState::clone()` (verified by source scan); `redact_for_persistence`
+/// constructs the redacted value field-by-field rather than cloning.
+#[derive(Default, Debug, Serialize, Deserialize)]
 pub struct PersistedState {
     pub schema_version: u32,
     pub last_cli_tab: String,
@@ -88,6 +95,11 @@ pub fn redact_for_persistence(state: &FormState) -> FormState {
         values,
         slots: SlotState { rows: slot_rows },
         positionals: state.positionals.clone(),
+        // SPEC §3 / v0.2 Phase B.1: secret_widgets is never persisted
+        // (#[serde(skip)]) and is freshly default-constructed here so
+        // the redacted FormState has the never-persist invariant
+        // satisfied by type.
+        secret_widgets: BTreeMap::new(),
     }
 }
 

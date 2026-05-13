@@ -4,6 +4,7 @@
 //! tests live in `tests/argv_assembler_slot.rs` (Phase 3).
 
 use mnemonic_gui::form::invocation::assemble_argv;
+use mnemonic_gui::form::secret_widget::SecretLineEdit;
 use mnemonic_gui::schema::{
     self, FlagValue, FormState, TaggedOrIndexedValue, TimestampValue,
 };
@@ -20,14 +21,20 @@ fn subcommand(name: &str) -> &'static schema::SubcommandSchema {
 fn cell_1_bundle_phrase_minimal_argv() {
     // Covers Text + Number + Dropdown + Boolean emission rules. Boolean
     // `false` must NOT emit; absent fields must NOT emit.
-    let state = FormState::from_pairs(vec![
+    //
+    // v0.2 Phase B.1: secret-class flags (e.g. --passphrase) route
+    // through state.secret_widgets, NOT state.values, per SPEC §3
+    // assemble_argv branch.
+    let mut state = FormState::from_pairs(vec![
         ("--network", FlagValue::Dropdown("mainnet".into())),
         ("--template", FlagValue::Dropdown("bip84".into())),
-        ("--passphrase", FlagValue::Text("hunter2".into())),
         ("--account", FlagValue::Number(0)),
         ("--json", FlagValue::Boolean(true)),
         ("--privacy-preserving", FlagValue::Boolean(false)), // omit
     ]);
+    state
+        .secret_widgets
+        .insert("--passphrase".into(), SecretLineEdit::from_text("hunter2"));
     let argv = assemble_argv(&schema::mnemonic::SCHEMA, subcommand("bundle"), &state);
     assert_eq!(
         argv,
@@ -213,13 +220,18 @@ fn cell_6_node_value_composite_empty_value_omitted() {
 fn cell_7_emission_order_follows_schema_declaration() {
     // SPEC §6.3 + R1 L-1: argv flag order matches the schema's declared
     // flag order, NOT the form-state insertion order.
-    let state = FormState::from_pairs(vec![
+    //
+    // v0.2 Phase B.1: --passphrase lives in state.secret_widgets, not
+    // state.values; the emission order still follows the schema.
+    let mut state = FormState::from_pairs(vec![
         // Insert in REVERSE schema order.
         ("--account", FlagValue::Number(0)),
-        ("--passphrase", FlagValue::Text("p".into())),
         ("--template", FlagValue::Dropdown("bip84".into())),
         ("--network", FlagValue::Dropdown("signet".into())),
     ]);
+    state
+        .secret_widgets
+        .insert("--passphrase".into(), SecretLineEdit::from_text("p"));
     let argv = assemble_argv(&schema::mnemonic::SCHEMA, subcommand("bundle"), &state);
     assert_eq!(
         argv,
@@ -246,4 +258,43 @@ fn cell_8_argv_zero_is_unqualified_binary_name() {
     assert_eq!(argv[0], "mnemonic"); // not /usr/local/bin/mnemonic
     assert_eq!(argv[1], "derive-child");
     assert_eq!(argv.len(), 2); // no required flags populated → bare subcommand
+}
+
+// ─── v0.2 Phase B.1: secret-flag emission routes through secret_widgets ───
+
+#[test]
+fn secret_class_flag_emitted_from_secret_widget_not_values_map() {
+    // SPEC §3 (v0.2 B.1): the assemble_argv secret-flag branch reads
+    // ONLY from state.secret_widgets for secret-class flags; state.values
+    // is NOT consulted for them.
+    let mut state = FormState::default();
+    // Populate the secret-widget bucket with --passphrase.
+    state
+        .secret_widgets
+        .insert("--passphrase".into(), SecretLineEdit::from_text("alpha"));
+    // Populate state.values for a non-secret flag (--account) and also
+    // intentionally for --passphrase (this entry must be IGNORED by the
+    // secret-flag branch).
+    state.values.push((
+        "--passphrase".to_string(),
+        FlagValue::Text("BOGUS — should not appear in argv".into()),
+    ));
+    state.values.push(("--account".to_string(), FlagValue::Number(7)));
+
+    let argv = assemble_argv(&schema::mnemonic::SCHEMA, subcommand("bundle"), &state);
+
+    // The widget's "alpha" must appear; the BOGUS state.values entry must NOT.
+    let joined = argv.join(" ");
+    assert!(
+        joined.contains("--passphrase alpha"),
+        "--passphrase value must come from secret_widgets: {}",
+        joined
+    );
+    assert!(
+        !joined.contains("BOGUS"),
+        "state.values --passphrase entry must be ignored: {}",
+        joined
+    );
+    // --account must still emit from state.values (non-secret path).
+    assert!(joined.contains("--account 7"));
 }
