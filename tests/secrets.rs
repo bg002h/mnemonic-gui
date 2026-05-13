@@ -76,7 +76,8 @@ fn secret_line_edit_zeroize_empties_buffer() {
     use mnemonic_gui::form::secret_widget::SecretLineEdit;
     let mut w = SecretLineEdit::from_text("hunter2");
     assert!(!w.is_empty());
-    assert_eq!(w.as_string(), "hunter2");
+    // B.1 R1 I-2 fold: as_string() returns Zeroizing<String>.
+    assert_eq!(w.as_string().as_str(), "hunter2");
     w.zeroize();
     assert!(w.is_empty());
     assert!(w.as_string().is_empty());
@@ -134,6 +135,32 @@ fn run_confirm_fires_when_passphrase_populated() {
         ("--passphrase", FlagValue::Text("hunter2".into())),
     ]);
     assert!(should_confirm_run(subcommand("bundle"), &state));
+}
+
+#[test]
+fn run_confirm_fires_when_passphrase_in_secret_widgets() {
+    // B.1 R1 I-1 fold: should_confirm_run must trigger when a secret
+    // flag's value lives in state.secret_widgets (the post-B.1 runtime
+    // path). Independently verifies the `has_value` secret_widgets
+    // branch — if that branch were deleted, the previous test would
+    // still pass but this one would fail.
+    use mnemonic_gui::form::secret_widget::SecretLineEdit;
+    let mut state = FormState::default();
+    state.values.push((
+        "--network".to_string(),
+        FlagValue::Dropdown("mainnet".into()),
+    ));
+    state
+        .secret_widgets
+        .insert("--passphrase".into(), SecretLineEdit::from_text("hunter2"));
+    assert!(should_confirm_run(subcommand("bundle"), &state));
+
+    // Empty SecretLineEdit must NOT fire the modal.
+    let mut empty_state = FormState::default();
+    empty_state
+        .secret_widgets
+        .insert("--passphrase".into(), SecretLineEdit::new());
+    assert!(!should_confirm_run(subcommand("bundle"), &empty_state));
 }
 
 #[test]

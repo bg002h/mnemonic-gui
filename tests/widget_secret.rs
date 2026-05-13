@@ -60,7 +60,8 @@ fn cell_paste_warn_modal_trigger() {
     let pasted = "p".repeat(PASTE_WARN_THRESHOLD);
     let widget = SecretLineEdit::from_text(&pasted);
     assert!(!widget.is_empty());
-    assert_eq!(widget.as_string(), pasted);
+    // B.1 R1 I-2 fold: as_string() returns Zeroizing<String>.
+    assert_eq!(widget.as_string().as_str(), pasted);
 
     // Zeroizing the widget clears the buffer (used by the run-confirm
     // post-cancel cleanup path).

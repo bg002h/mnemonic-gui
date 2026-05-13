@@ -70,7 +70,10 @@ pub fn assemble_argv(
         if crate::secrets::flag_is_secret(flag) {
             if let Some(widget) = state.secret_widgets.get(flag.name) {
                 if !widget.is_empty() {
-                    let value = zeroize::Zeroizing::new(widget.as_string());
+                    // B.1 R1 I-2 fold: as_string() returns
+                    // Zeroizing<String> directly; the wrap is now
+                    // type-level rather than caller-applied.
+                    let value = widget.as_string();
                     argv.push(flag.name.to_string());
                     argv.push(value.as_str().to_string());
                 }

@@ -83,14 +83,17 @@ impl SecretLineEdit {
         transient.zeroize();
     }
 
-    /// Extract the current value as a `String` for argv assembly.
+    /// Extract the current value as a `Zeroizing<String>` for argv
+    /// assembly. The `Zeroizing` wrap engages `Drop` to zero the
+    /// transient `String`'s heap allocation past the call's end; this
+    /// is a best-effort guarantee, the allocator-residue caveat
+    /// (FOLLOWUPS `gui-secret-buffer-allocator-residue`) still applies.
     ///
-    /// **The caller MUST wrap the returned `String` in `Zeroizing::new(...)`**
-    /// (R1 N-1 fold). The transient String is heap-allocated, and
-    /// although its scope is one argv-assembly call, allocator residue
-    /// persists past drop. `assemble_argv` follows this contract.
-    pub fn as_string(&self) -> String {
-        String::from_utf8(self.buf.to_vec()).unwrap_or_default()
+    /// B.1 R1 I-2 fold: the return type was previously `String` with a
+    /// doc-only "caller MUST wrap" obligation. Type-level enforcement
+    /// makes the contract compile-time-checked.
+    pub fn as_string(&self) -> Zeroizing<String> {
+        Zeroizing::new(String::from_utf8(self.buf.to_vec()).unwrap_or_default())
     }
 
     /// True iff the buffer is non-empty. Mirrors `FlagValue::Text`
@@ -105,11 +108,6 @@ impl SecretLineEdit {
     }
 }
 
-/// Compile-time SAFETY check that a `Zeroizing::new(String)` wrap is the
-/// expected idiom for transient secrets extracted via [`as_string`].
-/// Mostly documentation — the wrap site is in `invocation.rs`.
-#[allow(dead_code)]
-fn _doctest_wrap_pattern() {
-    let w = SecretLineEdit::new();
-    let _wrapped: Zeroizing<String> = Zeroizing::new(w.as_string());
-}
+// `_doctest_wrap_pattern` removed in B.1 R1 I-2 fold — `as_string()` now
+// returns `Zeroizing<String>` directly, making the wrap contract
+// type-level rather than doc-only.
