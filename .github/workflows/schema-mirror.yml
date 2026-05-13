@@ -38,14 +38,14 @@ jobs:
         run: |
           cargo install --locked \
             --git https://github.com/bg002h/mnemonic-secret \
-            --tag ms-cli-v0.2.0 \
+            --tag ms-cli-v0.2.1 \
             ms-cli
 
       - name: install-mk-cli
         run: |
           cargo install --locked \
             --git https://github.com/bg002h/mnemonic-key \
-            --tag mk-cli-v0.3.0 \
+            --tag mk-cli-v0.3.1 \
             mk-cli
 
       - name: clone-upstream-mnemonic-toolkit

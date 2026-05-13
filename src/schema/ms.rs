@@ -1,4 +1,4 @@
-//! Pinned schema for the `ms` CLI (ms-cli-v0.2.0).
+//! Pinned schema for the `ms` CLI (ms-cli-v0.2.1).
 //!
 //! v0.2 scope: `inspect` (from v0.1) plus `encode`, `decode`, `verify`,
 //! `vectors`. See Phase D.1 audit report at
@@ -226,6 +226,6 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
 
 pub const SCHEMA: Schema = Schema {
     cli_name: "ms",
-    pinned_version: "ms 0.2.0",
+    pinned_version: "ms 0.2.1",
     subcommands: SUBCOMMANDS,
 };

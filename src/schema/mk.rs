@@ -1,4 +1,4 @@
-//! Pinned schema for the `mk` CLI (mk-cli-v0.3.0).
+//! Pinned schema for the `mk` CLI (mk-cli-v0.3.1).
 //!
 //! v0.2 scope: `inspect` (from v0.1) plus `encode`, `decode`, `verify`,
 //! `vectors`. See Phase D.1 audit report at
@@ -269,6 +269,6 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
 
 pub const SCHEMA: Schema = Schema {
     cli_name: "mk",
-    pinned_version: "mk 0.3.0",
+    pinned_version: "mk 0.3.1",
     subcommands: SUBCOMMANDS,
 };
