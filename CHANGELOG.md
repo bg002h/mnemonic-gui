@@ -3,6 +3,104 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## [0.2.0] — 2026-05-12
+
+v0.2 expands the GUI surface from the v0.1 baseline (one CLI's
+`mnemonic` subcommand surface) to all four sibling CLIs of the
+m-format constellation: `mnemonic`, `md`, `ms`, `mk` — 15 additional
+subcommands across 4 binaries. The release also lands the SPEC §7
+machine-readable schema contract (`<cli> gui-schema`), an OS-snapshot
+occlusion baseline (Phase B.2), a secret-buffer abstraction
+(Phase B.1), an egui_kittest harness scaffold (Phase A.3), and the
+doubled-prefix release-artifact fix (Phase A.1).
+
+### Added — sibling-CLI surface (Phase D)
+
+- `ms` subcommands: `decode`, `encode`, `mnemonic`, `wordlist`
+  (4 new schemas in `src/schema/ms.rs`).
+- `mk` subcommands: `decode`, `encode`, `derive`, `fingerprint`
+  (4 new schemas in `src/schema/mk.rs`).
+- `md` subcommands: `decode`, `encode`, `compile`, `derive`,
+  `address`, `policy`, `id` (7 new schemas in `src/schema/md.rs`).
+- `src/form/conditional.rs` — per-subcommand conditional-visibility
+  functions for `ms encode`, `mk encode`, `md encode`, `md compile`,
+  `md address` (SPEC §8 enumeration-discipline conformance).
+
+### Added — schema contract (Phase C)
+
+- `<cli> gui-schema` JSON contract (SPEC §7). All four sibling CLIs
+  now expose a `gui-schema` subcommand that walks their clap
+  `Command` tree and emits a machine-readable schema
+  (`{version: 1, cli, subcommands: [{name, flags, positionals}]}`).
+- `src/schema_check.rs::parse_gui_schema_json` + `json_flag_names`
+  — runtime consumer that shells out to `<cli> gui-schema`, parses
+  the JSON, and exposes the canonical per-subcommand flag-name set
+  to the schema-mirror gate. Falls back to v0.1
+  regex-on-`--help` if the binary lacks `gui-schema` or exits
+  non-zero.
+- `.github/workflows/schema-mirror.yml` — 4 new
+  `smoke-gui-schema-*` steps that validate each installed sibling
+  binary emits the SPEC §7 envelope on CI before the test suite runs.
+
+### Added — secret buffer + OS occlusion (Phase B)
+
+- `src/form/secret_widget.rs` — `SecretLineEdit` widget backed by
+  `Zeroizing<Vec<u8>>` for `--passphrase` and other secret-flag
+  fields. Buffer zeroes on drop, on form reset, and on app exit.
+  Excluded from `Serialize` / `Debug` derives; never persisted to
+  disk via `redact_for_persistence`.
+- `src/platform.rs` — first `unsafe` module in the codebase;
+  cfg-gated macOS / Windows / Linux occlusion impl: macOS uses
+  `NSWindowSharingType::NSWindowSharingNone` via `objc2` /
+  `objc2-app-kit`, Windows uses
+  `SetWindowDisplayAffinity(WDA_EXCLUDEFROMCAPTURE)` via
+  `windows-rs`, Linux logs that no compositor API is available.
+- `ctrlc` crate (windows-only) — Ctrl-C handler that runs the
+  same `on_exit()` cleanup path as the unix `signal_hook::iterator`
+  branch (Phase A.2).
+
+### Added — testing infrastructure (Phase A.3 + D.4)
+
+- `egui_kittest` (v0.31.1) dev-dependency; `accesskit` feature on
+  `eframe`.
+- `tests/widget_interaction.rs` — 4 cells driving real egui forms:
+  slot editor (cell 1), conditional visibility (cell 2),
+  `ms encode` argv assembly (cell 4), `md encode` dropdown
+  value-inspection (cell 5).
+- `tests/widget_secret.rs` — `cell_paste_warn_modal_trigger`
+  validates the paste-warn modal text and behavior on
+  `SecretLineEdit` paste events.
+- `tests/dropdown_id_salt.rs` — source-audit regression backstop
+  for the v0.1.2 ComboBox ID-collision hotfix.
+
+### Fixed
+
+- `.github/workflows/build.yml` — `compute-version` step strips
+  the `mnemonic-gui-` prefix from `github.ref_name` into a
+  `VERSION` env var; 4 artifact-name template sites now reference
+  `env.VERSION` instead of `env.REF_NAME`. Pre-fix this produced
+  doubled-prefix artifacts like
+  `mnemonic-gui-mnemonic-gui-v0.1.0-x86_64-linux.tar.gz`.
+
+### Pinned
+
+- `pinned-upstream.toml` — bumped all four sibling tags in
+  lockstep with the Phase C.2 PR merges:
+  `mnemonic-toolkit-v0.9.0`, `descriptor-mnemonic-md-cli-v0.5.0`,
+  `ms-cli-v0.2.0`, `mk-cli-v0.3.0`. All four
+  `gui-schema-capable = true` (Phase C.3).
+
+### Internal
+
+- `FormState` lost its `Clone` derive (the new `secret_widgets:
+  BTreeMap<String, SecretLineEdit>` field is intentionally
+  non-cloneable to prevent accidental secret duplication).
+- `PersistedState` lost its `Clone` derive for the same reason.
+- `Schema::pinned_version` strings bumped per CLI to match the
+  bumped sibling-binary `--version` output.
+- 122 tests pass across 15 binaries at the v0.2 release commit
+  (vs. ~65 at v0.1.2).
+
 ## [0.1.2] — 2026-05-12
 
 Dropdown-bug hotfix. The three `egui::ComboBox` instances in
