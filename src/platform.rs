@@ -3,7 +3,7 @@
 //! macOS App Switcher and Windows Task View can snapshot the visible
 //! window for live thumbnails. For a GUI that handles BIP-39 mnemonics
 //! and secret-class flags, those thumbnails are an exposure surface.
-//! v0.2 mitigates this on macOS via `NSWindowSharingType::None` and on
+//! v0.2 mitigates this on macOS via `NSWindowSharingType::NSWindowSharingNone` and on
 //! Windows via `WDA_EXCLUDEFROMCAPTURE`. Linux has no compositor-level
 //! analogue at v0.2 and remains documented at FOLLOWUPS
 //! `gui-os-snapshot-secret-occlusion`.
@@ -31,7 +31,6 @@ pub fn apply_window_capture_protection(handle: WindowHandle<'_>) {
 #[cfg(target_os = "macos")]
 fn apply_for_raw(raw: RawWindowHandle) {
     use objc2::rc::Retained;
-    use objc2::runtime::AnyObject;
     use objc2_app_kit::{NSView, NSWindow, NSWindowSharingType};
 
     let RawWindowHandle::AppKit(h) = raw else {
@@ -43,35 +42,29 @@ fn apply_for_raw(raw: RawWindowHandle) {
     };
 
     // SAFETY: `h.ns_view` is a valid NSView pointer for the duration of
-    // the WindowHandle borrow. winit/eframe constructs this from an
-    // already-retained NSView. We immediately convert to a typed
-    // reference and immediately query `.window()` — no long-lived alias.
-    let view: &NSView = unsafe {
-        let ptr = h.ns_view.as_ptr().cast::<NSView>();
-        // ns_view is `NonNull<c_void>` — cast then deref.
-        &*ptr
-    };
+    // the WindowHandle<'_> borrow. The NSView is retained by the eframe
+    // window system for the duration of this call (raw-window-handle
+    // 0.6 contract). `MnemonicGuiApp::new(cc)` — the sole call site —
+    // runs on the main thread, satisfying AppKit's NSView main-thread-
+    // only requirement. We immediately convert to a typed reference and
+    // immediately query `.window()`; no long-lived alias is held past
+    // this function's return.
+    let view: &NSView = unsafe { &*h.ns_view.as_ptr().cast::<NSView>() };
 
-    // SAFETY: view is a live NSView; `.window()` is a documented
-    // accessor returning the parent NSWindow (or nil if the view is not
-    // yet attached). Both safe to call.
-    let window: Option<Retained<NSWindow>> = unsafe { view.window() };
+    // B.2 R1 I-1 fold: `view.window()` and `window.setSharingType(...)`
+    // are both declared `pub fn` (safe) in objc2-app-kit 0.2 — no
+    // `unsafe` block needed for either.
+    let window: Option<Retained<NSWindow>> = view.window();
 
     let Some(window) = window else {
         tracing::warn!("OS-snapshot occlusion (macOS): NSView has no parent NSWindow yet; skip");
         return;
     };
 
-    // SAFETY: window is a valid retained NSWindow. setSharingType is a
-    // documented method on NSWindow (NSWindowSharingType::None = 0).
-    unsafe {
-        window.setSharingType(NSWindowSharingType::None);
-    }
+    window.setSharingType(NSWindowSharingType::NSWindowSharingNone);
 
-    // Silence unused-import warnings on architecture mismatches.
-    let _ = std::any::type_name::<AnyObject>();
     tracing::debug!(
-        "OS-snapshot occlusion (macOS): NSWindowSharingType::None applied"
+        "OS-snapshot occlusion (macOS): NSWindowSharingType::NSWindowSharingNone applied"
     );
 }
 
