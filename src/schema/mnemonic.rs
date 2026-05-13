@@ -788,6 +788,6 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
 // `pinned_version` for runtime soft-check.
 pub const SCHEMA: Schema = Schema {
     cli_name: "mnemonic",
-    pinned_version: "mnemonic 0.8.0",
+    pinned_version: "mnemonic 0.9.0",
     subcommands: SUBCOMMANDS,
 };

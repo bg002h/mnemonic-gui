@@ -22,14 +22,14 @@ checkout-root = ""
 
 [mnemonic]
 url = "https://github.com/bg002h/mnemonic-toolkit"
-tag = "mnemonic-toolkit-v0.8.1"
+tag = "mnemonic-toolkit-v0.9.0"
 bin = "mnemonic"
 workspace-member-path = "crates/mnemonic-toolkit"
 # v0.2 Phase C.1: GUI consults `<cli> gui-schema` JSON path when true;
 # falls back to v0.1 regex-on-`--help` when false. Flipped to true
 # per-CLI in Phase C.3 once the sibling-repo PR (Phase C.2) lands
 # and pinned `tag` bumps to the release that includes `gui-schema`.
-gui-schema-capable = false
+gui-schema-capable = true
 
 [md]
 # Phase 6 R0: bumped from v0.3.0 to v0.4.3 to match the binary version
@@ -38,21 +38,21 @@ gui-schema-capable = false
 # can't fire a false-positive banner. R1 reviewer may flag if a
 # different tag is preferable.
 url = "https://github.com/bg002h/descriptor-mnemonic"
-tag = "descriptor-mnemonic-md-cli-v0.4.3"
+tag = "descriptor-mnemonic-md-cli-v0.5.0"
 bin = "md"
 workspace-member-path = "crates/md-cli"
-gui-schema-capable = false
+gui-schema-capable = true
 
 [ms]
 url = "https://github.com/bg002h/mnemonic-secret"
-tag = "ms-cli-v0.1.0"
+tag = "ms-cli-v0.2.0"
 bin = "ms"
 workspace-member-path = "crates/ms-cli"
-gui-schema-capable = false
+gui-schema-capable = true
 
 [mk]
 url = "https://github.com/bg002h/mnemonic-key"
-tag = "mk-cli-v0.2.0"
+tag = "mk-cli-v0.3.0"
 bin = "mk"
 workspace-member-path = "crates/mk-cli"
-gui-schema-capable = false
+gui-schema-capable = true

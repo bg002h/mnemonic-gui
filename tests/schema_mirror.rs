@@ -403,6 +403,16 @@ fn ci_workflow_snapshot() {
         "install-mk-cli",
         "clone-upstream-mnemonic-toolkit",
         "cargo-test-schema-mirror",
+        // Phase C.3 v0.2: per-CLI gui-schema smoke steps assert that
+        // each installed binary exposes a SPEC §7 `gui-schema` subcommand
+        // emitting `{version:1, cli:<name>, ...}`. If the smoke step is
+        // dropped the CI gate stops noticing a regression at the
+        // subcommand boundary even when the rest of the workflow
+        // passes.
+        "smoke-gui-schema-mnemonic",
+        "smoke-gui-schema-md",
+        "smoke-gui-schema-ms",
+        "smoke-gui-schema-mk",
     ];
     for step in &required_steps {
         assert!(
@@ -415,11 +425,15 @@ fn ci_workflow_snapshot() {
     // Required pinned tags — the workflow installs the binaries that
     // tests/schema_mirror.rs cells run against. If the pin drifts
     // here without the schema also drifting, the CI gate fails.
+    //
+    // Phase C.3 v0.2: bumped in lockstep with the sibling-repo
+    // `gui-schema` PRs that landed at C.2. Each bump corresponds to a
+    // release tag that includes the new subcommand.
     let required_tags = [
-        "mnemonic-toolkit-v0.8.1",
-        "descriptor-mnemonic-md-cli-v0.4.3",
-        "ms-cli-v0.1.0",
-        "mk-cli-v0.2.0",
+        "mnemonic-toolkit-v0.9.0",
+        "descriptor-mnemonic-md-cli-v0.5.0",
+        "ms-cli-v0.2.0",
+        "mk-cli-v0.3.0",
     ];
     for tag in &required_tags {
         assert!(
@@ -541,37 +555,79 @@ fn schema_check_json_returns_none_for_missing_subcommand() {
 }
 
 #[test]
-fn schema_check_json_falls_back_on_non_capable_cli() {
-    // All four CLIs have gui-schema-capable = false in pinned-upstream.toml
-    // at C.1 (flipped to true per-CLI in C.3 after C.2 PRs merge).
-    // json_flag_names returns None; caller falls back to regex path.
-    for cli in ["mnemonic", "md", "ms", "mk"] {
-        let result = mnemonic_gui::schema_check::json_flag_names(cli, "encode");
+fn schema_check_json_invokes_gui_schema_on_capable_cli() {
+    // Phase C.3 v0.2: all four CLIs are now `gui-schema-capable = true`
+    // in pinned-upstream.toml, in lockstep with the bumped tags
+    // (mnemonic-toolkit-v0.9.0 / md-v0.5.0 / ms-v0.2.0 / mk-v0.3.0).
+    // `json_flag_names` should exec the installed binary's
+    // `gui-schema` subcommand and return `Some(...)` for an existing
+    // subcommand.
+    //
+    // The binary lookup matches schema_check.rs::json_flag_names: it
+    // honours the per-CLI *_BIN env var (set by CI), falling back to
+    // bare-name PATH lookup. Skip the cell if a binary cannot be
+    // located so dev-laptop runs without the sibling CLIs installed
+    // don't spuriously fail.
+    for (cli, sub) in [
+        ("mnemonic", "bundle"),
+        ("md", "encode"),
+        ("ms", "encode"),
+        ("mk", "encode"),
+    ] {
+        let env_var = format!("{}_BIN", cli.to_uppercase());
+        let candidate = std::env::var(&env_var).ok().unwrap_or_else(|| cli.to_string());
+        let probe = std::process::Command::new(&candidate)
+            .arg("gui-schema")
+            .output();
+        match probe {
+            Ok(o) if o.status.success() => {}
+            Ok(o) => {
+                eprintln!(
+                    "skipping {cli}: gui-schema exited {:?} stderr={}",
+                    o.status,
+                    String::from_utf8_lossy(&o.stderr)
+                );
+                continue;
+            }
+            Err(e) => {
+                eprintln!("skipping {cli}: cannot exec {candidate:?}: {e}");
+                continue;
+            }
+        }
+        let result = mnemonic_gui::schema_check::json_flag_names(cli, sub);
         assert!(
-            result.is_none(),
-            "gui-schema-capable should be false for {cli} at v0.2 C.1; got {result:?}"
+            result.is_some(),
+            "gui-schema-capable=true expects Some(_) for {cli} {sub}; got None"
+        );
+        assert!(
+            !result.as_ref().unwrap().is_empty(),
+            "{cli} {sub} should expose at least one flag via gui-schema"
         );
     }
 }
 
 #[test]
-fn pinned_upstream_gui_schema_capable_default_false() {
-    // C.1 invariant: all four CLI sections carry
-    // `gui-schema-capable = false` at the v0.2 C.1 commit. C.3 flips
-    // them per-CLI in lockstep with sibling-repo PR merges + tag bumps.
+fn pinned_upstream_gui_schema_capable_all_true_at_c3() {
+    // Phase C.3 v0.2 invariant: all four CLI sections carry
+    // `gui-schema-capable = true` once the sibling-repo PRs land and
+    // the tag pins move forward (which happens together at C.3). If
+    // any CLI is still `false` here, either (a) the sibling-repo PR
+    // didn't ship the subcommand, or (b) the tag bump was applied
+    // without flipping the capability flag — both leave the schema
+    // gate stuck on the regex-on-`--help` fallback path.
     let body = std::fs::read_to_string(
         std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("pinned-upstream.toml"),
     )
     .expect("read pinned-upstream.toml");
-    let occurrences = body.matches("gui-schema-capable = false").count();
+    let occurrences = body.matches("gui-schema-capable = true").count();
     assert_eq!(
         occurrences, 4,
-        "expected 4 'gui-schema-capable = false' occurrences in pinned-upstream.toml; got {}",
+        "expected 4 'gui-schema-capable = true' occurrences in pinned-upstream.toml; got {}",
         occurrences
     );
     assert!(
-        !body.contains("gui-schema-capable = true"),
-        "no CLI should be gui-schema-capable = true until Phase C.3"
+        !body.contains("gui-schema-capable = false"),
+        "no CLI should be gui-schema-capable = false at Phase C.3"
     );
 }
 
