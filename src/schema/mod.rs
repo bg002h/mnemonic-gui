@@ -211,6 +211,31 @@ impl FormState {
                 .get(name)
                 .is_some_and(|w| !w.is_empty())
     }
+
+    /// v0.2 D.1 N-1: True iff positional `idx` is filled. Used by
+    /// conditional fns that gate flags on positional presence
+    /// (e.g. md_encode TEMPLATE XOR --from-policy).
+    pub fn has_positional(&self, idx: usize) -> bool {
+        self.positionals.get(idx).is_some_and(|s| !s.is_empty())
+    }
+
+    /// v0.2 D.1 N-2: Return the Dropdown value string for `name`, or
+    /// `None` if the flag is absent / has a different FlagValue variant.
+    /// Used by conditional fns that gate flags on Dropdown value-inspect
+    /// (e.g. md_encode/md_compile gating --unspendable-key on --context).
+    pub fn dropdown_value(&self, name: &str) -> Option<&str> {
+        self.values.iter().find_map(|(k, v)| {
+            if k == name {
+                if let FlagValue::Dropdown(s) = v {
+                    Some(s.as_str())
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
+        })
+    }
 }
 
 fn flag_value_is_present(v: &FlagValue) -> bool {

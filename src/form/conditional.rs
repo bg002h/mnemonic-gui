@@ -135,3 +135,43 @@ pub fn export_wallet(state: &FormState) -> FlagVisibility {
 // `derive-child` has no clap conflicts_with / required_unless_present
 // constraints in v0.8.1 — all required flags are at clap-level (`--from`,
 // `--application`, `--length`, `--index`). No conditional fn needed.
+
+/// v0.2 D.2: `ms encode` conditionals.
+///
+/// Upstream: `--phrase` XOR `--hex` (required_one_of with mutual
+/// exclusion); `--language` is ignored when `--hex` is supplied.
+pub fn ms_encode(state: &FormState) -> FlagVisibility {
+    let mut vis = Vec::new();
+    let has_phrase = state.has_value("--phrase");
+    let has_hex = state.has_value("--hex");
+    if has_phrase {
+        vis.push(("--hex", Visibility::Disabled));
+    }
+    if has_hex {
+        vis.push(("--phrase", Visibility::Disabled));
+        // --language is ignored when --hex is supplied (upstream help).
+        vis.push(("--language", Visibility::Hidden));
+    }
+    if !has_phrase && !has_hex {
+        vis.push(("--phrase", Visibility::Required));
+        vis.push(("--hex", Visibility::Required));
+    }
+    vis
+}
+
+/// v0.2 D.2: `mk encode` conditionals.
+///
+/// Upstream: `--origin-fingerprint` conflicts_with `--privacy-preserving`
+/// (bidirectional, explicit in help).
+pub fn mk_encode(state: &FormState) -> FlagVisibility {
+    let mut vis = Vec::new();
+    let has_fp = state.has_value("--origin-fingerprint");
+    let has_priv = state.has_value("--privacy-preserving");
+    if has_fp {
+        vis.push(("--privacy-preserving", Visibility::Disabled));
+    }
+    if has_priv {
+        vis.push(("--origin-fingerprint", Visibility::Disabled));
+    }
+    vis
+}

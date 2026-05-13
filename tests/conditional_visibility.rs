@@ -35,6 +35,30 @@ fn run_conditional(name: &str, state: &FormState) -> Vec<(&'static str, Visibili
         .unwrap_or_else(|| panic!("subcommand {} has no conditional fn", name))(state)
 }
 
+/// v0.2 D.2: dispatch by CLI name for the ms / mk schemas. Existing
+/// mnemonic-CLI tests keep using `run_conditional` above; new D.2 cells
+/// route through this helper.
+fn run_conditional_for_cli(
+    name: &str,
+    state: &FormState,
+    cli: &str,
+) -> Vec<(&'static str, Visibility)> {
+    let schema_for_cli: &schema::Schema = match cli {
+        "mnemonic" => &schema::mnemonic::SCHEMA,
+        "ms" => &schema::ms::SCHEMA,
+        "mk" => &schema::mk::SCHEMA,
+        "md" => &schema::md::SCHEMA,
+        other => panic!("unknown cli {}", other),
+    };
+    let sub = schema_for_cli
+        .subcommands
+        .iter()
+        .find(|s| s.name == name)
+        .unwrap_or_else(|| panic!("subcommand {} not in {} schema", name, cli));
+    sub.conditional
+        .unwrap_or_else(|| panic!("subcommand {} ({}) has no conditional fn", name, cli))(state)
+}
+
 fn vis_of(vis: &[(&'static str, Visibility)], flag: &str) -> Visibility {
     vis.iter()
         .find(|(k, _)| *k == flag)
@@ -286,4 +310,80 @@ fn coverage_all_constrained_subcommands_have_conditional_fn() {
         );
     }
     assert!(subcommand("derive-child").conditional.is_none());
+
+    // v0.2 D.2: ms/mk new constrained subcommands also carry conditionals.
+    for (cli, name) in [("ms", "encode"), ("mk", "encode")] {
+        let schema_for_cli: &schema::Schema = match cli {
+            "ms" => &schema::ms::SCHEMA,
+            "mk" => &schema::mk::SCHEMA,
+            _ => unreachable!(),
+        };
+        let sub = schema_for_cli
+            .subcommands
+            .iter()
+            .find(|s| s.name == name)
+            .unwrap_or_else(|| panic!("{} {} not in schema", cli, name));
+        assert!(
+            sub.conditional.is_some(),
+            "{} {} must have a conditional fn",
+            cli,
+            name
+        );
+    }
+}
+
+// ─── v0.2 D.2: ms encode + mk encode constraints ─────────────────────────
+
+#[test]
+fn cell_d2_ms_encode_phrase_disables_hex() {
+    let state = FormState::from_pairs(vec![(
+        "--phrase",
+        FlagValue::Text("abandon abandon ...".into()),
+    )]);
+    assert_eq!(
+        vis_of(&run_conditional_for_cli("encode", &state, "ms"), "--hex"),
+        Visibility::Disabled
+    );
+}
+
+#[test]
+fn cell_d2_ms_encode_hex_disables_phrase_and_hides_language() {
+    let state = FormState::from_pairs(vec![("--hex", FlagValue::Text("00112233...".into()))]);
+    let vis = run_conditional_for_cli("encode", &state, "ms");
+    assert_eq!(vis_of(&vis, "--phrase"), Visibility::Disabled);
+    assert_eq!(vis_of(&vis, "--language"), Visibility::Hidden);
+}
+
+#[test]
+fn cell_d2_ms_encode_both_required_when_neither_set() {
+    let state = FormState::default();
+    let vis = run_conditional_for_cli("encode", &state, "ms");
+    assert_eq!(vis_of(&vis, "--phrase"), Visibility::Required);
+    assert_eq!(vis_of(&vis, "--hex"), Visibility::Required);
+}
+
+#[test]
+fn cell_d2_mk_encode_origin_fingerprint_conflicts_privacy_preserving() {
+    let state = FormState::from_pairs(vec![(
+        "--origin-fingerprint",
+        FlagValue::Text("12345678".into()),
+    )]);
+    assert_eq!(
+        vis_of(
+            &run_conditional_for_cli("encode", &state, "mk"),
+            "--privacy-preserving"
+        ),
+        Visibility::Disabled
+    );
+    let state = FormState::from_pairs(vec![(
+        "--privacy-preserving",
+        FlagValue::Boolean(true),
+    )]);
+    assert_eq!(
+        vis_of(
+            &run_conditional_for_cli("encode", &state, "mk"),
+            "--origin-fingerprint"
+        ),
+        Visibility::Disabled
+    );
 }
