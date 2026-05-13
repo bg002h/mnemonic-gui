@@ -59,9 +59,81 @@ fn paste_warn_modal_text_byte_exact_to_spec_9() {
     assert!(PASTE_WARN_MODAL_TEXT.contains("BIP-39 phrase"));
     assert!(PASTE_WARN_MODAL_TEXT.contains("BIP-38 ciphertext"));
     assert!(PASTE_WARN_MODAL_TEXT.contains("ms1 share"));
-    assert!(PASTE_WARN_MODAL_TEXT.contains("v0.2 deferred per FOLLOWUPS"));
     assert!(PASTE_WARN_MODAL_TEXT.contains("gui-os-snapshot-secret-occlusion"));
     assert!(PASTE_WARN_MODAL_TEXT.contains("gui-secret-buffer-allocator-residue"));
+    // v0.2 Phase B.1: allocator-residue paragraph rewritten to describe
+    // the Zeroizing<Vec<u8>> primary buffer + undo-ring residue gap.
+    assert!(PASTE_WARN_MODAL_TEXT.contains("Zeroizing<Vec<u8>>"));
+    assert!(PASTE_WARN_MODAL_TEXT.contains("zeroed on drop"));
+    assert!(PASTE_WARN_MODAL_TEXT.contains("undo ring"));
+    // v0.2 Phase B.2: OS-snapshot paragraph rewritten to confirm
+    // macOS/Windows suppression is active; Linux remains unmitigated.
+    // Match the wrapped form (source wraps at ~76 chars).
+    assert!(PASTE_WARN_MODAL_TEXT.contains("now suppress OS screenshot APIs"));
+    assert!(PASTE_WARN_MODAL_TEXT.contains("Linux remains unmitigated"));
+    // The "v0.2 deferred per FOLLOWUPS" wording was dropped by B.2
+    // (only the FOLLOWUPS slug remains for traceability).
+    assert!(
+        !PASTE_WARN_MODAL_TEXT.contains("v0.2 deferred per FOLLOWUPS"),
+        "v0.2 B.2 must remove the 'v0.2 deferred' OS-snapshot language"
+    );
+}
+
+// ─── v0.2 Phase B.1: SecretLineEdit ───────────────────────────────────────
+
+#[test]
+fn secret_line_edit_zeroize_empties_buffer() {
+    use mnemonic_gui::form::secret_widget::SecretLineEdit;
+    let mut w = SecretLineEdit::from_text("hunter2");
+    assert!(!w.is_empty());
+    // B.1 R1 I-2 fold: as_string() returns Zeroizing<String>.
+    assert_eq!(w.as_string().as_str(), "hunter2");
+    w.zeroize();
+    assert!(w.is_empty());
+    assert!(w.as_string().is_empty());
+}
+
+#[test]
+fn secret_line_edit_debug_impl_does_not_expose_content() {
+    use mnemonic_gui::form::secret_widget::SecretLineEdit;
+    let w = SecretLineEdit::from_text("super-secret-passphrase");
+    let dbg = format!("{:?}", w);
+    assert!(
+        !dbg.contains("super-secret-passphrase"),
+        "Debug impl must not expose buffer contents; got: {}",
+        dbg
+    );
+    assert!(
+        dbg.contains("len"),
+        "Debug impl should expose len-only metadata; got: {}",
+        dbg
+    );
+}
+
+#[test]
+fn form_state_secret_widgets_never_serialized() {
+    use mnemonic_gui::form::secret_widget::SecretLineEdit;
+    use mnemonic_gui::schema::FormState;
+    let mut state = FormState::default();
+    state
+        .secret_widgets
+        .insert("--passphrase".into(), SecretLineEdit::from_text("hunter2"));
+    let json = serde_json::to_string(&state).expect("FormState serialize");
+    assert!(
+        !json.contains("--passphrase"),
+        "secret_widgets must not appear in JSON via #[serde(skip)]; got: {}",
+        json
+    );
+    assert!(
+        !json.contains("hunter2"),
+        "secret buffer contents must not appear in JSON; got: {}",
+        json
+    );
+    assert!(
+        !json.contains("secret_widgets"),
+        "the secret_widgets key itself must not appear in JSON; got: {}",
+        json
+    );
 }
 
 // ─── Run-confirm modal ───────────────────────────────────────────────────
@@ -73,6 +145,32 @@ fn run_confirm_fires_when_passphrase_populated() {
         ("--passphrase", FlagValue::Text("hunter2".into())),
     ]);
     assert!(should_confirm_run(subcommand("bundle"), &state));
+}
+
+#[test]
+fn run_confirm_fires_when_passphrase_in_secret_widgets() {
+    // B.1 R1 I-1 fold: should_confirm_run must trigger when a secret
+    // flag's value lives in state.secret_widgets (the post-B.1 runtime
+    // path). Independently verifies the `has_value` secret_widgets
+    // branch — if that branch were deleted, the previous test would
+    // still pass but this one would fail.
+    use mnemonic_gui::form::secret_widget::SecretLineEdit;
+    let mut state = FormState::default();
+    state.values.push((
+        "--network".to_string(),
+        FlagValue::Dropdown("mainnet".into()),
+    ));
+    state
+        .secret_widgets
+        .insert("--passphrase".into(), SecretLineEdit::from_text("hunter2"));
+    assert!(should_confirm_run(subcommand("bundle"), &state));
+
+    // Empty SecretLineEdit must NOT fire the modal.
+    let mut empty_state = FormState::default();
+    empty_state
+        .secret_widgets
+        .insert("--passphrase".into(), SecretLineEdit::new());
+    assert!(!should_confirm_run(subcommand("bundle"), &empty_state));
 }
 
 #[test]

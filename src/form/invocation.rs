@@ -59,6 +59,27 @@ pub fn assemble_argv(
             }
             continue;
         }
+        // SPEC §3 / v0.2 Phase B.1: secret-flag branch. For secret-class
+        // flags, the buffer lives in `state.secret_widgets[flag.name]`
+        // (a `SecretLineEdit` owning a `Zeroizing<Vec<u8>>`), NOT in
+        // `state.values`. Wrap the extracted `String` in `Zeroizing::new`
+        // per R1 N-1 fold — the transient is one-call-scoped but heap-
+        // allocated, so the wrap engages `Zeroizing::Drop` for best-
+        // effort zeroing past the argv emission. The `state.values`
+        // lookup is bypassed for secret flags entirely.
+        if crate::secrets::flag_is_secret(flag) {
+            if let Some(widget) = state.secret_widgets.get(flag.name) {
+                if !widget.is_empty() {
+                    // B.1 R1 I-2 fold: as_string() returns
+                    // Zeroizing<String> directly; the wrap is now
+                    // type-level rather than caller-applied.
+                    let value = widget.as_string();
+                    argv.push(flag.name.to_string());
+                    argv.push(value.as_str().to_string());
+                }
+            }
+            continue;
+        }
         if flag.repeating {
             for (_, value) in state.values.iter().filter(|(k, _)| k == flag.name) {
                 emit_one(flag, value, &mut argv);

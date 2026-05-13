@@ -1,6 +1,6 @@
 [package]
 name = "mnemonic-gui"
-version = "0.1.2"
+version = "0.2.0"
 edition = "2021"
 rust-version = "1.85"
 license = "MIT"
@@ -10,7 +10,7 @@ readme = "README.md"
 
 [dependencies]
 clap = { version = "4", features = ["derive"] }
-eframe = { version = "0.31", default-features = false, features = ["wgpu", "default_fonts", "wayland", "x11"] }
+eframe = { version = "0.31", default-features = false, features = ["wgpu", "default_fonts", "wayland", "x11", "accesskit"] }
 egui = "0.31"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
@@ -19,9 +19,31 @@ tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 zeroize = "1"
 shlex = "1"
+# v0.2 Phase C.1: pinned-upstream.toml reader in schema_check.rs.
+# Was [dev-dependencies] only in v0.1; promoted to runtime dep in
+# v0.2 since the GUI now reads the pinned table at runtime to decide
+# the regex vs gui-schema-JSON path per CLI.
+toml = "0.8"
 
 [target.'cfg(unix)'.dependencies]
 signal-hook = "0.3"
+
+[target.'cfg(windows)'.dependencies]
+ctrlc = "3"
+# v0.2 Phase B.2: SetWindowDisplayAffinity + WDA_EXCLUDEFROMCAPTURE
+# for OS-snapshot occlusion (Task View thumbnails).
+windows = { version = "0.58", features = ["Win32_Foundation", "Win32_UI_WindowsAndMessaging"] }
+
+[target.'cfg(target_os = "macos")'.dependencies]
+# v0.2 Phase B.2: NSWindowSharingType::None for OS-snapshot occlusion
+# (App Switcher / Mission Control thumbnails).
+objc2 = "0.5"
+objc2-app-kit = "0.2"
+
+[dependencies.raw-window-handle]
+# eframe re-exports this transitively; importing explicitly to keep
+# the Phase B.2 platform module's signature stable.
+version = "0.6"
 
 [dev-dependencies]
 tempfile = "3"
@@ -29,6 +51,7 @@ syn = { version = "2", features = ["full", "extra-traits"] }
 quote = "1"
 proc-macro2 = "1"
 toml = "0.8"
+egui_kittest = "0.31"
 
 [build-dependencies]
 syn = { version = "2", features = ["full", "extra-traits"] }

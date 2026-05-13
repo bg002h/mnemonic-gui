@@ -85,6 +85,24 @@ struct MnemonicGuiApp {
 
 impl MnemonicGuiApp {
     fn new(cc: &eframe::CreationContext<'_>) -> Self {
+        // v0.2 Phase B.2: OS-snapshot occlusion. macOS:
+        // NSWindowSharingType::None; Windows: WDA_EXCLUDEFROMCAPTURE;
+        // Linux: no-op (no compositor API at v0.2 — documented at
+        // FOLLOWUPS `gui-os-snapshot-secret-occlusion`). Applied
+        // here in `new()` so the protection is active for the entire
+        // session, including the secret-bearing paste-warn modal.
+        {
+            use raw_window_handle::HasWindowHandle;
+            if let Ok(handle) = cc.window_handle() {
+                mnemonic_gui::platform::apply_window_capture_protection(handle);
+            } else {
+                tracing::warn!(
+                    "OS-snapshot occlusion: cc.window_handle() failed; \
+                     protection NOT applied (snapshots may leak)"
+                );
+            }
+        }
+
         // Wayland compositor liveness keepalive. egui's reactive paint loop
         // only wakes `update()` on input events, so an idle window can go
         // many seconds between Wayland surface commits — long enough that
@@ -112,15 +130,19 @@ impl MnemonicGuiApp {
             })
             .expect("spawn wayland-keepalive thread");
 
-        // SIGINT / SIGTERM handler. Routes through ViewportCommand::Close
-        // so the eframe shutdown path runs (on_exit zeroize sweep,
-        // window-close confirmation if any). If the event loop is
-        // unresponsive, escalates to process::exit after a 3 s grace.
-        // Unix-only: signal-hook's iterator API is gated on
-        // cfg(not(windows)). Windows uses a different Ctrl-C handler
-        // model (Console CtrlC handler); v0.2 candidate to add via
-        // the `ctrlc` crate if a user reports wanting graceful Ctrl-C
-        // on Windows.
+        // Graceful Ctrl-C / SIGTERM handler. Routes through
+        // ViewportCommand::Close so the eframe shutdown path runs
+        // (on_exit zeroize sweep, window-close confirmation if any).
+        // If the event loop is unresponsive, escalates to process::exit
+        // after a 3 s grace.
+        //
+        // Unix (signal-hook): SIGINT + SIGTERM via the iterator API.
+        // signal-hook's iterator is gated on cfg(not(windows)).
+        //
+        // Windows (ctrlc, v0.2 Phase A.2 / SPEC §5): Console CtrlC
+        // handler. SIGTERM has no Windows equivalent — Ctrl-C only.
+        // Both blocks share the same shape: clone egui::Context, send
+        // ViewportCommand::Close, then process::exit(130) fallback.
         #[cfg(unix)]
         {
             let ctx_sig = cc.egui_ctx.clone();
@@ -132,7 +154,13 @@ impl MnemonicGuiApp {
                         signal_hook::consts::SIGTERM,
                     ])
                     .expect("install signal-hook handlers");
-                    for sig in signals.forever() {
+                    // Single-shot: handler body always exits the process,
+                    // so the `for ... forever()` loop never iterates more
+                    // than once. `if let Some` is semantically identical
+                    // and satisfies `clippy::never_loop`. v0.2 Phase B.1
+                    // pickup of the v0.1.x pre-existing finding (CI for
+                    // v0.1 did not run clippy --all-targets; v0.2 does).
+                    if let Some(sig) = signals.forever().next() {
                         tracing::info!("received signal {sig}; requesting clean shutdown");
                         ctx_sig.send_viewport_cmd(egui::ViewportCommand::Close);
                         std::thread::sleep(std::time::Duration::from_secs(3));
@@ -141,6 +169,19 @@ impl MnemonicGuiApp {
                     }
                 })
                 .expect("spawn signal-handler thread");
+        }
+
+        #[cfg(windows)]
+        {
+            let ctx_ctrlc = cc.egui_ctx.clone();
+            ctrlc::set_handler(move || {
+                tracing::info!("Ctrl-C received (Windows); requesting clean shutdown");
+                ctx_ctrlc.send_viewport_cmd(egui::ViewportCommand::Close);
+                std::thread::sleep(std::time::Duration::from_secs(3));
+                tracing::warn!("clean shutdown timed out (Windows); exiting via process::exit");
+                std::process::exit(130);
+            })
+            .expect("install ctrlc handler (Windows)");
         }
 
         let mut active_subcommand = BTreeMap::new();
@@ -345,24 +386,17 @@ impl eframe::App for MnemonicGuiApp {
                     if matches!(v, mnemonic_gui::schema::Visibility::Hidden) {
                         continue;
                     }
-                    let mut value = match state.values.iter().find(|(k, _)| k == flag.name) {
-                        Some((_, val)) => val.clone(),
-                        None => default_value_for_flag(&flag.kind),
-                    };
+                    // v0.2 Phase B.1: render_with_dispatch handles both
+                    // secret (SecretLineEdit via state.secret_widgets) and
+                    // non-secret (FlagValue via state.values) paths,
+                    // centralizing the get-or-default + write-back dance
+                    // and the secret/non-secret dispatch in one place.
                     ui.add_enabled_ui(
                         !matches!(v, mnemonic_gui::schema::Visibility::Disabled),
                         |ui| {
-                            widget::render(ui, flag, &mut value);
+                            widget::render_with_dispatch(ui, flag, state);
                         },
                     );
-                    // Write back.
-                    if let Some(slot) =
-                        state.values.iter_mut().find(|(k, _)| k == flag.name)
-                    {
-                        slot.1 = value;
-                    } else {
-                        state.values.push((flag.name.to_string(), value));
-                    }
                 }
                 // SlotEditor.
                 if sub.allows_slots {
@@ -496,31 +530,5 @@ fn spawn_and_capture(app: &mut MnemonicGuiApp, argv: Vec<String>) {
     }
 }
 
-fn default_value_for_flag(kind: &schema::FlagKind) -> FlagValue {
-    use schema::FlagKind;
-    match kind {
-        FlagKind::Text => FlagValue::Text(String::new()),
-        FlagKind::Number { min, .. } => FlagValue::Number(*min),
-        FlagKind::Dropdown(opts) => FlagValue::Dropdown(
-            opts.first().map(|s| (*s).to_string()).unwrap_or_default(),
-        ),
-        FlagKind::Boolean => FlagValue::Boolean(false),
-        FlagKind::Range => FlagValue::Range(0, 999),
-        FlagKind::Timestamp => {
-            FlagValue::Timestamp(schema::TimestampValue::Now)
-        }
-        FlagKind::NodeValueComposite(opts) => FlagValue::NodeValueComposite {
-            node: opts
-                .first()
-                .map(|s| (*s).to_string())
-                .unwrap_or_default(),
-            value: String::new(),
-        },
-        FlagKind::TaggedOrIndexed(tags) => FlagValue::TaggedOrIndexed(
-            schema::TaggedOrIndexedValue::Tag(
-                tags.first().map(|s| (*s).to_string()).unwrap_or_default(),
-            ),
-        ),
-        FlagKind::Path { .. } => FlagValue::Path(String::new()),
-    }
-}
+// `default_value_for_flag` migrated to `widget::default_flag_value_for`
+// in v0.2 Phase B.1 (centralized for use by `render_with_dispatch`).

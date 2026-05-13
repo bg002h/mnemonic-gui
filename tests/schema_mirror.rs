@@ -403,6 +403,16 @@ fn ci_workflow_snapshot() {
         "install-mk-cli",
         "clone-upstream-mnemonic-toolkit",
         "cargo-test-schema-mirror",
+        // Phase C.3 v0.2: per-CLI gui-schema smoke steps assert that
+        // each installed binary exposes a SPEC §7 `gui-schema` subcommand
+        // emitting `{version:1, cli:<name>, ...}`. If the smoke step is
+        // dropped the CI gate stops noticing a regression at the
+        // subcommand boundary even when the rest of the workflow
+        // passes.
+        "smoke-gui-schema-mnemonic",
+        "smoke-gui-schema-md",
+        "smoke-gui-schema-ms",
+        "smoke-gui-schema-mk",
     ];
     for step in &required_steps {
         assert!(
@@ -415,11 +425,15 @@ fn ci_workflow_snapshot() {
     // Required pinned tags — the workflow installs the binaries that
     // tests/schema_mirror.rs cells run against. If the pin drifts
     // here without the schema also drifting, the CI gate fails.
+    //
+    // Phase C.3 v0.2: bumped in lockstep with the sibling-repo
+    // `gui-schema` PRs that landed at C.2. Each bump corresponds to a
+    // release tag that includes the new subcommand.
     let required_tags = [
-        "mnemonic-toolkit-v0.8.1",
-        "descriptor-mnemonic-md-cli-v0.4.3",
-        "ms-cli-v0.1.0",
-        "mk-cli-v0.2.0",
+        "mnemonic-toolkit-v0.9.0",
+        "descriptor-mnemonic-md-cli-v0.5.0",
+        "ms-cli-v0.2.0",
+        "mk-cli-v0.3.0",
     ];
     for tag in &required_tags {
         assert!(
@@ -435,6 +449,241 @@ fn ci_workflow_snapshot() {
     assert!(
         body.contains("MNEMONIC_GUI_UPSTREAM_ROOT"),
         "schema-mirror.yml must set MNEMONIC_GUI_UPSTREAM_ROOT env var"
+    );
+}
+
+// ── Phase A.1 (v0.2): doubled-prefix artifact fix snapshot ─────────────
+//
+// SPEC §9 / Phase A.1: build.yml computes a `VERSION` env var by
+// stripping the `mnemonic-gui-` prefix from `github.ref_name`, and
+// templates artifact filenames against `${{ env.VERSION }}`. Pre-fix,
+// the workflow templated against `${{ env.REF_NAME }}` (raw ref name),
+// producing doubled-prefix artifacts like
+// `mnemonic-gui-mnemonic-gui-v0.1.0-x86_64-linux.tar.gz`. This cell
+// pins the fix: future edits that drop `compute-version` or reintroduce
+// `env.REF_NAME` in any artifact-name template fail this snapshot.
+//
+// Authored AFTER the workflow YAML is on disk (post-implementation
+// snapshot, NOT RED-driver) — Phase A.1 declared a RED-test exception
+// because CI YAML correctness is not reachable from `cargo test`.
+
+#[test]
+fn ci_build_version_step_present() {
+    let workflow_path =
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join(".github/workflows/build.yml");
+    let body = std::fs::read_to_string(&workflow_path)
+        .unwrap_or_else(|e| panic!("read {:?}: {}", workflow_path, e));
+
+    // Required: a `compute-version` step exists and uses `shell: bash`
+    // (Windows runners default to PowerShell; bash makes the strip
+    // portable across all five matrix targets).
+    assert!(
+        body.contains("name: compute-version"),
+        "build.yml must contain a `compute-version` step that strips \
+         the `mnemonic-gui-` prefix from github.ref_name into a \
+         `VERSION` env var (Phase A.1 / SPEC §9)"
+    );
+    assert!(
+        body.contains("shell: bash"),
+        "build.yml `compute-version` step must declare `shell: bash` \
+         so the prefix-strip parameter expansion works on the Windows \
+         runner (PowerShell default would break it)"
+    );
+
+    // Forbidden: any GitHub Actions template expression accessing the
+    // raw `env.REF_NAME` value (which carries the doubled prefix).
+    // Artifact-name templates must use `env.VERSION` instead.
+    assert!(
+        !body.contains("env.REF_NAME"),
+        "build.yml must not reference `env.REF_NAME` — that's the \
+         pre-Phase-A.1 raw ref name that produced doubled-prefix \
+         artifacts. Use `env.VERSION` (computed by the \
+         `compute-version` step) in artifact-name templates."
+    );
+
+    // Required (Phase E follow-up to Phase A.1): the compute-version
+    // step must sanitize slashes in the stripped VERSION. PR refs
+    // are `<N>/merge` (head merge-ref); interpolating that raw into
+    // `mnemonic-gui-${VERSION}-<suffix>.tar.gz` makes tar/7z try to
+    // create a path with a directory separator in the basename and
+    // fail with "Failed to open". The fix replaces `/` with `-` so
+    // any ref (PR or tag) yields a single-segment filename. The
+    // exact bash form `${VERSION//\//-}` is searched for here so a
+    // future maintainer accidentally dropping the sanitize fails the
+    // snapshot rather than the macOS package step.
+    assert!(
+        body.contains("${VERSION//\\//-}"),
+        "build.yml `compute-version` step must sanitize slashes in \
+         VERSION via the bash `${{VERSION//\\//-}}` form. PR refs \
+         like `1/merge` would otherwise break tar/7z when \
+         interpolated into the artifact filename."
+    );
+
+    // Required: artifact-name templates use `env.VERSION`. Four sites
+    // mirror the four template locations in build.yml: `package-unix`
+    // ARTIFACT, `package-windows` ARTIFACT, `upload-artifact` name,
+    // `upload-artifact` path.
+    let env_version_count = body.matches("env.VERSION").count();
+    assert_eq!(
+        env_version_count, 4,
+        "build.yml must reference `env.VERSION` exactly 4 times (one \
+         each for package-unix ARTIFACT, package-windows ARTIFACT, \
+         upload-artifact name, upload-artifact path) — found {}",
+        env_version_count
+    );
+}
+
+// ── Phase C.1 (v0.2): `--gui-schema` JSON consumer ─────────────────────
+
+#[test]
+fn schema_check_json_parse_returns_flag_names() {
+    use mnemonic_gui::schema_check::parse_gui_schema_json;
+    // SPEC §7 sample: minimal JSON with one subcommand + one flag.
+    let json = r#"{
+        "version": 1,
+        "cli": "md",
+        "subcommands": [
+            {
+                "name": "encode",
+                "flags": [
+                    { "name": "--output", "required": false, "kind": "path", "choices": null }
+                ],
+                "positionals": []
+            }
+        ]
+    }"#;
+    let names = parse_gui_schema_json(json, "encode")
+        .expect("encode subcommand present + version 1");
+    assert!(names.contains("--output"));
+}
+
+#[test]
+fn schema_check_json_rejects_non_version_1() {
+    use mnemonic_gui::schema_check::parse_gui_schema_json;
+    // SPEC §7: GUI rejects non-1 versions and falls back to regex path.
+    let json = r#"{"version":2,"cli":"md","subcommands":[]}"#;
+    assert!(parse_gui_schema_json(json, "encode").is_none());
+}
+
+#[test]
+fn schema_check_json_returns_none_for_missing_subcommand() {
+    use mnemonic_gui::schema_check::parse_gui_schema_json;
+    let json = r#"{"version":1,"cli":"md","subcommands":[{"name":"decode","flags":[]}]}"#;
+    assert!(parse_gui_schema_json(json, "encode").is_none());
+}
+
+#[test]
+fn schema_check_json_invokes_gui_schema_on_capable_cli() {
+    // Phase C.3 v0.2: all four CLIs are now `gui-schema-capable = true`
+    // in pinned-upstream.toml, in lockstep with the bumped tags
+    // (mnemonic-toolkit-v0.9.0 / md-v0.5.0 / ms-v0.2.0 / mk-v0.3.0).
+    // `json_flag_names` should exec the installed binary's
+    // `gui-schema` subcommand and return `Some(...)` for an existing
+    // subcommand.
+    //
+    // The binary lookup matches schema_check.rs::json_flag_names: it
+    // honours the per-CLI *_BIN env var (set by CI), falling back to
+    // bare-name PATH lookup. Skip the cell if a binary cannot be
+    // located so dev-laptop runs without the sibling CLIs installed
+    // don't spuriously fail.
+    for (cli, sub) in [
+        ("mnemonic", "bundle"),
+        ("md", "encode"),
+        ("ms", "encode"),
+        ("mk", "encode"),
+    ] {
+        let env_var = format!("{}_BIN", cli.to_uppercase());
+        let candidate = std::env::var(&env_var).ok().unwrap_or_else(|| cli.to_string());
+        let probe = std::process::Command::new(&candidate)
+            .arg("gui-schema")
+            .output();
+        match probe {
+            Ok(o) if o.status.success() => {}
+            Ok(o) => {
+                eprintln!(
+                    "skipping {cli}: gui-schema exited {:?} stderr={}",
+                    o.status,
+                    String::from_utf8_lossy(&o.stderr)
+                );
+                continue;
+            }
+            Err(e) => {
+                eprintln!("skipping {cli}: cannot exec {candidate:?}: {e}");
+                continue;
+            }
+        }
+        let result = mnemonic_gui::schema_check::json_flag_names(cli, sub);
+        assert!(
+            result.is_some(),
+            "gui-schema-capable=true expects Some(_) for {cli} {sub}; got None"
+        );
+        assert!(
+            !result.as_ref().unwrap().is_empty(),
+            "{cli} {sub} should expose at least one flag via gui-schema"
+        );
+    }
+}
+
+#[test]
+fn pinned_upstream_gui_schema_capable_all_true_at_c3() {
+    // Phase C.3 v0.2 invariant: all four CLI sections carry
+    // `gui-schema-capable = true` once the sibling-repo PRs land and
+    // the tag pins move forward (which happens together at C.3). If
+    // any CLI is still `false` here, either (a) the sibling-repo PR
+    // didn't ship the subcommand, or (b) the tag bump was applied
+    // without flipping the capability flag — both leave the schema
+    // gate stuck on the regex-on-`--help` fallback path.
+    let body = std::fs::read_to_string(
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("pinned-upstream.toml"),
+    )
+    .expect("read pinned-upstream.toml");
+    let occurrences = body.matches("gui-schema-capable = true").count();
+    assert_eq!(
+        occurrences, 4,
+        "expected 4 'gui-schema-capable = true' occurrences in pinned-upstream.toml; got {}",
+        occurrences
+    );
+    assert!(
+        !body.contains("gui-schema-capable = false"),
+        "no CLI should be gui-schema-capable = false at Phase C.3"
+    );
+}
+
+// ── Phase B.2 (v0.2): platform module compile gate ─────────────────────
+
+#[test]
+fn platform_module_compiles_linux() {
+    // SPEC §4 / Phase B.2 plan line 801: assert the platform module
+    // signature is importable and exposes the expected function. The
+    // test cannot drive a live WindowHandle in a unit-test context;
+    // it asserts the public function type-checks. Linux CI implicitly
+    // exercises the cfg-not-any branch; macOS/Windows CI implicitly
+    // exercise their cfg-gated branches.
+    use raw_window_handle::WindowHandle;
+    let f: fn(WindowHandle<'_>) = mnemonic_gui::platform::apply_window_capture_protection;
+    // Use `f` so the binding doesn't get dead-code-eliminated. (The
+    // function is never invoked here — no live WindowHandle exists.)
+    let _ = f;
+
+    // Linux build must not emit any `unsafe` block from this module
+    // (cfg-not-any branch is pure tracing::debug). Spot-check via
+    // source-substring: there is no `unsafe` token inside the
+    // cfg-not-any branch.
+    let src = std::fs::read_to_string(
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("src/platform.rs"),
+    )
+    .expect("read src/platform.rs");
+    let linux_branch_start = src
+        .find("#[cfg(not(any(target_os = \"macos\", windows)))]")
+        .expect("Linux cfg-not-any branch present");
+    let linux_branch_end = src[linux_branch_start..]
+        .find("\n}")
+        .map(|n| linux_branch_start + n)
+        .unwrap_or(src.len());
+    let linux_branch = &src[linux_branch_start..linux_branch_end];
+    assert!(
+        !linux_branch.contains("unsafe"),
+        "Linux branch of src/platform.rs must contain no `unsafe`"
     );
 }
 

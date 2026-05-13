@@ -367,3 +367,60 @@ fn cell_10_save_creates_parent_dirs() {
     save(&state, &nested).unwrap();
     assert!(nested.exists());
 }
+
+// ─── v0.2 Phase B.1: secret_widgets never persist, both directions ───────
+
+#[test]
+fn secret_widgets_round_trip_never_persists_both_directions() {
+    // SPEC §10 R1 N-4 fold: FormState::secret_widgets carries
+    // #[serde(skip)], so the never-persist invariant is enforced by
+    // type. Both directions must hold:
+    //   (a) Serialize a populated FormState → secret_widgets absent.
+    //   (b) Deserialize an arbitrary FormState JSON → secret_widgets
+    //       default-constructs to empty.
+    use mnemonic_gui::form::secret_widget::SecretLineEdit;
+
+    let dir = tempfile::TempDir::new().unwrap();
+    let path = dir.path().join("state.json");
+    let mut form = FormState::default();
+    form.values.push((
+        "--network".to_string(),
+        FlagValue::Dropdown("mainnet".into()),
+    ));
+    form.secret_widgets
+        .insert("--passphrase".into(), SecretLineEdit::from_text("hunter2"));
+    let mut state = PersistedState::default();
+    state
+        .form_state_per_subcommand
+        .insert("mnemonic:bundle".into(), form);
+    save(&state, &path).unwrap();
+
+    let on_disk = fs::read_to_string(&path).unwrap();
+    assert!(
+        !on_disk.contains("secret_widgets"),
+        "secret_widgets key must not appear on disk: {}",
+        on_disk
+    );
+    assert!(
+        !on_disk.contains("--passphrase"),
+        "secret-flag name must not appear on disk: {}",
+        on_disk
+    );
+    assert!(
+        !on_disk.contains("hunter2"),
+        "secret value must not appear on disk: {}",
+        on_disk
+    );
+
+    // Direction (b): load it back; secret_widgets is empty.
+    let loaded = load(&path).expect("round-trip must succeed");
+    let new_form = loaded
+        .form_state_per_subcommand
+        .get("mnemonic:bundle")
+        .expect("subcommand state present");
+    assert!(
+        new_form.secret_widgets.is_empty(),
+        "deserialized secret_widgets must be empty (serde skip + Default)"
+    );
+    assert!(new_form.values.iter().any(|(k, _)| k == "--network"));
+}

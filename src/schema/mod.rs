@@ -138,7 +138,7 @@ pub type FlagVisibility = Vec<(&'static str, Visibility)>;
 /// the widget; `assemble_argv` (Phase 2) emits `--slot @N.subkey=value`
 /// pairs from this field in slot-index ascending order at the position
 /// where `--slot` appears in the schema's flag iteration.
-#[derive(Default, Debug, Clone, serde::Serialize, serde::Deserialize)]
+#[derive(Default, Debug, serde::Serialize, serde::Deserialize)]
 pub struct FormState {
     pub values: Vec<(String, FlagValue)>,
     pub slots: crate::form::slot_editor::SlotState,
@@ -147,6 +147,18 @@ pub struct FormState {
     /// schema index (the form widget renders multiple input rows).
     /// Empty strings are dropped at emit time (SPEC §6.7 parity).
     pub positionals: Vec<String>,
+    /// SPEC §3 (v0.2 B.1): secret-bearing widgets keyed by flag name.
+    /// Owned by FormState so the lifetime spans the form session; sweeped
+    /// to zero on `secrets::zeroize_form_state`. `#[serde(skip)]` enforces
+    /// the never-persist invariant by type — serde's deserialize codegen
+    /// default-constructs the field to an empty BTreeMap.
+    ///
+    /// FormState's `Clone` derive was removed because `SecretLineEdit`
+    /// deliberately does not implement `Clone` (a clone is a second copy
+    /// of the secret in memory). No v0.1.1 caller depended on
+    /// `FormState::clone()`. See SPEC §3 R1 C-1 fold.
+    #[serde(skip)]
+    pub secret_widgets: std::collections::BTreeMap<String, crate::form::secret_widget::SecretLineEdit>,
 }
 
 impl FormState {
@@ -159,6 +171,7 @@ impl FormState {
             values: iter.into_iter().map(|(k, v)| (k.into(), v)).collect(),
             slots: crate::form::slot_editor::SlotState::new(),
             positionals: Vec::new(),
+            secret_widgets: std::collections::BTreeMap::new(),
         }
     }
 
@@ -193,6 +206,35 @@ impl FormState {
         self.values
             .iter()
             .any(|(k, v)| k == name && flag_value_is_present(v))
+            || self
+                .secret_widgets
+                .get(name)
+                .is_some_and(|w| !w.is_empty())
+    }
+
+    /// v0.2 D.1 N-1: True iff positional `idx` is filled. Used by
+    /// conditional fns that gate flags on positional presence
+    /// (e.g. md_encode TEMPLATE XOR --from-policy).
+    pub fn has_positional(&self, idx: usize) -> bool {
+        self.positionals.get(idx).is_some_and(|s| !s.is_empty())
+    }
+
+    /// v0.2 D.1 N-2: Return the Dropdown value string for `name`, or
+    /// `None` if the flag is absent / has a different FlagValue variant.
+    /// Used by conditional fns that gate flags on Dropdown value-inspect
+    /// (e.g. md_encode/md_compile gating --unspendable-key on --context).
+    pub fn dropdown_value(&self, name: &str) -> Option<&str> {
+        self.values.iter().find_map(|(k, v)| {
+            if k == name {
+                if let FlagValue::Dropdown(s) = v {
+                    Some(s.as_str())
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
+        })
     }
 }
 

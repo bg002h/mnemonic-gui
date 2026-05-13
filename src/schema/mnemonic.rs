@@ -1,4 +1,4 @@
-//! Pinned schema for the `mnemonic` CLI from mnemonic-toolkit-v0.8.1.
+//! Pinned schema for the `mnemonic` CLI from mnemonic-toolkit-v0.9.0.
 //!
 //! Five subcommands covered in v0.1 (Section A coverage table):
 //!   - bundle
@@ -788,6 +788,6 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
 // `pinned_version` for runtime soft-check.
 pub const SCHEMA: Schema = Schema {
     cli_name: "mnemonic",
-    pinned_version: "mnemonic 0.8.0",
+    pinned_version: "mnemonic 0.9.0",
     subcommands: SUBCOMMANDS,
 };

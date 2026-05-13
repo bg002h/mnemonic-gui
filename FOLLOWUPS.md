@@ -24,12 +24,12 @@ files and assert set-equality.
 
 **Companion entries (per CLAUDE.md cross-repo discipline):**
 
-| Sibling repo | Companion file | Pinned tag for v0.1 | Activation PR |
-|--------------|----------------|---------------------|---------------|
-| `bg002h/mnemonic-toolkit` | `design/FOLLOWUPS.md` | `mnemonic-toolkit-v0.8.1` | [#13](https://github.com/bg002h/mnemonic-toolkit/pull/13) |
-| `bg002h/descriptor-mnemonic` | `design/FOLLOWUPS.md` | `descriptor-mnemonic-md-cli-v0.4.3` | [#28](https://github.com/bg002h/descriptor-mnemonic/pull/28) |
-| `bg002h/mnemonic-secret` | `design/FOLLOWUPS.md` | `ms-cli-v0.1.0` | [#4](https://github.com/bg002h/mnemonic-secret/pull/4) |
-| `bg002h/mnemonic-key` | `design/FOLLOWUPS.md` | `mk-cli-v0.2.0` | [#7](https://github.com/bg002h/mnemonic-key/pull/7) |
+| Sibling repo | Companion file | Pinned tag for v0.2 | gui-schema PR (Phase C.2) |
+|--------------|----------------|---------------------|---------------------------|
+| `bg002h/mnemonic-toolkit` | `design/FOLLOWUPS.md` | `mnemonic-toolkit-v0.9.0` | [#14](https://github.com/bg002h/mnemonic-toolkit/pull/14) |
+| `bg002h/descriptor-mnemonic` | `design/FOLLOWUPS.md` | `descriptor-mnemonic-md-cli-v0.5.0` | [#29](https://github.com/bg002h/descriptor-mnemonic/pull/29) |
+| `bg002h/mnemonic-secret` | `design/FOLLOWUPS.md` | `ms-cli-v0.2.0` | [#5](https://github.com/bg002h/mnemonic-secret/pull/5) |
+| `bg002h/mnemonic-key` | `design/FOLLOWUPS.md` | `mk-cli-v0.3.0` | [#8](https://github.com/bg002h/mnemonic-key/pull/8) |
 
 Each sibling-repo entry must cross-cite this entry + the
 `mnemonic-gui` repo URL + this `mnemonic-gui-schema-mirror`
@@ -56,34 +56,113 @@ companion `mnemonic-gui` PR that bumps the schema + the
 `pinned-upstream.toml` tag for this CLI.
 ```
 
-## Deferred v0.2
+### gui-accesskit-production-side-effect (accepted in v0.2 Phase A.3)
 
-Named for explicit closure per SPEC §14:
+**What:** v0.2 Phase A.3 introduced `egui_kittest = "0.31"` as a
+dev-dependency (the egui-driven integration test harness). Cargo
+feature unification then activates `egui/accesskit` globally because
+`egui_kittest 0.31.1 → kittest 0.1.0 → accesskit 0.17.1` requires it,
+and `egui-winit 0.31.1`'s `PlatformOutput` is destructured
+exhaustively — without the matching feature on egui-winit, the build
+fails. The minimal fix was to add `"accesskit"` to eframe's feature
+list in `Cargo.toml`, which propagates the feature to both
+`egui/accesskit` and `egui-winit/accesskit` (per eframe 0.31
+`[features]`).
 
-- `gui-code-signing-mac-developer-id` — v0.1.0 ships unsigned macOS
-  binaries; users need to right-click → Open or `xattr -d com.apple.quarantine`
-  on first launch (see `docs/onboarding/macos-gatekeeper-walkthrough.md`).
-  v0.2 plan: paid Apple Developer ID + notarization roundtrip.
-- `gui-code-signing-windows` — v0.1.0 ships unsigned Windows binaries;
-  users need to click SmartScreen "More info → Run anyway" on first launch
-  (see `docs/onboarding/windows-smartscreen-walkthrough.md`). v0.2 plan:
+**Production-binary consequence:** the GUI binary now links the
+accesskit family on all platforms (`accesskit_winit` 0.23.1,
+`accesskit_unix` 0.13.1 + `atspi-*` transitive on Linux,
+`accesskit_macos` 0.18.1, `accesskit_windows` 0.24.1). The
+accessibility tree is active at runtime — screen readers and
+accessibility tools can traverse the GUI's widgets.
+
+**Disposition: accepted.** No cargo mechanism scopes a feature
+activation to dev/test builds only (features are strictly additive
+across the dep graph). No accesskit-free egui-0.31 testing harness
+exists. The side effect is behaviorally benign (active accessibility
+support is a positive externality), not a security concern.
+
+**Revisit triggers:**
+
+- If egui_kittest 0.32+ decouples the kittest/accesskit dep and a
+  future GUI version drops the harness, the accesskit feature could
+  be removed from eframe.
+- If the accessibility tree exposure of mnemonic input fields becomes
+  a threat-model concern (e.g., a screen-reader API leaks the secret
+  buffer), revisit and audit the accesskit_winit accessible-name
+  surface on `SecretLineEdit`.
+
+**Trace:** v0.2 plan Phase A.3 R5 fold N-2 in
+`/home/bcg/.claude/plans/v0_2-mnemonic-gui.md` Section C iterative
+review log; report at
+`design/agent-reports/v0_2-phase-A3-kittest-scaffold-r1.md`.
+
+## Deferred to v0.3+
+
+Named for explicit closure per SPEC §14. Carried forward from v0.1
+because not in v0.2 scope, or carried forward from v0.2 because
+shipped partially.
+
+- `gui-code-signing-mac-developer-id` — v0.1.x and v0.2.0 ship
+  unsigned macOS binaries; users need to right-click → Open or
+  `xattr -d com.apple.quarantine` on first launch (see
+  `docs/onboarding/macos-gatekeeper-walkthrough.md`). v0.3+ plan:
+  paid Apple Developer ID + notarization roundtrip.
+- `gui-code-signing-windows` — v0.1.x and v0.2.0 ship unsigned
+  Windows binaries; users need to click SmartScreen "More info →
+  Run anyway" on first launch (see
+  `docs/onboarding/windows-smartscreen-walkthrough.md`). v0.3+ plan:
   Authenticode certificate (EV variant for SmartScreen reputation).
-- `gui-secret-buffer-allocator-residue` — `SecretBuffer` is best-effort
-  on `String`; full `Zeroizing<Vec<u8>>` requires custom widget +
-  manual buffer management. Phase 7 ships v0.1 zeroize on String.
-- `gui-os-snapshot-secret-occlusion` — Mac App Switcher /
-  Windows Task View may snapshot the visible window. v0.1 acknowledges
-  the risk via paste-warn modal copy; mitigation
-  (`NSWindowSharingNone` / `WDA_EXCLUDEFROMCAPTURE`) deferred to v0.2.
-- `gui-headless-test-harness-evaluation` — Phase 2/3 widget rendering
-  is unexercised by tests; evaluate egui headless harness for v0.2.
-- `gui-schema-json-subcommand-evaluation` — v0.1 uses regex flag-name
-  extraction from `--help` (load-bearing prior-art: `lint.sh`). A
-  `--gui-schema` JSON subcommand on each CLI would be more robust;
-  evaluate for v0.2.
-- 15 subcommands not in v0.1 coverage (`md encode/decode/verify/...`,
-  `ms encode/decode/...`, `mk encode/decode/...`) — Section A coverage
-  table v0.1 scope.
+- `gui-os-snapshot-secret-occlusion-linux` — v0.2 Phase B.2 shipped
+  macOS (`NSWindowSharingType::NSWindowSharingNone` via
+  `objc2-app-kit`) and Windows
+  (`SetWindowDisplayAffinity(WDA_EXCLUDEFROMCAPTURE)` via
+  `windows-rs`) occlusion. Linux has no compositor API for this at
+  v0.2 — see `src/platform.rs` cfg-not-any branch for the deferral
+  notice and the paste-warn modal copy that surfaces the gap to
+  users. Tracking entry kept open for the Linux-specific
+  follow-up.
+
+## Resolved in v0.2
+
+- `gui-secret-buffer-allocator-residue` — **shipped Phase B.1.**
+  `SecretLineEdit` widget backed by `Zeroizing<Vec<u8>>` replaces
+  the v0.1 best-effort-on-`String` `SecretBuffer`. Buffer zeroes on
+  drop / form reset / app exit. Excluded from `Serialize` /
+  `Debug` derives; never persisted to disk via
+  `redact_for_persistence`. See `src/form/secret_widget.rs`.
+- `gui-os-snapshot-secret-occlusion` (macOS + Windows) —
+  **shipped Phase B.2.** macOS uses
+  `NSWindowSharingType::NSWindowSharingNone` via `objc2-app-kit`;
+  Windows uses `SetWindowDisplayAffinity(WDA_EXCLUDEFROMCAPTURE)`
+  via `windows-rs`. Both applied from `MnemonicGuiApp::new()`.
+  Linux gap moved to a separate entry (above) since the platform
+  has no compositor API for this.
+- `gui-headless-test-harness-evaluation` — **shipped Phase A.3.**
+  `egui_kittest` v0.31.1 dev-dep + `accesskit` feature on
+  `eframe`. Five widget-driving cells across
+  `tests/widget_interaction.rs` (slot editor, conditional
+  visibility, `ms encode` argv, `md encode` dropdown) and
+  `tests/widget_secret.rs` (paste-warn modal). See
+  `gui-accesskit-production-side-effect` (above, Active) for the
+  production-side-effect note that accepting `egui_kittest`
+  introduced.
+- `gui-schema-json-subcommand-evaluation` — **shipped Phase
+  C.1 / C.2 / C.3.** `<cli> gui-schema` subcommand on each of the
+  four sibling CLIs emits a SPEC §7 JSON envelope
+  (`{version:1, cli, subcommands:[{name, flags, positionals}]}`).
+  GUI consumes via `src/schema_check.rs::json_flag_names`. Falls
+  back to v0.1 regex-on-`--help` if the binary lacks `gui-schema`
+  or exits non-zero. Schema-mirror CI gate now runs
+  `<cli> gui-schema | python3 -c 'json.load...'` smoke for each
+  CLI before the in-process test suite.
+- **15 sibling-CLI subcommands** — **shipped Phase D.1 / D.2 /
+  D.3 / D.4.** D.1 audited `--help` across `ms` (×4) + `mk` (×4)
+  + `md` (×7). D.2 + D.3 added the schema entries to
+  `src/schema/{ms,mk,md}.rs`. D.4 added two egui_kittest cells
+  (`ms encode` argv-assembly + `md encode` dropdown
+  value-inspect) covering representative new surface. All 15
+  subcommand tabs render in the GUI at v0.2.
 
 ## Process notes
 

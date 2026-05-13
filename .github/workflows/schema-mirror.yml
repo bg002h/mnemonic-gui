@@ -24,37 +24,49 @@ jobs:
         run: |
           cargo install --locked \
             --git https://github.com/bg002h/mnemonic-toolkit \
-            --tag mnemonic-toolkit-v0.8.1 \
+            --tag mnemonic-toolkit-v0.9.0 \
             mnemonic-toolkit
 
       - name: install-md-cli
         run: |
           cargo install --locked \
             --git https://github.com/bg002h/descriptor-mnemonic \
-            --tag descriptor-mnemonic-md-cli-v0.4.3 \
+            --tag descriptor-mnemonic-md-cli-v0.5.0 \
             md-cli
 
       - name: install-ms-cli
         run: |
           cargo install --locked \
             --git https://github.com/bg002h/mnemonic-secret \
-            --tag ms-cli-v0.1.0 \
+            --tag ms-cli-v0.2.0 \
             ms-cli
 
       - name: install-mk-cli
         run: |
           cargo install --locked \
             --git https://github.com/bg002h/mnemonic-key \
-            --tag mk-cli-v0.2.0 \
+            --tag mk-cli-v0.3.0 \
             mk-cli
 
       - name: clone-upstream-mnemonic-toolkit
         run: |
           mkdir -p /tmp/upstream
           git clone --depth 1 \
-            --branch mnemonic-toolkit-v0.8.1 \
+            --branch mnemonic-toolkit-v0.9.0 \
             https://github.com/bg002h/mnemonic-toolkit \
             /tmp/upstream/mnemonic-toolkit
+
+      - name: smoke-gui-schema-mnemonic
+        run: mnemonic gui-schema | python3 -c "import json,sys; d=json.load(sys.stdin); assert d['version']==1 and d['cli']=='mnemonic', d"
+
+      - name: smoke-gui-schema-md
+        run: md gui-schema | python3 -c "import json,sys; d=json.load(sys.stdin); assert d['version']==1 and d['cli']=='md', d"
+
+      - name: smoke-gui-schema-ms
+        run: ms gui-schema | python3 -c "import json,sys; d=json.load(sys.stdin); assert d['version']==1 and d['cli']=='ms', d"
+
+      - name: smoke-gui-schema-mk
+        run: mk gui-schema | python3 -c "import json,sys; d=json.load(sys.stdin); assert d['version']==1 and d['cli']=='mk', d"
 
       - name: cargo-test-schema-mirror
         env:

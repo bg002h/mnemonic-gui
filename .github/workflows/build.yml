@@ -31,10 +31,22 @@ jobs:
           - target: aarch64-apple-darwin
             runner: macos-latest
             artifact_suffix: aarch64-macos.tar.gz
-    env:
-      REF_NAME: ${{ github.ref_name }}
     steps:
       - uses: actions/checkout@v4
+
+      - name: compute-version
+        shell: bash
+        env:
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          VERSION="${REF_NAME#mnemonic-gui-}"
+          # Sanitize slashes — PR refs are `<N>/merge`, which would
+          # break tar/7z when interpolated into a filename (the `/`
+          # is taken as a directory separator). Replace with `-` so
+          # the artifact name stays a valid single-segment filename.
+          # Tag refs have no slash and are unaffected.
+          VERSION="${VERSION//\//-}"
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
 
       - name: install-rust
         uses: dtolnay/rust-toolchain@stable
@@ -59,7 +71,7 @@ jobs:
       - name: package-unix
         if: ${{ !startsWith(matrix.runner, 'windows') }}
         env:
-          ARTIFACT: mnemonic-gui-${{ env.REF_NAME }}-${{ matrix.artifact_suffix }}
+          ARTIFACT: mnemonic-gui-${{ env.VERSION }}-${{ matrix.artifact_suffix }}
         run: |
           mkdir -p dist
           cd target/${{ matrix.target }}/release
@@ -68,7 +80,7 @@ jobs:
       - name: package-windows
         if: ${{ startsWith(matrix.runner, 'windows') }}
         env:
-          ARTIFACT: mnemonic-gui-${{ env.REF_NAME }}-${{ matrix.artifact_suffix }}
+          ARTIFACT: mnemonic-gui-${{ env.VERSION }}-${{ matrix.artifact_suffix }}
         run: |
           mkdir dist
           cd target/${{ matrix.target }}/release
@@ -78,8 +90,8 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/mnemonic-gui-v')
         uses: actions/upload-artifact@v4
         with:
-          name: mnemonic-gui-${{ env.REF_NAME }}-${{ matrix.artifact_suffix }}
-          path: dist/mnemonic-gui-${{ env.REF_NAME }}-${{ matrix.artifact_suffix }}
+          name: mnemonic-gui-${{ env.VERSION }}-${{ matrix.artifact_suffix }}
+          path: dist/mnemonic-gui-${{ env.VERSION }}-${{ matrix.artifact_suffix }}
 
   release:
     needs: build

@@ -49,14 +49,16 @@ You are pasting potentially secret material (BIP-39 phrase, entropy hex, WIF, xp
 ms1 share, BIP-38 ciphertext, or Electrum native seed).
 
 This GUI runs the binary with the value you pasted as a command-line argument.
-The OS may log this argument in process tables and shell history files. The OS
-may also snapshot the visible window for App Switcher / Task View previews — the
-GUI does not currently suppress these snapshots (v0.2 deferred per FOLLOWUPS
-`gui-os-snapshot-secret-occlusion`).
+The OS may log this argument in process tables and shell history files. macOS
+and Windows now suppress OS screenshot APIs (App Switcher / Task View) for this
+window. Linux remains unmitigated; see FOLLOWUPS
+`gui-os-snapshot-secret-occlusion`.
 
-The GUI clears the visible buffer on close, but cannot guarantee allocator residue
-is wiped from memory pages (deferred to v0.2 — see FOLLOWUPS
-`gui-secret-buffer-allocator-residue`).";
+The GUI holds the primary secret buffer in `Zeroizing<Vec<u8>>`, zeroed on drop.
+Transient `String` copies used for argv assembly are also wrapped in `Zeroizing`
+per call. egui's internal undo ring retains `String` snapshots that this scheme
+does not cover — a second-tier residue documented in FOLLOWUPS
+`gui-secret-buffer-allocator-residue`.";
 
 /// Run-confirm modal prefix (the full argv preview follows in body
 /// rendering at the call site).
@@ -161,5 +163,13 @@ pub fn zeroize_form_state(state: &mut crate::schema::FormState) {
     }
     for pos in &mut state.positionals {
         pos.zeroize();
+    }
+    // v0.2 Phase B.1: sweep SecretLineEdit buffers. Each widget owns a
+    // `Zeroizing<Vec<u8>>` (zeroed on Drop), but the explicit zeroize()
+    // call here drops the bytes ahead of the BTreeMap's own Drop pass,
+    // ensuring the secret memory is overwritten as early as possible on
+    // app shutdown.
+    for widget in state.secret_widgets.values_mut() {
+        widget.zeroize();
     }
 }
