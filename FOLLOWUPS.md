@@ -127,6 +127,28 @@ Named for explicit closure per SPEC §14. Carried forward from v0.1
 because not in v0.2 scope, or carried forward from v0.2 because
 shipped partially.
 
+### `gui-help-icon-per-flag-affordance` — extend help-icon coverage to every flag if Option C selective placement proves insufficient
+
+- **Surfaced:** 2026-05-15, manual-gui v1.0 cycle planning. Filed per `mnemonic-toolkit/design/PLAN_manual_gui_v1.md` §2.7 (in-flight; archived to design/ at PE close).
+- **Where:** `src/form/widget.rs` widget render. v1.0 ships Option C: per-subcommand `?` button + per-dropdown/NodeValueComposite/TaggedOrIndexed `?` button + per-repeating-field-flag `?` button (28+43+20=91 buttons). Per-flag `?` buttons would add ~100 more buttons across all 28 form views.
+- **What:** If user feedback after v1.0 ships surfaces that hover-tooltip alone is insufficient for non-dropdown flags (e.g., users want click-through deep-links for `--passphrase`, `--json-out`, secret-bearing flags), extend Option C to Option A: per-flag `?` buttons on every FlagSchema.
+- **Why deferred:** v1.0 ships Option C to balance UX-budget vs visual clutter (91 buttons / ~3 per visible form is sustainable; 200 buttons / ~7 per visible form is chaos). Wait for user feedback.
+- **Status:** `open`
+- **Tier:** `v1.1+`
+- **Companion:** `mnemonic-toolkit/design/PLAN_manual_gui_v1.md` §1.6.
+
+### `gui-manual-base-url-runtime-override` — `--manual-base-url` runtime flag if build-time env-var override proves insufficient
+
+- **Surfaced:** 2026-05-15, manual-gui v1.0 cycle planning. Filed per `mnemonic-toolkit/design/PLAN_manual_gui_v1.md` §2.7.
+- **Where:** `src/help/url.rs` MANUAL_BASE_URL constant + `src/main.rs` CLI argument parsing. v1.0 ships build-time env-var override `MNEMONIC_GUI_MANUAL_BASE_URL` via `option_env!` (CI staging vs prod). No runtime flag.
+- **What:** If users in air-gapped environments need to point the GUI's help icons at a locally-hosted mirror (e.g., a corporate intranet copy of the manual), add a `--manual-base-url <URL>` runtime flag that overrides the compile-time default. Runtime override would also help self-hosting users without rebuilding from source.
+- **Why deferred:** v1.0 ships with a stable GitHub Pages URL. Self-hosting / air-gap is a niche use case; defer until concrete demand surfaces.
+- **Status:** `open`
+- **Tier:** `v1.1+`
+- **Companion:** `mnemonic-toolkit/design/PLAN_manual_gui_v1.md` §1.5 + §2.4.
+
+
+
 - `gui-code-signing-mac-developer-id` — v0.1.x and v0.2.0 ship
   unsigned macOS binaries; users need to right-click → Open or
   `xattr -d com.apple.quarantine` on first launch (see
