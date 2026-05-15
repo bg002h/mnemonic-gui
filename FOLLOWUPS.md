@@ -24,9 +24,9 @@ files and assert set-equality.
 
 **Companion entries (per CLAUDE.md cross-repo discipline):**
 
-| Sibling repo | Companion file | Pinned tag for v0.2 | gui-schema PR (Phase C.2) |
-|--------------|----------------|---------------------|---------------------------|
-| `bg002h/mnemonic-toolkit` | `design/FOLLOWUPS.md` | `mnemonic-toolkit-v0.9.0` | [#14](https://github.com/bg002h/mnemonic-toolkit/pull/14) |
+| Sibling repo | Companion file | Current pinned tag | gui-schema PR (Phase C.2) |
+|--------------|----------------|--------------------|---------------------------|
+| `bg002h/mnemonic-toolkit` | `design/FOLLOWUPS.md` | `mnemonic-toolkit-v0.13.0` (v0.3); was `v0.9.0` at v0.2 | [#14](https://github.com/bg002h/mnemonic-toolkit/pull/14) |
 | `bg002h/descriptor-mnemonic` | `design/FOLLOWUPS.md` | `descriptor-mnemonic-md-cli-v0.5.0` | [#29](https://github.com/bg002h/descriptor-mnemonic/pull/29) |
 | `bg002h/mnemonic-secret` | `design/FOLLOWUPS.md` | `ms-cli-v0.2.0` | [#5](https://github.com/bg002h/mnemonic-secret/pull/5) |
 | `bg002h/mnemonic-key` | `design/FOLLOWUPS.md` | `mk-cli-v0.3.0` | [#8](https://github.com/bg002h/mnemonic-key/pull/8) |
@@ -76,9 +76,9 @@ Schema `version` stays at `1` (additive: existing nested-parent names disappear;
 3. Audit any GUI surface that dispatched on the now-removed `seed-xor` name. The GUI's v0.2 release predates this fix; the seed-xor surface may have been an empty / unreachable code path (the upstream schema returned `flags: []` so per-flag dispatch had nothing to render). Verify before assuming a no-op.
 4. Add `slip39-split` + `slip39-combine` GUI surfaces (new subcommand pair shipped at toolkit v0.13.0).
 
-**Status:** `unblocked` — toolkit `mnemonic-toolkit-v0.13.0` tag shipped 2026-05-14 (commit `6a80343`; <https://github.com/bg002h/mnemonic-toolkit/releases/tag/mnemonic-toolkit-v0.13.0>). The 4 GUI-side work items above can now be picked up; the FOLLOWUP itself stays open until that cycle lands.
+**Status:** `resolved at mnemonic-gui-v0.3.0` — all 4 GUI-side work items shipped 2026-05-14 in cycle v0.3. The bumped `mnemonic-toolkit-v0.13.0` pin + 4 v0.10..v0.13 drift flags (bundle/verify-bundle/convert/derive-child `*-stdin` adds, closes the `mnemonic-gui-schema-mirror` invariant breach) + 5 new subcommand surfaces (`slip39-{split,combine}`, `seed-xor-{split,combine}`, `final-word`) landed under release tag `mnemonic-gui-v0.3.0`. The latent v0.2 repeating-secret bug in `assemble_argv` was also surfaced and fixed in lockstep. See `design/PLAN_v0_3.md` for the 3-section reviewer-LOCKed plan + P0 drift-fold amendment.
 
-**Tier:** next mnemonic-gui cycle (likely `v0.3-feature`).
+**Tier:** shipped at `mnemonic-gui-v0.3.0`.
 
 ### gui-accesskit-production-side-effect (accepted in v0.2 Phase A.3)
 
