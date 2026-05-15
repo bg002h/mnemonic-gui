@@ -46,14 +46,31 @@
 //! `cell_help_icon_read_path_sanity_probe` below empirically verifies
 //! the chosen read path before the real RED-assert runs.
 //!
+//! G-P2.3 amendment (post-P1.4-LOCK, empirically driven): after
+//! `button.click()`, the test uses `harness.step()` — NOT
+//! `harness.run()`. `Harness::run()` (`egui_kittest-0.31.1/src/lib.rs:281`)
+//! loops `step()` until repaint_delay != ZERO. A click on a stateful
+//! egui button typically triggers a follow-up immediate repaint
+//! (animation / hover state), so `run()` returns AFTER 2-3 frames.
+//! `harness.output()` (`lib.rs:359`) returns the LAST frame's
+//! FullOutput, and `viewport.output.commands` is per-frame (drained
+//! at end_pass via `std::mem::take`). So `run()`'s extra no-op frames
+//! after the click frame overwrite the OpenUrl command we wanted to
+//! observe. `harness.step()` runs exactly one frame (the one that
+//! processes the queued accesskit click action), capturing its output
+//! before the buffer is overwritten. Empirically verified at G-P2.3:
+//! step() → 1 OpenUrl with correct URL; run() → 3 steps, [] commands.
+//!
 //! FOLLOWUP: plan §2.1 G7 + §3.1 P1.4 snippets updated to the
 //! `harness.output().platform_output.commands` form (P1.4 R0 fold v2
-//! 2026-05-15) so SPEC and the test agree.
+//! 2026-05-15) so SPEC and the test agree. G-P2.3 adds the step()
+//! amendment as a third post-LOCK clarification.
 
 use eframe::egui;
 use egui_kittest::Harness;
 use egui_kittest::kittest::Queryable;
 
+use mnemonic_gui::app::CliTab;
 use mnemonic_gui::form::widget;
 use mnemonic_gui::schema::{self, FlagSchema, FormState};
 
@@ -111,7 +128,7 @@ fn cell_help_icon_emits_open_url_for_mnemonic_convert_from() {
 
     let mut harness = Harness::new_ui_state(
         |ui, state| {
-            widget::render_with_dispatch(ui, flag, state);
+            widget::render_with_dispatch(ui, CliTab::Mnemonic, "convert", flag, state);
         },
         initial,
     );
@@ -131,7 +148,9 @@ fn cell_help_icon_emits_open_url_for_mnemonic_convert_from() {
     );
 
     button.unwrap().click();
-    harness.run();
+    // step() not run(): see module-level docstring for the
+    // "viewport.output drained per frame" rationale (G-P2.3 amendment).
+    harness.step();
 
     let url = harness
         .output()

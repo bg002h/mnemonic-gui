@@ -6,6 +6,7 @@
 
 pub mod app;
 pub mod form;
+pub mod help;
 pub mod path_detect;
 pub mod persistence;
 pub mod platform;
