@@ -56,6 +56,30 @@ companion `mnemonic-gui` PR that bumps the schema + the
 `pinned-upstream.toml` tag for this CLI.
 ```
 
+### slip39-gui-schema-flattening-companion
+
+**Companion:** `bg002h/mnemonic-toolkit` `design/PLAN_v0_13_0_p2.md` §4.2 + `design/FOLLOWUPS.md` entry `slip39-shamir-secret-sharing`; toolkit P2.1 RED commit bumps `tests/cli_gui_schema.rs` from 7 → 10 subcommands.
+
+**What:** v0.13.0 P2.1 GREEN lands a `cmd/gui_schema.rs` flattening fix in `mnemonic-toolkit`: nested clap subcommands now emit flattened hyphenated entries in the `gui-schema` JSON output. Specifically:
+
+- `seed-xor` → `seed-xor-split` + `seed-xor-combine`
+- `slip39` → `slip39-split` + `slip39-combine`
+
+Schema `version` stays at `1` (additive: existing nested-parent names disappear; new hyphenated names appear; the schema document shape is unchanged).
+
+**Pre-RED probe (executed at toolkit `81488e3`):** confirmed `mnemonic gui-schema | jq '.subcommands[] | select(.name == "seed-xor")'` returns `{name: "seed-xor", flags: [], positionals: []}` — i.e. `mnemonic-gui` v0.2 cannot see `seed-xor split` / `seed-xor combine` as discoverable subcommands. **This is a pre-existing v0.12.0 gap, NOT a v0.13.0 regression.** The toolkit-side flattening fix repairs both v0.12.0 (seed-xor) AND v0.13.0 (slip39) at the same patch.
+
+**GUI-side companion work (gated on `mnemonic-toolkit-v0.13.0` shipping):**
+
+1. Bump `pinned-upstream.toml` `mnemonic-toolkit` tag to `mnemonic-toolkit-v0.13.0` (toolkit PE rollup tag).
+2. Refresh the schema-mirror tests (`tests/schema_mirror.rs`) to reflect the new flattened subcommand-name set — the test fixture pins `subcommands[]` names.
+3. Audit any GUI surface that dispatched on the now-removed `seed-xor` name. The GUI's v0.2 release predates this fix; the seed-xor surface may have been an empty / unreachable code path (the upstream schema returned `flags: []` so per-flag dispatch had nothing to render). Verify before assuming a no-op.
+4. Add `slip39-split` + `slip39-combine` GUI surfaces (new subcommand pair shipped at toolkit v0.13.0).
+
+**Status:** `unblocked` — toolkit `mnemonic-toolkit-v0.13.0` tag shipped 2026-05-14 (commit `6a80343`; <https://github.com/bg002h/mnemonic-toolkit/releases/tag/mnemonic-toolkit-v0.13.0>). The 4 GUI-side work items above can now be picked up; the FOLLOWUP itself stays open until that cycle lands.
+
+**Tier:** next mnemonic-gui cycle (likely `v0.3-feature`).
+
 ### gui-accesskit-production-side-effect (accepted in v0.2 Phase A.3)
 
 **What:** v0.2 Phase A.3 introduced `egui_kittest = "0.31"` as a
