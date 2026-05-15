@@ -22,7 +22,7 @@ checkout-root = ""
 
 [mnemonic]
 url = "https://github.com/bg002h/mnemonic-toolkit"
-tag = "mnemonic-toolkit-v0.9.0"
+tag = "mnemonic-toolkit-v0.13.0"
 bin = "mnemonic"
 workspace-member-path = "crates/mnemonic-toolkit"
 # v0.2 Phase C.1: GUI consults `<cli> gui-schema` JSON path when true;

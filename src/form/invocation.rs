@@ -59,16 +59,28 @@ pub fn assemble_argv(
             }
             continue;
         }
-        // SPEC §3 / v0.2 Phase B.1: secret-flag branch. For secret-class
-        // flags, the buffer lives in `state.secret_widgets[flag.name]`
-        // (a `SecretLineEdit` owning a `Zeroizing<Vec<u8>>`), NOT in
-        // `state.values`. Wrap the extracted `String` in `Zeroizing::new`
-        // per R1 N-1 fold — the transient is one-call-scoped but heap-
-        // allocated, so the wrap engages `Zeroizing::Drop` for best-
-        // effort zeroing past the argv emission. The `state.values`
-        // lookup is bypassed for secret flags entirely.
+        // SPEC §3 / v0.2 Phase B.1 + v0.3 repeating-secret fold:
+        // secret-flag branch.
+        //
+        // - Non-repeating secrets (--passphrase, --bip38-passphrase, etc.)
+        //   live in `state.secret_widgets[flag.name]` — a SecretLineEdit
+        //   owning a `Zeroizing<Vec<u8>>`. `state.values` is bypassed.
+        // - Repeating secrets (--ms1/--mk1/--md1 from v0.2; --share from
+        //   v0.3 slip39-combine + seed-xor-combine) need N occurrences,
+        //   but `secret_widgets` is BTreeMap<String, SecretLineEdit> —
+        //   one widget per flag name. v0.3 fold: route repeating-secret
+        //   through `state.values` like non-secret repeating. Trade-off:
+        //   zeroize-on-drop applies only per-widget (the widget layer
+        //   still renders a SecretLineEdit per row), not to the values-
+        //   map String copies — the in-memory share strings are plain
+        //   heap allocations during emission. Paste-warn-modal still
+        //   fires on secret-flag widget input (UX protection preserved).
         if crate::secrets::flag_is_secret(flag) {
-            if let Some(widget) = state.secret_widgets.get(flag.name) {
+            if flag.repeating {
+                for (_, value) in state.values.iter().filter(|(k, _)| k == flag.name) {
+                    emit_one(flag, value, &mut argv);
+                }
+            } else if let Some(widget) = state.secret_widgets.get(flag.name) {
                 if !widget.is_empty() {
                     // B.1 R1 I-2 fold: as_string() returns
                     // Zeroizing<String> directly; the wrap is now

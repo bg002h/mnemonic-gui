@@ -299,9 +299,20 @@ fn cell_12_export_wallet_template_or_descriptor_required_when_neither_set() {
 
 #[test]
 fn coverage_all_constrained_subcommands_have_conditional_fn() {
-    // The four subcommands with clap-level constraints must carry a
-    // conditional fn pointer; derive-child has none and stays None.
-    for name in ["bundle", "verify-bundle", "convert", "export-wallet"] {
+    // All clap-constrained mnemonic subcommands carry a conditional fn.
+    // v0.3: derive-child flipped None → Some (gained --passphrase-stdin
+    // conflicts_with passphrase at toolkit v0.13.0). slip39-split /
+    // slip39-combine added in v0.3. final-word + seed-xor-{split,combine}
+    // have no clap conflicts → stay None.
+    for name in [
+        "bundle",
+        "verify-bundle",
+        "convert",
+        "export-wallet",
+        "derive-child",
+        "slip39-split",
+        "slip39-combine",
+    ] {
         let sub = subcommand(name);
         assert!(
             sub.conditional.is_some(),
@@ -309,7 +320,14 @@ fn coverage_all_constrained_subcommands_have_conditional_fn() {
             name
         );
     }
-    assert!(subcommand("derive-child").conditional.is_none());
+    for name in ["final-word", "seed-xor-split", "seed-xor-combine"] {
+        let sub = subcommand(name);
+        assert!(
+            sub.conditional.is_none(),
+            "subcommand {} should have no conditional fn (no clap conflicts)",
+            name
+        );
+    }
 
     // v0.2 D.2 + D.3: ms/mk/md new constrained subcommands also carry conditionals.
     for (cli, name) in [
@@ -440,4 +458,149 @@ fn cell_d3_md_address_phrases_disables_template_and_substitutions() {
     assert_eq!(vis_of(&vis, "--template"), Visibility::Disabled);
     assert_eq!(vis_of(&vis, "--key"), Visibility::Disabled);
     assert_eq!(vis_of(&vis, "--fingerprint"), Visibility::Disabled);
+}
+
+// ─── v0.3: drift-fix conditionals (4 XOR pairs × 2 dirs = 8 cells) ──────
+// v0.10..v0.13 toolkit cycles added `--passphrase-stdin` /
+// `--bip38-passphrase-stdin` to bundle / verify-bundle / convert /
+// derive-child; GUI now models the clap `conflicts_with` XOR.
+
+#[test]
+fn cell_v0_3_bundle_passphrase_disables_passphrase_stdin() {
+    let state = FormState::from_pairs(vec![
+        ("--descriptor", FlagValue::Text("wpkh(@0/**)".into())),
+        ("--passphrase", FlagValue::Text("secret".into())),
+    ]);
+    let vis = run_conditional("bundle", &state);
+    assert_eq!(vis_of(&vis, "--passphrase-stdin"), Visibility::Disabled);
+}
+
+#[test]
+fn cell_v0_3_bundle_passphrase_stdin_disables_passphrase() {
+    let state = FormState::from_pairs(vec![
+        ("--descriptor", FlagValue::Text("wpkh(@0/**)".into())),
+        ("--passphrase-stdin", FlagValue::Boolean(true)),
+    ]);
+    let vis = run_conditional("bundle", &state);
+    assert_eq!(vis_of(&vis, "--passphrase"), Visibility::Disabled);
+}
+
+#[test]
+fn cell_v0_3_verify_bundle_passphrase_disables_passphrase_stdin() {
+    let state = FormState::from_pairs(vec![
+        ("--descriptor", FlagValue::Text("wpkh(@0/**)".into())),
+        ("--passphrase", FlagValue::Text("secret".into())),
+    ]);
+    let vis = run_conditional("verify-bundle", &state);
+    assert_eq!(vis_of(&vis, "--passphrase-stdin"), Visibility::Disabled);
+}
+
+#[test]
+fn cell_v0_3_verify_bundle_passphrase_stdin_disables_passphrase() {
+    let state = FormState::from_pairs(vec![
+        ("--descriptor", FlagValue::Text("wpkh(@0/**)".into())),
+        ("--passphrase-stdin", FlagValue::Boolean(true)),
+    ]);
+    let vis = run_conditional("verify-bundle", &state);
+    assert_eq!(vis_of(&vis, "--passphrase"), Visibility::Disabled);
+}
+
+#[test]
+fn cell_v0_3_convert_bip38_passphrase_disables_bip38_passphrase_stdin() {
+    let state = FormState::from_pairs(vec![
+        ("--bip38-passphrase", FlagValue::Text("hunter2".into())),
+    ]);
+    let vis = run_conditional("convert", &state);
+    assert_eq!(vis_of(&vis, "--bip38-passphrase-stdin"), Visibility::Disabled);
+}
+
+#[test]
+fn cell_v0_3_convert_bip38_passphrase_stdin_disables_bip38_passphrase() {
+    let state = FormState::from_pairs(vec![
+        ("--bip38-passphrase-stdin", FlagValue::Boolean(true)),
+    ]);
+    let vis = run_conditional("convert", &state);
+    assert_eq!(vis_of(&vis, "--bip38-passphrase"), Visibility::Disabled);
+}
+
+#[test]
+fn cell_v0_3_derive_child_passphrase_disables_passphrase_stdin() {
+    let state = FormState::from_pairs(vec![
+        ("--passphrase", FlagValue::Text("secret".into())),
+    ]);
+    let vis = run_conditional("derive-child", &state);
+    assert_eq!(vis_of(&vis, "--passphrase-stdin"), Visibility::Disabled);
+}
+
+#[test]
+fn cell_v0_3_derive_child_passphrase_stdin_disables_passphrase() {
+    let state = FormState::from_pairs(vec![
+        ("--passphrase-stdin", FlagValue::Boolean(true)),
+    ]);
+    let vis = run_conditional("derive-child", &state);
+    assert_eq!(vis_of(&vis, "--passphrase"), Visibility::Disabled);
+}
+
+// ─── v0.3: slip39-split conditionals (3 cells) ─────────────────────────
+
+#[test]
+fn cell_v0_3_slip39_split_passphrase_disables_passphrase_stdin() {
+    let state = FormState::from_pairs(vec![
+        ("--passphrase", FlagValue::Text("slip39pp".into())),
+    ]);
+    let vis = run_conditional("slip39-split", &state);
+    assert_eq!(vis_of(&vis, "--passphrase-stdin"), Visibility::Disabled);
+}
+
+#[test]
+fn cell_v0_3_slip39_split_passphrase_stdin_disables_passphrase() {
+    let state = FormState::from_pairs(vec![
+        ("--passphrase-stdin", FlagValue::Boolean(true)),
+    ]);
+    let vis = run_conditional("slip39-split", &state);
+    assert_eq!(vis_of(&vis, "--passphrase"), Visibility::Disabled);
+}
+
+#[test]
+fn cell_v0_3_slip39_split_language_hidden_when_from_entropy() {
+    let state = FormState::from_pairs(vec![
+        ("--from", FlagValue::NodeValueComposite {
+            node: "entropy".into(),
+            value: "deadbeef".into(),
+        }),
+    ]);
+    let vis = run_conditional("slip39-split", &state);
+    assert_eq!(vis_of(&vis, "--language"), Visibility::Hidden);
+}
+
+// ─── v0.3: slip39-combine conditionals (3 cells) ───────────────────────
+
+#[test]
+fn cell_v0_3_slip39_combine_passphrase_disables_passphrase_stdin() {
+    let state = FormState::from_pairs(vec![
+        ("--to", FlagValue::Dropdown("phrase".into())),
+        ("--passphrase", FlagValue::Text("slip39pp".into())),
+    ]);
+    let vis = run_conditional("slip39-combine", &state);
+    assert_eq!(vis_of(&vis, "--passphrase-stdin"), Visibility::Disabled);
+}
+
+#[test]
+fn cell_v0_3_slip39_combine_passphrase_stdin_disables_passphrase() {
+    let state = FormState::from_pairs(vec![
+        ("--to", FlagValue::Dropdown("phrase".into())),
+        ("--passphrase-stdin", FlagValue::Boolean(true)),
+    ]);
+    let vis = run_conditional("slip39-combine", &state);
+    assert_eq!(vis_of(&vis, "--passphrase"), Visibility::Disabled);
+}
+
+#[test]
+fn cell_v0_3_slip39_combine_language_hidden_when_to_entropy() {
+    // --to == "entropy" (the toolkit default) → --language Hidden.
+    let state = FormState::from_pairs(vec![
+        ("--to", FlagValue::Dropdown("entropy".into())),
+    ]);
+    let vis = run_conditional("slip39-combine", &state);
+    assert_eq!(vis_of(&vis, "--language"), Visibility::Hidden);
 }

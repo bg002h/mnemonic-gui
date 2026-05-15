@@ -17,10 +17,13 @@ use crate::schema::{FlagVisibility, FormState, Visibility};
 /// Upstream (`crates/mnemonic-toolkit/src/cmd/bundle.rs`):
 ///   :25 `--template` required_unless_present_any = ["descriptor", "descriptor_file"]
 ///   :30 `--descriptor` conflicts_with = "descriptor_file"
+///   :51 (v0.13.0 drift fix) `--passphrase-stdin` conflicts_with = "passphrase"
 pub fn bundle(state: &FormState) -> FlagVisibility {
     let mut vis = Vec::new();
     let has_descriptor = state.has_value("--descriptor");
     let has_descriptor_file = state.has_value("--descriptor-file");
+    let has_passphrase = state.has_value("--passphrase");
+    let has_passphrase_stdin = state.has_value("--passphrase-stdin");
 
     if !has_descriptor && !has_descriptor_file {
         vis.push(("--template", Visibility::Required));
@@ -31,6 +34,13 @@ pub fn bundle(state: &FormState) -> FlagVisibility {
     if has_descriptor {
         vis.push(("--descriptor-file", Visibility::Disabled));
     }
+    // v0.3 drift fix: passphrase XOR passphrase-stdin.
+    if has_passphrase {
+        vis.push(("--passphrase-stdin", Visibility::Disabled));
+    }
+    if has_passphrase_stdin {
+        vis.push(("--passphrase", Visibility::Disabled));
+    }
     vis
 }
 
@@ -39,6 +49,7 @@ pub fn bundle(state: &FormState) -> FlagVisibility {
 /// Upstream (`crates/mnemonic-toolkit/src/cmd/verify_bundle.rs`):
 ///   :28 `--template`     required_unless_present_any = ["descriptor", "descriptor_file"]
 ///   :32 `--descriptor`   conflicts_with = "descriptor_file"
+///   :51 (v0.13.0 drift fix) `--passphrase-stdin` conflicts_with = "passphrase"
 ///   :54 `--ms1`          conflicts_with = "bundle_json"
 ///   :57 `--mk1`          required_unless_present = "bundle_json", conflicts_with = "bundle_json"
 ///   :60 `--md1`          required_unless_present = "bundle_json", conflicts_with = "bundle_json"
@@ -51,6 +62,8 @@ pub fn verify_bundle(state: &FormState) -> FlagVisibility {
     let has_ms1 = state.has_value("--ms1");
     let has_mk1 = state.has_value("--mk1");
     let has_md1 = state.has_value("--md1");
+    let has_passphrase = state.has_value("--passphrase");
+    let has_passphrase_stdin = state.has_value("--passphrase-stdin");
     let any_card = has_ms1 || has_mk1 || has_md1;
 
     // Descriptor-side mutual-required-one-of + XOR.
@@ -79,6 +92,14 @@ pub fn verify_bundle(state: &FormState) -> FlagVisibility {
         vis.push(("--bundle-json", Visibility::Disabled));
     }
 
+    // v0.3 drift fix: passphrase XOR passphrase-stdin.
+    if has_passphrase {
+        vis.push(("--passphrase-stdin", Visibility::Disabled));
+    }
+    if has_passphrase_stdin {
+        vis.push(("--passphrase", Visibility::Disabled));
+    }
+
     vis
 }
 
@@ -86,16 +107,27 @@ pub fn verify_bundle(state: &FormState) -> FlagVisibility {
 ///
 /// Upstream (`crates/mnemonic-toolkit/src/cmd/convert.rs`):
 ///   :181 `--passphrase-stdin` conflicts_with = "passphrase"
+///   :203 (v0.13.0 drift fix) `--bip38-passphrase-stdin` conflicts_with = "bip38_passphrase"
 pub fn convert(state: &FormState) -> FlagVisibility {
     let mut vis = Vec::new();
     let has_passphrase = state.has_value("--passphrase");
     let has_passphrase_stdin = state.has_value("--passphrase-stdin");
+    let has_bip38_passphrase = state.has_value("--bip38-passphrase");
+    let has_bip38_passphrase_stdin = state.has_value("--bip38-passphrase-stdin");
 
     if has_passphrase {
         vis.push(("--passphrase-stdin", Visibility::Disabled));
     }
     if has_passphrase_stdin {
         vis.push(("--passphrase", Visibility::Disabled));
+    }
+    // v0.3 drift fix: bip38-passphrase XOR bip38-passphrase-stdin
+    // (additive; the bip38 pair is independent of the non-bip38 pair).
+    if has_bip38_passphrase {
+        vis.push(("--bip38-passphrase-stdin", Visibility::Disabled));
+    }
+    if has_bip38_passphrase_stdin {
+        vis.push(("--bip38-passphrase", Visibility::Disabled));
     }
     vis
 }
@@ -132,9 +164,27 @@ pub fn export_wallet(state: &FormState) -> FlagVisibility {
     vis
 }
 
-// `derive-child` has no clap conflicts_with / required_unless_present
-// constraints in v0.8.1 — all required flags are at clap-level (`--from`,
-// `--application`, `--length`, `--index`). No conditional fn needed.
+/// `derive-child` subcommand conditionals (v0.3 drift fix).
+///
+/// Upstream (`crates/mnemonic-toolkit/src/cmd/derive_child.rs`):
+///   :68 `--passphrase-stdin` conflicts_with = "passphrase"
+///
+/// (v0.8.1 had no clap conflicts; v0.13.0 adds `--passphrase-stdin`.
+/// SubcommandSchema entry flips `conditional: None` → `Some(...)` in
+/// schema/mnemonic.rs.)
+pub fn derive_child(state: &FormState) -> FlagVisibility {
+    let mut vis = Vec::new();
+    let has_passphrase = state.has_value("--passphrase");
+    let has_passphrase_stdin = state.has_value("--passphrase-stdin");
+
+    if has_passphrase {
+        vis.push(("--passphrase-stdin", Visibility::Disabled));
+    }
+    if has_passphrase_stdin {
+        vis.push(("--passphrase", Visibility::Disabled));
+    }
+    vis
+}
 
 /// v0.2 D.2: `ms encode` conditionals.
 ///
@@ -251,6 +301,62 @@ pub fn md_address(state: &FormState) -> FlagVisibility {
     if !has_phrases_pos && !has_template {
         vis.push(("--template", Visibility::Required));
         // positional Required handled at widget layer.
+    }
+    vis
+}
+
+/// v0.3: `slip39-split` subcommand conditionals.
+///
+/// Upstream (`crates/mnemonic-toolkit/src/cmd/slip39.rs`):
+///   :101 `--passphrase` conflicts_with = "passphrase_stdin"
+///   :131 `--language`   doc: "BIP-39 language of input phrase; ignored
+///                              for `entropy=` inputs" — Hidden when
+///                              `--from` node == entropy.
+pub fn slip39_split(state: &FormState) -> FlagVisibility {
+    let mut vis = Vec::new();
+    let has_passphrase = state.has_value("--passphrase");
+    let has_passphrase_stdin = state.has_value("--passphrase-stdin");
+
+    if has_passphrase {
+        vis.push(("--passphrase-stdin", Visibility::Disabled));
+    }
+    if has_passphrase_stdin {
+        vis.push(("--passphrase", Visibility::Disabled));
+    }
+
+    // --language is input-side only (BIP-39 parsing of `--from phrase=…`);
+    // ignored when `--from entropy=…`. Hide when entropy mode.
+    if state.composite_node("--from") == Some("entropy") {
+        vis.push(("--language", Visibility::Hidden));
+    }
+    vis
+}
+
+/// v0.3: `slip39-combine` subcommand conditionals.
+///
+/// Upstream (`cmd/slip39.rs`):
+///   :157 `--passphrase` conflicts_with = "passphrase_stdin"
+///   :170 `--language`   doc: "BIP-39 language for `--to phrase`; ignored
+///                              for `--to entropy`" — Hidden when
+///                              `--to` == entropy (the default).
+pub fn slip39_combine(state: &FormState) -> FlagVisibility {
+    let mut vis = Vec::new();
+    let has_passphrase = state.has_value("--passphrase");
+    let has_passphrase_stdin = state.has_value("--passphrase-stdin");
+
+    if has_passphrase {
+        vis.push(("--passphrase-stdin", Visibility::Disabled));
+    }
+    if has_passphrase_stdin {
+        vis.push(("--passphrase", Visibility::Disabled));
+    }
+
+    // --language used only when --to == "phrase"; ignored for entropy
+    // (the default). Hidden when entropy mode (matches `md_encode` precedent
+    // for --language Hidden-when-form-irrelevant).
+    let to = state.dropdown_value("--to");
+    if to == Some("entropy") || to.is_none() {
+        vis.push(("--language", Visibility::Hidden));
     }
     vis
 }

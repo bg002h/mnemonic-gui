@@ -3,6 +3,91 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## [0.3.0] — 2026-05-14
+
+v0.3 catches the GUI up to `mnemonic-toolkit-v0.13.0`. Five new
+`mnemonic` subcommand surfaces (`slip39-split`, `slip39-combine`,
+`seed-xor-split`, `seed-xor-combine`, `final-word`) close the
+v0.11..v0.13 toolkit feature gap. A v0.10..v0.13 flag-drift
+correction closes the schema-mirror-invariant breach for `bundle` /
+`verify-bundle` / `convert` / `derive-child` (4 `*-stdin` flags
+that shipped toolkit-side without companion GUI PRs). The
+schema-mirror gate now prefers `gui-schema` JSON over `--help`
+regex (required for flattened nested-subcommand names like
+`seed-xor-split` that clap doesn't expose at the top level), and
+`assemble_argv` now correctly emits repeating-secret flags (latent
+v0.2 bug that affected `--ms1`/`--mk1`/`--md1` and was surfaced by
+`--share`).
+
+### Added — 5 new mnemonic subcommand surfaces
+
+- `slip39-split` (8 flags) + `slip39-combine` (6 flags) — Trezor
+  SLIP-39 K-of-N share splitter (toolkit v0.13.0 unblocks the
+  GUI-side companion FOLLOWUP).
+- `seed-xor-split` (5 flags) + `seed-xor-combine` (4 flags) —
+  Coldcard all-or-nothing BIP-39 ↔ BIP-39 XOR splitter (toolkit
+  v0.12.0).
+- `final-word` (3 flags) — BIP-39 N-1 phrase → candidate Nth-word
+  set (toolkit v0.11.0).
+- 3 new schema constants (`SLIP39_FROM_NODES`, `SLIP39_TO_SHAPES`,
+  `PHRASE_ONLY`).
+- New `FormState::composite_node()` helper for NodeValueComposite
+  value-inspect (slip39-split `--language` hide-when-entropy).
+- 2 new conditional fns (`slip39_split`, `slip39_combine`).
+- 5 new egui_kittest cells (one per new subcommand) +
+  14 new conditional-visibility cells.
+
+### Added — v0.10..v0.13 drift correction
+
+Closes the schema-mirror-invariant breach (FOLLOWUPS.md
+`mnemonic-gui-schema-mirror`): 4 toolkit cycles shipped new
+`*-stdin` flags without companion `mnemonic-gui` PRs.
+
+- `BUNDLE_FLAGS` / `VERIFY_BUNDLE_FLAGS` / `DERIVE_CHILD_FLAGS`:
+  `--passphrase-stdin` (clap `conflicts_with = "passphrase"`).
+- `CONVERT_FLAGS`: `--bip38-passphrase-stdin` (clap
+  `conflicts_with = "bip38_passphrase"`).
+- `src/form/conditional.rs`: `bundle` / `verify_bundle` / `convert`
+  fns extended with passphrase XOR clauses; NEW `derive_child` fn
+  (was `None` — gained conflict at v0.13.0); stale "no conditional
+  fn needed" comment deleted.
+- `derive-child` SubcommandSchema `conditional: None` →
+  `Some(crate::form::conditional::derive_child)`.
+
+### Changed — pinned-upstream + workflow
+
+- `pinned-upstream.toml`: `[mnemonic].tag`
+  `mnemonic-toolkit-v0.9.0` → `mnemonic-toolkit-v0.13.0` (sibling
+  pins `md` / `ms` / `mk` unchanged).
+- `.github/workflows/schema-mirror.yml`: install + clone steps
+  bump to `v0.13.0`.
+- `src/schema/mnemonic.rs`: `pinned_version: "mnemonic 0.9.0"` →
+  `"mnemonic 0.13.0"`.
+- `tests/schema_mirror.rs::ci_workflow_snapshot::required_tags`
+  first entry bumped.
+
+### Fixed — latent v0.2 bugs
+
+- `src/form/invocation.rs::assemble_argv`: repeating-secret flags
+  (`--ms1` / `--mk1` / `--md1` from v0.2; `--share` from v0.3) now
+  emit N occurrences via `state.values` iteration. The pre-v0.3
+  path only consulted `state.secret_widgets` (singular BTreeMap
+  lookup) and silently emitted at most one token. Trade-off:
+  zeroize-on-drop still applies per-widget; the values-map
+  `String` copies during emission are plain heap allocations.
+- `tests/schema_mirror.rs::assert_schema_matches_help`: prefer
+  `gui-schema` JSON over `--help` regex (required for flattened
+  nested-subcommand names like `seed-xor-split` that clap's
+  top-level `--help` doesn't recognize). Falls back to `--help`
+  regex for `gui-schema-capable = false` CLIs.
+
+### Design
+
+- `design/PLAN_v0_3.md` — 3-section reviewer-LOCKed plan
+  (brainstorming + SPEC + implementation plan) with P0 drift-fold
+  amendment, persisted from the plan-mode artifact directory to the
+  in-repo design archive (matches v0.1 / v0.2 convention).
+
 ## [0.2.0] — 2026-05-12
 
 v0.2 expands the GUI surface from the v0.1 baseline (one CLI's

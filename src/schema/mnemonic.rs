@@ -1,4 +1,4 @@
-//! Pinned schema for the `mnemonic` CLI from mnemonic-toolkit-v0.9.0.
+//! Pinned schema for the `mnemonic` CLI from mnemonic-toolkit-v0.13.0.
 //!
 //! Five subcommands covered in v0.1 (Section A coverage table):
 //!   - bundle
@@ -165,6 +165,14 @@ const BUNDLE_FLAGS: &[FlagSchema] = &[
         secret: true,
     },
     FlagSchema {
+        name: "--passphrase-stdin",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Read --passphrase value from stdin (preserves NULL bytes).",
+        secret: true,
+    },
+    FlagSchema {
         name: "--account",
         kind: FlagKind::Number {
             min: 0,
@@ -287,6 +295,14 @@ const VERIFY_BUNDLE_FLAGS: &[FlagSchema] = &[
         required: false,
         repeating: false,
         help: "BIP-39 mnemonic extension passphrase.",
+        secret: true,
+    },
+    FlagSchema {
+        name: "--passphrase-stdin",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Read --passphrase value from stdin (preserves NULL bytes).",
         secret: true,
     },
     FlagSchema {
@@ -450,6 +466,14 @@ const CONVERT_FLAGS: &[FlagSchema] = &[
         required: false,
         repeating: false,
         help: "BIP-38 Scrypt passphrase (distinct from --passphrase).",
+        secret: true,
+    },
+    FlagSchema {
+        name: "--bip38-passphrase-stdin",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Read --bip38-passphrase value from stdin (preserves NULL bytes).",
         secret: true,
     },
     FlagSchema {
@@ -717,6 +741,14 @@ const DERIVE_CHILD_FLAGS: &[FlagSchema] = &[
         secret: true,
     },
     FlagSchema {
+        name: "--passphrase-stdin",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Read --passphrase value from stdin (preserves NULL bytes).",
+        secret: true,
+    },
+    FlagSchema {
         name: "--dice-sides",
         kind: FlagKind::Number {
             min: 2,
@@ -729,11 +761,251 @@ const DERIVE_CHILD_FLAGS: &[FlagSchema] = &[
     },
 ];
 
+// ─── slip39-split ────────────────────────────────────────────────────────
+
+const SLIP39_FROM_NODES: &[&str] = &["phrase", "entropy"];
+
+const SLIP39_SPLIT_FLAGS: &[FlagSchema] = &[
+    FlagSchema {
+        name: "--from",
+        kind: FlagKind::NodeValueComposite(SLIP39_FROM_NODES),
+        required: true,
+        repeating: false,
+        help: "Master secret. `phrase=<value-or->` (BIP-39) OR `entropy=<hex-or->`. `=-` reads from stdin.",
+        secret: false, // value-dependent
+    },
+    FlagSchema {
+        name: "--passphrase",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "SLIP-39 passphrase (NOT BIP-39 passphrase).",
+        secret: true,
+    },
+    FlagSchema {
+        name: "--passphrase-stdin",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Read --passphrase value from stdin (preserves NULL bytes).",
+        secret: true,
+    },
+    FlagSchema {
+        name: "--group-threshold",
+        kind: FlagKind::Number { min: 1, max: 16 },
+        required: true,
+        repeating: false,
+        help: "K of the group layer (1..=group_count).",
+        secret: false,
+    },
+    FlagSchema {
+        name: "--group",
+        kind: FlagKind::Text,
+        required: true,
+        repeating: true,
+        help: "Per-group `<member_count>,<member_threshold>` (e.g., `2,2`). Repeating.",
+        secret: false,
+    },
+    FlagSchema {
+        name: "--iteration-exponent",
+        kind: FlagKind::Number { min: 0, max: 15 },
+        required: false,
+        repeating: false,
+        help: "Iteration exponent E (library-enforced 0..=15; default 0). G9 advisory at E >= 5.",
+        secret: false,
+    },
+    FlagSchema {
+        name: "--language",
+        kind: FlagKind::Dropdown(LANGUAGES),
+        required: false,
+        repeating: false,
+        help: "BIP-39 wordlist for parsing --from phrase=...; ignored for entropy= input.",
+        secret: false,
+    },
+    FlagSchema {
+        name: "--json-out",
+        kind: FlagKind::Path { stdio_sentinel: false },
+        required: false,
+        repeating: false,
+        help: "Side-effect: write versioned JSON envelope to PATH. World-readable-path advisory on stderr.",
+        secret: false,
+    },
+];
+
+// ─── slip39-combine ──────────────────────────────────────────────────────
+
+const SLIP39_TO_SHAPES: &[&str] = &["entropy", "phrase"];
+
+const SLIP39_COMBINE_FLAGS: &[FlagSchema] = &[
+    FlagSchema {
+        name: "--share",
+        kind: FlagKind::Text,
+        required: true,
+        repeating: true,
+        help: "SLIP-39 share mnemonic. Repeating; at most ONE may be `-` (stdin).",
+        secret: true,
+    },
+    FlagSchema {
+        name: "--passphrase",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "SLIP-39 passphrase used at split time.",
+        secret: true,
+    },
+    FlagSchema {
+        name: "--passphrase-stdin",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Read --passphrase value from stdin (preserves NULL bytes).",
+        secret: true,
+    },
+    FlagSchema {
+        name: "--to",
+        kind: FlagKind::Dropdown(SLIP39_TO_SHAPES),
+        required: false,
+        repeating: false,
+        help: "Output shape (default entropy: hex on stdout; phrase: BIP-39 mnemonic).",
+        secret: false,
+    },
+    FlagSchema {
+        name: "--language",
+        kind: FlagKind::Dropdown(LANGUAGES),
+        required: false,
+        repeating: false,
+        help: "BIP-39 wordlist for --to phrase; ignored for --to entropy.",
+        secret: false,
+    },
+    FlagSchema {
+        name: "--json-out",
+        kind: FlagKind::Path { stdio_sentinel: false },
+        required: false,
+        repeating: false,
+        help: "Side-effect: write versioned JSON envelope to PATH.",
+        secret: false,
+    },
+];
+
+// ─── seed-xor-split ──────────────────────────────────────────────────────
+
+const PHRASE_ONLY: &[&str] = &["phrase"];
+
+const SEED_XOR_SPLIT_FLAGS: &[FlagSchema] = &[
+    FlagSchema {
+        name: "--from",
+        kind: FlagKind::NodeValueComposite(PHRASE_ONLY),
+        required: true,
+        repeating: false,
+        help: "Master BIP-39 phrase. `phrase=<value>` (inline) OR `phrase=-` (stdin).",
+        secret: false, // value-dependent
+    },
+    FlagSchema {
+        name: "--shares",
+        kind: FlagKind::Number { min: 2, max: 255 },
+        required: true,
+        repeating: false,
+        help: "Number of XOR shares to emit. Must be >= 2.",
+        secret: false,
+    },
+    FlagSchema {
+        name: "--language",
+        kind: FlagKind::Dropdown(LANGUAGES),
+        required: false,
+        repeating: false,
+        help: "BIP-39 wordlist for input + output (default english).",
+        secret: false,
+    },
+    FlagSchema {
+        name: "--deterministic-from-master",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Coldcard SHA256d-deterministic share generation (interop with Coldcard's xor_seed.py).",
+        secret: false,
+    },
+    FlagSchema {
+        name: "--json-out",
+        kind: FlagKind::Path { stdio_sentinel: false },
+        required: false,
+        repeating: false,
+        help: "Side-effect: write versioned JSON envelope to PATH.",
+        secret: false,
+    },
+];
+
+// ─── seed-xor-combine ────────────────────────────────────────────────────
+
+const SEED_XOR_COMBINE_FLAGS: &[FlagSchema] = &[
+    FlagSchema {
+        name: "--share",
+        kind: FlagKind::NodeValueComposite(PHRASE_ONLY),
+        required: true,
+        repeating: true,
+        help: "Share phrase. `phrase=<value>` or `phrase=-`. At most ONE may be stdin.",
+        secret: true,
+    },
+    FlagSchema {
+        name: "--shares",
+        kind: FlagKind::Number { min: 2, max: 255 },
+        required: true,
+        repeating: false,
+        help: "Asserted share count. Handler-side runtime check equals actual --share count.",
+        secret: false,
+    },
+    FlagSchema {
+        name: "--language",
+        kind: FlagKind::Dropdown(LANGUAGES),
+        required: false,
+        repeating: false,
+        help: "BIP-39 wordlist for inputs + output (default english).",
+        secret: false,
+    },
+    FlagSchema {
+        name: "--json-out",
+        kind: FlagKind::Path { stdio_sentinel: false },
+        required: false,
+        repeating: false,
+        help: "Side-effect: write versioned JSON envelope to PATH.",
+        secret: false,
+    },
+];
+
+// ─── final-word ──────────────────────────────────────────────────────────
+
+const FINAL_WORD_FLAGS: &[FlagSchema] = &[
+    FlagSchema {
+        name: "--from",
+        kind: FlagKind::NodeValueComposite(PHRASE_ONLY),
+        required: true,
+        repeating: false,
+        help: "N-1 word partial phrase. `phrase=<words>` or `phrase=-`. Must be 11/14/17/20/23 words.",
+        secret: false, // value-dependent
+    },
+    FlagSchema {
+        name: "--language",
+        kind: FlagKind::Dropdown(LANGUAGES),
+        required: false,
+        repeating: false,
+        help: "BIP-39 wordlist (default english).",
+        secret: false,
+    },
+    FlagSchema {
+        name: "--json-out",
+        kind: FlagKind::Path { stdio_sentinel: false },
+        required: false,
+        repeating: false,
+        help: "Side-effect: write versioned JSON envelope to PATH. Candidate list still emitted to stdout.",
+        secret: false,
+    },
+];
+
 // ─── SCHEMA constant ─────────────────────────────────────────────────────
 
 // Phase 5: wire the conditional-visibility fn pointers per subcommand.
-// `derive-child` has no clap conflicts_with / required_unless_present
-// constraints in v0.8.1 — stays None.
+// v0.3: `derive-child` gained `--passphrase-stdin conflicts_with passphrase`
+// at toolkit v0.13.0; conditional flipped from `None` to
+// `Some(crate::form::conditional::derive_child)`.
 const SUBCOMMANDS: &[SubcommandSchema] = &[
     SubcommandSchema {
         name: "bundle",
@@ -773,21 +1045,60 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
         flags: DERIVE_CHILD_FLAGS,
         positional_args: NO_POSITIONALS,
         allows_slots: false,
+        conditional: Some(crate::form::conditional::derive_child),
+    },
+    SubcommandSchema {
+        name: "final-word",
+        human_name: "Final Word (BIP-39 N-1 → candidate Nth words)",
+        flags: FINAL_WORD_FLAGS,
+        positional_args: NO_POSITIONALS,
+        allows_slots: false,
         conditional: None,
+    },
+    SubcommandSchema {
+        name: "seed-xor-split",
+        human_name: "Seed XOR Split (Coldcard all-or-nothing splitter)",
+        flags: SEED_XOR_SPLIT_FLAGS,
+        positional_args: NO_POSITIONALS,
+        allows_slots: false,
+        conditional: None,
+    },
+    SubcommandSchema {
+        name: "seed-xor-combine",
+        human_name: "Seed XOR Combine (reconstruct from XOR shares)",
+        flags: SEED_XOR_COMBINE_FLAGS,
+        positional_args: NO_POSITIONALS,
+        allows_slots: false,
+        conditional: None,
+    },
+    SubcommandSchema {
+        name: "slip39-split",
+        human_name: "SLIP-39 Split (K-of-N share splitter)",
+        flags: SLIP39_SPLIT_FLAGS,
+        positional_args: NO_POSITIONALS,
+        allows_slots: false,
+        conditional: Some(crate::form::conditional::slip39_split),
+    },
+    SubcommandSchema {
+        name: "slip39-combine",
+        human_name: "SLIP-39 Combine (reconstruct from shares)",
+        flags: SLIP39_COMBINE_FLAGS,
+        positional_args: NO_POSITIONALS,
+        allows_slots: false,
+        conditional: Some(crate::form::conditional::slip39_combine),
     },
 ];
 
-// R1 I-1 fold: `pinned_version` MUST match the literal `--version` output
-// string that the runtime soft-check (SPEC §11) reads at GUI launch. The
-// upstream `mnemonic-toolkit-v0.8.1` git tag did NOT bump the crate
-// package version from `0.8.0`, so `mnemonic --version` emits
-// `"mnemonic 0.8.0"`. The git-tag string remains the source of truth for
-// CI install commands and lives in `pinned-upstream.toml`'s `[mnemonic].tag`
-// field; `pinned_version` here is the comparison string for the runtime
-// banner. Phase 9's `schema_check.rs` reads BOTH: tag for CI install,
+// `pinned_version` matches the literal `--version` output string that the
+// runtime soft-check (SPEC §11) reads at GUI launch. At v0.13.0 the
+// `mnemonic-toolkit-v0.13.0` tag DOES match the crate-package version
+// `0.13.0`, so the string here ("mnemonic 0.13.0") aligns with both. The
+// git-tag string lives in `pinned-upstream.toml`'s `[mnemonic].tag` field
+// for CI install; `pinned_version` here is the runtime-banner comparison.
+// Phase 9's `schema_check.rs` reads BOTH: tag for CI install,
 // `pinned_version` for runtime soft-check.
 pub const SCHEMA: Schema = Schema {
     cli_name: "mnemonic",
-    pinned_version: "mnemonic 0.9.0",
+    pinned_version: "mnemonic 0.13.0",
     subcommands: SUBCOMMANDS,
 };
