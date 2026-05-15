@@ -236,6 +236,24 @@ impl FormState {
             }
         })
     }
+
+    /// v0.3: Return the `node` token of a NodeValueComposite flag, or
+    /// `None` if absent / different variant. Mirrors `dropdown_value`'s
+    /// shape; used by `slip39_split` conditional to hide `--language`
+    /// when `--from` node == entropy.
+    pub fn composite_node(&self, name: &str) -> Option<&str> {
+        self.values.iter().find_map(|(k, v)| {
+            if k == name {
+                if let FlagValue::NodeValueComposite { node, .. } = v {
+                    Some(node.as_str())
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
+        })
+    }
 }
 
 fn flag_value_is_present(v: &FlagValue) -> bool {

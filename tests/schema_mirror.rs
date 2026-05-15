@@ -91,16 +91,30 @@ fn assert_schema_matches_help(schema: &schema::Schema) {
     let bin = resolve_bin(schema.cli_name);
     for sub in schema.subcommands {
         let from_schema = schema_flag_names(sub);
-        let from_help = help_text_flag_names(&bin, sub.name);
-        let only_in_schema: Vec<_> = from_schema.difference(&from_help).collect();
-        let only_in_help: Vec<_> = from_help.difference(&from_schema).collect();
+        // v0.3: prefer `gui-schema` JSON path when the CLI is
+        // `gui-schema-capable = true` (all 4 CLIs are at Phase C.3).
+        // The JSON path handles **flattened** nested-subcommand names
+        // like `seed-xor-split` / `slip39-split` that clap's `--help`
+        // doesn't recognize at the top-level (`mnemonic seed-xor-split
+        // --help` errors with "unrecognized subcommand"). Fall back to
+        // `--help` regex for non-capable CLIs or if the JSON path
+        // returns `None` for an unexpected reason.
+        let from_upstream = match mnemonic_gui::schema_check::json_flag_names(
+            schema.cli_name,
+            sub.name,
+        ) {
+            Some(names) => names,
+            None => help_text_flag_names(&bin, sub.name),
+        };
+        let only_in_schema: Vec<_> = from_schema.difference(&from_upstream).collect();
+        let only_in_upstream: Vec<_> = from_upstream.difference(&from_schema).collect();
         assert!(
-            only_in_schema.is_empty() && only_in_help.is_empty(),
-            "schema-mirror drift for `{} {}`:\n  only in schema: {:?}\n  only in upstream --help: {:?}",
+            only_in_schema.is_empty() && only_in_upstream.is_empty(),
+            "schema-mirror drift for `{} {}`:\n  only in schema: {:?}\n  only in upstream: {:?}",
             schema.cli_name,
             sub.name,
             only_in_schema,
-            only_in_help,
+            only_in_upstream,
         );
     }
 }
@@ -430,7 +444,7 @@ fn ci_workflow_snapshot() {
     // `gui-schema` PRs that landed at C.2. Each bump corresponds to a
     // release tag that includes the new subcommand.
     let required_tags = [
-        "mnemonic-toolkit-v0.9.0",
+        "mnemonic-toolkit-v0.13.0",
         "descriptor-mnemonic-md-cli-v0.5.0",
         "ms-cli-v0.2.1",
         "mk-cli-v0.3.1",
@@ -576,7 +590,7 @@ fn schema_check_json_returns_none_for_missing_subcommand() {
 fn schema_check_json_invokes_gui_schema_on_capable_cli() {
     // Phase C.3 v0.2: all four CLIs are now `gui-schema-capable = true`
     // in pinned-upstream.toml, in lockstep with the bumped tags
-    // (mnemonic-toolkit-v0.9.0 / md-v0.5.0 / ms-v0.2.0 / mk-v0.3.0).
+    // (mnemonic-toolkit-v0.13.0 / md-v0.5.0 / ms-v0.2.1 / mk-v0.3.1).
     // `json_flag_names` should exec the installed binary's
     // `gui-schema` subcommand and return `Some(...)` for an existing
     // subcommand.

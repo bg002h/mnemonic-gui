@@ -28,8 +28,17 @@ use egui_kittest::Harness;
 use egui_kittest::kittest::Queryable;
 
 use mnemonic_gui::form::conditional;
+use mnemonic_gui::form::invocation::assemble_argv;
 use mnemonic_gui::form::slot_editor::{self, SlotState};
-use mnemonic_gui::schema::{FlagValue, FormState, Visibility};
+use mnemonic_gui::schema::{self, FlagValue, FormState, Visibility};
+
+fn subcommand(name: &str) -> &'static schema::SubcommandSchema {
+    schema::mnemonic::SCHEMA
+        .subcommands
+        .iter()
+        .find(|s| s.name == name)
+        .unwrap_or_else(|| panic!("subcommand {} not in schema", name))
+}
 
 #[test]
 fn cell_1_slot_editor_add_remove_writeback() {
@@ -222,6 +231,234 @@ fn cell_4_ms_encode_xor_phrase_hex_via_harness() {
     let vis = conditional::ms_encode(harness.state());
     assert_eq!(vis_for(&vis, "--phrase"), Some(Visibility::Disabled));
     assert_eq!(vis_for(&vis, "--language"), Some(Visibility::Hidden));
+}
+
+// ── v0.3 (Phase 2.4): kittest cells for the 5 new mnemonic surfaces ────
+//
+// Pattern matches D.4 cells 4+5: inline probe-button closure mutates
+// FormState.values on click; final assertion calls `assemble_argv`
+// directly on `harness.state()` (no MnemonicGuiApp boot — main-mod
+// state is private to integration tests; see widget_secret.rs:18-24).
+// Probe values need not be cryptographically valid; cells inspect
+// argv-assembly, not toolkit semantics (plan §3.2 P2.4 canned-value
+// discipline note).
+
+#[test]
+fn cell_v0_3_slip39_split_argv_assembles() {
+    let initial = FormState::default();
+    let mut harness = Harness::new_ui_state(
+        |ui, state| {
+            if ui.button("set-from-phrase").clicked() {
+                state.values.push((
+                    "--from".into(),
+                    FlagValue::NodeValueComposite {
+                        node: "phrase".into(),
+                        value: "abandon abandon ...".into(),
+                    },
+                ));
+            }
+            if ui.button("set-group-threshold").clicked() {
+                state
+                    .values
+                    .push(("--group-threshold".into(), FlagValue::Number(1)));
+            }
+            if ui.button("set-group").clicked() {
+                state
+                    .values
+                    .push(("--group".into(), FlagValue::Text("2,2".into())));
+            }
+        },
+        initial,
+    );
+
+    harness.get_by_label("set-from-phrase").click();
+    harness.run();
+    harness.get_by_label("set-group-threshold").click();
+    harness.run();
+    harness.get_by_label("set-group").click();
+    harness.run();
+
+    let argv = assemble_argv(
+        &schema::mnemonic::SCHEMA,
+        subcommand("slip39-split"),
+        harness.state(),
+    );
+    assert!(argv.contains(&"slip39-split".to_string()));
+    assert!(argv.contains(&"--from".to_string()));
+    assert!(argv.contains(&"phrase=abandon abandon ...".to_string()));
+    assert!(argv.contains(&"--group-threshold".to_string()));
+    assert!(argv.contains(&"--group".to_string()));
+    assert!(argv.contains(&"2,2".to_string()));
+}
+
+#[test]
+fn cell_v0_3_slip39_combine_argv_assembles() {
+    let initial = FormState::default();
+    let mut harness = Harness::new_ui_state(
+        |ui, state| {
+            if ui.button("set-share-1").clicked() {
+                state
+                    .values
+                    .push(("--share".into(), FlagValue::Text("share-1-words".into())));
+            }
+            if ui.button("set-share-2").clicked() {
+                state
+                    .values
+                    .push(("--share".into(), FlagValue::Text("share-2-words".into())));
+            }
+        },
+        initial,
+    );
+
+    harness.get_by_label("set-share-1").click();
+    harness.run();
+    harness.get_by_label("set-share-2").click();
+    harness.run();
+
+    let argv = assemble_argv(
+        &schema::mnemonic::SCHEMA,
+        subcommand("slip39-combine"),
+        harness.state(),
+    );
+    assert!(argv.contains(&"slip39-combine".to_string()));
+    // Two --share emissions in order.
+    let share_indices: Vec<_> = argv
+        .iter()
+        .enumerate()
+        .filter(|(_, s)| *s == "--share")
+        .map(|(i, _)| i)
+        .collect();
+    assert_eq!(share_indices.len(), 2, "expected 2 --share argv tokens; got argv = {argv:?}");
+    assert_eq!(argv[share_indices[0] + 1], "share-1-words");
+    assert_eq!(argv[share_indices[1] + 1], "share-2-words");
+}
+
+#[test]
+fn cell_v0_3_seed_xor_split_argv_assembles() {
+    let initial = FormState::default();
+    let mut harness = Harness::new_ui_state(
+        |ui, state| {
+            if ui.button("set-from-phrase").clicked() {
+                state.values.push((
+                    "--from".into(),
+                    FlagValue::NodeValueComposite {
+                        node: "phrase".into(),
+                        value: "abandon abandon ...".into(),
+                    },
+                ));
+            }
+            if ui.button("set-shares-2").clicked() {
+                state
+                    .values
+                    .push(("--shares".into(), FlagValue::Number(2)));
+            }
+        },
+        initial,
+    );
+
+    harness.get_by_label("set-from-phrase").click();
+    harness.run();
+    harness.get_by_label("set-shares-2").click();
+    harness.run();
+
+    let argv = assemble_argv(
+        &schema::mnemonic::SCHEMA,
+        subcommand("seed-xor-split"),
+        harness.state(),
+    );
+    assert!(argv.contains(&"seed-xor-split".to_string()));
+    assert!(argv.contains(&"--from".to_string()));
+    assert!(argv.contains(&"phrase=abandon abandon ...".to_string()));
+    assert!(argv.contains(&"--shares".to_string()));
+    assert!(argv.contains(&"2".to_string()));
+}
+
+#[test]
+fn cell_v0_3_seed_xor_combine_argv_assembles() {
+    let initial = FormState::default();
+    let mut harness = Harness::new_ui_state(
+        |ui, state| {
+            if ui.button("set-share-1").clicked() {
+                state.values.push((
+                    "--share".into(),
+                    FlagValue::NodeValueComposite {
+                        node: "phrase".into(),
+                        value: "share-one-words".into(),
+                    },
+                ));
+            }
+            if ui.button("set-share-2").clicked() {
+                state.values.push((
+                    "--share".into(),
+                    FlagValue::NodeValueComposite {
+                        node: "phrase".into(),
+                        value: "share-two-words".into(),
+                    },
+                ));
+            }
+            if ui.button("set-shares-2").clicked() {
+                state
+                    .values
+                    .push(("--shares".into(), FlagValue::Number(2)));
+            }
+        },
+        initial,
+    );
+
+    harness.get_by_label("set-share-1").click();
+    harness.run();
+    harness.get_by_label("set-share-2").click();
+    harness.run();
+    harness.get_by_label("set-shares-2").click();
+    harness.run();
+
+    let argv = assemble_argv(
+        &schema::mnemonic::SCHEMA,
+        subcommand("seed-xor-combine"),
+        harness.state(),
+    );
+    assert!(argv.contains(&"seed-xor-combine".to_string()));
+    assert!(argv.contains(&"--shares".to_string()));
+    let share_indices: Vec<_> = argv
+        .iter()
+        .enumerate()
+        .filter(|(_, s)| *s == "--share")
+        .map(|(i, _)| i)
+        .collect();
+    assert_eq!(share_indices.len(), 2);
+    assert_eq!(argv[share_indices[0] + 1], "phrase=share-one-words");
+    assert_eq!(argv[share_indices[1] + 1], "phrase=share-two-words");
+}
+
+#[test]
+fn cell_v0_3_final_word_argv_assembles() {
+    let initial = FormState::default();
+    let mut harness = Harness::new_ui_state(
+        |ui, state| {
+            if ui.button("set-from-phrase").clicked() {
+                state.values.push((
+                    "--from".into(),
+                    FlagValue::NodeValueComposite {
+                        node: "phrase".into(),
+                        value: "eleven words go here ...".into(),
+                    },
+                ));
+            }
+        },
+        initial,
+    );
+
+    harness.get_by_label("set-from-phrase").click();
+    harness.run();
+
+    let argv = assemble_argv(
+        &schema::mnemonic::SCHEMA,
+        subcommand("final-word"),
+        harness.state(),
+    );
+    assert!(argv.contains(&"final-word".to_string()));
+    assert!(argv.contains(&"--from".to_string()));
+    assert!(argv.contains(&"phrase=eleven words go here ...".to_string()));
 }
 
 #[test]
