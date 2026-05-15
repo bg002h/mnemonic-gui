@@ -167,6 +167,16 @@ shipped partially.
   users. Tracking entry kept open for the Linux-specific
   follow-up.
 
+### `gui-bundle-multisig-flags-conditional` — `--multisig-path-family` and `--threshold` should be Disabled (conditional-visibility) under single-sig templates
+
+- **Surfaced:** 2026-05-15, manual-gui v1.0 cycle M-P2.4 sub-batch 5b R0 fold (worked example for `mnemonic bundle` single-sig had to add an explicit "clear `--multisig-path-family`" step because the field is seeded to `bip87` by default at `src/main.rs:188-211`, and leaving it set under `--template bip84` triggers the `mode_text::PATH_FAMILY_WITHOUT_MULTISIG` refusal).
+- **Where:** `src/form/conditional.rs::bundle` (line 21-45). The current rules enforce `--template`-required-unless-descriptor, `--descriptor`/`--descriptor-file` XOR, and `--passphrase`/`--passphrase-stdin` XOR. They do NOT disable `--multisig-path-family` or `--threshold` when the active template is in the single-sig set (`bip44`, `bip49`, `bip84`, `bip86`).
+- **What:** Extend `pub fn bundle(state: &FormState) -> FlagVisibility` to disable `--multisig-path-family` and `--threshold` when `state.dropdown_value("--template")` is in the single-sig template set. Mirror the same fix in `verify_bundle` (same constraint applies). The argv assembler will then skip these fields (per `form/invocation.rs::emit_one`'s "empty / false / absent values are NOT emitted" rule at the schema docstring) and the user no longer needs to manually clear the seeded default.
+- **Why deferred:** Surfaced AFTER v0.3.0 ship; a reasonable fix but not blocking the manual-gui v1.0 cycle. v1.0 manual instead documents the manual-clear workaround.
+- **Status:** `open`
+- **Tier:** `v0.4`
+- **Companion:** `mnemonic-toolkit/docs/manual-gui/src/40-mnemonic/42-bundle.md` worked-example step 3 documents the workaround and cites this FOLLOWUP.
+
 ### `gui-run-confirm-modal-secret-redaction` — run-confirm modal renders secret-bearing argv tokens in plaintext (security-relevant gap)
 
 - **Surfaced:** 2026-05-15, manual-gui v1.0 cycle M-P2.4 batch 4 R0 source-grep. The `mnemonic-toolkit/docs/manual-gui/src/10-foundations/14-secret-handling.md` Defense-2 prose (LOCKed in M-P2.4 batch 2) claims the run-confirm modal "shows the assembled argv with secret values replaced by `***`". `src/main.rs:512-535` shows the modal renders each argv token verbatim in monospace via `ui.monospace(format!("  {}", tok))`; no redaction step exists anywhere in the source tree (`grep -rn "redact" src/` returns only `persistence.rs` on-disk-save paths).
