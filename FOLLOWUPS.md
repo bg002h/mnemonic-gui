@@ -147,8 +147,6 @@ shipped partially.
 - **Tier:** `v1.1+`
 - **Companion:** `mnemonic-toolkit/design/PLAN_manual_gui_v1.md` §1.5 + §2.4.
 
-
-
 - `gui-code-signing-mac-developer-id` — v0.1.x and v0.2.0 ship
   unsigned macOS binaries; users need to right-click → Open or
   `xattr -d com.apple.quarantine` on first launch (see
@@ -168,6 +166,16 @@ shipped partially.
   notice and the paste-warn modal copy that surfaces the gap to
   users. Tracking entry kept open for the Linux-specific
   follow-up.
+
+### `gui-run-confirm-modal-secret-redaction` — run-confirm modal renders secret-bearing argv tokens in plaintext (security-relevant gap)
+
+- **Surfaced:** 2026-05-15, manual-gui v1.0 cycle M-P2.4 batch 4 R0 source-grep. The `mnemonic-toolkit/docs/manual-gui/src/10-foundations/14-secret-handling.md` Defense-2 prose (LOCKed in M-P2.4 batch 2) claims the run-confirm modal "shows the assembled argv with secret values replaced by `***`". `src/main.rs:512-535` shows the modal renders each argv token verbatim in monospace via `ui.monospace(format!("  {}", tok))`; no redaction step exists anywhere in the source tree (`grep -rn "redact" src/` returns only `persistence.rs` on-disk-save paths).
+- **Where:** `src/main.rs:512-535` (modal render block); `src/secrets.rs:65-66` (`RUN_CONFIRM_MODAL_PREFIX` const has no continuation that would substitute a redacted argv); `src/form/invocation.rs:42-100` (`assemble_argv` returns the full plaintext argv including secret-class flag values).
+- **What:** Add a redaction step that mirrors `persistence::redact_for_persistence`'s flag-class logic so the modal displays e.g. `--passphrase ***` instead of `--passphrase the-actual-secret-mnemonic`. Two implementation options: (a) build a parallel `redact_argv_for_display(sub, state, &argv)` in `secrets.rs` and call it from the modal site only — preserves the actual `argv` that's passed to `spawn_and_capture` after Run-confirm; (b) inline a per-token check in the modal render loop using `secrets::flag_is_secret` against the preceding flag-name token. Option (a) is cleaner; option (b) is smaller-LOC. Either way the secret-class boundary already exists.
+- **Why deferred:** Surfaced AFTER v0.3.0 ship; remediation requires (i) a new `mnemonic-gui` cycle (`mnemonic-gui-v0.4.0` or a v0.3.1 patch) and (ii) lockstep manual prose patch landing in the `manual-gui-v1.0` PR's batch-4 commit so the v1.0 manual ships consistent with what shipped GUI v0.3.0 actually does. Until the GUI fix lands, the manual MUST describe the actual (undesired) behavior plus an operational mitigation: only run the GUI on a cold/airgapped machine where on-screen secret display does not constitute a network-exfiltration vector. Compromise: the v1.0 manual ships honestly-broken; v1.1 ships fixed. Severity is high but not P0-block-v1.0 for the manual cycle because the manual cannot fix the GUI behavior — only describe it.
+- **Status:** `open`
+- **Tier:** `v0.4-cross-repo`
+- **Companion:** `mnemonic-toolkit/design/FOLLOWUPS.md` `gui-run-confirm-modal-secret-redaction-manual-companion`; `mnemonic-toolkit/docs/manual-gui/src/10-foundations/14-secret-handling.md` Defense-2 prose patch in M-P2.4 batch 4 commit. Closure requires: (i) GUI source patch implementing redaction; (ii) manual prose patch undoing the v1.0 honest-broken framing and restoring the `***` claim; (iii) `pinned-upstream.toml` bump in this manual to whatever GUI tag ships the fix.
 
 ## Resolved in v0.2
 
