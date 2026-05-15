@@ -12,25 +12,45 @@ beyond display. The CLI remains the byte-exact source of truth.
 
 ## Status
 
-Released `mnemonic-gui-v0.1.1` on 2026-05-12 (first functional GUI;
-v0.1.0 shipped a broken event loop, see CHANGELOG). See
-[`design/agent-reports/`](design/agent-reports/) for the phase-by-phase
-build log and [`CHANGELOG.md`](CHANGELOG.md) for the full release notes.
+Released `mnemonic-gui-v0.3.0` on 2026-05-15. v0.3 catches the GUI
+up to `mnemonic-toolkit-v0.13.0` with 5 new `mnemonic` subcommand
+surfaces (`slip39-split` / `slip39-combine` / `seed-xor-split` /
+`seed-xor-combine` / `final-word`), a v0.10..v0.13 toolkit drift
+correction for `bundle` / `verify-bundle` / `convert` /
+`derive-child`, and 2 latent v0.2 bug fixes (repeating-secret argv
+routing; `gui-schema`-JSON-preferred schema-mirror gate). See
+[`design/agent-reports/`](design/agent-reports/) for the
+phase-by-phase build logs and [`CHANGELOG.md`](CHANGELOG.md) for
+the full release notes.
 
-## Install from source
+## Install
 
-```bash
-cargo install --locked --git https://github.com/bg002h/mnemonic-gui --tag mnemonic-gui-v0.1.1
+The fastest path is the constellation installer in the toolkit repo,
+which installs the GUI + all four sibling CLIs at a pin-coherent set
+of tags:
+
+```sh
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/bg002h/mnemonic-toolkit/master/scripts/install.sh)"
 ```
 
-The GUI subprocess-runs the four underlying CLIs; install each separately
-(pinned tags match `pinned-upstream.toml`):
+See `scripts/install.sh --help` (after `git clone bg002h/mnemonic-toolkit`)
+for per-component flags.
 
-```bash
-cargo install --locked --git https://github.com/bg002h/mnemonic-toolkit     --tag mnemonic-toolkit-v0.8.1            --bin mnemonic
-cargo install --locked --git https://github.com/bg002h/descriptor-mnemonic  --tag descriptor-mnemonic-md-cli-v0.4.3  --bin md
-cargo install --locked --git https://github.com/bg002h/mnemonic-secret      --tag ms-cli-v0.1.0                      --bin ms
-cargo install --locked --git https://github.com/bg002h/mnemonic-key         --tag mk-cli-v0.2.0                      --bin mk
+To install just the GUI from source at the pinned tag:
+
+```sh
+cargo install --locked --git https://github.com/bg002h/mnemonic-gui --tag mnemonic-gui-v0.3.0 mnemonic-gui
+```
+
+The GUI subprocess-runs the four sibling CLIs. If you skip the
+constellation installer, install each one separately (pinned tags
+match [`pinned-upstream.toml`](pinned-upstream.toml)):
+
+```sh
+cargo install --locked --git https://github.com/bg002h/mnemonic-toolkit     --tag mnemonic-toolkit-v0.13.0           mnemonic-toolkit
+cargo install --locked --git https://github.com/bg002h/descriptor-mnemonic  --tag descriptor-mnemonic-md-cli-v0.5.0  md-cli
+cargo install --locked --git https://github.com/bg002h/mnemonic-secret      --tag ms-cli-v0.2.1                      ms-cli
+cargo install --locked --git https://github.com/bg002h/mnemonic-key         --tag mk-cli-v0.3.1                      mk-cli
 ```
 
 Tabs for CLIs not present on `$PATH` are greyed at launch.
