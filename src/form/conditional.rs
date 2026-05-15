@@ -211,8 +211,11 @@ pub fn ms_encode(state: &FormState) -> FlagVisibility {
 
 /// v0.2 D.2: `mk encode` conditionals.
 ///
-/// Upstream: `--origin-fingerprint` conflicts_with `--privacy-preserving`
-/// (bidirectional, explicit in help).
+/// Upstream mutual-exclusion: `--origin-fingerprint` ↔ `--privacy-preserving`.
+/// The mk-cli source does NOT carry a clap `conflicts_with`; the constraint
+/// is enforced by a runtime guard at `mk-cli/src/cmd/encode.rs:58-62`. The
+/// help-text + doc-comments phrase it as "Mutually exclusive", which renders
+/// in `--help` but does not add a clap conflict (manual-gui batch-8 R0 catch).
 pub fn mk_encode(state: &FormState) -> FlagVisibility {
     let mut vis = Vec::new();
     let has_fp = state.has_value("--origin-fingerprint");

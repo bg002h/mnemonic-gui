@@ -32,9 +32,11 @@ const INSPECT_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
 //            [--policy-id-stub]... [--from-md1]... [--force-chunked]
 //            [--force-long-code] [--json]`
 //
-// Upstream: `--origin-fingerprint` conflicts_with `--privacy-preserving`
-// (bidirectional, explicit in help). Conditional fn at
-// `form::conditional::mk_encode`.
+// Upstream mutual-exclusion: `--origin-fingerprint` ↔ `--privacy-preserving`,
+// enforced ONLY by a runtime guard at `mk-cli/src/cmd/encode.rs:58-62`
+// (the clap `#[arg(long)]` attributes carry no `conflicts_with`). The
+// doc-comments phrase it as "Mutually exclusive". Conditional fn at
+// `form::conditional::mk_encode` (manual-gui batch-8 R0 catch).
 const ENCODE_FLAGS: &[FlagSchema] = &[
     FlagSchema {
         name: "--xpub",
