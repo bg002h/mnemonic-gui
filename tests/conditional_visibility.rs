@@ -60,9 +60,11 @@ fn run_conditional_for_cli(
 }
 
 fn vis_of(vis: &[(&'static str, Visibility)], flag: &str) -> Visibility {
+    // v0.6.0: Visibility no longer Copy (PinValue carries serde_json::Value);
+    // clone the matched entry rather than dereffing.
     vis.iter()
         .find(|(k, _)| *k == flag)
-        .map(|(_, v)| *v)
+        .map(|(_, v)| v.clone())
         .unwrap_or(Visibility::Visible) // default per SPEC §5 + module doc
 }
 
@@ -751,4 +753,29 @@ fn cell_v0_16_derive_child_dice_sides_visible_when_application_other() {
     ]);
     let vis = run_conditional("derive-child", &state);
     assert_eq!(vis_of(&vis, "--dice-sides"), Visibility::Visible);
+}
+
+// ─── v0.6.0 SPEC §6.10.3 v3 pin_value Effect ─────────────────────────────
+
+#[test]
+fn cell_v0_17_bundle_account_pin_value_zero_when_descriptor() {
+    // SPEC §6.10.7 row 12 (DESCRIPTOR_WITH_NONZERO_ACCOUNT): --account is
+    // pinned to 0 when --descriptor is present (the descriptor encodes
+    // account in @i origin paths). PinValue REPLACES user-typed value per
+    // §6.10.4 emission table (vs Hidden/Disabled which suppress entirely).
+    let with_desc = FormState::from_pairs(vec![(
+        "--descriptor",
+        FlagValue::Text("wpkh(@0/**)".into()),
+    )]);
+    assert_eq!(
+        vis_of(&run_conditional("bundle", &with_desc), "--account"),
+        Visibility::PinValue { value: serde_json::json!(0) },
+    );
+    // Sanity: --account is NOT pinned when --descriptor is absent (no
+    // override, falls through to Visible default).
+    let without_desc = FormState::default();
+    assert_eq!(
+        vis_of(&run_conditional("bundle", &without_desc), "--account"),
+        Visibility::Visible,
+    );
 }

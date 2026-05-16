@@ -16,16 +16,23 @@ use crate::schema::{FlagVisibility, FormState, Visibility};
 /// `mnemonic-toolkit::CliTemplate::is_multisig()` source-of-truth at
 /// `crates/mnemonic-toolkit/src/template.rs:46-56`. Parity with the
 /// toolkit's emitted `dropdown_value_in.values` set is enforced by the
-/// drift gate test at `tests/gui_schema_conditional_drift.rs`. A future
-/// cleanup cycle (FOLLOWUP `gui-schema-template-groups-meta-field`) will
-/// retire this const by emitting `meta.template_groups` from the toolkit
-/// and parsing it client-side.
-pub(crate) const SINGLE_SIG_TEMPLATES: &[&str] = &["bip44", "bip49", "bip84", "bip86"];
+/// drift gate test at `tests/gui_schema_conditional_drift.rs`.
+///
+/// v0.6.0 (SPEC §6.10.8 v3): the toolkit now also emits
+/// `meta.template_groups.single_sig` per template-consuming subcommand;
+/// `tests/schema_mirror.rs::single_sig_templates_const_matches_meta_template_groups`
+/// asserts this const matches the toolkit's meta block. This pair-of-checks
+/// posture (drift gate for the per-rule projection + const-vs-meta parity
+/// for the bulk list) closes FOLLOWUP `gui-schema-template-groups-meta-field`
+/// without coupling conditional-fn purity to a runtime subprocess fetch.
+/// The const remains the runtime source-of-truth; the meta block is the
+/// SPEC source-of-truth; the parity test gates them.
+pub const SINGLE_SIG_TEMPLATES: &[&str] = &["bip44", "bip49", "bip84", "bip86"];
 
 /// SPEC §6.10.7 taproot-multi-leaf template set (templates that require an
 /// explicit internal key). Same source-of-truth + drift-gate posture as
 /// `SINGLE_SIG_TEMPLATES`.
-pub(crate) const TAPROOT_INTERNAL_KEY_TEMPLATES: &[&str] = &["tr-multi-a", "tr-sortedmulti-a"];
+pub const TAPROOT_INTERNAL_KEY_TEMPLATES: &[&str] = &["tr-multi-a", "tr-sortedmulti-a"];
 
 fn template_is_in(state: &FormState, names: &[&str]) -> bool {
     state
@@ -74,6 +81,17 @@ pub fn bundle(state: &FormState) -> FlagVisibility {
         vis.push(("--template", Visibility::Disabled));
         vis.push(("--threshold", Visibility::Disabled));
         vis.push(("--multisig-path-family", Visibility::Disabled));
+        // v0.17.0 SPEC §6.10.7 row 12 (DESCRIPTOR_WITH_NONZERO_ACCOUNT):
+        // --account is pinned to 0 when --descriptor is present (the
+        // descriptor encodes the account in @i origin paths). PinValue
+        // REPLACES user-typed value in argv per §6.10.4 emission table —
+        // distinct from Disabled which would suppress.
+        vis.push((
+            "--account",
+            Visibility::PinValue {
+                value: serde_json::json!(0),
+            },
+        ));
     }
     // v0.16.0 SPEC §6.10.7: single-sig template disables --threshold /
     // --multisig-path-family. SPEC §6.6 rows T1 + T2 +

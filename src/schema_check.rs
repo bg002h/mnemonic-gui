@@ -9,11 +9,11 @@
 //! caller falls back to the v0.1 regex-on-`--help` path
 //! (`tests/schema_mirror.rs::help_text_flag_names`).
 
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 use std::path::Path;
 use std::process::Command;
 
-use serde::Deserialize;
+use serde::{Deserialize, Deserializer};
 
 /// v0.1 stub kept for backward compatibility — no caller relies on
 /// this function and it can be removed in a future cleanup phase.
@@ -107,6 +107,15 @@ pub struct ConditionalRule {
 }
 
 /// SPEC §6.10.2 Predicate AST (tagged JSON union).
+///
+/// v0.6.0 (schema v3) gains `SlotCountEq` / `SlotCountGte` / `SlotCountLte`
+/// per SPEC §6.10.2 v3. The toolkit v0.17.0 ships these variants in its
+/// `Predicate` enum but does NOT use them in any current rule
+/// (`#[allow(dead_code)]` predicate-machinery for the future
+/// Effect-grammar-extension cycle covering rows 9/10/11). The GUI mirror
+/// adds them in lockstep so the deserializer accepts any toolkit-emitted
+/// rule shape; the drift gate (P5) exercises synthesize_satisfying for
+/// them.
 #[derive(Debug, Deserialize, PartialEq, Eq, Clone)]
 #[serde(tag = "kind", rename_all = "snake_case")]
 pub enum Predicate {
@@ -133,6 +142,21 @@ pub enum Predicate {
     Not {
         predicate: Box<Predicate>,
     },
+    /// v3: total slot-row count equals `value`. SPEC §6.6 row 11 candidate
+    /// (multisig with N == 1).
+    SlotCountEq {
+        value: usize,
+    },
+    /// v3: total slot-row count >= `value`. SPEC §6.6 row 10 candidate
+    /// (single-sig with N > 1).
+    SlotCountGte {
+        value: usize,
+    },
+    /// v3: total slot-row count <= `value`. SPEC §6.6 row 9 candidate
+    /// (T-in-range upper bound).
+    SlotCountLte {
+        value: usize,
+    },
 }
 
 /// SPEC §6.10.3 Effect.
@@ -144,12 +168,62 @@ pub struct Effect {
 
 /// SPEC §6.10.3 VisibilityProjection. `Visible` is the implicit default and
 /// never appears as an Effect value.
-#[derive(Debug, Deserialize, PartialEq, Eq, Clone, Copy)]
-#[serde(rename_all = "lowercase")]
+///
+/// v0.6.0 (schema v3) gains `PinValue { value }` per SPEC §6.10.3. The
+/// wire shape co-exists with v2's bare-string for Hidden/Disabled/Required:
+///
+///   bare string : `"hidden"` / `"disabled"` / `"required"`     (v2 + v3)
+///   tagged map  : `{"pin_value": {"value": <JSON>}}`           (v3 only)
+///
+/// `Copy` dropped because `serde_json::Value` isn't Copy. Custom
+/// `Deserialize` impl below accepts both shapes; serializer-side is
+/// toolkit-only so no `Serialize` impl on the GUI mirror.
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub enum VisibilityProjection {
     Hidden,
     Disabled,
     Required,
+    PinValue { value: serde_json::Value },
+}
+
+impl<'de> Deserialize<'de> for VisibilityProjection {
+    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        // Accept either a bare string (v2 + Hidden/Disabled/Required in v3)
+        // or a single-key map (v3 pin_value tagged-object).
+        #[derive(Deserialize)]
+        #[serde(untagged)]
+        enum Shape {
+            Str(String),
+            Map(BTreeMap<String, serde_json::Value>),
+        }
+        match Shape::deserialize(deserializer)? {
+            Shape::Str(s) => match s.as_str() {
+                "hidden" => Ok(VisibilityProjection::Hidden),
+                "disabled" => Ok(VisibilityProjection::Disabled),
+                "required" => Ok(VisibilityProjection::Required),
+                other => Err(serde::de::Error::unknown_variant(
+                    other,
+                    &["hidden", "disabled", "required", "pin_value"],
+                )),
+            },
+            Shape::Map(m) => {
+                // v3: only `pin_value` is defined. Future tagged variants
+                // would extend this match.
+                if let Some(payload) = m.get("pin_value") {
+                    let value = payload
+                        .get("value")
+                        .ok_or_else(|| serde::de::Error::missing_field("value"))?
+                        .clone();
+                    Ok(VisibilityProjection::PinValue { value })
+                } else {
+                    let keys: Vec<&str> = m.keys().map(String::as_str).collect();
+                    Err(serde::de::Error::custom(format!(
+                        "unknown visibility tag(s): {keys:?}"
+                    )))
+                }
+            }
+        }
+    }
 }
 
 /// Parse `<cli> gui-schema` JSON for a specific subcommand. Returns

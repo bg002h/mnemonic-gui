@@ -12,6 +12,7 @@ use std::collections::BTreeSet;
 use std::process::Command;
 
 use mnemonic_gui::schema;
+use mnemonic_gui::schema_check::VisibilityProjection;
 
 /// Extract every `--[a-z][a-z0-9-]+` token from `text`. Mirrors the
 /// `grep -oE -- '--[a-z][a-z0-9-]+'` extractor used by
@@ -519,4 +520,142 @@ fn extract_flag_names_handles_basic_help_text() {
     // Negative: dashes alone, single-dash short opts, uppercase starts.
     assert!(!names.contains("--"));
     assert!(!names.contains("--NETWORK"));
+}
+
+// ── v0.6.0 SPEC §6.10.3 v3 VisibilityProjection custom Deserialize ──────
+
+#[test]
+fn vis_projection_deserialize_accepts_bare_string_v2_back_compat() {
+    // SPEC §6.10.6 v3 back-compat: v2 bare-string Visibility shape must
+    // still parse bit-identically on v3 GUI consumers.
+    let hidden: VisibilityProjection = serde_json::from_str("\"hidden\"").unwrap();
+    assert!(matches!(hidden, VisibilityProjection::Hidden));
+    let disabled: VisibilityProjection = serde_json::from_str("\"disabled\"").unwrap();
+    assert!(matches!(disabled, VisibilityProjection::Disabled));
+    let required: VisibilityProjection = serde_json::from_str("\"required\"").unwrap();
+    assert!(matches!(required, VisibilityProjection::Required));
+}
+
+#[test]
+fn vis_projection_deserialize_accepts_pin_value_v3_tagged_object() {
+    // SPEC §6.10.3 v3 pin_value wire shape: `{"pin_value": {"value": V}}`
+    // with V any JSON value. v0.6.0 ships row-12 use case (V == 0 over
+    // Number flag); String / Bool primitives covered for future pin
+    // coercions over Dropdown / Text.
+    let parsed: VisibilityProjection =
+        serde_json::from_str(r#"{"pin_value": {"value": 0}}"#).unwrap();
+    match parsed {
+        VisibilityProjection::PinValue { value } => {
+            assert_eq!(value, serde_json::json!(0));
+        }
+        other => panic!("expected PinValue, got {other:?}"),
+    }
+    let parsed: VisibilityProjection =
+        serde_json::from_str(r#"{"pin_value": {"value": "preset"}}"#).unwrap();
+    match parsed {
+        VisibilityProjection::PinValue { value } => {
+            assert_eq!(value, serde_json::json!("preset"));
+        }
+        other => panic!("expected PinValue with string, got {other:?}"),
+    }
+}
+
+#[test]
+fn vis_projection_deserialize_rejects_unknown_bare_string() {
+    let err = serde_json::from_str::<VisibilityProjection>("\"frobnicated\"")
+        .expect_err("unknown bare-string variant must reject");
+    let msg = err.to_string();
+    assert!(
+        msg.contains("frobnicated") || msg.contains("variant"),
+        "error must mention offending value or 'variant'; got: {msg}",
+    );
+}
+
+#[test]
+fn vis_projection_deserialize_rejects_unknown_tagged_object_key() {
+    let err = serde_json::from_str::<VisibilityProjection>(r#"{"frob": {"value": 0}}"#)
+        .expect_err("unknown tagged-object key must reject");
+    let msg = err.to_string();
+    assert!(msg.contains("frob"), "error must mention unknown key; got: {msg}");
+}
+
+#[test]
+fn vis_projection_deserialize_rejects_pin_value_missing_value_field() {
+    let err = serde_json::from_str::<VisibilityProjection>(r#"{"pin_value": {}}"#)
+        .expect_err("pin_value without inner `value` must reject");
+    let msg = err.to_string();
+    assert!(
+        msg.contains("value"),
+        "error must cite the missing `value` field; got: {msg}",
+    );
+}
+
+// ── v0.6.0 SPEC §6.10.8 v3 meta.template_groups parity ──────────────────
+
+#[test]
+fn single_sig_templates_const_matches_meta_template_groups() {
+    // SPEC §6.10.8: toolkit emits per-subcommand `meta.template_groups`
+    // as the SPEC source-of-truth for the single-sig vs multisig template
+    // split. The GUI's `SINGLE_SIG_TEMPLATES` const at
+    // `src/form/conditional.rs:23` is the runtime mirror for hand-coded
+    // conditional fns. This parity test enforces that the const matches
+    // the toolkit's meta block for every template-consuming subcommand.
+    // Closes FOLLOWUP `gui-schema-template-groups-meta-field` via the
+    // pair-of-checks posture (drift-by-test rather than runtime fetch).
+    //
+    // Skipped when MNEMONIC_BIN is unset AND `mnemonic` is not on PATH
+    // (matches the drift-gate's runtime-skip discipline).
+    let bin: String = match std::env::var("MNEMONIC_BIN").ok() {
+        Some(b) => b,
+        None => match Command::new("mnemonic").arg("--help").output() {
+            Ok(_) => "mnemonic".into(),
+            Err(_) => {
+                eprintln!(
+                    "MNEMONIC_BIN unset + PATH lookup failed; \
+                     skipping single_sig_templates const-vs-meta parity"
+                );
+                return;
+            }
+        },
+    };
+    let out = Command::new(&bin)
+        .arg("gui-schema")
+        .output()
+        .expect("failed to spawn `mnemonic gui-schema`");
+    assert!(
+        out.status.success(),
+        "`mnemonic gui-schema` exited non-zero: {:?}",
+        out.status
+    );
+    let json: serde_json::Value =
+        serde_json::from_slice(&out.stdout).expect("gui-schema stdout must be JSON");
+    let subs = json["subcommands"].as_array().expect("subcommands array");
+    let const_set: BTreeSet<String> = mnemonic_gui::form::conditional::SINGLE_SIG_TEMPLATES
+        .iter()
+        .map(|s| s.to_string())
+        .collect();
+    let mut checked = 0_usize;
+    for sub in subs {
+        let Some(meta) = sub.get("meta") else { continue };
+        let Some(groups) = meta.get("template_groups") else { continue };
+        let single_sig: BTreeSet<String> = groups["single_sig"]
+            .as_array()
+            .expect("single_sig array")
+            .iter()
+            .map(|v| v.as_str().expect("template name string").to_string())
+            .collect();
+        assert_eq!(
+            single_sig,
+            const_set,
+            "SINGLE_SIG_TEMPLATES const drift vs toolkit's meta.template_groups \
+             for subcommand `{}`. Update the const in lockstep with the toolkit's \
+             CliTemplate::is_multisig() partition.",
+            sub["name"].as_str().unwrap_or("<?>"),
+        );
+        checked += 1;
+    }
+    assert!(
+        checked > 0,
+        "expected at least one subcommand with meta.template_groups; got {checked}",
+    );
 }

@@ -233,3 +233,40 @@ fn bip38_passphrase_typed_then_stdin_set_does_not_emit_typed_value() {
         "the typed value must NOT leak"
     );
 }
+
+// ── v0.6.0 SPEC §6.10.4 v3 pin_value emission ──────────────────────────
+
+#[test]
+fn bundle_pin_value_account_replaces_user_value_when_descriptor() {
+    // SPEC §6.10.7 row 12 / §6.10.4 emission table: PinValue REPLACES the
+    // user-typed value with the pinned value (vs Hidden/Disabled which
+    // suppress entirely).
+    let state = FormState::from_pairs(vec![
+        ("--descriptor", FlagValue::Text("wpkh(@0/**)".into())),
+        ("--account", FlagValue::Number(5)),
+    ]);
+    let argv = argv_for("bundle", &state);
+    assert!(
+        contains_pair(&argv, "--account", "0"),
+        "argv must contain --account 0 (pinned per §6.10.7 row 12); got {argv:?}",
+    );
+    assert!(
+        !contains_pair(&argv, "--account", "5"),
+        "argv must NOT contain --account 5 (user value REPLACED by pin); got {argv:?}",
+    );
+}
+
+#[test]
+fn bundle_pin_value_account_emits_zero_even_when_user_omits() {
+    // PinValue applies whether the user typed a value or not; the rule
+    // fires unconditionally on --descriptor presence.
+    let state = FormState::from_pairs(vec![(
+        "--descriptor",
+        FlagValue::Text("wpkh(@0/**)".into()),
+    )]);
+    let argv = argv_for("bundle", &state);
+    assert!(
+        contains_pair(&argv, "--account", "0"),
+        "argv must contain --account 0 even without user input; got {argv:?}",
+    );
+}

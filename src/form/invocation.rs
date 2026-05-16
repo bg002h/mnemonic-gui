@@ -56,6 +56,9 @@ pub fn assemble_argv(
     // override map once. `subcommand.conditional` is `Option<fn(&FormState)
     // -> FlagVisibility>`; absent fn → empty Vec (no overrides; every flag
     // defaults to Visible). First-rule-wins per `main.rs:391-394` semantics.
+    //
+    // v0.6.0 (Visibility no longer Copy due to v3 PinValue carrying
+    // serde_json::Value): `visibility_of` clones rather than derefs.
     let vis: Vec<(&'static str, Visibility)> = subcommand
         .conditional
         .map(|f| f(state))
@@ -63,10 +66,10 @@ pub fn assemble_argv(
     let visibility_of = |name: &str| -> Visibility {
         vis.iter()
             .find(|(k, _)| *k == name)
-            .map(|(_, v)| *v)
+            .map(|(_, v)| v.clone())
             .unwrap_or(Visibility::Visible)
     };
-    let suppresses = |v: Visibility| matches!(v, Visibility::Hidden | Visibility::Disabled);
+    let suppresses = |v: &Visibility| matches!(v, Visibility::Hidden | Visibility::Disabled);
 
     for flag in subcommand.flags {
         // SPEC §6.10: Hidden AND Disabled suppress emission. Slot emission
@@ -76,8 +79,23 @@ pub fn assemble_argv(
         // types --passphrase=foo then sets --passphrase-stdin) is NOT
         // emitted — fixing a pre-v0.16.0 latent bug where the value would
         // emit and trigger clap's `conflicts_with` rejection downstream.
+        //
+        // v0.6.0 §6.10.4 v3: PinValue REPLACES the user-typed value before
+        // emission. Handled below the suppress check so PinValue beats
+        // a stale state.values entry for the same flag.
+        let flag_vis = visibility_of(flag.name);
         if flag.name != "--slot" || !subcommand.allows_slots {
-            if suppresses(visibility_of(flag.name)) {
+            if suppresses(&flag_vis) {
+                continue;
+            }
+            if let Visibility::PinValue { value } = &flag_vis {
+                if let Some(rendered) = pin_value_to_argv_token(value) {
+                    argv.push(flag.name.to_string());
+                    argv.push(rendered);
+                }
+                // PinValue is exclusive with the normal emit path — even
+                // when the JSON value can't be rendered we suppress the
+                // user's stale state.values entry.
                 continue;
             }
         }
@@ -142,6 +160,28 @@ pub fn assemble_argv(
     }
 
     argv
+}
+
+/// SPEC §6.10.4 v3 PinValue emission helper. Renders the pinned
+/// `serde_json::Value` as the argv string. Returns `None` for value shapes
+/// that have no clean string representation for the current FlagKind
+/// vocabulary (Object / Array / Null); the caller then suppresses emission
+/// entirely. v0.6.0 ships the row-12 use case (`pin_value(0)` on
+/// `--account`, a Number flag); String / Bool primitives are handled for
+/// future pin coercions over Dropdown / Text per the toolkit-side
+/// "permissive value" doc.
+fn pin_value_to_argv_token(v: &serde_json::Value) -> Option<String> {
+    match v {
+        serde_json::Value::Number(n) => Some(n.to_string()),
+        serde_json::Value::String(s) => Some(s.clone()),
+        // Bool: emit "true"/"false" as the literal token. Boolean FlagKind
+        // pins are uncommon (booleans typically use presence semantics) but
+        // the toolkit grammar permits them.
+        serde_json::Value::Bool(b) => Some(b.to_string()),
+        serde_json::Value::Null
+        | serde_json::Value::Object(_)
+        | serde_json::Value::Array(_) => None,
+    }
 }
 
 fn emit_one(flag: &FlagSchema, value: &FlagValue, argv: &mut Vec<String>) {

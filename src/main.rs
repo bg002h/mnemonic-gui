@@ -400,7 +400,7 @@ impl eframe::App for MnemonicGuiApp {
             let visibility_of = |name: &str| -> mnemonic_gui::schema::Visibility {
                 vis.iter()
                     .find(|(k, _)| *k == name)
-                    .map(|(_, v)| *v)
+                    .map(|(_, v)| v.clone())
                     .unwrap_or(mnemonic_gui::schema::Visibility::Visible)
             };
 

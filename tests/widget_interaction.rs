@@ -176,7 +176,8 @@ fn cell_2_conditional_visibility_toggle() {
 }
 
 fn vis_for(vis: &mnemonic_gui::schema::FlagVisibility, flag: &str) -> Option<Visibility> {
-    vis.iter().find(|(k, _)| *k == flag).map(|(_, v)| *v)
+    // v0.6.0: Visibility no longer Copy (PinValue carries serde_json::Value).
+    vis.iter().find(|(k, _)| *k == flag).map(|(_, v)| v.clone())
 }
 
 // ── Phase D.4 (v0.2): kittest cells 4+5 for representative new subcommands ───

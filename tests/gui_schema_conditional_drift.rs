@@ -12,6 +12,7 @@
 //!
 //! Skipped (returns early) when `MNEMONIC_BIN` is unset.
 
+use mnemonic_gui::form::slot_editor::SlotRow;
 use mnemonic_gui::schema::{
     self, FlagValue, FormState, SubcommandSchema, TaggedOrIndexedValue,
     Visibility,
@@ -53,11 +54,13 @@ fn subcommand_named(name: &str) -> Option<&'static SubcommandSchema> {
 }
 
 /// Translate the JSON-side VisibilityProjection to the GUI-side Visibility.
+/// v0.6.0 (schema v3): added PinValue arm.
 fn vis_to_visibility(v: VisibilityProjection) -> Visibility {
     match v {
         VisibilityProjection::Hidden => Visibility::Hidden,
         VisibilityProjection::Disabled => Visibility::Disabled,
         VisibilityProjection::Required => Visibility::Required,
+        VisibilityProjection::PinValue { value } => Visibility::PinValue { value },
     }
 }
 
@@ -122,7 +125,30 @@ fn synthesize_satisfying(predicate: &Predicate, base: FormState) -> FormState {
             // base when they want to test the satisfied-Not direction.
             base
         }
+        // v0.6.0 SPEC §6.10.2 v3 slot-count predicates. The minimally-
+        // satisfying state for each variant sets `slots.rows.len() ==
+        // predicate.value` (the RHS). For Gte/Lte that's the boundary
+        // value; a future strict-satisfaction sweep could also check
+        // value+1 / value-1. v0.6.0 ships dead-code on the toolkit side
+        // (no rule emits these), but the arms keep the match exhaustive
+        // and prepare for the future Effect-grammar-extension cycle (rows
+        // 9/10/11).
+        Predicate::SlotCountEq { value }
+        | Predicate::SlotCountGte { value }
+        | Predicate::SlotCountLte { value } => set_slot_count(base, *value),
     }
+}
+
+/// Set the slot-row count to exactly `count`, preserving any existing rows
+/// from `base` (truncate / pad as needed). Pad rows use SlotRow::default
+/// (index 0, subkey Xpub, empty value) — fine for visibility predicates
+/// which only consult `slots.rows.len()`, not row contents.
+fn set_slot_count(mut state: FormState, count: usize) -> FormState {
+    while state.slots.rows.len() < count {
+        state.slots.rows.push(SlotRow::default());
+    }
+    state.slots.rows.truncate(count);
+    state
 }
 
 /// Replace or push `(flag, value)` in state.values. Used so the drift
@@ -200,9 +226,9 @@ fn gui_schema_conditional_rules_match_hand_coded_conditionals() {
             let actual = vis_map
                 .iter()
                 .find(|(k, _)| *k == rule.effect.flag.as_str())
-                .map(|(_, v)| *v)
+                .map(|(_, v)| v.clone())
                 .unwrap_or(Visibility::Visible);
-            let expected = vis_to_visibility(rule.effect.visibility);
+            let expected = vis_to_visibility(rule.effect.visibility.clone());
             assert_eq!(
                 actual,
                 expected,

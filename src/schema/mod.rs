@@ -107,7 +107,13 @@ pub enum FlagKind {
 
 /// Per-flag visibility decision returned by a `SubcommandSchema.conditional`
 /// function. Phase 5 wires the conditionals; Phase 1 declares the shape.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+///
+/// v0.6.0 SPEC §6.10.3 v3: gained `PinValue { value }` variant for the v3
+/// pin_value Effect. Dropped `Copy` because `serde_json::Value` isn't Copy;
+/// downstream consumers `.clone()` instead. Argv emission semantics per
+/// §6.10.4: Hidden/Disabled suppress; Required is decorative; PinValue
+/// REPLACES the user-typed value with `value` and emits the pair.
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Visibility {
     /// Render the flag normally.
     Visible,
@@ -119,11 +125,16 @@ pub enum Visibility {
     /// Render the flag greyed out — exclusive sibling is populated
     /// (SPEC §5 R1 I-3 mutual-exclusion encoding).
     Disabled,
+    /// Coerce the flag's argv value to `value`; render the widget as
+    /// read-only with a tooltip. SPEC §6.10.3 / §6.10.4 (v3). Argv
+    /// emission REPLACES whatever the user typed with this pinned value.
+    PinValue { value: serde_json::Value },
 }
 
 /// Map flag-name → visibility. Returned by `SubcommandSchema.conditional`.
-/// `Vec<(name, vis)>` rather than `HashMap` to keep the struct `Copy`-
-/// friendly downstream and the iteration order deterministic.
+/// `Vec<(name, vis)>` rather than `HashMap` for deterministic iteration
+/// order. (Pre-v0.6.0 the comment also cited Copy-friendliness; Copy on
+/// Visibility was dropped in v0.6.0 with the v3 PinValue variant.)
 pub type FlagVisibility = Vec<(&'static str, Visibility)>;
 
 /// Per-subcommand form state. Phase 2 wires `values`; Phase 3 wires
@@ -235,6 +246,16 @@ impl FormState {
                 None
             }
         })
+    }
+
+    /// v0.6.0 SPEC §6.10.2 v3: total slot-row count. Used by
+    /// `slot_count_eq` / `slot_count_gte` / `slot_count_lte` Predicate
+    /// evaluation. Mirrors `slot_state.rows.len()` directly — no filter
+    /// for empty / partial rows; the SPEC's predicate semantic is "slot
+    /// row count" not "populated row count" (the slot-grid widget owns
+    /// add/remove discipline).
+    pub fn slot_count(&self) -> usize {
+        self.slots.rows.len()
     }
 
     /// v0.3: Return the `node` token of a NodeValueComposite flag, or
