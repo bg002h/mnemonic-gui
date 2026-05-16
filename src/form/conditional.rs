@@ -12,6 +12,28 @@
 
 use crate::schema::{FlagVisibility, FormState, Visibility};
 
+/// SPEC §6.10.7 single-sig template set, mirrored from
+/// `mnemonic-toolkit::CliTemplate::is_multisig()` source-of-truth at
+/// `crates/mnemonic-toolkit/src/template.rs:46-56`. Parity with the
+/// toolkit's emitted `dropdown_value_in.values` set is enforced by the
+/// drift gate test at `tests/gui_schema_conditional_drift.rs`. A future
+/// cleanup cycle (FOLLOWUP `gui-schema-template-groups-meta-field`) will
+/// retire this const by emitting `meta.template_groups` from the toolkit
+/// and parsing it client-side.
+pub(crate) const SINGLE_SIG_TEMPLATES: &[&str] = &["bip44", "bip49", "bip84", "bip86"];
+
+/// SPEC §6.10.7 taproot-multi-leaf template set (templates that require an
+/// explicit internal key). Same source-of-truth + drift-gate posture as
+/// `SINGLE_SIG_TEMPLATES`.
+pub(crate) const TAPROOT_INTERNAL_KEY_TEMPLATES: &[&str] = &["tr-multi-a", "tr-sortedmulti-a"];
+
+fn template_is_in(state: &FormState, names: &[&str]) -> bool {
+    state
+        .dropdown_value("--template")
+        .map(|v| names.contains(&v))
+        .unwrap_or(false)
+}
+
 /// `bundle` subcommand conditionals.
 ///
 /// Upstream (`crates/mnemonic-toolkit/src/cmd/bundle.rs`):
@@ -24,6 +46,7 @@ pub fn bundle(state: &FormState) -> FlagVisibility {
     let has_descriptor_file = state.has_value("--descriptor-file");
     let has_passphrase = state.has_value("--passphrase");
     let has_passphrase_stdin = state.has_value("--passphrase-stdin");
+    let template_is_single_sig = template_is_in(state, SINGLE_SIG_TEMPLATES);
 
     if !has_descriptor && !has_descriptor_file {
         vis.push(("--template", Visibility::Required));
@@ -40,6 +63,24 @@ pub fn bundle(state: &FormState) -> FlagVisibility {
     }
     if has_passphrase_stdin {
         vis.push(("--passphrase", Visibility::Disabled));
+    }
+    // v0.16.0 SPEC §6.10.7: descriptor-mode disables --template /
+    // --threshold / --multisig-path-family. Emit BEFORE the single-sig
+    // template rules so first-rule-wins per `main.rs:391-394` picks the
+    // more-specific predicate. SPEC §6.6 row 2 +
+    // bundle.rs::mode_text::{DESCRIPTOR_AND_TEMPLATE, DESCRIPTOR_WITH_THRESHOLD,
+    // DESCRIPTOR_WITH_PATH_FAMILY}.
+    if has_descriptor {
+        vis.push(("--template", Visibility::Disabled));
+        vis.push(("--threshold", Visibility::Disabled));
+        vis.push(("--multisig-path-family", Visibility::Disabled));
+    }
+    // v0.16.0 SPEC §6.10.7: single-sig template disables --threshold /
+    // --multisig-path-family. SPEC §6.6 rows T1 + T2 +
+    // bundle.rs::mode_text::{THRESHOLD_WITHOUT_MULTISIG, PATH_FAMILY_WITHOUT_MULTISIG}.
+    if template_is_single_sig {
+        vis.push(("--threshold", Visibility::Disabled));
+        vis.push(("--multisig-path-family", Visibility::Disabled));
     }
     vis
 }
@@ -65,6 +106,7 @@ pub fn verify_bundle(state: &FormState) -> FlagVisibility {
     let has_passphrase = state.has_value("--passphrase");
     let has_passphrase_stdin = state.has_value("--passphrase-stdin");
     let any_card = has_ms1 || has_mk1 || has_md1;
+    let template_is_single_sig = template_is_in(state, SINGLE_SIG_TEMPLATES);
 
     // Descriptor-side mutual-required-one-of + XOR.
     if !has_descriptor && !has_descriptor_file {
@@ -75,6 +117,16 @@ pub fn verify_bundle(state: &FormState) -> FlagVisibility {
     }
     if has_descriptor {
         vis.push(("--descriptor-file", Visibility::Disabled));
+    }
+    // v0.16.0 SPEC §6.10.7: --template disabled when --descriptor present
+    // (mirrors bundle rule). SPEC §6.6 row 2 (verify-bundle mirror).
+    if has_descriptor {
+        vis.push(("--template", Visibility::Disabled));
+    }
+    // v0.16.0 SPEC §6.10.7: single-sig template disables --threshold
+    // (mirrors bundle rule T1).
+    if template_is_single_sig {
+        vis.push(("--threshold", Visibility::Disabled));
     }
 
     // Card-side mutual-exclusion: --bundle-json XOR (--ms1, --mk1, --md1).
@@ -147,6 +199,8 @@ pub fn export_wallet(state: &FormState) -> FlagVisibility {
     let mut vis = Vec::new();
     let has_descriptor = state.has_value("--descriptor");
     let has_template = state.has_value("--template");
+    let template_is_single_sig = template_is_in(state, SINGLE_SIG_TEMPLATES);
+    let template_needs_tr_internal_key = template_is_in(state, TAPROOT_INTERNAL_KEY_TEMPLATES);
 
     if has_descriptor {
         vis.push(("--template", Visibility::Disabled));
@@ -160,6 +214,21 @@ pub fn export_wallet(state: &FormState) -> FlagVisibility {
     if !has_descriptor && !has_template {
         vis.push(("--template", Visibility::Required));
         vis.push(("--descriptor", Visibility::Required));
+    }
+    // v0.16.0 SPEC §6.10.7: --taproot-internal-key is Required when the
+    // chosen template is a taproot multi-leaf (tr-multi-a / tr-sortedmulti-a)
+    // and Disabled otherwise. Required-rule emit BEFORE Disabled so
+    // first-rule-wins honours the more-specific predicate.
+    if template_needs_tr_internal_key {
+        vis.push(("--taproot-internal-key", Visibility::Required));
+    } else {
+        vis.push(("--taproot-internal-key", Visibility::Disabled));
+    }
+    // v0.16.0 SPEC §6.10.7: single-sig template disables --threshold +
+    // --multisig-path-family (mirrors bundle rule T1 + T2).
+    if template_is_single_sig {
+        vis.push(("--threshold", Visibility::Disabled));
+        vis.push(("--multisig-path-family", Visibility::Disabled));
     }
     vis
 }
@@ -176,12 +245,21 @@ pub fn derive_child(state: &FormState) -> FlagVisibility {
     let mut vis = Vec::new();
     let has_passphrase = state.has_value("--passphrase");
     let has_passphrase_stdin = state.has_value("--passphrase-stdin");
+    let application_is_dice = state
+        .dropdown_value("--application")
+        .map(|v| v == "dice")
+        .unwrap_or(false);
 
     if has_passphrase {
         vis.push(("--passphrase-stdin", Visibility::Disabled));
     }
     if has_passphrase_stdin {
         vis.push(("--passphrase", Visibility::Disabled));
+    }
+    // v0.16.0 SPEC §6.10.7: --dice-sides is Required when --application is
+    // set to "dice" (mirrors cmd/derive_child.rs clap-derive required_if_eq).
+    if application_is_dice {
+        vis.push(("--dice-sides", Visibility::Required));
     }
     vis
 }
