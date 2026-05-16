@@ -193,6 +193,17 @@ impl MnemonicGuiApp {
 
         // Seed the bundle form with reasonable defaults for the screenshot
         // demo (concrete enough to show realistic flag rendering).
+        //
+        // v0.16.0 P5: REMOVED the unconditional `--multisig-path-family =
+        // bip87` seed. With the default `--template = bip84` (single-sig),
+        // the new SPEC §6.10.7 rule "single-sig template disables
+        // --multisig-path-family" would render the flag widget Disabled
+        // anyway. Pre-v0.16.0 the seeded value emitted into argv and
+        // triggered the CLI's PATH_FAMILY_WITHOUT_MULTISIG byte-exact
+        // rejection (the motivating bug for this cycle). A future cycle
+        // (`gui-default-form-state-template-aware-seed`) may re-introduce
+        // a template-aware seed that only sets multisig defaults when the
+        // user picks a multisig template.
         let mut form_state = BTreeMap::new();
         form_state.insert(
             "mnemonic:bundle".into(),
@@ -200,7 +211,6 @@ impl MnemonicGuiApp {
                 ("--network", FlagValue::Dropdown("mainnet".into())),
                 ("--template", FlagValue::Dropdown("bip84".into())),
                 ("--account", FlagValue::Number(0)),
-                ("--multisig-path-family", FlagValue::Dropdown("bip87".into())),
             ])
             .with_slots(SlotState {
                 rows: vec![mnemonic_gui::form::slot_editor::SlotRow {
