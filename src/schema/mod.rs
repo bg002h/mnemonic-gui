@@ -286,12 +286,28 @@ fn flag_value_is_present(v: &FlagValue) -> bool {
         | FlagValue::Range(_, _)
         | FlagValue::Timestamp(_)
         | FlagValue::TaggedOrIndexed(_) => true,
+        // v0.6.0 P3: Unset sentinel — explicit "no value" state for Number /
+        // Range / Timestamp / TaggedOrIndexed widgets (which lack a natural
+        // empty-string default). Conditional fns (`has_value`) and the argv
+        // assembler treat Unset as absent.
+        FlagValue::Unset => false,
     }
 }
 
 /// Typed value mirroring `FlagKind`. The form widget renderer holds these
 /// per-flag; the argv assembler consumes them per the SPEC §6.7 emission
 /// rules.
+///
+/// v0.6.0 P3 adds the `Unset` sentinel for Number / Range / Timestamp /
+/// TaggedOrIndexed widgets. Previously those widgets auto-seeded to a
+/// concrete value (e.g. `Number(min)`) the moment a user navigated the
+/// form, which meant the argv assembler emitted `--<flag> <min>` for any
+/// numeric flag the user hadn't touched — surfacing as bogus flags
+/// downstream. With Unset, the same widget appears in the form with a
+/// `Set` affordance and is only seeded when the user clicks. `#[serde(other)]`
+/// keeps v0.6+ readers forward-compatible against future tag additions
+/// (maps any unrecognized tag to Unset). Persistence-schema break for
+/// older v0.5 readers — see CHANGELOG [0.6.0].
 #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum FlagValue {
     Text(String),
@@ -308,6 +324,19 @@ pub enum FlagValue {
     /// when the flag's `FlagKind::Path { stdio_sentinel }` is true; the
     /// stdio-sentinel decision belongs to the schema, not the value.
     Path(String),
+    /// v0.6.0 P3: explicit "no value" sentinel. Used as the initial form-
+    /// state value for Number / Range / Timestamp / TaggedOrIndexed widgets
+    /// (the four kinds without a natural empty-string default). The widget
+    /// renders a `Set` affordance instead of an auto-seeded numeric value;
+    /// clicking it transitions to the kind-specific seeded value. The argv
+    /// assembler skips Unset (no emission); `flag_value_is_present` returns
+    /// `false`; conditional fns see the flag as absent.
+    ///
+    /// `#[serde(other)]` makes v0.6+ readers map any unknown tag in
+    /// state.json to Unset — protecting forward compat against future
+    /// FlagValue additions.
+    #[serde(other)]
+    Unset,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]

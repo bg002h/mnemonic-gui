@@ -98,30 +98,58 @@ pub fn render_with_dispatch(
     }
 }
 
-/// Construct the default `FlagValue` for a given `FlagKind`. Mirrors the
-/// per-variant defaults previously used by the form-state initializer in
-/// `main.rs`; centralized here so `render_with_dispatch` and the legacy
-/// caller share one source of truth.
+/// Construct the default `FlagValue` for a given `FlagKind`, used as the
+/// initial state-of-form entry the first time a flag's widget is rendered.
+///
+/// v0.6.0 P3: Number / Range / Timestamp / TaggedOrIndexed return `Unset`
+/// rather than a seeded numeric value (was `Number(*min)`, `Range(0, 999)`,
+/// etc.). Pre-P3, the first render of any of those widgets would push a
+/// concrete value into `state.values`; the argv assembler would then emit
+/// `--<flag> <min>` for any numeric flag the user hadn't touched, sending
+/// bogus flags to the CLI. With Unset the widget renders a `Set` affordance
+/// instead; the user must opt-in to a value before emission. Kinds with a
+/// natural empty representation (Text / Dropdown / Path / NodeValueComposite
+/// / Boolean) keep their empty-default behavior.
 pub fn default_flag_value_for(kind: &FlagKind) -> FlagValue {
     match kind {
         FlagKind::Text => FlagValue::Text(String::new()),
-        FlagKind::Number { min, .. } => FlagValue::Number(*min),
         FlagKind::Dropdown(opts) => FlagValue::Dropdown(
             opts.first().map(|s| (*s).to_string()).unwrap_or_default(),
         ),
         FlagKind::Boolean => FlagValue::Boolean(false),
-        FlagKind::Range => FlagValue::Range(0, 999),
-        FlagKind::Timestamp => FlagValue::Timestamp(TimestampValue::Now),
         FlagKind::NodeValueComposite(opts) => FlagValue::NodeValueComposite {
             node: opts.first().map(|s| (*s).to_string()).unwrap_or_default(),
             value: String::new(),
         },
+        FlagKind::Path { .. } => FlagValue::Path(String::new()),
+        // v0.6.0 P3 Unset-default kinds. Click-to-seed via `seeded_value_for`.
+        FlagKind::Number { .. }
+        | FlagKind::Range
+        | FlagKind::Timestamp
+        | FlagKind::TaggedOrIndexed(_) => FlagValue::Unset,
+    }
+}
+
+/// v0.6.0 P3: kind-specific seeded value used when the user clicks the
+/// `Set` affordance on an Unset numeric/range/timestamp/tagged widget. Always
+/// returns a concrete (non-Unset) value for the four Unset-default kinds.
+/// For non-Unset-default kinds, returns the same value as
+/// `default_flag_value_for` (idempotent — the widget would never call this
+/// for an already-seeded kind in practice).
+pub fn seeded_value_for(kind: &FlagKind) -> FlagValue {
+    match kind {
+        FlagKind::Number { min, .. } => FlagValue::Number(*min),
+        FlagKind::Range => FlagValue::Range(0, 999),
+        FlagKind::Timestamp => FlagValue::Timestamp(TimestampValue::Now),
         FlagKind::TaggedOrIndexed(tags) => FlagValue::TaggedOrIndexed(
             TaggedOrIndexedValue::Tag(
                 tags.first().map(|s| (*s).to_string()).unwrap_or_default(),
             ),
         ),
-        FlagKind::Path { .. } => FlagValue::Path(String::new()),
+        // For kinds without a natural Unset state, fall through to the
+        // default — `default_flag_value_for` returns the same concrete value
+        // it always did pre-P3 for these.
+        other => default_flag_value_for(other),
     }
 }
 
@@ -138,15 +166,42 @@ pub fn render(
     flag: &FlagSchema,
     value: &mut FlagValue,
 ) {
+    // v0.6.0 P3 — transition sentinel for Unset ↔ seeded swaps. Mutating
+    // *value mid-match would conflict with the destructured borrow inside
+    // each arm; collect any swap intent here and apply it after the match.
+    let mut transition: Option<FlagValue> = None;
     ui.horizontal(|ui| {
         ui.label(flag.name).on_hover_text(flag.help);
         render_help_icon(ui, tab, subcommand, flag);
-        match (&flag.kind, value) {
+        match (&flag.kind, &mut *value) {
             (FlagKind::Text, FlagValue::Text(s)) => {
                 ui.text_edit_singleline(s);
             }
+            // v0.6.0 P3: Number / Range / Timestamp / TaggedOrIndexed
+            // initial-Unset state — render a `Set` affordance that opts the
+            // user into a seeded numeric value. Pre-P3, the seeded default
+            // shipped automatically and emitted as `--<flag> <min>` even when
+            // untouched (bogus argv noise).
+            (
+                FlagKind::Number { .. }
+                | FlagKind::Range
+                | FlagKind::Timestamp
+                | FlagKind::TaggedOrIndexed(_),
+                FlagValue::Unset,
+            ) => {
+                if ui
+                    .button("Set")
+                    .on_hover_text("seed default + edit")
+                    .clicked()
+                {
+                    transition = Some(seeded_value_for(&flag.kind));
+                }
+            }
             (FlagKind::Number { min, max }, FlagValue::Number(n)) => {
                 ui.add(egui::DragValue::new(n).range(*min..=*max));
+                if ui.small_button("✕").on_hover_text("clear (Unset)").clicked() {
+                    transition = Some(FlagValue::Unset);
+                }
             }
             (FlagKind::Dropdown(opts), FlagValue::Dropdown(sel)) => {
                 egui::ComboBox::from_id_salt(("flag_dropdown", flag.name))
@@ -164,6 +219,9 @@ pub fn render(
                 ui.add(egui::DragValue::new(a));
                 ui.label(",");
                 ui.add(egui::DragValue::new(b));
+                if ui.small_button("✕").on_hover_text("clear (Unset)").clicked() {
+                    transition = Some(FlagValue::Unset);
+                }
             }
             (FlagKind::Timestamp, FlagValue::Timestamp(t)) => {
                 let mut is_now = matches!(t, TimestampValue::Now);
@@ -177,6 +235,9 @@ pub fn render(
                     };
                     ui.add(egui::DragValue::new(&mut n));
                     *t = TimestampValue::Unix(n);
+                }
+                if ui.small_button("✕").on_hover_text("clear (Unset)").clicked() {
+                    transition = Some(FlagValue::Unset);
                 }
             }
             (
@@ -223,6 +284,9 @@ pub fn render(
                     ui.add(egui::DragValue::new(&mut n));
                     *tv = TaggedOrIndexedValue::Indexed(n);
                 }
+                if ui.small_button("✕").on_hover_text("clear (Unset)").clicked() {
+                    transition = Some(FlagValue::Unset);
+                }
             }
             (FlagKind::Path { stdio_sentinel }, FlagValue::Path(p)) => {
                 ui.text_edit_singleline(p);
@@ -233,12 +297,22 @@ pub fn render(
             // FlagKind/FlagValue type mismatch — defensively render the
             // flag name as disabled (the form-state initializer normally
             // ensures matching shapes; this branch guards against bugs).
+            // v0.6.0 fold: a stray FlagValue::Unset for a non-Unset-default
+            // kind (Text/Dropdown/Path/Composite/Boolean) also lands here —
+            // recover by re-seeding to the default.
             _ => {
-                ui.label("(value-shape mismatch — see form-state init)");
+                if matches!(*value, FlagValue::Unset) {
+                    transition = Some(default_flag_value_for(&flag.kind));
+                } else {
+                    ui.label("(value-shape mismatch — see form-state init)");
+                }
             }
         }
         if flag.required {
             ui.colored_label(egui::Color32::from_rgb(220, 60, 60), "*");
         }
     });
+    if let Some(new) = transition {
+        *value = new;
+    }
 }
