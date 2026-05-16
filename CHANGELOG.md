@@ -3,6 +3,116 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## [0.5.0] — 2026-05-16
+
+### Added — SPEC §6.10 conditional-applicability consumer + drift gate
+
+Consumes `mnemonic-toolkit v0.16.0`'s new
+`mnemonic gui-schema` JSON v2 `conditional_rules` projection.
+The toolkit emits machine-readable per-subcommand mutex/conditional
+rules; the GUI maps them onto its per-frame visibility computation
+and enforces parity via a drift-gate test.
+
+#### Motivating bug closed
+
+The GUI bundle form's default state (template `bip84`, single-sig)
+previously emitted `--threshold 1 --multisig-path-family bip48` —
+the CLI rejected the argv with the SPEC §6.6 byte-exact errors
+`THRESHOLD_WITHOUT_MULTISIG` + `PATH_FAMILY_WITHOUT_MULTISIG`.
+Three stacked defects:
+
+1. `main.rs:203` pre-seeded `--multisig-path-family = bip87`
+   unconditionally.
+2. `assemble_argv` ignored the existing `Visibility` infrastructure.
+3. No machine-readable conditional-applicability metadata flowed
+   from toolkit to GUI; the GUI's hand-coded `conditional.rs` was
+   the only source-of-truth and had drifted behind the CLI rule
+   surface.
+
+All three closed in v0.5.0.
+
+#### Implementation surfaces (this cycle)
+
+- **`src/schema_check.rs`** — `parse_gui_schema_conditional_rules`
+  fn requiring `version >= 2`; relaxed `parse_gui_schema_json`
+  version gate from `!= 1` to `< 1` (additive bump policy).
+- **`src/form/conditional.rs`** — ~14 new visibility rules
+  across `bundle` / `verify-bundle` / `export-wallet` /
+  `derive-child`. Module-level `SINGLE_SIG_TEMPLATES` and
+  `TAPROOT_INTERNAL_KEY_TEMPLATES` constants mirror the
+  toolkit's `CliTemplate::is_multisig()` source-of-truth at
+  `mnemonic-toolkit/src/template.rs:46-56` (parity enforced by
+  the drift gate).
+- **`src/form/invocation.rs`** — visibility gate at the TOP of
+  the per-flag iteration loop. Both `Hidden` and `Disabled`
+  suppress emission; `Required` does not (decorative marker
+  only). Slot emission is exempt per SPEC §6.10 v1 scope.
+- **`src/main.rs`** — removed `--multisig-path-family = bip87`
+  default seed (bug-class default). A future cycle may
+  re-introduce a template-aware seed; tracked at FOLLOWUP
+  `gui-default-form-state-template-aware-seed`.
+- **`.github/workflows/schema-mirror.yml`** — CI smoke steps
+  for all four CLIs relaxed from `version == 1` to
+  `version >= 1`.
+
+#### Latent-bug fix
+
+The visibility gate at `assemble_argv` also closes a pre-v0.5.0
+latent bug: typed-then-mutex-disabled secret values (e.g., user
+types `--passphrase=foo` then sets `--passphrase-stdin`) are now
+suppressed at argv emission, preventing clap's `conflicts_with`
+rejection downstream.
+
+#### Drift gate
+
+`tests/gui_schema_conditional_drift.rs` (NEW): shells out to
+`<MNEMONIC_BIN> gui-schema`, parses the v2 `conditional_rules`,
+synthesizes an exemplar `FormState` per rule's predicate,
+invokes the corresponding hand-coded `SubcommandSchema.conditional`
+fn, asserts the returned `FlagVisibility` contains the rule's
+declared `(flag, visibility)`. Failure messages cite the rule's
+`rationale` + `spec_ref` for forensic clarity.
+
+Drift-gate cross-validation (§5.3): planting a divergence (e.g.,
+commenting out the derive-child `--dice-sides Required` rule)
+produces a failure of the form
+
+    assertion `left == right` failed: drift in subcommand `derive-child`:
+      rule rationale: --dice-sides is required when --application is set to dice.
+      spec_ref: cmd/derive_child.rs clap-derive required_if_eq
+      predicate: DropdownValueIn { flag: "--application", values: ["dice"] }
+      target flag: --dice-sides
+      expected visibility: Required
+      actual visibility:   Visible
+
+### Verification
+
+- `cargo test --release` with all `*_BIN` env vars: 187 passed,
+  0 failed, 1 ignored (the v0.4.3 baseline +30 new cells across
+  P1/P2/P3/P4/P5).
+- `default_bundle_form_state_cli_accepts` smoke test: passes
+  (CLI exit 0 against the v0.16.0 toolkit binary; the motivating
+  bug no longer reproduces).
+- End-of-cycle opus reviewer-loop: R1 returned FOLD with 1
+  Critical (CI workflow version gate) + 1 Important (missing
+  companion FOLLOWUP entry); both folded in
+  `6c2d019`. R2 returned PASS (0C / 0I).
+
+### Companion / lockstep
+
+- `bg002h/mnemonic-toolkit v0.16.0` (commit `519bcfc`, tag
+  `mnemonic-toolkit-v0.16.0`) ships the producer side. The GUI's
+  toolkit-dep pin bumps from `v0.15.0` (post-v0.4.3 catchup) to
+  `v0.16.0` in this release.
+- Plan + SPEC: `mnemonic-toolkit/design/
+  IMPLEMENTATION_PLAN_gui_conditional_applicability_v1.md`
+  + `mnemonic-toolkit/design/SPEC_mnemonic_toolkit_v0_5.md` §6.10.
+
+### Predecessor
+
+- `mnemonic-gui v0.4.3` (toolkit v0.15.0 wire-format catchup;
+  scope-isolated). v0.5.0 builds atop v0.4.3.
+
 ## [0.4.3] — 2026-05-16
 
 ### Scope-isolation catchup — bump toolkit dep to v0.15.0
