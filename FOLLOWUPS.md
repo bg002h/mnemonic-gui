@@ -121,6 +121,83 @@ support is a positive externality), not a security concern.
 review log; report at
 `design/agent-reports/v0_2-phase-A3-kittest-scaffold-r1.md`.
 
+### `secret-taxonomy-public-api-consumption` — retire `build.rs` source-walker; consume `mnemonic-toolkit::secret_taxonomy` directly
+
+**Companion:** `bg002h/mnemonic-toolkit` `design/FOLLOWUPS.md` entry
+`secret-taxonomy-public-api-promotion`. Architect-vetted long-term fix
+for the codegen pattern that caused the v0.3.0..v0.3.2 BIP-39-persistence
+leak (HIGH-severity; tactically patched in v0.3.3 at commit `6851d1b`).
+
+**Surfaced:** 2026-05-16, post-v0.3.3 emergency security fix.
+
+**Where:** `build.rs` (the entire syn-based upstream-source walker is
+the deletion target); `src/secrets.rs` (consumes `SECRET_*` via
+`include!(concat!(env!("OUT_DIR"), ...))`; switches to `use
+mnemonic_toolkit::secret_taxonomy::*`); `tests/secrets_canonical_fallback.rs`
+(the v0.3.3 drift gate — deleted after one-cycle overlap);
+`pinned-upstream.toml` (`[mnemonic]` `tag` becomes documentary;
+load-bearing pin moves to `Cargo.toml`'s `[dependencies]` table);
+`.github/workflows/schema-mirror.yml` (drop the
+`cargo-test-secrets-canonical-fallback` step).
+
+**What:** Today the GUI scrapes the toolkit's *private* `cmd/convert.rs`
++ `slot_input.rs` modules via `syn::parse_file` at build time. This is
+the workaround for the toolkit's lack of a versioned, addressable
+public contract for the secret-class taxonomy. Every fragility of the
+codegen path descends from that contract gap — the cargo-install
+sandbox stub-fallback bug (v0.3.0..v0.3.2 empty `&[]` arrays leaking
+BIP-39 phrases to `state.json`) was a direct consequence. The
+toolkit-side companion entry adds a new `pub mod secret_taxonomy` in
+`mnemonic-toolkit v0.14.0`; this entry tracks the GUI-side switch to
+that contract in `mnemonic-gui v0.4.0`.
+
+**Why deferred:** v0.3.3 tactical patch is shipped + verified +
+released; install path is no longer leaking secrets. Long-term fix
+requires coordinated minor bump on both sides
+(`mnemonic-toolkit v0.14.0` + `mnemonic-gui v0.4.0` lockstep). Filed
+for the v0.4.x GUI cycle.
+
+**One-cycle overlap recommended:** in GUI v0.4.0, retain the v0.3.3
+`CANONICAL_FALLBACK_*` arrays + the `committed_fallback_is_non_empty`
+backstop test, AND add a compile-time `const _: () = assert!(...)`
+that they equal `mnemonic_toolkit::secret_taxonomy::SECRET_*`. Drop
+the fallback in v0.5.0 once the new contract has been exercised
+through one release cycle.
+
+**Status:** `open` — pending the lockstep toolkit v0.14.0 release.
+
+**Tier:** `cross-repo / v0.4.0-coordinated`
+
+**Architect's full evaluation** (Options A–E, recommendation A, migration
+sketch, 6 non-obvious risks) is in the toolkit-side companion entry —
+read that for the deeper rationale.
+
+**Risks to surface at v0.4.0 planning time:**
+1. Toolkit dep tree (bitcoin, miniscript, bip39, clap, etc.) gets linked
+   into the GUI's cargo graph — ~30-60s cold compile cost increase.
+   Mitigation: optional `cli` default-on feature-gate on the toolkit
+   side; GUI depends with `default-features = false, features =
+   ["secret-taxonomy"]`. Defer if compile cost is acceptable.
+2. Toolkit's `secret_taxonomy` module becomes load-bearing semver
+   surface — rename/relocate now requires a minor bump.
+3. The GUI's pinned `mnemonic-toolkit` tag must stay current; a future
+   toolkit-side `is_secret_bearing()` widening (e.g., new node type
+   added) without a GUI bump means the GUI silently lacks the new
+   secret class. Mitigation: future `mnemonic gui-schema` extension
+   emitting the live taxonomy + GUI runtime cross-check against the
+   installed `mnemonic` binary.
+4. Re-export choice: `pub const &[&str]` (recommended) vs.
+   `pub use NodeType` / `pub use SlotSubkey`. Stick with string slices;
+   smaller semver surface; decouples GUI from toolkit's internal enum
+   shape.
+5. `mnemonic-toolkit` lib must build cleanly on GUI's full platform
+   matrix (macOS, Windows, Linux × x86_64 + aarch64). `mlock.rs` uses
+   `libc` and needs cfg-gating audit (likely already correct, but
+   revisit during v0.14.0 release).
+6. Lockstep release discipline (mirrors the manual-gui v1.0 cycle
+   pattern): toolkit v0.14.0 PR + GUI v0.4.0 PR coordinated; both
+   `Companion:` lines updated as each side closes.
+
 ## Deferred to v0.3+
 
 Named for explicit closure per SPEC §14. Carried forward from v0.1
