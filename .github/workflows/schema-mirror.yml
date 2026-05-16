@@ -20,41 +20,66 @@ jobs:
       - name: cargo-cache
         uses: Swatinem/rust-cache@v2
 
+      - name: parse-pinned-upstream
+        # v0.5.1 cycle: parse `pinned-upstream.toml` once via Python 3.11+
+        # stdlib `tomllib`, export per-CLI tag values as step outputs that
+        # the install-* steps below consume via the env-var pattern
+        # (passing GHA expressions to `env:` rather than interpolating
+        # them into `run:` scripts — GitHub's recommended hardening for
+        # any expression substitution, even when the source is trusted).
+        # Closes FOLLOWUP `schema-mirror-yml-toolkit-pin-tracks-pinned-upstream`
+        # (v2 cleanup half). Single source of truth: `pinned-upstream.toml`.
+        # ubuntu-latest ships python3.12; no pip install required.
+        id: pins
+        run: |
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import tomllib
+          with open("pinned-upstream.toml", "rb") as f:
+              d = tomllib.load(f)
+          for cli in ("mnemonic", "md", "ms", "mk"):
+              print(f"{cli}_tag={d[cli]['tag']}")
+          PY
+
       - name: install-mnemonic-toolkit
-        # v0.5.0 cycle: bumped from mnemonic-toolkit-v0.14.0 to v0.16.0 to
-        # match pinned-upstream.toml. The pre-bump pin was stale through
-        # v0.4.0/v0.4.1/v0.4.2/v0.4.3 — fine because the prior schema_mirror
-        # tests only consumed flag-name extraction (version-agnostic). The
-        # v0.5.0 drift gate at tests/gui_schema_conditional_drift.rs requires
-        # the toolkit to emit v2 `conditional_rules` (SPEC §6.10), so this
-        # tag MUST track pinned-upstream.toml from now on. A future cycle
-        # may parameterize the tag from pinned-upstream.toml; tracked at
-        # FOLLOWUP `schema-mirror-yml-toolkit-pin-tracks-pinned-upstream`.
+        # Tag sourced from `pinned-upstream.toml [mnemonic].tag` via the
+        # parse-pinned-upstream step above (v0.5.1+). The previous v0.5.0
+        # cycle bumped the hardcoded literal v0.14.0 → v0.16.0 at `54865a7`;
+        # the v0.5.1 cycle parameterizes that literal so future toolkit
+        # bumps auto-track without a separate workflow edit. Same dynamic
+        # tag pattern applied to md/ms/mk install steps below.
+        env:
+          TAG: ${{ steps.pins.outputs.mnemonic_tag }}
         run: |
           cargo install --locked \
             --git https://github.com/bg002h/mnemonic-toolkit \
-            --tag mnemonic-toolkit-v0.16.0 \
+            --tag "$TAG" \
             mnemonic-toolkit
 
       - name: install-md-cli
+        env:
+          TAG: ${{ steps.pins.outputs.md_tag }}
         run: |
           cargo install --locked \
             --git https://github.com/bg002h/descriptor-mnemonic \
-            --tag descriptor-mnemonic-md-cli-v0.5.0 \
+            --tag "$TAG" \
             md-cli
 
       - name: install-ms-cli
+        env:
+          TAG: ${{ steps.pins.outputs.ms_tag }}
         run: |
           cargo install --locked \
             --git https://github.com/bg002h/mnemonic-secret \
-            --tag ms-cli-v0.2.1 \
+            --tag "$TAG" \
             ms-cli
 
       - name: install-mk-cli
+        env:
+          TAG: ${{ steps.pins.outputs.mk_tag }}
         run: |
           cargo install --locked \
             --git https://github.com/bg002h/mnemonic-key \
-            --tag mk-cli-v0.3.1 \
+            --tag "$TAG" \
             mk-cli
 
       # v0.4.0: `clone-upstream-mnemonic-toolkit` step retired. The

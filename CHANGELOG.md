@@ -3,6 +3,46 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## [0.5.1] — 2026-05-16
+
+### Changed — schema-mirror CI auto-tracks `pinned-upstream.toml`
+
+`.github/workflows/schema-mirror.yml` adds a `parse-pinned-upstream`
+pre-step that loads `pinned-upstream.toml` via Python 3.11+ stdlib
+`tomllib` and exports per-CLI tag values (`mnemonic_tag`, `md_tag`,
+`ms_tag`, `mk_tag`) as step outputs. The four `install-*-cli` steps
+now consume those outputs via the `env:` → `$TAG` pattern (per
+GitHub's hardening guidance for any `${{ }}` expression
+substitution into `run:` scripts, even when the source is trusted).
+
+The previous v0.5.0 cycle fix-commit `54865a7` was a v1 fold —
+hand-bumping the hardcoded `mnemonic-toolkit-v0.14.0` literal to
+`v0.16.0` after the master `schema-mirror` job failed at the new
+drift gate. v0.5.1 is the v2 cleanup: future toolkit bumps in
+`pinned-upstream.toml` flow automatically into CI without a
+separate workflow edit. Same dynamic-tag pattern applied to md /
+ms / mk install steps for symmetry, preventing the next divergence
+class even though those entries are currently in lockstep.
+
+### Closes FOLLOWUP
+
+`schema-mirror-yml-toolkit-pin-tracks-pinned-upstream` (v2 cleanup
+half; v1 fold previously landed at `54865a7`).
+
+### Verification
+
+- `actionlint .github/workflows/*.yml` clean (workflow + all
+  sibling workflows lint with no warnings).
+- Local dry-run of the `parse-pinned-upstream` step against the
+  real `pinned-upstream.toml` emits the four expected tag values
+  (`mnemonic-toolkit-v0.16.0`, `descriptor-mnemonic-md-cli-v0.5.0`,
+  `ms-cli-v0.2.1`, `mk-cli-v0.3.1`).
+- Master CI green post-push (schema-mirror + build + tag-CI runs).
+
+### No source / behavior changes
+
+CI-only. No Rust code touched; no API surface delta.
+
 ## [0.5.0] — 2026-05-16
 
 ### Added — SPEC §6.10 conditional-applicability consumer + drift gate
