@@ -3,6 +3,44 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## [0.4.1] — 2026-05-16
+
+### Bug fix — bump toolkit dep to v0.14.1 (Windows-compatible lib)
+
+Cargo.toml + pinned-upstream.toml pins bumped from
+`mnemonic-toolkit-v0.14.0` to `mnemonic-toolkit-v0.14.1`. v0.14.1
+cfg-gates `pub mod mlock` behind `#[cfg(unix)]`, unblocking the
+GUI's Windows build matrix. v0.4.0 CI run 25951528124 failed on
+`x86_64-pc-windows-msvc` with `cannot find function 'sysconf' /
+'mlock' / 'munlock' in crate 'libc'` — the v0.14.1 fix lands the
+gate; this release just pulls it in.
+
+### Docs / hygiene — architect-audit Important fixes
+
+The v0.4.0 architect-audit (post-release LOCK pass) surfaced 2
+Criticals (resolved at toolkit v0.14.1 + install.sh follow-up patch)
+and 5 Importants. Folding the GUI-side Importants now:
+
+- **NEW**: `tests/fixtures/SOURCE.md` — documents the provenance of
+  the vendored Coldcard fixture (originally vendored from toolkit
+  v0.14.0 in v0.4.0 to decouple from `MNEMONIC_GUI_UPSTREAM_ROOT`).
+  Records re-vendor procedure for future toolkit cycles that revise
+  Coldcard emission output.
+- **DOCS**: `CHANGELOG.md` v0.4.0 section — replace the misnamed
+  `CANONICAL_FALLBACK_*` reference (which exists only in v0.3.3
+  historical context) with the live module path
+  `v0_3_canonical_fallback::SECRET_NODE_TYPES` /
+  `SECRET_SLOT_SUBKEYS`.
+
+### Companion
+
+`mnemonic-toolkit v0.14.1` (commit `bf54505`, tag
+`mnemonic-toolkit-v0.14.1`) lands the actual Windows fix.
+`scripts/install.sh` on the toolkit side will flip
+`mnemonic-gui`'s `cratesio=yes` to `no` so the install path no
+longer resolves `cargo install mnemonic-gui` to the leaky v0.3.1
+on crates.io.
+
 ## [0.4.0] — 2026-05-16
 
 ### Structural fix — retire `build.rs` source-walker; consume `mnemonic_toolkit::secret_taxonomy`
@@ -48,8 +86,9 @@ tactical patch (committed `CANONICAL_FALLBACK_*` arrays in
 
 - **NEW**: compile-time supply-chain guard. A `const _: () =
   assert!(...)` block in `src/secrets.rs` asserts that the imported
-  `SECRET_*` arrays equal the v0.3.3-committed `CANONICAL_FALLBACK_*`
-  snapshot (preserved in `mod v0_3_canonical_fallback`). Catches a
+  `SECRET_*` arrays equal the v0.3.3-committed snapshot (preserved as
+  `v0_3_canonical_fallback::SECRET_NODE_TYPES` /
+  `v0_3_canonical_fallback::SECRET_SLOT_SUBKEYS`). Catches a
   supply-chain class of regression where the toolkit dep tag could
   resolve to a build with different `SECRET_*` arrays. Maintainers
   who deliberately bump the SECRET_* set must also update the
