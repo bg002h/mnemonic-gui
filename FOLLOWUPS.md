@@ -22,9 +22,59 @@ mirrors it.
 - **Where:** `.github/workflows/schema-mirror.yml` install-mnemonic-toolkit step (line ~30 post-fold). Same drift class applies to the md / ms / mk install steps below it (lines ~36/43/49) which still hardcode `md-cli-v0.5.0` / `ms-cli-v0.2.1` / `mk-cli-v0.3.1` — currently NOT stale vs `pinned-upstream.toml`, but the same drift-detection pattern would prevent future divergence.
 - **What:** v1 fold (lands in the same v0.5.0 cycle): bump install-mnemonic-toolkit tag to `mnemonic-toolkit-v0.16.0`. v2 cleanup (future cycle): parameterize all four install steps' tag values from `pinned-upstream.toml` so they auto-track future bumps. Two options for the v2 implementation — (a) a workflow-pre step that parses `pinned-upstream.toml` and exports `MNEMONIC_TOOLKIT_TAG` / `MD_TAG` / `MS_TAG` / `MK_TAG` env vars, or (b) a per-CLI matrix that reads the pin via `dasel` / `jq` per step. (a) is simpler; (b) is more granular.
 - **Why deferred:** v1 fold is mechanically trivial and ships this cycle; v2 cleanup is a UX-grade improvement that wasn't in the v0.5.0 cycle's scope.
-- **Status:** `open` (v2 cleanup pending; v1 fold landed at `<this-commit-SHA>`)
+- **Status:** `open` (v2 cleanup pending; v1 fold landed at `54865a7`)
 - **Tier:** `v0.6+`
 - **Companion:** None — gui-only.
+
+### `gui-schema-runtime-conditional-projection` — project SPEC §6.6 slot-count-dependent + runtime rules into gui-schema JSON
+
+- **Surfaced:** 2026-05-16, GUI conditional-applicability v1 cycle. Filed at cycle close per plan §7 item 1.
+- **Where:** `src/form/conditional.rs` (gui side — slot-count signal from FormState to conditional engine); `src/schema_check.rs` (Predicate AST extension for `slot_count_op` / `slot_count_min` etc. when toolkit adds them).
+- **What:** v1 cycle deferred slot-count-dependent + post-binding rules because the GUI's conditional engine consumes FormState snapshots without slot-count exposure. A future cycle will plumb a slot-count signal through FormState + extend the Predicate AST. Concrete rules to add: SPEC §6.6 row 9 (T-in-range vs N), row 10 (single-sig with N > 1), row 11 (multisig with N == 1), row 13 (BIP-388 distinct-key), row 14 (per-`@N` annotation inconsistency).
+- **Why deferred:** Per plan §1.4 — runtime rules surface at Run time via the CLI's typed error. v1 ships argv-level submission.
+- **Status:** `open`
+- **Tier:** `cross-repo`
+- **Companion:** `bg002h/mnemonic-toolkit` `design/FOLLOWUPS.md` entry `gui-schema-runtime-conditional-projection`.
+
+### `gui-number-widget-unset-sentinel` — Number/Range/Timestamp/TaggedOrIndexed widgets lack a "no value" sentinel
+
+- **Surfaced:** 2026-05-16, GUI conditional-applicability v1 cycle, plan §7 item 2.
+- **Where:** `src/schema/mod.rs:263-268` (`flag_value_is_present` always returns true for Number/Range/Timestamp/TaggedOrIndexed); `src/form/widget.rs:101-126` (`default_flag_value_for` seeds Number widgets to `min` regardless of user interaction).
+- **What:** Numeric / Range / Timestamp / TaggedOrIndexed widgets have no "no value" sentinel — once `default_flag_value_for` seeds them, the value is always-present per `flag_value_is_present`. The v0.5.0 §6.10 visibility gate sidesteps this for the common case (Hidden/Disabled flags don't emit regardless of widget value). A future cycle may add an explicit unset state for UX clarity (e.g., a "clear" affordance next to numeric widgets so users can explicitly opt out of supplying a numeric flag).
+- **Why deferred:** Per plan §1.4 — the visibility gate makes this unnecessary for the motivating bug. UX-quality improvement, not a correctness gap.
+- **Status:** `open`
+- **Tier:** `v0.6+`
+- **Companion:** `bg002h/mnemonic-toolkit` `design/FOLLOWUPS.md` cross-reference entry `gui-number-widget-unset-sentinel` (toolkit-side bookkeeping only — gui-impact-only).
+
+### `gui-default-form-state-template-aware-seed` — replace static default-state seed with template-aware seed
+
+- **Surfaced:** 2026-05-16, GUI conditional-applicability v1 cycle, plan §7 item 3. Natural successor to P5 (the v0.5.0 cycle's static seed cleanup at `src/main.rs:203`).
+- **Where:** `src/main.rs:197-211` (default form-state seed; v0.5.0's P5 removed the `--multisig-path-family bip87` line but left the static structure intact).
+- **What:** Replace the static screenshot-mode default seed with a template-aware default. When the user picks a multisig template (e.g., `wsh-sortedmulti`), the form auto-seeds multisig defaults (e.g., `--multisig-path-family bip87`, `--threshold` to a reasonable default); when the user picks single-sig, the form omits those flags entirely.
+- **Why deferred:** Out of v0.5.0 cycle scope per plan §7 — optional follow-on. The v0.5.0 P5 cleanup removes the unconditionally-wrong seed; the template-aware version is a UX enhancement.
+- **Status:** `open`
+- **Tier:** `v0.6+`
+- **Companion:** `bg002h/mnemonic-toolkit` `design/FOLLOWUPS.md` cross-reference entry `gui-default-form-state-template-aware-seed` (toolkit-side bookkeeping only — gui-impact-only).
+
+### `gui-schema-numeric-flag-value-pin-effect` — add `pin_value` Effect variant for SPEC §6.6 row 12 projection
+
+- **Surfaced:** 2026-05-16, GUI conditional-applicability v1 cycle, R1 I3 reviewer fold. Plan §7 item 4.
+- **Where:** `mnemonic-toolkit/design/SPEC_mnemonic_toolkit_v0_5.md` §6.10.3 (Effect vocabulary); `mnemonic-toolkit/src/cmd/gui_schema.rs` (Effect enum + serializer); `mnemonic-toolkit/src/cmd/bundle.rs:200-205` (the rule the projection would encode — `DESCRIPTOR_WITH_NONZERO_ACCOUNT`); `src/form/conditional.rs` (consumer — Number widget value-coerce-to-zero handler).
+- **What:** Add a `pin_value: { flag, value }` Effect variant to SPEC §6.10.3 vocabulary so the GUI can coerce `--account` to 0 (or any pinned numeric value) when `--descriptor` is present, mirroring SPEC §6.6 row 12's CLI rejection at `bundle.rs:200-205`. v0.5.0's Number widget for `--account` defaults to `0` (per `default_flag_value_for`) — the safe value; the rule only fires when the user actively types a nonzero value, in which case the CLI's byte-exact error suffices for v0.5.0.
+- **Why deferred:** Per R1 I3 reviewer fold — the GUI default of 0 makes this rare misuse; the CLI error is informative. Adding a `pin_value` Effect requires SPEC §6.10.3 expansion + GUI Number-widget coercion semantics not warranted by user evidence.
+- **Status:** `open`
+- **Tier:** `cross-repo`
+- **Companion:** `bg002h/mnemonic-toolkit` `design/FOLLOWUPS.md` entry `gui-schema-numeric-flag-value-pin-effect`.
+
+### `gui-schema-template-groups-meta-field` — emit per-subcommand `meta.template_groups` to retire `SINGLE_SIG_TEMPLATES` const
+
+- **Surfaced:** 2026-05-16, GUI conditional-applicability v1 cycle, R1 I4 reviewer fold. Plan §7 item 5.
+- **Where:** `mnemonic-toolkit/src/cmd/gui_schema.rs` (toolkit side — emit `meta.template_groups: { single_sig: [..], multisig: [..] }` block sourced from `Template::is_multisig()`); `src/form/conditional.rs:23` (gui side — replace module-level `SINGLE_SIG_TEMPLATES: &[&str] = &["bip44", "bip49", "bip84", "bip86"]` with parse from JSON `meta.template_groups`); `mnemonic-toolkit/src/template.rs:46-56` (`is_multisig()` source-of-truth — unchanged).
+- **What:** v0.5.0 cycle replicates the single-sig template set client-side as a module-level `SINGLE_SIG_TEMPLATES` const in `conditional.rs`. The drift gate test detects divergence, but a future cleanup cycle can collapse the const by having the toolkit emit `meta.template_groups` in the gui-schema JSON.
+- **Why deferred:** Out of v0.5.0 cycle scope — the drift gate suffices for parity enforcement. Cleanup-class change.
+- **Status:** `open`
+- **Tier:** `cross-repo`
+- **Companion:** `bg002h/mnemonic-toolkit` `design/FOLLOWUPS.md` entry `gui-schema-template-groups-meta-field`.
 
 ### mnemonic-gui-schema-mirror
 
