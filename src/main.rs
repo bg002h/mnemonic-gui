@@ -82,6 +82,16 @@ struct MnemonicGuiApp {
     show_stderr: bool,
     /// Run-confirm modal state. None = no modal; Some(argv) = pending.
     pending_confirm_argv: Option<Vec<String>>,
+    /// v0.6.0 P4 — last-observed `--template` value per form key, used by
+    /// the per-frame template-aware-seed hook in `update()`. None means
+    /// "no template was selected last frame" (either the form is new or
+    /// the user cleared --template). On every frame, if the current
+    /// template differs from this value, the hook seeds template-specific
+    /// defaults for any Unset/absent flags via
+    /// `form::conditional::template_defaults_for`. Seed-on-empty
+    /// discipline preserves user-typed values across template switches —
+    /// no auto-clear, no destructive mutation, no undo affordance needed.
+    last_template: BTreeMap<String, Option<String>>,
 }
 
 impl MnemonicGuiApp {
@@ -231,6 +241,7 @@ impl MnemonicGuiApp {
             show_stdout: true,
             show_stderr: true,
             pending_confirm_argv: None,
+            last_template: BTreeMap::new(),
         }
     }
 
@@ -389,6 +400,10 @@ impl eframe::App for MnemonicGuiApp {
 
             // Compute conditional visibility once per frame.
             let key = Self::form_key(active_tab, &active_sub_name);
+            // v0.6.0 P4: snapshot last-frame's --template BEFORE the
+            // `form_state` mutable borrow, so the post-render hook can
+            // compare without a second `self.last_template` borrow conflict.
+            let last_template_for_key = self.last_template.get(&key).cloned().flatten();
             let state = self
                 .form_state
                 .entry(key.clone())
@@ -477,6 +492,29 @@ impl eframe::App for MnemonicGuiApp {
 
             ui.separator();
 
+            // v0.6.0 P4 — template-aware default seed. Fires on transitions
+            // (current template != last-frame's template). For each
+            // template-specific default returned by `template_defaults_for`,
+            // seeds into state.values ONLY when the flag isn't already set
+            // (seed-on-empty discipline — preserves any user-typed value
+            // across template switches; never overwrites, never clears).
+            // The visibility gate handles the opposite direction
+            // (single-sig template → Disabled threshold/path-family); this
+            // hook handles the "fresh form ergonomics" direction.
+            let current_template = state.dropdown_value("--template").map(String::from);
+            let template_changed = current_template != last_template_for_key;
+            if template_changed {
+                if let Some(new_template) = &current_template {
+                    for (name, default_value) in
+                        mnemonic_gui::form::conditional::template_defaults_for(new_template)
+                    {
+                        if !state.has_value(name) {
+                            state.values.push((name.to_string(), default_value));
+                        }
+                    }
+                }
+            }
+
             // Snapshot argv + secret-status BEFORE the action bar so we can
             // drop the `state` mutable borrow ahead of any `self`-touching
             // callback (Run / pending_confirm_argv).
@@ -486,6 +524,12 @@ impl eframe::App for MnemonicGuiApp {
             let argv_windows = render_copy_command(&argv, ShellFlavor::WindowsCmd);
             let argv_posix = preview.clone();
             let _ = state; // explicit end-of-life for clarity
+            // v0.6.0 P4 — update last_template AFTER state borrow ends.
+            // `template_changed` was computed inside the state-borrow scope;
+            // the inserted value is the post-render `current_template`.
+            if template_changed {
+                self.last_template.insert(key.clone(), current_template);
+            }
 
             let mut copy_posix = false;
             let mut copy_windows = false;

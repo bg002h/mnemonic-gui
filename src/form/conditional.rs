@@ -34,6 +34,40 @@ pub const SINGLE_SIG_TEMPLATES: &[&str] = &["bip44", "bip49", "bip84", "bip86"];
 /// `SINGLE_SIG_TEMPLATES`.
 pub const TAPROOT_INTERNAL_KEY_TEMPLATES: &[&str] = &["tr-multi-a", "tr-sortedmulti-a"];
 
+/// v0.6.0 P4 — return the template-aware default flag values for a given
+/// `--template` selection. Single-sig templates have no template-specific
+/// defaults (the universal defaults at the form-state seed already cover
+/// `--network` / `--account`). Multisig templates default `--threshold = 2`
+/// AND `--multisig-path-family = bip48` so the form is one-click-runnable
+/// after the user picks a multisig template.
+///
+/// The egui-frame hook in `main.rs` consumes this on `--template` change,
+/// applying defaults ONLY to flags that aren't already set (seed-on-empty
+/// pattern — preserves any value the user explicitly typed across template
+/// switches). The visibility gate handles the inverse direction (single-sig
+/// template → Disabled threshold/path-family); this helper handles the
+/// "fresh form ergonomics" direction.
+///
+/// SPEC reference: §6.10.7 row T1 (THRESHOLD_WITHOUT_MULTISIG),
+/// row T2 (PATH_FAMILY_WITHOUT_MULTISIG). The defaults match
+/// `mnemonic-toolkit::cmd::bundle`'s implicit "what to set for multisig
+/// templates" — `bip48` is the canonical multisig path family;
+/// threshold-of-2 is the smallest non-degenerate threshold.
+pub fn template_defaults_for(template: &str) -> Vec<(&'static str, crate::schema::FlagValue)> {
+    use crate::schema::FlagValue;
+    if SINGLE_SIG_TEMPLATES.contains(&template) {
+        // Single-sig: no template-specific defaults.
+        Vec::new()
+    } else {
+        // All other templates are multisig (or external like --descriptor
+        // mode, which doesn't use --template). Seed canonical defaults.
+        vec![
+            ("--threshold", FlagValue::Number(2)),
+            ("--multisig-path-family", FlagValue::Dropdown("bip48".into())),
+        ]
+    }
+}
+
 fn template_is_in(state: &FormState, names: &[&str]) -> bool {
     state
         .dropdown_value("--template")
