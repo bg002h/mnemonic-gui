@@ -192,7 +192,7 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
     },
     SubcommandSchema {
         name: "encode",
-        human_name: "Encode (phrase/hex → ms1)",
+        human_name: "Encode (phrase/hex -> ms1)",
         flags: ENCODE_FLAGS,
         positional_args: ENCODE_POSITIONALS,
         allows_slots: false,
@@ -200,7 +200,7 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
     },
     SubcommandSchema {
         name: "decode",
-        human_name: "Decode (ms1 → phrase)",
+        human_name: "Decode (ms1 -> phrase)",
         flags: DECODE_FLAGS,
         positional_args: DECODE_POSITIONALS,
         allows_slots: false,
@@ -208,7 +208,7 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
     },
     SubcommandSchema {
         name: "verify",
-        human_name: "Verify (phrase ↔ ms1 round-trip)",
+        human_name: "Verify (phrase <-> ms1 round-trip)",
         flags: VERIFY_FLAGS,
         positional_args: VERIFY_POSITIONALS,
         allows_slots: false,

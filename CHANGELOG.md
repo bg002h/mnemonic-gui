@@ -3,6 +3,58 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## [0.3.2] — 2026-05-15
+
+Patch: replace 4 non-ASCII glyphs in user-visible schema strings with
+ASCII equivalents — matches the project's existing ASCII-first
+convention (per `src/form/widget.rs:36` on the `?` button). User
+reported a missing-glyph (open-square) render in the `mnemonic
+final-word` subcommand dropdown; defensive sweep covers the other
+three same-class chars that may also lack font support on some
+systems.
+
+Replacements:
+- `—` (U+2014 EM DASH) -> `--`
+- `→` (U+2192 RIGHTWARDS ARROW) -> `->`
+- `↔` (U+2194 LEFT RIGHT ARROW) -> `<->`
+- `≤` (U+2264 LESS-THAN OR EQUAL TO) -> `<=`
+
+Affected user-visible strings (14 lines across 4 schema files):
+- `mnemonic`: 5 help/human_name strings (final-word, slot threshold
+  ×2, slot help paragraph, output-path help)
+- `md`: 4 human_names (Encode/Decode/Verify/Compile)
+- `ms`: 3 human_names (Encode/Decode/Verify)
+- `mk`: 2 human_names (Encode/Decode)
+
+Schema-mirror invariant: help-text content is NOT gated by the
+bidirectional mirror (only flag presence/absence is), so this patch
+ships independently of the toolkit. All 16 schema_mirror tests + full
+suite green with proper sibling-binary env setup
+(MNEMONIC_GUI_UPSTREAM_ROOT + MNEMONIC_BIN / MD_BIN / MS_BIN /
+MK_BIN).
+
+## [0.3.1] — 2026-05-15
+
+(Backfill — v0.3.1 shipped at commit 407c5ef but its CHANGELOG section
+was omitted from that release commit.)
+
+Patch: GUI-side track of the manual-gui v1.0 cycle (lockstep with
+`mnemonic-toolkit-v0.13.0` + manual-gui-v1.0.0 / v1.0.1 tags).
+
+### Added
+
+- `src/help/` module — `manual_url_for_subcommand` /
+  `manual_url_for_dropdown` / `manual_url_for_composite` helpers, with
+  `MANUAL_BASE_URL` build-time overridable via the
+  `MNEMONIC_GUI_MANUAL_BASE_URL` env var (default
+  `https://bg002h.github.io/mnemonic-toolkit/manual-gui/`).
+- 91 `?` help-icon buttons across the form scaffolding
+  (per-subcommand, per-Dropdown, per-NodeValueComposite,
+  per-repeating-field) — SPEC §1.6 Option C selective placement.
+- `tests/widget_help_icon.rs` kittest cell: clicks the `?` next to a
+  flag, asserts the right tab/manual URL is targeted via
+  `ctx.open_url`.
+
 ## [0.3.0] — 2026-05-14
 
 v0.3 catches the GUI up to `mnemonic-toolkit-v0.13.0`. Five new

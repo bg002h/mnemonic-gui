@@ -228,7 +228,7 @@ const BUNDLE_FLAGS: &[FlagSchema] = &[
         kind: FlagKind::Number { min: 1, max: 16 },
         required: false,
         repeating: false,
-        help: "Multisig threshold K (1 ≤ K ≤ N ≤ 16).",
+        help: "Multisig threshold K (1 <= K <= N <= 16).",
         secret: false,
     },
     FlagSchema {
@@ -236,7 +236,7 @@ const BUNDLE_FLAGS: &[FlagSchema] = &[
         kind: FlagKind::Text,
         required: false,
         repeating: true,
-        help: "v0.4 unified slot input. Repeating flag — one occurrence per \
+        help: "v0.4 unified slot input. Repeating flag -- one occurrence per \
                (slot, subkey) tuple. Grammar: @N.<subkey>=<value>. Handled \
                by SlotEditor composite widget (SPEC §4).",
         secret: false,
@@ -569,7 +569,7 @@ const EXPORT_WALLET_FLAGS: &[FlagSchema] = &[
         kind: FlagKind::Number { min: 1, max: 16 },
         required: false,
         repeating: false,
-        help: "Multisig threshold K (1 ≤ K ≤ N).",
+        help: "Multisig threshold K (1 <= K <= N).",
         secret: false,
     },
     FlagSchema {
@@ -630,7 +630,7 @@ const EXPORT_WALLET_FLAGS: &[FlagSchema] = &[
         },
         required: false,
         repeating: false,
-        help: "Output path. `-` (default) → stdout.",
+        help: "Output path. `-` (default) -> stdout.",
         secret: false,
     },
     FlagSchema {
@@ -1049,7 +1049,7 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
     },
     SubcommandSchema {
         name: "final-word",
-        human_name: "Final Word (BIP-39 N-1 → candidate Nth words)",
+        human_name: "Final Word (BIP-39 N-1 -> candidate Nth words)",
         flags: FINAL_WORD_FLAGS,
         positional_args: NO_POSITIONALS,
         allows_slots: false,

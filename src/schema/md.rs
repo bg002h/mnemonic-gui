@@ -409,7 +409,7 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
     },
     SubcommandSchema {
         name: "encode",
-        human_name: "Encode (template → md1)",
+        human_name: "Encode (template -> md1)",
         flags: ENCODE_FLAGS,
         positional_args: ENCODE_POSITIONALS,
         allows_slots: false,
@@ -417,7 +417,7 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
     },
     SubcommandSchema {
         name: "decode",
-        human_name: "Decode (md1 → template)",
+        human_name: "Decode (md1 -> template)",
         flags: DECODE_FLAGS,
         positional_args: DECODE_POSITIONALS,
         allows_slots: false,
@@ -425,7 +425,7 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
     },
     SubcommandSchema {
         name: "verify",
-        human_name: "Verify (md1 ↔ template)",
+        human_name: "Verify (md1 <-> template)",
         flags: VERIFY_FLAGS,
         positional_args: VERIFY_POSITIONALS,
         allows_slots: false,
@@ -449,7 +449,7 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
     },
     SubcommandSchema {
         name: "compile",
-        human_name: "Compile (policy → template)",
+        human_name: "Compile (policy -> template)",
         flags: COMPILE_FLAGS,
         positional_args: COMPILE_POSITIONALS,
         allows_slots: false,

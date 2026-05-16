@@ -237,7 +237,7 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
     },
     SubcommandSchema {
         name: "encode",
-        human_name: "Encode (xpub → mk1)",
+        human_name: "Encode (xpub -> mk1)",
         flags: ENCODE_FLAGS,
         positional_args: ENCODE_POSITIONALS,
         allows_slots: false,
@@ -245,7 +245,7 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
     },
     SubcommandSchema {
         name: "decode",
-        human_name: "Decode (mk1 → xpub)",
+        human_name: "Decode (mk1 -> xpub)",
         flags: DECODE_FLAGS,
         positional_args: DECODE_POSITIONALS,
         allows_slots: false,
