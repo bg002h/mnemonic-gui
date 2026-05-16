@@ -291,9 +291,10 @@ shipped partially.
 - **Where:** `src/form/conditional.rs::bundle` (line 21-45). The current rules enforce `--template`-required-unless-descriptor, `--descriptor`/`--descriptor-file` XOR, and `--passphrase`/`--passphrase-stdin` XOR. They do NOT disable `--multisig-path-family` or `--threshold` when the active template is in the single-sig set (`bip44`, `bip49`, `bip84`, `bip86`).
 - **What:** Extend `pub fn bundle(state: &FormState) -> FlagVisibility` to disable `--multisig-path-family` and `--threshold` when `state.dropdown_value("--template")` is in the single-sig template set. Mirror the same fix in `verify_bundle` (same constraint applies). The argv assembler will then skip these fields (per `form/invocation.rs::emit_one`'s "empty / false / absent values are NOT emitted" rule at the schema docstring) and the user no longer needs to manually clear the seeded default.
 - **Why deferred:** Surfaced AFTER v0.3.0 ship; a reasonable fix but not blocking the manual-gui v1.0 cycle. v1.0 manual instead documents the manual-clear workaround.
-- **Status:** `open`
+- **Status:** `resolved 6c2d019` — closed by the GUI conditional-applicability v1 cycle (mnemonic-gui v0.5.0 + mnemonic-toolkit v0.16.0 lockstep, in-flight). P2 (`16b15de`) extended `bundle()` + `verify_bundle()` + `export_wallet()` with single-sig-template Disabled rules + single-sig-template + descriptor-mode mutexes. P3 (`f2a985b`) added the `assemble_argv` visibility gate that suppresses Hidden/Disabled flags from argv emission. P5 (`2afd603`) removed the `--multisig-path-family bip87` default seed at `main.rs:203` (the root of the surfacing). The manual workaround documented in the worked example may now be retired in a future manual cycle.
 - **Tier:** `v0.4`
-- **Companion:** `mnemonic-toolkit/docs/manual-gui/src/40-mnemonic/42-bundle.md` worked-example step 3 documents the workaround and cites this FOLLOWUP.
+- **Companion:** `mnemonic-toolkit/docs/manual-gui/src/40-mnemonic/42-bundle.md` worked-example step 3 documents the workaround and cites this FOLLOWUP; superseded by the v1 cycle.
+- **Successor:** `gui-conditional-applicability-drift-fix` (this file, above) is the mechanism + drift-gate generalization of which this entry is the originating specific case.
 
 ### `gui-run-confirm-modal-secret-redaction` — run-confirm modal renders secret-bearing argv tokens in plaintext (security-relevant gap)
 
