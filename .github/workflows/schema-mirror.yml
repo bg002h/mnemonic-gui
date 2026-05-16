@@ -77,6 +77,16 @@ jobs:
           MK_BIN: mk
         run: cargo test --test schema_mirror
 
+      - name: cargo-test-secrets-canonical-fallback
+        # GHSA-class drift gate: the committed canonical-fallback SECRET_*
+        # arrays in build.rs MUST match the upstream is_secret_bearing()
+        # impls. An empty SECRET_* set silently disables
+        # persistence::redact_for_persistence, causing BIP-39 phrases to
+        # persist to state.json in plaintext. Regression of v0.3.0..0.3.2.
+        env:
+          MNEMONIC_GUI_UPSTREAM_ROOT: /tmp/upstream/mnemonic-toolkit
+        run: cargo test --test secrets_canonical_fallback -- --include-ignored
+
       - name: cargo-test-full-suite
         env:
           MNEMONIC_GUI_UPSTREAM_ROOT: /tmp/upstream/mnemonic-toolkit

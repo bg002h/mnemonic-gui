@@ -25,9 +25,43 @@ use std::path::{Path, PathBuf};
 use syn::{File, Ident, Item};
 
 const STUB_WARNING: &str =
-    "mnemonic-gui: upstream source not available; SECRET_* constants are STUB. \
-     Set MNEMONIC_GUI_UPSTREAM_ROOT, or MNEMONIC_GUI_ALLOW_UPSTREAM_CLONE=1, \
-     or populate target/upstream/ manually, to enable the source-level audit.";
+    "mnemonic-gui: upstream source not available; SECRET_* constants are using \
+     the committed canonical-fallback sets (NOT empty). Set \
+     MNEMONIC_GUI_UPSTREAM_ROOT, or MNEMONIC_GUI_ALLOW_UPSTREAM_CLONE=1, or \
+     populate target/upstream/ manually, to enable the source-level audit. \
+     The fallback sets are kept in sync with upstream by \
+     tests/secrets_canonical_fallback.rs.";
+
+/// Canonical-fallback SECRET_* sets. Mirror of the upstream
+/// `NodeType::is_secret_bearing()` and `SlotSubkey::is_secret_bearing()`
+/// impls, captured here so that `cargo install --git` builds (which run
+/// in cargo's sandbox WITHOUT access to the upstream mnemonic-toolkit
+/// source tree) still ship a CORRECT secret-class set, not the empty
+/// `&[]` previously emitted by `write_stub`.
+///
+/// SECURITY: An empty SECRET_* set in `secrets_generated.rs` makes
+/// `persistence::redact_for_persistence` a no-op for slot rows and
+/// NodeValueComposite entries, causing BIP-39 phrases and other secret
+/// material to persist to `state.json` in plaintext. The committed-
+/// fallback path here is the install-time guarantee that this cannot
+/// happen. Issue: mnemonic-gui v0.3.0..v0.3.2.
+///
+/// Drift gate: `tests/secrets_canonical_fallback.rs` parses the
+/// upstream source (when available) and asserts set-equality against
+/// these arrays. The schema_mirror CI workflow runs that test with
+/// `MNEMONIC_GUI_UPSTREAM_ROOT` set, so any upstream change to the
+/// `is_secret_bearing()` impls fails CI here.
+const CANONICAL_FALLBACK_NODE_TYPES: &[&str] = &[
+    "phrase",
+    "entropy",
+    "xprv",
+    "wif",
+    "ms1",
+    "bip38",
+    "electrum-phrase",
+];
+
+const CANONICAL_FALLBACK_SLOT_SUBKEYS: &[&str] = &["phrase", "entropy", "xprv", "wif"];
 
 fn main() {
     println!("cargo:rerun-if-changed=pinned-upstream.toml");
@@ -205,12 +239,23 @@ fn resolve_upstream_root(pinned: &PinnedUpstream) -> Option<PathBuf> {
 fn write_stub(out_file: &Path) {
     println!("cargo:warning={}", STUB_WARNING);
     let body = format!(
-        "// Stub fallback — upstream source unresolvable. {}\n\
-         pub const SECRET_NODE_TYPES: &[&str] = &[];\n\
-         pub const SECRET_SLOT_SUBKEYS: &[&str] = &[];\n",
-        STUB_WARNING
+        "// Committed-fallback secrets_generated.rs — upstream source unresolvable.\n\
+         // {}\n\
+         \n\
+         pub const SECRET_NODE_TYPES: &[&str] = &[\n\
+         {nodes}];\n\
+         \n\
+         pub const SECRET_SLOT_SUBKEYS: &[&str] = &[\n\
+         {subkeys}];\n",
+        STUB_WARNING,
+        nodes = format_arr(&canonical_strings(CANONICAL_FALLBACK_NODE_TYPES)),
+        subkeys = format_arr(&canonical_strings(CANONICAL_FALLBACK_SLOT_SUBKEYS)),
     );
     fs::write(out_file, body).expect("write stub secrets_generated.rs");
+}
+
+fn canonical_strings(arr: &[&str]) -> Vec<String> {
+    arr.iter().map(|s| (*s).to_string()).collect()
 }
 
 /// Walk a `src/cmd/convert.rs`-style file for the given target type

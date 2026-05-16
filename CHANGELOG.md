@@ -3,6 +3,113 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## [0.3.3] — 2026-05-15
+
+### Security fix — persistence-redaction bypass in cargo-install builds
+
+**Severity: HIGH.** Affects v0.3.0, v0.3.1, v0.3.2.
+
+`build.rs` generates `SECRET_NODE_TYPES` and `SECRET_SLOT_SUBKEYS` by
+parsing the upstream `mnemonic-toolkit` source tree's
+`NodeType::is_secret_bearing()` and
+`SlotSubkey::is_secret_bearing()` impls. When the upstream source is
+unresolvable at build time (Step 4 of the SPEC §B.11 resolution chain),
+the prior `write_stub` emitted **empty arrays**:
+
+```rust
+pub const SECRET_NODE_TYPES: &[&str] = &[];
+pub const SECRET_SLOT_SUBKEYS: &[&str] = &[];
+```
+
+This is the default outcome for **every `cargo install --git
+mnemonic-gui` invocation** — `cargo install` runs `build.rs` in an
+isolated sandbox with no adjacent toolkit checkout, so resolution
+chain Steps 1/2/3 all fail and the stub fallback is used unless the
+user explicitly sets `MNEMONIC_GUI_UPSTREAM_ROOT` or
+`MNEMONIC_GUI_ALLOW_UPSTREAM_CLONE=1` before running cargo install.
+
+`persistence::redact_for_persistence` filters slot rows by
+`SECRET_SLOT_SUBKEYS.contains(...)` and `NodeValueComposite` entries
+by `SECRET_NODE_TYPES.contains(...)`. With both arrays empty, the
+filter is a no-op. The result: a BIP-39 seed phrase typed into a slot
+field (e.g., `--slot @0.phrase=<phrase>`) or into a NodeValueComposite
+field (e.g., `--from phrase=<phrase>`) **persists to `state.json` in
+plaintext** when the GUI saves session state on exit.
+
+The hand-maintained `SECRET_FLAG_NAMES` constant (`--passphrase`,
+`--bip38-passphrase`, `--passphrase-stdin`) was NOT affected; only the
+build-generated arrays were empty under the install-path build.
+
+### Fix
+
+`build.rs::write_stub` now emits the **canonical** secret-class sets
+as a committed-in-source fallback, NOT empty arrays:
+
+```rust
+const CANONICAL_FALLBACK_NODE_TYPES: &[&str] = &[
+    "phrase", "entropy", "xprv", "wif",
+    "ms1", "bip38", "electrum-phrase",
+];
+
+const CANONICAL_FALLBACK_SLOT_SUBKEYS: &[&str] =
+    &["phrase", "entropy", "xprv", "wif"];
+```
+
+These mirror the upstream `is_secret_bearing()` match-arm sets at
+`mnemonic-toolkit@mnemonic-toolkit-v0.13.1`
+(`crates/mnemonic-toolkit/src/cmd/convert.rs:85` +
+`crates/mnemonic-toolkit/src/slot_input.rs:60`). When upstream source
+IS resolvable, build.rs regenerates from source as before; when not,
+the fallback ships canonical values rather than empty placeholders.
+
+### Drift gate
+
+New `tests/secrets_canonical_fallback.rs` re-parses the upstream
+`is_secret_bearing()` impls and asserts set-equality against the
+committed fallback arrays. `#[ignore]`-gated by default (needs
+`MNEMONIC_GUI_UPSTREAM_ROOT`). Schema-mirror CI workflow runs it via
+`cargo test --test secrets_canonical_fallback -- --include-ignored`;
+any upstream change to the secret-class sets that isn't mirrored here
+fails CI immediately.
+
+A second (always-on) test asserts both fallback arrays are non-empty
+and contain the four BIP-39-class items (`phrase`, `entropy`, `xprv`,
+`wif`) — a backstop against future regression to `&[]`.
+
+### Verification
+
+Reproduction (before fix, post-`cargo install --git` build):
+
+```
+SlotRow { subkey: Phrase, value: "abandon abandon ..." }
+→ save() → state.json contains "subkey": "Phrase",
+                                "value": "abandon abandon ..."
+```
+
+After fix:
+
+```
+SlotRow { subkey: Phrase, value: "abandon abandon ..." } → save()
+→ state.json contains "rows": []   ← phrase row stripped
+```
+
+### User action
+
+Run `./scripts/install.sh mnemonic-gui --from-git --force` (or
+re-install via your preferred path) to pick up v0.3.3. If you have an
+existing `~/.config/mnemonic-gui/state.json` written by v0.3.0..v0.3.2
+that may contain secret material, delete it manually before launching
+v0.3.3:
+
+```
+rm -i ~/.config/mnemonic-gui/state.json
+```
+
+### CVE / GHSA
+
+Recommend filing a GHSA advisory after release tag is live. Affected
+versions: v0.3.0, v0.3.1, v0.3.2. Fixed in: v0.3.3.
+
 ## [0.3.2] — 2026-05-15
 
 Patch: replace 4 non-ASCII glyphs in user-visible schema strings with
