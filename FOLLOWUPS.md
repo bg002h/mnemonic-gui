@@ -164,7 +164,7 @@ that they equal `mnemonic_toolkit::secret_taxonomy::SECRET_*`. Drop
 the fallback in v0.5.0 once the new contract has been exercised
 through one release cycle.
 
-**Status:** `open` — pending the lockstep toolkit v0.14.0 release.
+**Status:** `resolved 6fe44b6` (mnemonic-gui v0.4.0, 2026-05-16). Cargo.toml gains `mnemonic-toolkit = { git, tag = "mnemonic-toolkit-v0.14.0" }`; `build.rs` deleted; `src/secrets.rs` switches to `pub use mnemonic_toolkit::secret_taxonomy::*` + compile-time supply-chain guard against drift from v0.3.3's committed snapshot. R1 opus review caught a Critical (incomplete deletion sweep — `tests/schema_mirror.rs::source_audit` mod survived) + 5 Importants; all folded in the same commit before tag. Toolkit half closed at `bg002h/mnemonic-toolkit@1a52612` (mnemonic-toolkit v0.14.0).
 
 **Tier:** `cross-repo / v0.4.0-coordinated`
 
