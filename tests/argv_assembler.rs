@@ -133,24 +133,43 @@ fn cell_3b_export_wallet_timestamp_now_argv() {
 #[test]
 fn cell_4_export_wallet_tr_multi_a_argv() {
     // Covers TaggedOrIndexed (Tag arm + Indexed arm in two cells).
-    let tag_state = FormState::from_pairs(vec![(
-        "--taproot-internal-key",
-        FlagValue::TaggedOrIndexed(TaggedOrIndexedValue::Tag("nums".into())),
-    )]);
+    // v0.16.0 SPEC §6.10.7: --taproot-internal-key is gated by template ∈
+    // {tr-multi-a, tr-sortedmulti-a}; without a matching --template, the
+    // new P3 visibility gate suppresses emission. The test now supplies
+    // --template = tr-multi-a explicitly (matches the cell name).
+    let tag_state = FormState::from_pairs(vec![
+        ("--template", FlagValue::Dropdown("tr-multi-a".into())),
+        (
+            "--taproot-internal-key",
+            FlagValue::TaggedOrIndexed(TaggedOrIndexedValue::Tag("nums".into())),
+        ),
+    ]);
     let tag_argv = assemble_argv(
         &schema::mnemonic::SCHEMA,
         subcommand("export-wallet"),
         &tag_state,
     );
+    // Emission order = schema declaration order per SPEC §6 invariant 3.
+    // --template precedes --taproot-internal-key in the schema.
     assert_eq!(
         tag_argv,
-        vec!["mnemonic", "export-wallet", "--taproot-internal-key", "nums"]
+        vec![
+            "mnemonic",
+            "export-wallet",
+            "--template",
+            "tr-multi-a",
+            "--taproot-internal-key",
+            "nums",
+        ]
     );
 
-    let indexed_state = FormState::from_pairs(vec![(
-        "--taproot-internal-key",
-        FlagValue::TaggedOrIndexed(TaggedOrIndexedValue::Indexed(2)),
-    )]);
+    let indexed_state = FormState::from_pairs(vec![
+        ("--template", FlagValue::Dropdown("tr-sortedmulti-a".into())),
+        (
+            "--taproot-internal-key",
+            FlagValue::TaggedOrIndexed(TaggedOrIndexedValue::Indexed(2)),
+        ),
+    ]);
     let indexed_argv = assemble_argv(
         &schema::mnemonic::SCHEMA,
         subcommand("export-wallet"),
@@ -158,7 +177,14 @@ fn cell_4_export_wallet_tr_multi_a_argv() {
     );
     assert_eq!(
         indexed_argv,
-        vec!["mnemonic", "export-wallet", "--taproot-internal-key", "@2"]
+        vec![
+            "mnemonic",
+            "export-wallet",
+            "--template",
+            "tr-sortedmulti-a",
+            "--taproot-internal-key",
+            "@2",
+        ]
     );
 }
 

@@ -11,7 +11,7 @@
 
 use crate::schema::{
     FlagKind, FlagSchema, FlagValue, Schema, SubcommandSchema, TaggedOrIndexedValue,
-    TimestampValue,
+    TimestampValue, Visibility,
 };
 
 /// Shell flavor for `render_copy_command`.
@@ -39,6 +39,10 @@ pub enum ShellFlavor {
 ///      state order (slot-index ascending is the SlotEditor's responsibility;
 ///      Phase 3 wires it).
 ///   5. Empty / false / absent values are NOT emitted.
+///   6. (v0.16.0 SPEC §6.10) Flags whose effective visibility is Hidden OR
+///      Disabled are suppressed from emission. Required does not affect
+///      emission (decorative marker only). Slot emission is unaffected by
+///      visibility (slot values are not gated by §6.6/§6.9 rules in v1).
 pub fn assemble_argv(
     schema: &Schema,
     subcommand: &SubcommandSchema,
@@ -48,7 +52,35 @@ pub fn assemble_argv(
     argv.push(schema.cli_name.to_string());
     argv.push(subcommand.name.to_string());
 
+    // v0.16.0 SPEC §6.10 visibility gate. Compute the per-frame visibility
+    // override map once. `subcommand.conditional` is `Option<fn(&FormState)
+    // -> FlagVisibility>`; absent fn → empty Vec (no overrides; every flag
+    // defaults to Visible). First-rule-wins per `main.rs:391-394` semantics.
+    let vis: Vec<(&'static str, Visibility)> = subcommand
+        .conditional
+        .map(|f| f(state))
+        .unwrap_or_default();
+    let visibility_of = |name: &str| -> Visibility {
+        vis.iter()
+            .find(|(k, _)| *k == name)
+            .map(|(_, v)| *v)
+            .unwrap_or(Visibility::Visible)
+    };
+    let suppresses = |v: Visibility| matches!(v, Visibility::Hidden | Visibility::Disabled);
+
     for flag in subcommand.flags {
+        // SPEC §6.10: Hidden AND Disabled suppress emission. Slot emission
+        // (next branch) is exempt — slot values are not gated by §6.6/§6.9
+        // rules in v1. The gate fires BEFORE the secret-flag + values
+        // branches so a typed-then-mutex-disabled secret value (e.g., user
+        // types --passphrase=foo then sets --passphrase-stdin) is NOT
+        // emitted — fixing a pre-v0.16.0 latent bug where the value would
+        // emit and trigger clap's `conflicts_with` rejection downstream.
+        if flag.name != "--slot" || !subcommand.allows_slots {
+            if suppresses(visibility_of(flag.name)) {
+                continue;
+            }
+        }
         // SPEC §6.4: when allows_slots == true, the `--slot` flag is
         // emitted from SlotState (not from `values`), in slot-index
         // ascending order. The schema still carries a `--slot` FlagSchema
