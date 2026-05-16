@@ -4,12 +4,51 @@
 //! `FlagValue` slot and draws the appropriate input. Phase 2 ships the
 //! function surface; Phase 4 wires them into the eframe app loop and
 //! Phase 5 layers conditional-visibility on top.
+//!
+//! manual-gui v1.0 (G-P2.2): `render` + `render_with_dispatch` gained
+//! `tab` + `subcommand` parameters so the per-flag `?` help-icon button
+//! can compose `url::manual_url_for_flag(tab, sub, flag.name)`. SPEC §2.4
+//! render-site contract: the per-flag button MUST live inside this body
+//! so the P1.4 kittest probe (`harness.query_by_label("?")` against a
+//! single `render_with_dispatch` call) can locate it.
 
 use eframe::egui;
 
+use crate::app::CliTab;
+use crate::help::url;
 use crate::schema::{
     FlagKind, FlagSchema, FlagValue, FormState, TaggedOrIndexedValue, TimestampValue,
 };
+
+/// True iff `flag` is one of the Dropdown / NodeValueComposite /
+/// TaggedOrIndexed / `repeating: true` shapes that earn a `?` help-icon
+/// button per §1.6 Option C. Per §2.4 the button links to the flag
+/// anchor (`manual_url_for_flag`), not per-variant.
+fn needs_help_icon(flag: &FlagSchema) -> bool {
+    matches!(
+        flag.kind,
+        FlagKind::Dropdown(_) | FlagKind::NodeValueComposite(_) | FlagKind::TaggedOrIndexed(_)
+    ) || flag.repeating
+}
+
+/// Render the per-flag `?` help-icon button if `flag` is one of the four
+/// shapes that earn one. The button's label is the ASCII U+003F `?`
+/// character (NOT fullwidth `？` U+FF1F or emoji `❓` U+2753 — the P1.4
+/// kittest `harness.query_by_label("?")` is byte-exact). Click triggers
+/// `ctx.open_url(OpenUrl::new_tab(url::manual_url_for_flag(...)))`.
+fn render_help_icon(ui: &mut egui::Ui, tab: CliTab, subcommand: &str, flag: &FlagSchema) {
+    if !needs_help_icon(flag) {
+        return;
+    }
+    let btn = egui::Button::new("?")
+        .small()
+        .fill(egui::Color32::from_gray(96));
+    if ui.add(btn).clicked() {
+        ui.ctx().open_url(egui::OpenUrl::new_tab(
+            url::manual_url_for_flag(tab, subcommand, flag.name),
+        ));
+    }
+}
 
 /// Render the widget for `flag`, dispatching secret-class flags
 /// (`secrets::flag_is_secret(flag) && FlagKind::Text`) to the
@@ -20,11 +59,24 @@ use crate::schema::{
 /// lives in `state.secret_widgets[flag.name]` and is consumed by
 /// `assemble_argv` via the secret-flag branch. This preserves the
 /// never-persist invariant by type — `secret_widgets` is `#[serde(skip)]`.
-pub fn render_with_dispatch(ui: &mut egui::Ui, flag: &FlagSchema, state: &mut FormState) {
+///
+/// `tab` + `subcommand` are the call-site context passed through to the
+/// per-flag `?` help-icon (G-P2.2 / §2.4 render-site contract). For the
+/// secret path here, the icon only renders if the secret flag is itself
+/// repeating (e.g., `--ms1`); FlagKind::Text non-repeating secret flags
+/// are tooltip-only.
+pub fn render_with_dispatch(
+    ui: &mut egui::Ui,
+    tab: CliTab,
+    subcommand: &str,
+    flag: &FlagSchema,
+    state: &mut FormState,
+) {
     if crate::secrets::flag_is_secret(flag) && matches!(flag.kind, FlagKind::Text) {
         ui.horizontal(|ui| {
             let widget = state.secret_widgets.entry(flag.name.to_string()).or_default();
             widget.show(ui, flag.name, flag.help);
+            render_help_icon(ui, tab, subcommand, flag);
             if flag.required {
                 ui.colored_label(egui::Color32::from_rgb(220, 60, 60), "*");
             }
@@ -39,7 +91,7 @@ pub fn render_with_dispatch(ui: &mut egui::Ui, flag: &FlagSchema, state: &mut Fo
         Some(i) => state.values[i].1.clone(),
         None => default_flag_value_for(&flag.kind),
     };
-    render(ui, flag, &mut value);
+    render(ui, tab, subcommand, flag, &mut value);
     match idx {
         Some(i) => state.values[i].1 = value,
         None => state.values.push((flag.name.to_string(), value)),
@@ -74,9 +126,21 @@ pub fn default_flag_value_for(kind: &FlagKind) -> FlagValue {
 }
 
 /// Render the widget appropriate for `flag.kind`, mutating `value` in place.
-pub fn render(ui: &mut egui::Ui, flag: &FlagSchema, value: &mut FlagValue) {
+///
+/// `tab` + `subcommand` are passed through to the per-flag `?` help-icon
+/// button (G-P2.2 / §2.4 render-site contract). The icon is rendered
+/// inside the same `ui.horizontal` row as the flag label so the P1.4
+/// kittest can find it via `harness.query_by_label("?")`.
+pub fn render(
+    ui: &mut egui::Ui,
+    tab: CliTab,
+    subcommand: &str,
+    flag: &FlagSchema,
+    value: &mut FlagValue,
+) {
     ui.horizontal(|ui| {
         ui.label(flag.name).on_hover_text(flag.help);
+        render_help_icon(ui, tab, subcommand, flag);
         match (&flag.kind, value) {
             (FlagKind::Text, FlagValue::Text(s)) => {
                 ui.text_edit_singleline(s);

@@ -127,6 +127,26 @@ Named for explicit closure per SPEC §14. Carried forward from v0.1
 because not in v0.2 scope, or carried forward from v0.2 because
 shipped partially.
 
+### `gui-help-icon-per-flag-affordance` — extend help-icon coverage to every flag if Option C selective placement proves insufficient
+
+- **Surfaced:** 2026-05-15, manual-gui v1.0 cycle planning. Filed per `mnemonic-toolkit/design/PLAN_manual_gui_v1.md` §2.7 (in-flight; archived to design/ at PE close).
+- **Where:** `src/form/widget.rs` widget render. v1.0 ships Option C: per-subcommand `?` button + per-dropdown/NodeValueComposite/TaggedOrIndexed `?` button + per-repeating-field-flag `?` button (28+43+20=91 buttons). Per-flag `?` buttons would add ~100 more buttons across all 28 form views.
+- **What:** If user feedback after v1.0 ships surfaces that hover-tooltip alone is insufficient for non-dropdown flags (e.g., users want click-through deep-links for `--passphrase`, `--json-out`, secret-bearing flags), extend Option C to Option A: per-flag `?` buttons on every FlagSchema.
+- **Why deferred:** v1.0 ships Option C to balance UX-budget vs visual clutter (91 buttons / ~3 per visible form is sustainable; 200 buttons / ~7 per visible form is chaos). Wait for user feedback.
+- **Status:** `open`
+- **Tier:** `v1.1+`
+- **Companion:** `mnemonic-toolkit/design/PLAN_manual_gui_v1.md` §1.6.
+
+### `gui-manual-base-url-runtime-override` — `--manual-base-url` runtime flag if build-time env-var override proves insufficient
+
+- **Surfaced:** 2026-05-15, manual-gui v1.0 cycle planning. Filed per `mnemonic-toolkit/design/PLAN_manual_gui_v1.md` §2.7.
+- **Where:** `src/help/url.rs` MANUAL_BASE_URL constant + `src/main.rs` CLI argument parsing. v1.0 ships build-time env-var override `MNEMONIC_GUI_MANUAL_BASE_URL` via `option_env!` (CI staging vs prod). No runtime flag.
+- **What:** If users in air-gapped environments need to point the GUI's help icons at a locally-hosted mirror (e.g., a corporate intranet copy of the manual), add a `--manual-base-url <URL>` runtime flag that overrides the compile-time default. Runtime override would also help self-hosting users without rebuilding from source.
+- **Why deferred:** v1.0 ships with a stable GitHub Pages URL. Self-hosting / air-gap is a niche use case; defer until concrete demand surfaces.
+- **Status:** `open`
+- **Tier:** `v1.1+`
+- **Companion:** `mnemonic-toolkit/design/PLAN_manual_gui_v1.md` §1.5 + §2.4.
+
 - `gui-code-signing-mac-developer-id` — v0.1.x and v0.2.0 ship
   unsigned macOS binaries; users need to right-click → Open or
   `xattr -d com.apple.quarantine` on first launch (see
@@ -146,6 +166,26 @@ shipped partially.
   notice and the paste-warn modal copy that surfaces the gap to
   users. Tracking entry kept open for the Linux-specific
   follow-up.
+
+### `gui-bundle-multisig-flags-conditional` — `--multisig-path-family` and `--threshold` should be Disabled (conditional-visibility) under single-sig templates
+
+- **Surfaced:** 2026-05-15, manual-gui v1.0 cycle M-P2.4 sub-batch 5b R0 fold (worked example for `mnemonic bundle` single-sig had to add an explicit "clear `--multisig-path-family`" step because the field is seeded to `bip87` by default at `src/main.rs:188-211`, and leaving it set under `--template bip84` triggers the `mode_text::PATH_FAMILY_WITHOUT_MULTISIG` refusal).
+- **Where:** `src/form/conditional.rs::bundle` (line 21-45). The current rules enforce `--template`-required-unless-descriptor, `--descriptor`/`--descriptor-file` XOR, and `--passphrase`/`--passphrase-stdin` XOR. They do NOT disable `--multisig-path-family` or `--threshold` when the active template is in the single-sig set (`bip44`, `bip49`, `bip84`, `bip86`).
+- **What:** Extend `pub fn bundle(state: &FormState) -> FlagVisibility` to disable `--multisig-path-family` and `--threshold` when `state.dropdown_value("--template")` is in the single-sig template set. Mirror the same fix in `verify_bundle` (same constraint applies). The argv assembler will then skip these fields (per `form/invocation.rs::emit_one`'s "empty / false / absent values are NOT emitted" rule at the schema docstring) and the user no longer needs to manually clear the seeded default.
+- **Why deferred:** Surfaced AFTER v0.3.0 ship; a reasonable fix but not blocking the manual-gui v1.0 cycle. v1.0 manual instead documents the manual-clear workaround.
+- **Status:** `open`
+- **Tier:** `v0.4`
+- **Companion:** `mnemonic-toolkit/docs/manual-gui/src/40-mnemonic/42-bundle.md` worked-example step 3 documents the workaround and cites this FOLLOWUP.
+
+### `gui-run-confirm-modal-secret-redaction` — run-confirm modal renders secret-bearing argv tokens in plaintext (security-relevant gap)
+
+- **Surfaced:** 2026-05-15, manual-gui v1.0 cycle M-P2.4 batch 4 R0 source-grep. The `mnemonic-toolkit/docs/manual-gui/src/10-foundations/14-secret-handling.md` Defense-2 prose (LOCKed in M-P2.4 batch 2) claims the run-confirm modal "shows the assembled argv with secret values replaced by `***`". `src/main.rs:512-535` shows the modal renders each argv token verbatim in monospace via `ui.monospace(format!("  {}", tok))`; no redaction step exists anywhere in the source tree (`grep -rn "redact" src/` returns only `persistence.rs` on-disk-save paths).
+- **Where:** `src/main.rs:512-535` (modal render block); `src/secrets.rs:65-66` (`RUN_CONFIRM_MODAL_PREFIX` const has no continuation that would substitute a redacted argv); `src/form/invocation.rs:42-100` (`assemble_argv` returns the full plaintext argv including secret-class flag values).
+- **What:** Add a redaction step that mirrors `persistence::redact_for_persistence`'s flag-class logic so the modal displays e.g. `--passphrase ***` instead of `--passphrase the-actual-secret-mnemonic`. Two implementation options: (a) build a parallel `redact_argv_for_display(sub, state, &argv)` in `secrets.rs` and call it from the modal site only — preserves the actual `argv` that's passed to `spawn_and_capture` after Run-confirm; (b) inline a per-token check in the modal render loop using `secrets::flag_is_secret` against the preceding flag-name token. Option (a) is cleaner; option (b) is smaller-LOC. Either way the secret-class boundary already exists.
+- **Why deferred:** Surfaced AFTER v0.3.0 ship; remediation requires (i) a new `mnemonic-gui` cycle (`mnemonic-gui-v0.4.0` or a v0.3.1 patch) and (ii) lockstep manual prose patch landing in the `manual-gui-v1.0` PR's batch-4 commit so the v1.0 manual ships consistent with what shipped GUI v0.3.0 actually does. Until the GUI fix lands, the manual MUST describe the actual (undesired) behavior plus an operational mitigation: only run the GUI on a cold/airgapped machine where on-screen secret display does not constitute a network-exfiltration vector. Compromise: the v1.0 manual ships honestly-broken; v1.1 ships fixed. Severity is high but not P0-block-v1.0 for the manual cycle because the manual cannot fix the GUI behavior — only describe it.
+- **Status:** `open`
+- **Tier:** `v0.4-cross-repo`
+- **Companion:** `mnemonic-toolkit/design/FOLLOWUPS.md` `gui-run-confirm-modal-secret-redaction-manual-companion`; `mnemonic-toolkit/docs/manual-gui/src/10-foundations/14-secret-handling.md` Defense-2 prose patch in M-P2.4 batch 4 commit. Closure requires: (i) GUI source patch implementing redaction; (ii) manual prose patch undoing the v1.0 honest-broken framing and restoring the `***` claim; (iii) `pinned-upstream.toml` bump in this manual to whatever GUI tag ships the fix.
 
 ## Resolved in v0.2
 

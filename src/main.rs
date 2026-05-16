@@ -13,6 +13,7 @@ use mnemonic_gui::app::{AppState, CliTab};
 use mnemonic_gui::form::invocation::{assemble_argv, render_copy_command, ShellFlavor};
 use mnemonic_gui::form::slot_editor::{SlotState, SlotSubkey};
 use mnemonic_gui::form::widget;
+use mnemonic_gui::help::url as help_url;
 use mnemonic_gui::path_detect::Detected;
 use mnemonic_gui::runner;
 use mnemonic_gui::schema::{self, FlagValue, FormState};
@@ -342,6 +343,23 @@ impl eframe::App for MnemonicGuiApp {
                             }
                         }
                     });
+                // manual-gui v1.0 (G-P2.2 / §2.4): per-subcommand `?`
+                // help-icon — one of the three §1.6 Option C affordance
+                // classes. Per §2.4 paragraph 2 + render-site contract,
+                // this button lives at the subcommand-selector site
+                // (NOT inside widget::render — that scope is per-flag
+                // only). Click opens manual_url_for_subcommand in a new
+                // tab.
+                if !active_sub.is_empty() {
+                    let help_btn = egui::Button::new("?")
+                        .small()
+                        .fill(egui::Color32::from_gray(96));
+                    if ui.add(help_btn).clicked() {
+                        ui.ctx().open_url(egui::OpenUrl::new_tab(
+                            help_url::manual_url_for_subcommand(active_tab, &active_sub),
+                        ));
+                    }
+                }
             });
             ui.separator();
 
@@ -394,14 +412,40 @@ impl eframe::App for MnemonicGuiApp {
                     ui.add_enabled_ui(
                         !matches!(v, mnemonic_gui::schema::Visibility::Disabled),
                         |ui| {
-                            widget::render_with_dispatch(ui, flag, state);
+                            widget::render_with_dispatch(
+                                ui,
+                                active_tab,
+                                &active_sub_name,
+                                flag,
+                                state,
+                            );
                         },
                     );
                 }
-                // SlotEditor.
+                // SlotEditor + per-`--slot` `?` help-icon (G-P2.2 /
+                // §2.4): `--slot` is a repeating-field flag that bypasses
+                // widget::render via the early `continue` above, so its
+                // `?` button lives here next to the "Slot rows:" label.
+                // URL composes via `manual_url_for_flag(tab, sub,
+                // "--slot")` — same anchor scheme as other repeating
+                // flags, just hosted at the SlotEditor surface.
                 if sub.allows_slots {
                     ui.separator();
-                    ui.label("Slot rows:");
+                    ui.horizontal(|ui| {
+                        ui.label("Slot rows:");
+                        let help_btn = egui::Button::new("?")
+                            .small()
+                            .fill(egui::Color32::from_gray(96));
+                        if ui.add(help_btn).clicked() {
+                            ui.ctx().open_url(egui::OpenUrl::new_tab(
+                                help_url::manual_url_for_flag(
+                                    active_tab,
+                                    &active_sub_name,
+                                    "--slot",
+                                ),
+                            ));
+                        }
+                    });
                     mnemonic_gui::form::slot_editor::render(ui, &mut state.slots);
                 }
                 // Positional args.
