@@ -3,6 +3,44 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## [0.4.3] — 2026-05-16
+
+### Scope-isolation catchup — bump toolkit dep to v0.15.0
+
+`Cargo.toml` + `pinned-upstream.toml` pins bumped from
+`mnemonic-toolkit-v0.14.2` to `mnemonic-toolkit-v0.15.0`. v0.15.0
+was the toolkit's md-codec catchup release (md-codec 0.16.1 →
+0.33.1 + mk-codec 0.2.1 → 0.3.0 + ms-codec git → 0.1.3); its
+release commit (`5d92768`) describes the change as a wire-format
+clean break (v0.14.x bundles forward-incompatible).
+
+This release is a scope-isolated prerequisite for the in-flight
+GUI conditional-applicability v1 cycle (toolkit v0.16.0 + GUI
+v0.5.0 lockstep). Cutting v0.4.3 ahead of v0.5.0 ensures that any
+§5.1 manual-reproduction failure in the v0.5.0 cycle is
+attributable to v0.16.0 conditional-applicability work, not to
+v0.15.0 wire-format drift. Architect-review rationale recorded in
+the toolkit's plan-doc at
+`design/IMPLEMENTATION_PLAN_gui_conditional_applicability_v1.md`
+(top revision note + §4 prerequisite gate).
+
+### Verification
+
+- `cargo build --release` clean at v0.15.0 pin.
+- Full `cargo test --release` green (156 passed, 0 failed,
+  1 `#[ignore]`-gated sibling-dep test as expected) with all
+  `*_BIN` env vars set (`MNEMONIC_BIN`, `MD_BIN`, `MS_BIN`,
+  `MK_BIN`).
+- Coldcard fixture (`tests/fixtures/coldcard_generic_bip84_mainnet.json`)
+  verified **byte-identical** between v0.14.0 vendored copy and
+  v0.15.0 master via `diff -q`; no re-vendor needed.
+
+### Companion
+
+`mnemonic-toolkit v0.15.0` (commit `5d92768`, tag
+`mnemonic-toolkit-v0.15.0`) is the catchup target. No
+toolkit-side change in this release.
+
 ## [0.4.2] — 2026-05-16
 
 ### Bug fix — bump toolkit dep to v0.14.2 (slip39 lib-internal mlock cfg-gate)
