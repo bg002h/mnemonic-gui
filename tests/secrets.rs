@@ -238,16 +238,21 @@ fn run_confirm_prefix_byte_exact_to_spec_9() {
     );
 }
 
-// ─── Build.rs-generated SECRET_* constants ───────────────────────────────
+// ─── Toolkit-imported SECRET_* constants (v0.4.0+) ───────────────────────
 
 #[test]
 fn secret_node_types_set_pinned() {
-    // Phase 7 R1 anchor: these constants are GENERATED from upstream by
-    // build.rs. If upstream `NodeType::is_secret_bearing()` changes, the
-    // generated arrays change too — and this assertion will need to be
-    // updated in lockstep. The schema_mirror source-audit cells provide
-    // the dynamic-vs-generated cross-check; this cell pins the v0.1
-    // expected set.
+    // Phase 7 R1 anchor: these constants are RE-EXPORTED from
+    // `mnemonic_toolkit::secret_taxonomy` (v0.4.0+; was build.rs-generated
+    // from upstream source in v0.3.x). If upstream
+    // `NodeType::is_secret_bearing()` changes, the toolkit's
+    // `SECRET_NODE_TYPES` const updates in lockstep — and this assertion
+    // will need to be updated too. The toolkit-side
+    // `secret_taxonomy_parity_tests` (mnemonic-toolkit v0.14.0+) provides
+    // the in-tree dynamic-vs-published cross-check; the
+    // compile-time supply-chain guard in `src/secrets.rs` catches drift
+    // between the toolkit pin and the v0.3.3 snapshot; this cell pins
+    // the v0.1 expected set as a downstream backstop.
     let expected: std::collections::BTreeSet<&str> = [
         "phrase",
         "entropy",

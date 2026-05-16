@@ -12,9 +12,9 @@
 //!      Rust subprocess) and verify the runner does not hang.
 //!
 //! Binary lookup honors `MNEMONIC_BIN` env-var (set by Phase 1's
-//! `tests/schema_mirror.rs`); fixture lookup honors
-//! `MNEMONIC_GUI_UPSTREAM_ROOT` (set by Phase 9's CI workflow per SPEC
-//! §B.11 resolution chain).
+//! `tests/schema_mirror.rs`); fixture lookup is vendored locally
+//! under `tests/fixtures/` (v0.4.0+; previously consulted
+//! `MNEMONIC_GUI_UPSTREAM_ROOT`, retired with the source-walker).
 
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
@@ -34,17 +34,16 @@ fn mnemonic_bin() -> String {
     std::env::var("MNEMONIC_BIN").unwrap_or_else(|_| "mnemonic".to_string())
 }
 
-fn upstream_root() -> PathBuf {
-    if let Ok(p) = std::env::var("MNEMONIC_GUI_UPSTREAM_ROOT") {
-        return PathBuf::from(p);
-    }
-    PathBuf::from("/scratch/code/shibboleth/mnemonic-toolkit")
-}
-
+/// v0.4.0: Coldcard fixture is vendored locally at
+/// `tests/fixtures/coldcard_generic_bip84_mainnet.json`. Originally
+/// copied from `mnemonic-toolkit-v0.14.0`'s
+/// `crates/mnemonic-toolkit/tests/export_wallet/`. Decoupling the GUI's
+/// runner integration test from `MNEMONIC_GUI_UPSTREAM_ROOT` lets us
+/// drop that env var (was the last consumer after `mod source_audit`
+/// retirement in v0.4.0).
 fn coldcard_fixture_path() -> PathBuf {
-    upstream_root()
-        .join("crates/mnemonic-toolkit/tests/export_wallet")
-        .join("coldcard_generic_bip84_mainnet.json")
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/fixtures/coldcard_generic_bip84_mainnet.json")
 }
 
 fn subcommand(name: &str) -> &'static schema::SubcommandSchema {
@@ -60,8 +59,9 @@ fn cell_1_mnemonic_export_wallet_byte_exact() {
     let fixture = coldcard_fixture_path();
     let expected = std::fs::read_to_string(&fixture).unwrap_or_else(|e| {
         panic!(
-            "could not read fixture {:?}: {} \n(set MNEMONIC_GUI_UPSTREAM_ROOT to a local checkout \
-             of mnemonic-toolkit at tag mnemonic-toolkit-v0.8.1)",
+            "could not read fixture {:?}: {} \n\
+             (fixture is vendored at tests/fixtures/; file should be \
+             present in the working tree)",
             fixture, e
         )
     });

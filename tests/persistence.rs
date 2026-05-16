@@ -302,8 +302,10 @@ fn cell_7_form_state_round_trip_in_memory() {
 #[test]
 fn cell_8_dynamic_secret_set_audit_no_hardcoded_literals() {
     // Sanity: the test reads SECRET_NODE_TYPES + SECRET_SLOT_SUBKEYS
-    // FROM THE LIBRARY (build.rs-generated) — not hard-coded literals
-    // here. R1 I-4 fold: dynamic source so adding new upstream
+    // FROM THE LIBRARY (re-exported from
+    // `mnemonic_toolkit::secret_taxonomy` since v0.4.0; was
+    // build.rs-generated in v0.3.x) — not hard-coded literals here.
+    // R1 I-4 fold: dynamic source so adding new upstream
     // is_secret_bearing variants automatically extends the audit.
     assert!(!SECRET_NODE_TYPES.is_empty());
     assert!(!SECRET_SLOT_SUBKEYS.is_empty());

@@ -7,7 +7,8 @@
 //!   - Per-subcommand non-secret form values
 //!   - Watch-only slot rows (subkey NOT in `SECRET_SLOT_SUBKEYS`)
 //!
-//! NEVER persisted (SPEC §10 R1 I-4 + Phase 7 build.rs codegen):
+//! NEVER persisted (SPEC §10 R1 I-4; v0.4.0+ taxonomy imported from
+//! `mnemonic_toolkit::secret_taxonomy`):
 //!   - Any flag whose name is in `SECRET_FLAG_NAMES`
 //!   - `NodeValueComposite` entries where `node` is in `SECRET_NODE_TYPES`
 //!   - Slot rows whose subkey is in `SECRET_SLOT_SUBKEYS`

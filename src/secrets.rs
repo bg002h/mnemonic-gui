@@ -1,15 +1,119 @@
 //! Secret-handling modals + zeroize sweep (SPEC §9 + §10 + Phase 7).
 //!
-//! `SECRET_NODE_TYPES` and `SECRET_SLOT_SUBKEYS` are generated at build
-//! time by `build.rs` from the upstream `NodeType::is_secret_bearing()`
-//! and `SlotSubkey::is_secret_bearing()` match-arm sets (SPEC §10 R1 I-4 +
-//! Phase 7 R2 C-1 codegen). The runtime `tests/schema_mirror.rs` audit
-//! re-parses the upstream files and asserts set-equality against these
-//! constants — drift surfaces as a test failure.
+//! `SECRET_NODE_TYPES` and `SECRET_SLOT_SUBKEYS` are re-exported from
+//! `mnemonic_toolkit::secret_taxonomy` (v0.14.0+). The toolkit owns
+//! the single source of truth via per-variant parity tests on its
+//! private `NodeType::is_secret_bearing()` /
+//! `SlotSubkey::is_secret_bearing()` predicates; the GUI consumes the
+//! canonical taxonomy as a library import. See toolkit FOLLOWUPS entry
+//! `secret-taxonomy-public-api-promotion` for the full architectural
+//! rationale.
+//!
+//! Prior to v0.4.0 the GUI's `build.rs` (now deleted) scraped the
+//! toolkit's private source via `syn::parse_file`. That codegen path
+//! emitted empty `&[]` arrays under `cargo install --git` (cargo's
+//! sandbox has no adjacent toolkit checkout), silently disabling
+//! `persistence::redact_for_persistence` and leaking BIP-39 phrases to
+//! `~/.config/mnemonic-gui/state.json` in plaintext (HIGH-severity bug
+//! in v0.3.0..v0.3.2; tactically patched in v0.3.3 with a committed
+//! fallback in build.rs; structurally retired here).
+//!
+//! ### Belt-and-suspenders (one-cycle overlap, v0.4.0 only)
+//!
+//! Per the architect's recommendation in the toolkit FOLLOWUP, this
+//! release retains the v0.3.3 `CANONICAL_FALLBACK_*` snapshot AND
+//! adds a compile-time assertion that the snapshot equals the
+//! toolkit-imported constants. This catches a supply-chain class of
+//! regression where the GUI's pinned toolkit tag could (in principle)
+//! resolve to a build with empty / unexpected `SECRET_*` arrays. The
+//! snapshot will be removed in v0.5.0 once the new contract has been
+//! exercised through one release cycle.
 //!
 //! Modal copy texts are pinned byte-exact per SPEC §9.
 
-include!(concat!(env!("OUT_DIR"), "/secrets_generated.rs"));
+pub use mnemonic_toolkit::secret_taxonomy::{SECRET_NODE_TYPES, SECRET_SLOT_SUBKEYS};
+
+/// One-cycle belt-and-suspenders snapshot. Removed in v0.5.0.
+mod v0_3_canonical_fallback {
+    /// Snapshot of `SECRET_NODE_TYPES` as it shipped in mnemonic-gui
+    /// v0.3.3 (committed fallback in the now-deleted `build.rs`).
+    /// Asserted byte-equal to the toolkit-imported `SECRET_NODE_TYPES`
+    /// at compile time below.
+    pub const SECRET_NODE_TYPES: &[&str] = &[
+        "phrase",
+        "entropy",
+        "xprv",
+        "wif",
+        "ms1",
+        "bip38",
+        "electrum-phrase",
+    ];
+
+    /// Snapshot of `SECRET_SLOT_SUBKEYS` from v0.3.3.
+    pub const SECRET_SLOT_SUBKEYS: &[&str] = &["phrase", "entropy", "xprv", "wif"];
+}
+
+// Compile-time supply-chain guard: the v0.3.3 snapshot must equal the
+// toolkit-imported constants. If a future GUI Cargo.toml tag bump
+// resolves to a toolkit release with different SECRET_* arrays, this
+// `const _: () = assert!(...)` block fails to compile and the maintainer
+// must explicitly acknowledge the change (drift gate). To drop the
+// belt-and-suspenders in v0.5.0, delete `v0_3_canonical_fallback` mod
+// and these two assertions.
+const _: () = assert!(
+    secret_slice_eq(
+        SECRET_NODE_TYPES,
+        v0_3_canonical_fallback::SECRET_NODE_TYPES,
+    ),
+    "supply-chain drift: mnemonic_toolkit::secret_taxonomy::SECRET_NODE_TYPES \
+     diverged from the v0.3.3 committed snapshot. Either update \
+     v0_3_canonical_fallback::SECRET_NODE_TYPES to match the new toolkit \
+     pin (and document the change in CHANGELOG), or revert the toolkit \
+     dep tag bump.",
+);
+const _: () = assert!(
+    secret_slice_eq(
+        SECRET_SLOT_SUBKEYS,
+        v0_3_canonical_fallback::SECRET_SLOT_SUBKEYS,
+    ),
+    "supply-chain drift: mnemonic_toolkit::secret_taxonomy::SECRET_SLOT_SUBKEYS \
+     diverged from the v0.3.3 committed snapshot. Either update \
+     v0_3_canonical_fallback::SECRET_SLOT_SUBKEYS to match the new toolkit \
+     pin (and document the change in CHANGELOG), or revert the toolkit \
+     dep tag bump.",
+);
+
+/// Const-compatible `&[&str]` equality. Stable Rust does not implement
+/// `==` for slices in `const` context; this is the standard workaround.
+const fn secret_slice_eq(a: &[&str], b: &[&str]) -> bool {
+    if a.len() != b.len() {
+        return false;
+    }
+    let mut i = 0;
+    while i < a.len() {
+        if !const_str_eq(a[i], b[i]) {
+            return false;
+        }
+        i += 1;
+    }
+    true
+}
+
+const fn const_str_eq(a: &str, b: &str) -> bool {
+    let a = a.as_bytes();
+    let b = b.as_bytes();
+    if a.len() != b.len() {
+        return false;
+    }
+    let mut i = 0;
+    while i < a.len() {
+        if a[i] != b[i] {
+            return false;
+        }
+        i += 1;
+    }
+    true
+}
 
 use zeroize::Zeroize;
 
@@ -31,7 +135,8 @@ pub fn flag_is_secret(flag: &FlagSchema) -> bool {
     flag.secret || SECRET_FLAG_NAMES.contains(&flag.name)
 }
 
-/// True iff `subkey` is in the build.rs-generated secret-class set.
+/// True iff `subkey` is in the toolkit-imported secret-class set
+/// (`mnemonic_toolkit::secret_taxonomy::SECRET_SLOT_SUBKEYS`).
 pub fn slot_subkey_is_secret(subkey: SlotSubkey) -> bool {
     SECRET_SLOT_SUBKEYS.contains(&subkey.as_str())
 }

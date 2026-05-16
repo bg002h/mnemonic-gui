@@ -24,7 +24,7 @@ jobs:
         run: |
           cargo install --locked \
             --git https://github.com/bg002h/mnemonic-toolkit \
-            --tag mnemonic-toolkit-v0.13.0 \
+            --tag mnemonic-toolkit-v0.14.0 \
             mnemonic-toolkit
 
       - name: install-md-cli
@@ -48,13 +48,13 @@ jobs:
             --tag mk-cli-v0.3.1 \
             mk-cli
 
-      - name: clone-upstream-mnemonic-toolkit
-        run: |
-          mkdir -p /tmp/upstream
-          git clone --depth 1 \
-            --branch mnemonic-toolkit-v0.13.0 \
-            https://github.com/bg002h/mnemonic-toolkit \
-            /tmp/upstream/mnemonic-toolkit
+      # v0.4.0: `clone-upstream-mnemonic-toolkit` step retired. The
+      # GUI no longer scrapes upstream source via syn (build.rs was
+      # deleted in v0.4.0; secret-class taxonomy is now imported from
+      # `mnemonic_toolkit::secret_taxonomy` per the v0.14.0 toolkit
+      # release). The `MNEMONIC_GUI_UPSTREAM_ROOT` env var has no
+      # remaining consumer in the test tree (`tests/fixtures/` is
+      # vendored; `tests/schema_mirror.rs::source_audit` was deleted).
 
       - name: smoke-gui-schema-mnemonic
         run: mnemonic gui-schema | python3 -c "import json,sys; d=json.load(sys.stdin); assert d['version']==1 and d['cli']=='mnemonic', d"
@@ -70,26 +70,22 @@ jobs:
 
       - name: cargo-test-schema-mirror
         env:
-          MNEMONIC_GUI_UPSTREAM_ROOT: /tmp/upstream/mnemonic-toolkit
           MNEMONIC_BIN: mnemonic
           MD_BIN: md
           MS_BIN: ms
           MK_BIN: mk
         run: cargo test --test schema_mirror
 
-      - name: cargo-test-secrets-canonical-fallback
-        # GHSA-class drift gate: the committed canonical-fallback SECRET_*
-        # arrays in build.rs MUST match the upstream is_secret_bearing()
-        # impls. An empty SECRET_* set silently disables
-        # persistence::redact_for_persistence, causing BIP-39 phrases to
-        # persist to state.json in plaintext. Regression of v0.3.0..0.3.2.
-        env:
-          MNEMONIC_GUI_UPSTREAM_ROOT: /tmp/upstream/mnemonic-toolkit
-        run: cargo test --test secrets_canonical_fallback -- --include-ignored
+      # v0.4.0: cargo-test-secrets-canonical-fallback step retired —
+      # the GUI no longer scrapes upstream secret-class taxonomy via
+      # build.rs. SECRET_* is now imported from mnemonic-toolkit's
+      # pub mod secret_taxonomy (v0.14.0+); the toolkit owns the
+      # parity-test enforcement at its own build time. The GUI-side
+      # backstop lives in tests/secret_taxonomy_pin.rs (runs as part
+      # of cargo-test-full-suite below; no env-var needed).
 
       - name: cargo-test-full-suite
         env:
-          MNEMONIC_GUI_UPSTREAM_ROOT: /tmp/upstream/mnemonic-toolkit
           MNEMONIC_BIN: mnemonic
           MD_BIN: md
           MS_BIN: ms

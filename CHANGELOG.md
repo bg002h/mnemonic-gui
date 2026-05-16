@@ -3,6 +3,129 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## [0.4.0] — 2026-05-16
+
+### Structural fix — retire `build.rs` source-walker; consume `mnemonic_toolkit::secret_taxonomy`
+
+Architect-recommended Option A from the cross-repo FOLLOWUP entries
+(`secret-taxonomy-public-api-promotion` on the toolkit side,
+`secret-taxonomy-public-api-consumption` here). Replaces v0.3.3's
+tactical patch (committed `CANONICAL_FALLBACK_*` arrays in
+`build.rs`) with the durable architectural fix.
+
+### What changed
+
+- **NEW**: `mnemonic-toolkit = { git = "...", tag =
+  "mnemonic-toolkit-v0.14.0" }` added to `Cargo.toml` `[dependencies]`.
+  Pulls in the toolkit's new `pub mod secret_taxonomy` module which
+  exports `SECRET_NODE_TYPES` + `SECRET_SLOT_SUBKEYS` as compile-time
+  contracts.
+
+- **DELETED**: `build.rs` (the entire syn-based upstream-source walker).
+  Was previously the source of the v0.3.0..v0.3.2 HIGH-severity bug:
+  cargo-install sandboxes had no adjacent toolkit checkout, so the
+  walker fell back to a `write_stub()` that emitted empty `&[]`
+  arrays, silently disabling `persistence::redact_for_persistence`
+  and leaking BIP-39 phrases to `state.json` in plaintext.
+
+- **DELETED**: `tests/secrets_canonical_fallback.rs` (the v0.3.3 drift
+  gate). Superseded by the toolkit's own per-variant parity tests at
+  build time (`mnemonic-toolkit-v0.14.0` `secret_taxonomy_parity_tests`).
+
+- **DELETED**: `[build-dependencies]` block in `Cargo.toml`. The
+  `syn`/`quote`/`proc-macro2` crates are still in `[dev-dependencies]`
+  because `tests/schema_mirror.rs` continues to re-parse upstream
+  clap-derive flag surfaces for the flag-name parity gate.
+
+- **CHANGED**: `src/secrets.rs`. The `include!(concat!(env!("OUT_DIR"),
+  "/secrets_generated.rs"));` codegen line is replaced by:
+  ```rust
+  pub use mnemonic_toolkit::secret_taxonomy::{SECRET_NODE_TYPES, SECRET_SLOT_SUBKEYS};
+  ```
+  Downstream consumers (`persistence::redact_for_persistence`,
+  `secrets::slot_subkey_is_secret`, etc.) consume the toolkit-imported
+  constants unchanged.
+
+- **NEW**: compile-time supply-chain guard. A `const _: () =
+  assert!(...)` block in `src/secrets.rs` asserts that the imported
+  `SECRET_*` arrays equal the v0.3.3-committed `CANONICAL_FALLBACK_*`
+  snapshot (preserved in `mod v0_3_canonical_fallback`). Catches a
+  supply-chain class of regression where the toolkit dep tag could
+  resolve to a build with different `SECRET_*` arrays. Maintainers
+  who deliberately bump the SECRET_* set must also update the
+  snapshot (or the build fails). One-cycle belt-and-suspenders per the
+  architect's recommendation; will be removed in v0.5.0.
+
+- **NEW**: `tests/secret_taxonomy_pin.rs` — four runtime backstop
+  tests asserting `SECRET_*` non-empty and contains the four
+  BIP-39-class entries (`phrase`, `entropy`, `xprv`, `wif`). Runs
+  under default `cargo test` with no env-var requirements; replaces
+  the `secrets_canonical_fallback.rs` `#[ignore]`-gated drift gate.
+
+- **CHANGED**: `.github/workflows/schema-mirror.yml` — the
+  `cargo-test-secrets-canonical-fallback` step is retired. Backstop
+  testing now runs as part of `cargo-test-full-suite`.
+
+- **CHANGED**: `pinned-upstream.toml` — `[mnemonic].tag` is now
+  documentary only. Load-bearing toolkit version pin lives in
+  `Cargo.toml`'s `[dependencies]` table; both should bump in lockstep.
+
+### Why this matters
+
+End users running `cargo install --git mnemonic-gui` get a binary
+that **correctly redacts secret slot rows and node-value composites
+before persisting session state**, by compile-time guarantee. There
+is no longer a code path through which the redaction filter can
+silently become a no-op due to missing build-time environment setup.
+The v0.3.0..v0.3.2 stub-fallback class of bug is structurally
+impossible in v0.4.0+.
+
+### User action
+
+Re-install via:
+```
+./scripts/install.sh mnemonic-gui --from-git --force
+```
+Existing `~/.config/mnemonic-gui/state.json` files written by v0.3.3
+are safe (v0.3.3 also redacted correctly). Files written by
+v0.3.0..v0.3.2 may contain secret material — delete them if you used
+any of those versions with `--slot @N.<phrase|entropy|xprv|wif>=…` or
+`--from <phrase|entropy|xprv|wif|ms1|bip38|electrum-phrase>=…`:
+```
+rm -i ~/.config/mnemonic-gui/state.json
+```
+
+### Closes
+
+`secret-taxonomy-public-api-consumption` (GUI half of the cross-repo
+lockstep work). Companion: `mnemonic-toolkit` v0.14.0 (tag
+`mnemonic-toolkit-v0.14.0`, commit `1a52612`) closed
+`secret-taxonomy-public-api-promotion`.
+
+### Reviewer trail
+
+- Architect dispatch (opus): produced the Option A migration sketch
+  in the cross-repo FOLLOWUP entries.
+- R1 toolkit review (opus): caught a Critical (the original
+  `every_*_variant` closure+driver pattern was not load-bearing —
+  arm-only extension could escape parity tests).
+- R2 toolkit review (opus): LOCK with-1-folded; the v0.14.0 fix was
+  restructured around a declarative macro pattern that ties the
+  variant array and exhaustiveness check to a single input.
+- R1 GUI review (opus): caught a Critical missed deletion —
+  `tests/schema_mirror.rs::source_audit` mod (250 LOC) +
+  `tests/fixtures/mutated_convert.rs` were the OLDER Phase 7 audit
+  re-doing the same source-walker pattern that this release's
+  CHANGELOG claimed to retire, against a stale v0.13.0 toolkit
+  clone. Plus five Important findings (stale comments in
+  `src/persistence.rs` / `src/secrets.rs:138` / `tests/persistence.rs:303` /
+  `tests/secrets.rs:241`; dead `[upstream]` table in
+  `pinned-upstream.toml`; orphan `MNEMONIC_GUI_UPSTREAM_ROOT` coupling
+  in `tests/runner_integration.rs` — fixture is now vendored at
+  `tests/fixtures/coldcard_generic_bip84_mainnet.json`; misleading
+  initial reviewer-trail framing in this CHANGELOG; lingering env
+  var on `cargo-test-full-suite`). All six folded in the same commit.
+
 ## [0.3.3] — 2026-05-15
 
 ### Security fix — persistence-redaction bypass in cargo-install builds

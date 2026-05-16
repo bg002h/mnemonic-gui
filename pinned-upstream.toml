@@ -1,28 +1,25 @@
 # pinned-upstream.toml — schema-mirror pin map (SPEC §11)
 #
 # Consumed by:
-#   1. build.rs codegen of SECRET_NODE_TYPES / SECRET_SLOT_SUBKEYS (Phase 7).
-#   2. .github/workflows/schema-mirror.yml CI gate (Phase 9).
-#   3. src/schema_check.rs runtime soft-check (Phase 9).
+#   1. .github/workflows/schema-mirror.yml CI gate (Phase 9).
+#   2. src/schema_check.rs runtime soft-check (Phase 9).
 #
-# Resolution order for build.rs (SPEC §B.11):
-#   1. MNEMONIC_GUI_UPSTREAM_ROOT env var (overrides everything).
-#   2. [upstream].checkout-root field (relative to mnemonic-gui repo root).
-#   3. target/upstream/<tag>/ auto-clone — ONLY when
-#      MNEMONIC_GUI_ALLOW_UPSTREAM_CLONE=1 is set (opt-in for offline-
-#      friendly builds).
-#   4. Stub fallback: empty SECRET_* constants + cargo:warning= banner.
-
-[upstream]
-# Empty = use resolution-order steps 1, 3, 4.
-# Local dev convenience: set this to your local mnemonic-toolkit checkout
-# (e.g., "/scratch/code/shibboleth/mnemonic-toolkit") OR export
-# MNEMONIC_GUI_UPSTREAM_ROOT before running cargo.
-checkout-root = ""
+# v0.4.0 update: the [mnemonic].tag field is now documentary only.
+# Prior to v0.4.0 the GUI's build.rs scraped the toolkit's private
+# source for SECRET_NODE_TYPES / SECRET_SLOT_SUBKEYS at the pinned
+# tag, with a stub fallback that emitted empty arrays under cargo
+# install --git sandboxes (HIGH-severity persistence-leak bug; see
+# CHANGELOG v0.3.3 + v0.4.0). build.rs is now deleted. The toolkit
+# dependency tag pin lives in Cargo.toml's [dependencies] table
+# (the load-bearing pin); the tag here is kept for cross-cite
+# parity with sibling-repo FOLLOWUPS and the schema-mirror flag-name
+# parity gate that still re-parses upstream clap-derive surfaces.
 
 [mnemonic]
 url = "https://github.com/bg002h/mnemonic-toolkit"
-tag = "mnemonic-toolkit-v0.13.0"
+# Cross-cite with Cargo.toml's [dependencies] mnemonic-toolkit tag.
+# Both should bump in lockstep when the toolkit is upgraded.
+tag = "mnemonic-toolkit-v0.14.0"
 bin = "mnemonic"
 workspace-member-path = "crates/mnemonic-toolkit"
 # v0.2 Phase C.1: GUI consults `<cli> gui-schema` JSON path when true;

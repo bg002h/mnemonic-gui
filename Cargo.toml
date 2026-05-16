@@ -1,6 +1,6 @@
 [package]
 name = "mnemonic-gui"
-version = "0.3.3"
+version = "0.4.0"
 edition = "2021"
 rust-version = "1.85"
 license = "MIT"
@@ -24,6 +24,16 @@ shlex = "1"
 # v0.2 since the GUI now reads the pinned table at runtime to decide
 # the regex vs gui-schema-JSON path per CLI.
 toml = "0.8"
+# v0.4.0: replaces the v0.3.x build.rs source-walker. Provides the
+# canonical SECRET_NODE_TYPES + SECRET_SLOT_SUBKEYS public constants
+# used by `persistence::redact_for_persistence` to strip secret-class
+# slot rows and node-value composites before serializing session state.
+# Retiring the source-walker eliminates the v0.3.0..v0.3.2 stub-fallback
+# class of bug (empty SECRET_* arrays under `cargo install --git`
+# sandboxes → BIP-39 phrases leaked to state.json). See toolkit
+# `secret-taxonomy-public-api-promotion` FOLLOWUP for the full
+# architectural rationale.
+mnemonic-toolkit = { git = "https://github.com/bg002h/mnemonic-toolkit", tag = "mnemonic-toolkit-v0.14.0" }
 
 [target.'cfg(unix)'.dependencies]
 signal-hook = "0.3"
@@ -47,14 +57,12 @@ version = "0.6"
 
 [dev-dependencies]
 tempfile = "3"
+# v0.4.0: syn / quote / proc-macro2 retained because tests/schema_mirror.rs
+# still re-parses upstream clap-derive flag surfaces. The persistence-class
+# secret-walker that used these in build.rs is retired in favor of the
+# toolkit's pub mod secret_taxonomy.
 syn = { version = "2", features = ["full", "extra-traits"] }
 quote = "1"
 proc-macro2 = "1"
 toml = "0.8"
 egui_kittest = "0.31"
-
-[build-dependencies]
-syn = { version = "2", features = ["full", "extra-traits"] }
-quote = "1"
-proc-macro2 = "1"
-toml = "0.8"
