@@ -3,6 +3,21 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## [0.4.2] — 2026-05-16
+
+### Bug fix — bump toolkit dep to v0.14.2 (slip39 lib-internal mlock cfg-gate)
+
+v0.4.1 bumped the toolkit dep to v0.14.1 expecting Windows builds
+to pass. They didn't: v0.14.1's lib-cross-platform Windows CI job
+caught FOUR additional `crate::mlock::*` call sites inside
+`src/slip39/mod.rs` that v0.14.1's `lib.rs` cfg-gate missed.
+mnemonic-gui v0.4.1 Windows CI (run 25952017502) inherited the
+same failure: `error[E0433]: failed to resolve: could not find
+'mlock' in the crate root` at slip39/mod.rs:159 + :314.
+
+v0.14.2 cfg-gates the four slip39 call sites; this release just
+pulls in the fix.
+
 ## [0.4.1] — 2026-05-16
 
 ### Bug fix — bump toolkit dep to v0.14.1 (Windows-compatible lib)
