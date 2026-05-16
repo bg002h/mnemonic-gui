@@ -57,16 +57,16 @@ jobs:
       # vendored; `tests/schema_mirror.rs::source_audit` was deleted).
 
       - name: smoke-gui-schema-mnemonic
-        run: mnemonic gui-schema | python3 -c "import json,sys; d=json.load(sys.stdin); assert d['version']==1 and d['cli']=='mnemonic', d"
+        run: mnemonic gui-schema | python3 -c "import json,sys; d=json.load(sys.stdin); assert d['version']>=1 and d['cli']=='mnemonic', d"
 
       - name: smoke-gui-schema-md
-        run: md gui-schema | python3 -c "import json,sys; d=json.load(sys.stdin); assert d['version']==1 and d['cli']=='md', d"
+        run: md gui-schema | python3 -c "import json,sys; d=json.load(sys.stdin); assert d['version']>=1 and d['cli']=='md', d"
 
       - name: smoke-gui-schema-ms
-        run: ms gui-schema | python3 -c "import json,sys; d=json.load(sys.stdin); assert d['version']==1 and d['cli']=='ms', d"
+        run: ms gui-schema | python3 -c "import json,sys; d=json.load(sys.stdin); assert d['version']>=1 and d['cli']=='ms', d"
 
       - name: smoke-gui-schema-mk
-        run: mk gui-schema | python3 -c "import json,sys; d=json.load(sys.stdin); assert d['version']==1 and d['cli']=='mk', d"
+        run: mk gui-schema | python3 -c "import json,sys; d=json.load(sys.stdin); assert d['version']>=1 and d['cli']=='mk', d"
 
       - name: cargo-test-schema-mirror
         env:

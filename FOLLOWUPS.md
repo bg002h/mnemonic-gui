@@ -7,6 +7,15 @@ mirrors it.
 
 ## Active
 
+### gui-conditional-applicability-drift-fix
+
+- **Surfaced:** 2026-05-16, GUI conditional-applicability v1 cycle. Motivating bug: GUI bundle form default state (template = `bip84`, single-sig) emitted `--threshold 1 --multisig-path-family bip48` which the CLI rejected with SPEC §6.6 byte-exact errors (`crates/mnemonic-toolkit/src/cmd/bundle.rs:120, 207-220`).
+- **Where:** `src/form/conditional.rs` (P2 — ~14 NEW rules across `bundle` / `verify-bundle` / `export-wallet` / `derive-child`); `src/form/invocation.rs` (P3 — visibility gate at top of per-flag loop; both Hidden + Disabled suppress emission, Required does not); `tests/gui_schema_conditional_drift.rs` (P4 — NEW drift gate consuming toolkit `mnemonic gui-schema` JSON v2 `conditional_rules`); `src/main.rs:197-206` (P5 — removed `--multisig-path-family bip87` default seed); `src/schema_check.rs` (P1 lockstep — `parse_gui_schema_conditional_rules` + relax `parse_gui_schema_json` version gate from `!= 1` to `< 1`); `.github/workflows/schema-mirror.yml:60-69` (CI smoke-step gate relaxed from `==1` to `>=1` per SPEC §6.10.6 additive-bump policy).
+- **What:** Cross-repo mechanism + comprehensive rule coverage. Consumes toolkit-emitted `conditional_rules` JSON v2 (SPEC §6.10 Predicate AST + Effect grammar + drift invariant). Adds ~14 NEW per-frame visibility rules. Extends `assemble_argv` with visibility gate. Latent-bug fix: typed-then-mutex-disabled secret values (e.g., user types `--passphrase=foo` then sets `--passphrase-stdin`) are now suppressed at argv emission per the visibility gate.
+- **Status:** `open` (in-progress this cycle; pending v0.5.0 tag-cut → flip to `resolved <tag-commit-SHA>`)
+- **Tier:** `cross-repo`
+- **Companion:** `bg002h/mnemonic-toolkit` `design/FOLLOWUPS.md` entry `gui-schema-conditional-rules-v1` (in-progress, same cycle).
+
 ### mnemonic-gui-schema-mirror
 
 **What:** The `mnemonic-gui` GUI maintains a schema (per-CLI flag surface
