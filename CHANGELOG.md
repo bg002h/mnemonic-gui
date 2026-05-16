@@ -3,6 +3,156 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## [0.6.0] — 2026-05-16
+
+### Added — SPEC §6.10 v3 consumer (pin_value Effect + slot_count predicates + meta.template_groups)
+
+Consumes `mnemonic-toolkit v0.17.0`'s schema-v3 `gui-schema` output.
+Schema-version contract bumps 2 → 3 in lockstep with the toolkit;
+back-compat preserved for the v2 wire shape per SPEC §6.10.6 (all
+existing predicate kinds + bare-string Visibility variants still
+deserialize bit-identically).
+
+#### Phases shipped this cycle
+
+- **P2 / P5** (`9d447d0`) — Predicate / Effect consumer + drift-gate
+  extension.
+  - `schema_check.rs::Predicate` gains `SlotCountEq` / `SlotCountGte` /
+    `SlotCountLte` variants mirroring the toolkit's v3
+    predicate-machinery (toolkit-side dead-code; emitted in the JSON
+    schema-as-types, never in actual rules at v0.17.0).
+  - `schema_check.rs::VisibilityProjection` gains
+    `PinValue { value: serde_json::Value }`. Custom Deserialize
+    accepts both v2 bare-string (`"hidden"` / `"disabled"` /
+    `"required"`) and v3 tagged-object
+    (`{"pin_value": {"value": V}}`) wire shapes. `Copy` dropped
+    (`Value` isn't `Copy`); downstream consumers clone.
+  - `schema::Visibility` (GUI-internal) +`PinValue` in lockstep;
+    `Copy` dropped.
+  - `FormState::slot_count()` accessor returning `slots.rows.len()`
+    wires the Predicate evaluation path for `SlotCount*`.
+  - `form::conditional::bundle()` pushes the SPEC §6.10.7 row 12
+    rule when `--descriptor` is present:
+    `("--account", Visibility::PinValue { value: json!(0) })`.
+  - `form::invocation::assemble_argv` extended with a `PinValue`
+    emission path — REPLACES the user-typed value before emit
+    (vs Hidden/Disabled which suppress entirely). The visibility
+    gate now executes the 3-way semantic per SPEC §6.10.4.
+  - `tests/gui_schema_conditional_drift.rs::synthesize_satisfying`
+    gains `SlotCount{Eq,Gte,Lte}` arms via a `set_slot_count`
+    helper. `vis_to_visibility` extended with `PinValue` arm.
+
+- **P3** (`84a69b8`) — `FlagValue::Unset` sentinel for
+  Number / Range / Timestamp / TaggedOrIndexed widgets.
+  - Numeric / structured-value widgets previously auto-seeded to a
+    concrete value (`Number(min)`, `Range(0, 999)`, etc.) the
+    moment they rendered; the auto-seeded value would then emit as
+    `--<flag> <min>` into argv even when the user hadn't touched
+    the widget. Bogus argv noise to the downstream CLI.
+  - `FlagValue::Unset` (unit variant with `#[serde(other)]` for
+    forward-compat) is the new default for those four kinds.
+    `flag_value_is_present(Unset)` returns false → conditional fns
+    + argv assembler treat Unset uniformly as absent.
+  - `seeded_value_for(kind)` helper returns the kind-specific
+    concrete seed (`Number(min)` etc.) used when the user clicks
+    the new `Set` affordance on an Unset widget. The seeded
+    widget also gains a small `✕` clear button that returns to
+    Unset.
+  - Persistence-schema delta: forward-compat preserved via
+    `#[serde(other)]`; v0.5 readers (no Unset variant) CANNOT
+    deserialize a v0.6 state.json that contains Unset entries —
+    serde rejects the unknown tag and state-load fails (user sees
+    a fresh form on first launch of v0.5 post-downgrade). Schema
+    version intentionally NOT bumped — additive on the wire +
+    bounded downgrade impact.
+
+- **P4** (`538dc70`) — template-aware default form-state seed.
+  - `form::conditional::template_defaults_for(template)` returns
+    template-specific defaults: empty for single-sig
+    (`bip44`/`bip49`/`bip84`/`bip86`); `[(--threshold, Number(2)),
+    (--multisig-path-family, Dropdown("bip48"))]` for multisig
+    templates (`wsh-multi`/`wsh-sortedmulti`/`tr-multi-a`/
+    `tr-sortedmulti-a`). `bip48` is the canonical multisig path
+    family; threshold-of-2 the smallest non-degenerate threshold.
+  - `MnemonicGuiApp` gains a `last_template: BTreeMap<String,
+    Option<String>>` field. Per-frame hook in `update()` detects
+    `--template` transitions and applies
+    `template_defaults_for(new_template)` ONLY to absent flags
+    (seed-on-empty discipline — user-typed values preserved
+    across template switches; never overwrites, never clears, no
+    undo affordance needed). The visibility gate handles the
+    inverse direction (single-sig template → Disabled
+    threshold/path-family).
+  - Closes the v0.16.0 `gui-default-form-state-template-aware-seed`
+    FOLLOWUP — the previous `--multisig-path-family = bip87`
+    hardcoded seed was REMOVED at v0.16.0 P5; v0.6.0 introduces
+    the proper template-aware replacement.
+
+#### SPEC reference
+
+`mnemonic-toolkit/design/SPEC_mnemonic_toolkit_v0_5.md` §6.10 (v3
+extensions landed at `a26c809` toolkit-side):
+  - §6.10.2: three new Predicate kinds (`slot_count_eq`/`gte`/`lte`).
+  - §6.10.3: `pin_value` Visibility variant + wire-format details.
+  - §6.10.4: Visibility-to-emission mapping table (NEW —
+    enumerates per-visibility argv-emit semantic; PinValue is the
+    only effect that produces argv with a value distinct from the
+    user's input).
+  - §6.10.6: version contract 2 → 3 + back-compat guarantee.
+  - §6.10.7: row 12 (DESCRIPTOR_WITH_NONZERO_ACCOUNT) flipped
+    DEFERRED → ENCODED v2 using pin_value.
+  - §6.10.8 (NEW): per-subcommand meta-fields documentation
+    (`meta.template_groups` is the first such field).
+
+#### Closes FOLLOWUPS (5)
+
+- `gui-schema-numeric-flag-value-pin-effect` (cross-repo —
+  pin_value Effect grammar shipped both sides).
+- `gui-schema-template-groups-meta-field` (cross-repo — toolkit
+  emits `meta.template_groups`; GUI's `SINGLE_SIG_TEMPLATES` const
+  retained as runtime source-of-truth gated by a new const-vs-meta
+  parity test at
+  `tests/schema_mirror.rs::single_sig_templates_const_matches_meta_template_groups`).
+- `gui-schema-runtime-conditional-projection` (cross-repo —
+  partial: predicate-machinery shipped; full encoding of SPEC §6.6
+  rows 9/10/11 still deferred per §6.10.7 closing list, tracked
+  going forward at NEW FOLLOWUP
+  `gui-schema-effect-on-dropdown-options-vocab`).
+- `gui-default-form-state-template-aware-seed` (gui-only — P4).
+- `gui-number-widget-unset-sentinel` (gui-only — P3).
+
+#### Files new FOLLOWUPS
+
+- `gui-schema-effect-on-dropdown-options-vocab` (cross-repo) —
+  dropdown-option-disable Effect grammar needed to close §6.6
+  rows 9/10/11. Unblocked by this cycle's predicate-machinery.
+- `gui-schema-cross-slot-predicate-projection` (cross-repo) —
+  relational predicate types (cross-slot equality, all-distinct)
+  needed to close §6.6 rows 8/13/14.
+
+#### Verification
+
+- `cargo test --offline` → 24 test binaries, **220** passed, 0
+  failed, 1 ignored (was 187 at v0.5.1; +33 cells across this
+  cycle: +8 P2/P5, +14 P3, +5 P4, +6 schema_mirror v3 deserialize).
+- `MNEMONIC_BIN=<path>/v0.17/mnemonic cargo test --offline` →
+  same, with the drift gate
+  (`gui_schema_conditional_rules_match_hand_coded_conditionals`)
+  exercising 11 rules against the v0.17.0 binary (was 10 at
+  v0.5.x against v0.16.0; +1 new row 12 pin_value rule).
+- `cargo clippy --all-targets --offline` → no new lints from this
+  cycle (pre-existing lints in unrelated test files unchanged).
+- Bumps: `Cargo.toml [package].version 0.5.1 → 0.6.0`,
+  `[dependencies].mnemonic-toolkit tag mnemonic-toolkit-v0.16.0
+  → mnemonic-toolkit-v0.17.0` (commit `4758168`), Cargo.lock in
+  lockstep.
+
+#### Companion
+
+`bg002h/mnemonic-toolkit` v0.17.0 (`mnemonic-toolkit-v0.17.0`
+tag, commit `4758168`). The toolkit + GUI ship in lockstep
+per the cycle's tag-pair plan.
+
 ## [0.5.1] — 2026-05-16
 
 ### Changed — schema-mirror CI auto-tracks `pinned-upstream.toml`
