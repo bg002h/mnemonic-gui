@@ -198,6 +198,38 @@ read that for the deeper rationale.
    pattern): toolkit v0.14.0 PR + GUI v0.4.0 PR coordinated; both
    `Companion:` lines updated as each side closes.
 
+### `mnemonic-gui-cratesio-publish` — re-enable `cargo install mnemonic-gui` from crates.io (blocked by toolkit publish)
+
+**Companion:** `bg002h/mnemonic-toolkit/design/FOLLOWUPS.md` entry
+`mnemonic-toolkit-cratesio-publish` (blocking).
+
+**Surfaced:** 2026-05-16, post-v0.4.2 crates.io publish audit. v0.3.0
+and v0.3.1 were published to crates.io and SHIPPED THE BIP-39
+PERSISTENCE LEAK to any direct `cargo install mnemonic-gui` user;
+both versions are now yanked (2026-05-16 17:36 UTC, cargo audit
+records `bg002h` as the yanker). v0.3.2 / v0.3.3 / v0.4.0 / v0.4.1 /
+v0.4.2 were tagged but never published.
+
+**Where:** `Cargo.toml` line 36: `mnemonic-toolkit = { git = "...",
+tag = "mnemonic-toolkit-v0.14.2" }` is the publish-blocking dep.
+crates.io requires version-or-version+git/path; pure-git deps are
+forbidden in published crates.
+
+**What:** Once `mnemonic-toolkit` is on crates.io (toolkit-side
+FOLLOWUP), this entry's work is:
+1. Change the Cargo.toml dep from `{ git, tag }` to `{ version = "0.14" }` (or whatever the published version is).
+2. Verify the v0.3.3 supply-chain guard's `v0_3_canonical_fallback` snapshot still equals the crates.io toolkit's `SECRET_*` (it should, since the toolkit-version pin determines both).
+3. `cargo publish --dry-run` then `cargo publish` from `mnemonic-gui`.
+4. Toolkit `install.sh` flips `mnemonic-gui` from `cratesio=no` back to `cratesio=yes` so direct `cargo install mnemonic-gui` users get a binary that's structurally incapable of the v0.3.x leak class.
+
+**Why deferred:** Blocked by toolkit publish work; not blocking
+install-script users (`./scripts/install.sh mnemonic-gui --from-git
+--force` resolves through git+tag and already gets the latest fix).
+
+**Status:** `open` (blocked by `mnemonic-toolkit-cratesio-publish`).
+
+**Tier:** `v1+ / nice-to-have`.
+
 ## Deferred to v0.3+
 
 Named for explicit closure per SPEC §14. Carried forward from v0.1
