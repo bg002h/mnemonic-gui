@@ -169,6 +169,10 @@ fn ci_workflow_snapshot() {
     // Required step names (substring assertion — simpler + more
     // diff-resistant than full YAML parsing).
     let required_steps = [
+        // v0.5.1: workflow-pre step that loads `pinned-upstream.toml`
+        // and exports per-CLI tag values consumed by the install-*
+        // steps below. Single source of truth for sibling-CLI pins.
+        "parse-pinned-upstream",
         "install-mnemonic-toolkit",
         "install-md-cli",
         "install-ms-cli",
@@ -193,24 +197,39 @@ fn ci_workflow_snapshot() {
         );
     }
 
-    // Required pinned tags — the workflow installs the binaries that
-    // tests/schema_mirror.rs cells run against. If the pin drifts
-    // here without the schema also drifting, the CI gate fails.
+    // v0.5.1 v2-wiring: the workflow no longer hardcodes per-CLI
+    // install tags. The previous v0.4.0-era assertion block hardcoded
+    // four literal pin strings and inadvertently survived the v0.5.0
+    // cycle's toolkit-pin bump (v0.14.0 → v0.16.0) only because a
+    // comment in the workflow continued to mention `v0.14.0` —
+    // satisfying `body.contains("mnemonic-toolkit-v0.14.0")` as an
+    // incidental substring match while the actual pin was already
+    // v0.16.0. The v0.5.1 cycle removes those literal comments,
+    // surfacing the latent gap.
     //
-    // v0.4.0 bump: mnemonic-toolkit pin → v0.14.0 (the release with
-    // `pub mod secret_taxonomy` consumed by `src/secrets.rs`). All
-    // other pins unchanged from v0.3.x.
-    let required_tags = [
-        "mnemonic-toolkit-v0.14.0",
-        "descriptor-mnemonic-md-cli-v0.5.0",
-        "ms-cli-v0.2.1",
-        "mk-cli-v0.3.1",
+    // Post-v0.5.1 contract: tags flow from `pinned-upstream.toml` via
+    // the `parse-pinned-upstream` step's `steps.pins.outputs.<cli>_tag`.
+    // The drift gate at `tests/gui_schema_conditional_drift.rs` already
+    // enforces toolkit-source-vs-GUI-mirror parity for the toolkit;
+    // if the wrong toolkit tag is installed, that gate fails.
+    //
+    // We pin the v2 wiring here: each install step must reference its
+    // corresponding `steps.pins.outputs.<cli>_tag` env-var binding (per
+    // GitHub's hardening pattern for `${{ }}` substitution — see the
+    // `env:` block above each install step's `run:` script).
+    let required_pinned_upstream_refs = [
+        "steps.pins.outputs.mnemonic_tag",
+        "steps.pins.outputs.md_tag",
+        "steps.pins.outputs.ms_tag",
+        "steps.pins.outputs.mk_tag",
     ];
-    for tag in &required_tags {
+    for r in &required_pinned_upstream_refs {
         assert!(
-            body.contains(tag),
-            "schema-mirror.yml must pin tag `{}`",
-            tag
+            body.contains(r),
+            "schema-mirror.yml must reference `{}` (v0.5.1 v2 wiring; \
+             tag values flow from `pinned-upstream.toml` via the \
+             `parse-pinned-upstream` step)",
+            r
         );
     }
 

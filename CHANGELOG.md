@@ -29,6 +29,28 @@ class even though those entries are currently in lockstep.
 `schema-mirror-yml-toolkit-pin-tracks-pinned-upstream` (v2 cleanup
 half; v1 fold previously landed at `54865a7`).
 
+### Latent-bug fix (surfaced by this cycle)
+
+`tests/schema_mirror.rs::ci_workflow_snapshot` asserted four
+literal tag strings (`mnemonic-toolkit-v0.14.0`,
+`descriptor-mnemonic-md-cli-v0.5.0`, `ms-cli-v0.2.1`,
+`mk-cli-v0.3.1`) against the workflow body. The v0.5.0 cycle's
+fix-commit `54865a7` bumped the actual mnemonic-toolkit pin from
+v0.14.0 → v0.16.0 in the install-step's `--tag` literal, but left
+the surrounding comment block mentioning v0.14.0. The snapshot
+test's `body.contains("mnemonic-toolkit-v0.14.0")` continued to
+pass as an incidental comment substring match while the real pin
+had moved.
+
+The v0.5.1 v2 cleanup removes the literal tags from the workflow
+entirely, surfacing the gap. The snapshot test is refactored to
+assert the v2 wiring directly: `parse-pinned-upstream` step
+present, and each install step references its corresponding
+`steps.pins.outputs.<cli>_tag`. The drift gate at
+`tests/gui_schema_conditional_drift.rs` continues to enforce
+toolkit-source-vs-GUI-mirror parity for the toolkit pin
+specifically.
+
 ### Verification
 
 - `actionlint .github/workflows/*.yml` clean (workflow + all
@@ -37,11 +59,15 @@ half; v1 fold previously landed at `54865a7`).
   real `pinned-upstream.toml` emits the four expected tag values
   (`mnemonic-toolkit-v0.16.0`, `descriptor-mnemonic-md-cli-v0.5.0`,
   `ms-cli-v0.2.1`, `mk-cli-v0.3.1`).
+- `cargo test --test schema_mirror --offline ci_workflow_snapshot`
+  passes against the refactored assertions.
 - Master CI green post-push (schema-mirror + build + tag-CI runs).
 
 ### No source / behavior changes
 
-CI-only. No Rust code touched; no API surface delta.
+CI-only. No production Rust code touched; no API surface delta.
+The Rust touch is confined to `tests/schema_mirror.rs`
+(snapshot-test refactor in lockstep with the workflow surgery).
 
 ## [0.5.0] — 2026-05-16
 
