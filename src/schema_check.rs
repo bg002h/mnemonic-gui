@@ -64,7 +64,9 @@ fn load_pinned_upstream() -> Option<PinnedRoot> {
     toml::from_str::<PinnedRoot>(&body).ok()
 }
 
-/// SPEC §7 JSON shape for `<cli> gui-schema` output.
+/// SPEC §7 / §6.10 JSON shape for `<cli> gui-schema` output. The struct
+/// describes both v1 and v2 docs (v2 adds `conditional_rules` per subcommand;
+/// older fields unchanged). Version gating is done in the parse fns.
 #[derive(Debug, Deserialize)]
 struct GuiSchemaRoot {
     version: u32,
@@ -78,6 +80,11 @@ struct GuiSchemaSubcommand {
     name: String,
     #[serde(default)]
     flags: Vec<GuiSchemaFlag>,
+    /// SPEC §6.10 conditional-applicability projection (v2+). `#[serde(default)]`
+    /// makes v1 docs (which lack this field) deserialize cleanly to an empty
+    /// Vec — preserving the parse_gui_schema_json fast path.
+    #[serde(default)]
+    conditional_rules: Vec<ConditionalRule>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -89,11 +96,71 @@ struct GuiSchemaFlag {
     // does consume kind/choices) is a separate concern.
 }
 
+/// SPEC §6.10 ConditionalRule — projection of a single CLI mutex / conditional
+/// rule into the GUI's per-frame visibility computation. v2+ schema.
+#[derive(Debug, Deserialize, PartialEq, Eq, Clone)]
+pub struct ConditionalRule {
+    pub rationale: String,
+    pub spec_ref: String,
+    pub when: Predicate,
+    pub effect: Effect,
+}
+
+/// SPEC §6.10.2 Predicate AST (tagged JSON union).
+#[derive(Debug, Deserialize, PartialEq, Eq, Clone)]
+#[serde(tag = "kind", rename_all = "snake_case")]
+pub enum Predicate {
+    FlagPresent {
+        flag: String,
+    },
+    DropdownValueIn {
+        flag: String,
+        values: Vec<String>,
+    },
+    CompositeNodeIs {
+        flag: String,
+        node: String,
+    },
+    PositionalPresent {
+        index: usize,
+    },
+    AllOf {
+        predicates: Vec<Predicate>,
+    },
+    AnyOf {
+        predicates: Vec<Predicate>,
+    },
+    Not {
+        predicate: Box<Predicate>,
+    },
+}
+
+/// SPEC §6.10.3 Effect.
+#[derive(Debug, Deserialize, PartialEq, Eq, Clone)]
+pub struct Effect {
+    pub flag: String,
+    pub visibility: VisibilityProjection,
+}
+
+/// SPEC §6.10.3 VisibilityProjection. `Visible` is the implicit default and
+/// never appears as an Effect value.
+#[derive(Debug, Deserialize, PartialEq, Eq, Clone, Copy)]
+#[serde(rename_all = "lowercase")]
+pub enum VisibilityProjection {
+    Hidden,
+    Disabled,
+    Required,
+}
+
 /// Parse `<cli> gui-schema` JSON for a specific subcommand. Returns
 /// the per-subcommand flag-name set. Returns `None` if:
 ///   - The JSON does not parse.
-///   - `version != 1` (SPEC §7: GUI rejects other versions).
+///   - `version < 1` (illegal value; GUI rejects).
 ///   - The subcommand is not present in the JSON.
+///
+/// v2 (SPEC §6.10.6) bumps the schema version 1 → 2 additively. v1 consumers
+/// of THIS function continue to work on v2 docs — flag-name extraction
+/// ignores the new `conditional_rules` field.
 ///
 /// Pure function — does NOT shell out. Testable from unit tests with
 /// synthetic JSON.
@@ -102,15 +169,37 @@ pub fn parse_gui_schema_json(
     subcommand_name: &str,
 ) -> Option<BTreeSet<String>> {
     let root: GuiSchemaRoot = serde_json::from_str(json).ok()?;
-    if root.version != 1 {
+    if root.version < 1 {
         tracing::warn!(
-            "gui-schema JSON version mismatch: got {}, expected 1; falling back",
+            "gui-schema JSON version unsupported: got {}, expected >= 1; falling back",
             root.version
         );
         return None;
     }
     let sub = root.subcommands.iter().find(|s| s.name == subcommand_name)?;
     Some(sub.flags.iter().map(|f| f.name.clone()).collect())
+}
+
+/// Parse `<cli> gui-schema` JSON for the per-subcommand SPEC §6.10
+/// `conditional_rules` array. Returns `None` if:
+///   - The JSON does not parse.
+///   - `version < 2` (the field is only emitted by v2+ producers).
+///   - The subcommand is not present in the JSON.
+///
+/// Companion to `parse_gui_schema_json` (the flag-name extractor), gated at
+/// v2 minimum because pre-v2 docs lack the `conditional_rules` field
+/// entirely. v0.16.0 toolkit emits v2 docs; the drift gate test consumes
+/// this output.
+pub fn parse_gui_schema_conditional_rules(
+    json: &str,
+    subcommand_name: &str,
+) -> Option<Vec<ConditionalRule>> {
+    let root: GuiSchemaRoot = serde_json::from_str(json).ok()?;
+    if root.version < 2 {
+        return None;
+    }
+    let sub = root.subcommands.iter().find(|s| s.name == subcommand_name)?;
+    Some(sub.conditional_rules.clone())
 }
 
 /// SPEC §7 / Phase C.1: shell out to `<cli> gui-schema` (when the

@@ -326,11 +326,46 @@ fn schema_check_json_parse_returns_flag_names() {
 }
 
 #[test]
-fn schema_check_json_rejects_non_version_1() {
+fn schema_check_json_accepts_version_one_and_two() {
     use mnemonic_gui::schema_check::parse_gui_schema_json;
-    // SPEC §7: GUI rejects non-1 versions and falls back to regex path.
-    let json = r#"{"version":2,"cli":"md","subcommands":[]}"#;
-    assert!(parse_gui_schema_json(json, "encode").is_none());
+    // SPEC §6.10.6 (v0.16.0 v2 bump): the flag-name extractor accepts both
+    // v1 and v2 docs (v2 is additive: the new `conditional_rules` field is
+    // ignored by this function). Only version < 1 is rejected.
+    let v1 = r#"{"version":1,"cli":"md","subcommands":[
+        {"name":"encode","flags":[{"name":"--out","required":false,"kind":"path","choices":null}],"positionals":[]}
+    ]}"#;
+    let v2 = r#"{"version":2,"cli":"md","subcommands":[
+        {"name":"encode","flags":[{"name":"--out","required":false,"kind":"path","choices":null}],"positionals":[],"conditional_rules":[]}
+    ]}"#;
+    assert!(parse_gui_schema_json(v1, "encode").is_some(), "v1 accepted");
+    assert!(parse_gui_schema_json(v2, "encode").is_some(), "v2 accepted (additive)");
+    // Version 0 is illegal — fall back path.
+    let v0 = r#"{"version":0,"cli":"md","subcommands":[]}"#;
+    assert!(parse_gui_schema_json(v0, "encode").is_none(), "version < 1 rejected");
+}
+
+#[test]
+fn schema_check_conditional_rules_requires_v2() {
+    use mnemonic_gui::schema_check::parse_gui_schema_conditional_rules;
+    // SPEC §6.10.6: parse_gui_schema_conditional_rules requires version >= 2
+    // (the `conditional_rules` field is only emitted by v2+ producers).
+    let v1 = r#"{"version":1,"cli":"mnemonic","subcommands":[
+        {"name":"bundle","flags":[],"positionals":[]}
+    ]}"#;
+    assert!(
+        parse_gui_schema_conditional_rules(v1, "bundle").is_none(),
+        "v1 docs return None — predates SPEC §6.10"
+    );
+    let v2 = r#"{"version":2,"cli":"mnemonic","subcommands":[
+        {"name":"bundle","flags":[],"positionals":[],"conditional_rules":[
+            {"rationale":"r","spec_ref":"s","when":{"kind":"flag_present","flag":"--x"},
+             "effect":{"flag":"--y","visibility":"disabled"}}
+        ]}
+    ]}"#;
+    let rules = parse_gui_schema_conditional_rules(v2, "bundle")
+        .expect("v2 docs yield Some");
+    assert_eq!(rules.len(), 1);
+    assert_eq!(rules[0].effect.flag, "--y");
 }
 
 #[test]
