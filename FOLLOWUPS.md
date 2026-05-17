@@ -7,6 +7,36 @@ mirrors it.
 
 ## Active
 
+### `gui-schema-global-flag-emission` — toolkit-side: surface global flags in `mnemonic gui-schema` JSON per-subcommand
+
+- **Surfaced:** 2026-05-17, v0.22.x follow-ups cycle Phase A.1 execution (v0.9.0 catchup). Plan §5 R7 realized: Phase A.1 attempted to add `--no-auto-repair` to the 10 existing `*_FLAGS` arrays in `src/schema/mnemonic.rs` and the schema-mirror drift gate hard-failed. The toolkit's `mnemonic gui-schema` v4 JSON output (which the gate consumes as source-of-truth) does NOT emit global flags for any subcommand — only clap's per-subcommand `--help` TEXT propagates them. Phase A.0 reconnaissance only checked help-text propagation, missing the JSON gap.
+- **Where:** toolkit-side `crates/mnemonic-toolkit/src/cmd/gui_schema.rs` (the emitter that omits global flags); GUI-side `src/runner.rs::prepend_no_auto_repair` + `MnemonicGuiApp.no_auto_repair` field + action-bar checkbox in `src/main.rs` (the v0.9.0 fallback; ~30 LOC; load-bearing until toolkit-side fix lands).
+- **What:** Extend the toolkit's `cmd::gui_schema` JSON emitter to include global flags (e.g. `--no-auto-repair`, `--debug`, etc.) per-subcommand so downstream consumers can mirror them natively. Until then, mnemonic-gui v0.9.0 ships an action-bar `--no-auto-repair` checkbox (prepended to argv at spawn time via `runner::prepend_no_auto_repair`) as the load-bearing fallback. When toolkit emits global flags per-subcommand, GUI can drop the action-bar checkbox and surface `--no-auto-repair` in each subcommand's form natively.
+- **Why deferred:** R7 fallback is functionally complete; the toolkit-side emitter fix is a future cycle's mechanical extension. The action-bar checkbox UX is marginally worse (top-level vs per-form affordance) but not broken.
+- **Status:** open
+- **Tier:** `cross-repo`
+- **Companion:** `bg002h/mnemonic-toolkit` `design/FOLLOWUPS.md` entry `gui-schema-global-flag-emission` (toolkit-side primary).
+
+### `toolkit-mnemonic-force-tty-promote-from-test-only` — toolkit-side: promote `MNEMONIC_FORCE_TTY` env-var from test-only to first-class public contract
+
+- **Surfaced:** 2026-05-17, v0.22.x follow-ups cycle D23 lock execution (v0.9.0 catchup). Plan §5 R1 mitigation.
+- **Where:** GUI-side `src/runner.rs::run` (sets `MNEMONIC_FORCE_TTY=1` via `Command::env`); toolkit-side `crates/mnemonic-toolkit/src/cmd/verify_bundle.rs::run` doc-comment (classifies the env-var as test-only) + `crates/mnemonic-toolkit/src/cmd/{convert,inspect}.rs` (same env-var consumed via `is_terminal()` gate).
+- **What:** mnemonic-gui v0.9.0 sets `MNEMONIC_FORCE_TTY=1` in the toolkit subprocess env so that the toolkit's `std::io::stdout().is_terminal() && !no_auto_repair` auto-fire gate fires for GUI-spawned invocations (GUI subprocesses are piped, not TTY — without the env override the GUI would never see auto-fire repair reports from `convert` / `inspect` / `verify-bundle`). The env-var is currently documented test-only in toolkit's `verify_bundle::run` doc-comment. GUI consumption creates a load-bearing dependency on the env-var's behavior; promotion to a first-class public contract (with explicit semver guarantee on its semantics) would harden the GUI side against silent toolkit-internal refactors.
+- **Why deferred:** Functional risk is documentary, not behavioral; the env-var works correctly at toolkit v0.22.1. Toolkit-side promotion is a future cycle's documentation + semver-contract addition.
+- **Status:** open
+- **Tier:** `cross-repo`
+- **Companion:** `bg002h/mnemonic-toolkit` `design/FOLLOWUPS.md` entry `toolkit-mnemonic-force-tty-promote-from-test-only` (toolkit-side primary).
+
+### `clippy-test-target-cleanup` — `cargo clippy --workspace --all-targets -- -D warnings` fails on 8 pre-existing lints in test files
+
+- **Surfaced:** 2026-05-17, v0.22.x follow-ups cycle Phase A.1 execution. CI gates currently run `--lib --bins` only (not `--all-targets`); v0.9.0 builds + tests + lib/bin clippy all green. Test-target clippy errors verified as pre-existing via `git stash` + clippy on clean HEAD (before v0.9.0 work).
+- **Where:** `tests/manual_anchor_coverage.rs:25-27` (3 × overindented doc-list), `tests/slot_editor_contiguity.rs:24` (1 × `field_reassign_with_default`), `tests/conditional_visibility.rs:685` (1 × `len_zero`), plus 3 `doc_lazy_continuation` matches added by newer rustc/clippy releases.
+- **What:** A dedicated cleanup pass to fix all 8 test-target lints so `cargo clippy --workspace --all-targets -- -D warnings` runs clean. Optionally tighten CI gates to use `--all-targets` once the cleanup lands.
+- **Why deferred:** Test-only; lib/bin clippy stays clean; v0.9.0 cycle scope didn't include test-target lint cleanup. Filed for a dedicated cleanup pass.
+- **Status:** open
+- **Tier:** `v0.10+`
+- **Companion:** None — gui-only.
+
 ### gui-conditional-applicability-drift-fix
 
 - **Surfaced:** 2026-05-16, GUI conditional-applicability v1 cycle. Motivating bug: GUI bundle form default state (template = `bip84`, single-sig) emitted `--threshold 1 --multisig-path-family bip48` which the CLI rejected with SPEC §6.6 byte-exact errors (`crates/mnemonic-toolkit/src/cmd/bundle.rs:120, 207-220`).
