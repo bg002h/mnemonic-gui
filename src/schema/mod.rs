@@ -324,6 +324,25 @@ impl FormState {
         })
     }
 
+    /// v0.8.1 F3: Return the `Number` value (as i64) for `name`, or
+    /// `None` if the flag is absent / has a different FlagValue variant.
+    /// Mirrors `text_value` + `dropdown_value` shape; used by main.rs to
+    /// extract `--account` when threading the non-canonical default-path
+    /// hint through to `slot_editor::render`.
+    pub fn number_value(&self, name: &str) -> Option<i64> {
+        self.values.iter().find_map(|(k, v)| {
+            if k == name {
+                if let FlagValue::Number(n) = v {
+                    Some(*n)
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
+        })
+    }
+
     /// v0.6.0 SPEC §6.10.2 v3: total slot-row count. Used by
     /// `slot_count_eq` / `slot_count_gte` / `slot_count_lte` Predicate
     /// evaluation. Mirrors `slot_state.rows.len()` directly — no filter

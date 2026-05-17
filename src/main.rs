@@ -489,7 +489,75 @@ impl eframe::App for MnemonicGuiApp {
                             ));
                         }
                     });
-                    mnemonic_gui::form::slot_editor::render(ui, &mut state.slots);
+                    // v0.8.1 F3 — non-canonical-descriptor default-path
+                    // hint threading. Snapshot --descriptor / --network /
+                    // --account as owned values so the subsequent
+                    // mutable borrow of state.slots in slot_editor::render
+                    // doesn't conflict (FormState's accessors return
+                    // borrows tied to &state).
+                    //
+                    // v0.20.0 plan R0 I5 + Phase 3 R0 I2 fold: --account is
+                    // a u32 in the toolkit. If the FormState carries a
+                    // negative or out-of-u32-range i64 (a stale value, or
+                    // a future schema drift), SUPPRESS the banner + hint
+                    // entirely rather than silently coercing to 0 (which
+                    // would make the banner declare an account-0 path
+                    // while the form widget shows the user's typed value;
+                    // confusing + dishonest). Suppression is the more
+                    // truthful semantic — the CLI will reject the negative
+                    // value at run time anyway.
+                    let descriptor: String =
+                        state.text_value("--descriptor").unwrap_or("").to_string();
+                    let network: String = state
+                        .dropdown_value("--network")
+                        .unwrap_or("mainnet")
+                        .to_string();
+                    // Treat absence of --account as the implicit default
+                    // 0 (matches toolkit's BundleArgs::account default).
+                    // Out-of-u32-range values → None → banner/hint
+                    // suppressed.
+                    let account_opt: Option<u32> = match state.number_value("--account") {
+                        None => Some(0),
+                        Some(n) => u32::try_from(n).ok(),
+                    };
+                    let path_hint_string = match account_opt {
+                        Some(account)
+                            if !descriptor.is_empty()
+                                && mnemonic_gui::form::conditional::classify_descriptor_canonicity(
+                                    &descriptor,
+                                ) == mnemonic_gui::form::conditional::Canonicity::NonCanonical =>
+                        {
+                            let coin =
+                                mnemonic_gui::form::conditional::coin_type_for_network(
+                                    &network,
+                                );
+                            Some(format!("m/48'/{coin}'/{account}'/2'"))
+                        }
+                        _ => None,
+                    };
+                    let path_hint = path_hint_string.as_deref();
+                    mnemonic_gui::form::slot_editor::render(
+                        ui,
+                        &mut state.slots,
+                        path_hint,
+                    );
+                    // v0.8.1 F3 — non-canonical descriptor banner. Closes
+                    // the v0.19.0 I2 perceptibility gap; mirrors toolkit's
+                    // bundle.rs::emit_default_path_notice with literal
+                    // "@N" paraphrase (defaulted_indices computation
+                    // deferred per v0.20.0 plan R1 I1 fold).
+                    if let Some(banner) = account_opt.and_then(|account| {
+                        mnemonic_gui::form::conditional::descriptor_non_canonical_default_path_notice(
+                            &descriptor,
+                            &network,
+                            account,
+                        )
+                    }) {
+                        ui.colored_label(
+                            egui::Color32::from_rgb(96, 160, 220), // info-blue
+                            banner,
+                        );
+                    }
                     // v0.7.2 SPEC §6.6 rows 10/11 — GUI-internal
                     // template/slot_count mismatch warning (Option A
                     // pattern, mirrors row-8 contiguity warning inside

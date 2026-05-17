@@ -170,7 +170,14 @@ pub fn detect_slot_index_gaps(rows: &[SlotRow]) -> Vec<u8> {
 /// Render the SlotEditor inside a vertical scroll area (SPEC §B.4 R1 L-2:
 /// row-height ~32px, no virtualization in v0.1 — N ≤ 16 cosigners bounds
 /// the row count below the threshold where virtualization matters).
-pub fn render(ui: &mut egui::Ui, state: &mut SlotState) {
+///
+/// **v0.8.1 F3 — `path_hint`:** when Some, the per-row text-edit widget
+/// renders the hint string as a placeholder (`egui::TextEdit::hint_text`)
+/// whenever `row.subkey == SlotSubkey::Path` AND `row.value.is_empty()`.
+/// Pass None to preserve pre-v0.8.1 rendering. Main.rs computes the hint
+/// from `descriptor_non_canonical_default_path_notice`'s underlying
+/// machinery and threads it through here.
+pub fn render(ui: &mut egui::Ui, state: &mut SlotState, path_hint: Option<&str>) {
     egui::ScrollArea::vertical()
         .max_height(320.0) // ~10 rows at default row-height before scroll
         .show(ui, |ui| {
@@ -188,7 +195,16 @@ pub fn render(ui: &mut egui::Ui, state: &mut SlotState) {
                             }
                         });
                     ui.label("=");
-                    ui.text_edit_singleline(&mut row.value);
+                    match (row.subkey, path_hint) {
+                        (SlotSubkey::Path, Some(hint)) if row.value.is_empty() => {
+                            ui.add(
+                                egui::TextEdit::singleline(&mut row.value).hint_text(hint),
+                            );
+                        }
+                        _ => {
+                            ui.text_edit_singleline(&mut row.value);
+                        }
+                    }
                     if ui.button("✕").clicked() {
                         remove_idx = Some(i);
                     }

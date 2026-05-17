@@ -45,7 +45,7 @@ fn cell_1_slot_editor_add_remove_writeback() {
     let initial = SlotState::default();
     let mut harness = Harness::new_ui_state(
         |ui, state| {
-            slot_editor::render(ui, state);
+            slot_editor::render(ui, state, None);
         },
         initial,
     );

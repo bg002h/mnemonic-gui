@@ -282,6 +282,64 @@ pub fn bundle(state: &FormState) -> FlagVisibility {
 ///
 /// `template` is `None` when descriptor mode is active (`--template`
 /// disabled by the v0.16.0 mutex rule); the warning suppresses there.
+/// v0.8.1 F3 — `coin_type` for the `--network` dropdown value. Mirrors
+/// `mnemonic-toolkit::network::CliNetwork::coin_type` semantics inline
+/// (BIP-44 coin index: mainnet=0; all test networks=1). Inline mirror per
+/// the v0.20.0 plan §2 GUI row 2 — no full CliNetwork enum port needed
+/// since the GUI's dropdown already carries the network as a string.
+pub fn coin_type_for_network(network_str: &str) -> u32 {
+    match network_str {
+        "mainnet" => 0,
+        _ => 1, // testnet / signet / regtest
+    }
+}
+
+/// v0.8.1 F3 — non-canonical descriptor default-path-inference banner.
+/// Closes the v0.19.0 cycle's I2 perceptibility gap: CLI users see the
+/// `info: non-canonical descriptor; ...` stderr notice on default-path
+/// emission (`bundle.rs:1381-1402`); GUI users get the correct behavior
+/// but no visual cue. This helper produces a banner string for the GUI
+/// to render adjacent to the slot grid in `main.rs`.
+///
+/// **Banner text shape (paraphrase-accepted per v0.20.0 plan R1 I1 fold):**
+/// the toolkit emits `info: ... defaulting origin path for @0,@1,@2 to
+/// m/48'/0'/0'/2' (BIP-48 cosigner path). Override per-placeholder ...`
+/// with `idx_list` enumerating the actual defaulted `@N` indices. The GUI
+/// does NOT have descriptor-parse infrastructure to compute
+/// `defaulted_indices`, so we paraphrase using a literal "@N" reference;
+/// the substantive content (default path, BIP-48 convention, override
+/// mechanism) is preserved.
+///
+/// **Empty-descriptor guard (R3 mitigation):**
+/// `classify_descriptor_canonicity` returns `NonCanonical` for empty
+/// descriptor (v0.8.0 semantics; treats absence as the "more permissive"
+/// branch). This helper additionally gates on `!descriptor.is_empty()`
+/// so the banner doesn't fire on a fresh form before the user types.
+///
+/// **Strict-parity deferred:** a future FOLLOWUP would port
+/// `bundle.rs::expand_descriptor_with_default_path`'s `defaulted_indices`
+/// computation into the GUI (or surface it via a new
+/// `--classify-descriptor-verbose` toolkit flag returning the indices),
+/// then render the banner byte-for-byte against the stderr notice.
+pub fn descriptor_non_canonical_default_path_notice(
+    descriptor: &str,
+    network: &str,
+    account: u32,
+) -> Option<String> {
+    if descriptor.is_empty() {
+        return None;
+    }
+    if classify_descriptor_canonicity(descriptor) != Canonicity::NonCanonical {
+        return None;
+    }
+    let coin = coin_type_for_network(network);
+    Some(format!(
+        "ℹ non-canonical descriptor; missing-origin @N placeholders default to \
+         m/48'/{coin}'/{account}'/2' (BIP-48 cosigner path). Override per-placeholder \
+         with [fp/path]@N or --slot @N.path=m/..."
+    ))
+}
+
 pub fn template_slot_count_warning(
     template: Option<&str>,
     slot_count: usize,
