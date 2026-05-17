@@ -83,7 +83,26 @@ fn synthesize_satisfying(predicate: &Predicate, base: FormState) -> FormState {
             // `Text` is universally accepted by `has_value` though the
             // argv-emit path may reject it for non-text-kinded flags;
             // we don't emit here, just check visibility.
-            push_or_replace(base, flag, FlagValue::Text("exemplar".into()))
+            //
+            // v0.8.0 Phase 6 (SPEC §6.10.7 row 12 amendment): when the
+            // flag is `--descriptor`, the exemplar value MUST be a
+            // canonical descriptor — otherwise the GUI's
+            // canonicity-aware `bundle()` Option-A override at
+            // `form/conditional.rs:135-160` lifts the
+            // `--account → PinValue(0)` push, and the drift gate would
+            // see the pin missing (intentional Option-A divergence,
+            // not actual drift). Using `pkh(@0)` (canonical pkh single-
+            // key per md-codec's canonical_origin table) preserves the
+            // canonical-mode pin assertion. The non-canonical-mode
+            // override is exercised by a dedicated cell at
+            // `tests/non_canonical_descriptor_account_pin.rs` outside
+            // the schema drift gate.
+            let value = if flag == "--descriptor" {
+                "pkh(@0)".into()
+            } else {
+                "exemplar".into()
+            };
+            push_or_replace(base, flag, FlagValue::Text(value))
         }
         Predicate::DropdownValueIn { flag, values } => {
             let first = values

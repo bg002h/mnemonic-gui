@@ -24,6 +24,12 @@ shlex = "1"
 # v0.2 since the GUI now reads the pinned table at runtime to decide
 # the regex vs gui-schema-JSON path per CLI.
 toml = "0.8"
+# v0.8.0 Phase 6 SPEC §6.10.7 row 15 — `classify_descriptor_canonicity`
+# in `form/conditional.rs` uses 5 static-compiled regex matchers for the
+# canonical wrapper shapes from md-codec's canonical_origin table. Direct
+# dep at the call site keeps the classifier independent of transitive
+# import paths.
+regex = "1"
 # v0.4.0: replaces the v0.3.x build.rs source-walker. Provides the
 # canonical SECRET_NODE_TYPES + SECRET_SLOT_SUBKEYS public constants
 # used by `persistence::redact_for_persistence` to strip secret-class

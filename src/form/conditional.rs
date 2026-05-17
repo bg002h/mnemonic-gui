@@ -55,6 +55,91 @@ pub const MULTISIG_TEMPLATES: &[&str] = &[
 /// `SINGLE_SIG_TEMPLATES`.
 pub const TAPROOT_INTERNAL_KEY_TEMPLATES: &[&str] = &["tr-multi-a", "tr-sortedmulti-a"];
 
+/// v0.8.0 Phase 6 — descriptor canonicity classification (SPEC §4.12.a).
+///
+/// `Canonical` means the descriptor matches one of the 5 wrapper shapes in
+/// md-codec's `canonical_origin` table (`canonical_origin.rs:45-79`). For
+/// canonical descriptors, the toolkit's `gui-schema`-emitted
+/// `DESCRIPTOR_WITH_NONZERO_ACCOUNT` rule (pin `--account` to 0) applies
+/// unchanged. For `NonCanonical`, the GUI's `bundle()` Option-A override
+/// LIFTS the pin so the user-typed `--account N` flows through to the
+/// toolkit (which consumes it per SPEC §4.12.b default-path inference).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Canonicity {
+    /// Descriptor matches a canonical wrapper shape (pkh/wpkh/tr-keypath/
+    /// wsh-multi-sortedmulti/sh-wsh-multi-sortedmulti); canonical_origin
+    /// table supplies the per-shape default origin path.
+    Canonical,
+    /// Descriptor is non-canonical (bare wsh(@N), wsh(miniscript-body),
+    /// tr with TapTree, legacy sh(sortedmulti), etc.); default-path
+    /// inference per SPEC §4.12.b applies (toolkit-side).
+    NonCanonical,
+}
+
+/// v0.8.0 Phase 6 — classify a descriptor string by wrapper shape.
+///
+/// **Implementation: wrapper-form regex match** (R2 #5 fold from V4 plan-doc).
+/// 5 patterns mirror md-codec's `canonical_origin` table verbatim; anything
+/// else is `NonCanonical`. Regexes are wrapper-form prefix matches — they
+/// don't care what's nested inside the canonical wrappers; the inner
+/// miniscript body (if any) doesn't affect classification. The strip of
+/// optional `[fp/path]` annotations is implicit because the wrapper-form
+/// matches only look at the wrapper prefix.
+///
+/// **Empty descriptor** classifies as `NonCanonical` — the GUI may call this
+/// before the user has typed anything; the banner-emission logic
+/// (`descriptor_non_canonical_default_path_notice`) gates on whether the
+/// user has supplied a descriptor at all, suppressing the banner when the
+/// field is empty.
+///
+/// **Drift gate:** `tests/canonicity_drift.rs` exercises a corpus of
+/// canonical + non-canonical fixtures + shells out to
+/// `mnemonic gui-schema --classify-descriptor` to confirm the GUI's view
+/// matches the toolkit's (R2 #2 fold from V4 plan-doc).
+pub fn classify_descriptor_canonicity(desc: &str) -> Canonicity {
+    use std::sync::OnceLock;
+    static RES: OnceLock<[regex::Regex; 5]> = OnceLock::new();
+    let res = RES.get_or_init(|| {
+        [
+            // pkh(@N) single-key — pkh( + optional [fp/...] + @<digit>+ +
+            // optional multipath `/<...>` + optional `/*` or `/**` wildcard
+            // (BIP-388 shorthand) + close paren.
+            regex::Regex::new(r"^pkh\((?:\[[0-9a-fA-F]{8}(?:/\d+'?h?)*\])?@\d+(?:/<[0-9;]+>)?(?:/\*+'?h?)?\)$").expect("static regex"),
+            // wpkh(@N)
+            regex::Regex::new(r"^wpkh\((?:\[[0-9a-fA-F]{8}(?:/\d+'?h?)*\])?@\d+(?:/<[0-9;]+>)?(?:/\*+'?h?)?\)$").expect("static regex"),
+            // tr(@N) key-path-only — single arg, no comma, no TapTree
+            regex::Regex::new(r"^tr\((?:\[[0-9a-fA-F]{8}(?:/\d+'?h?)*\])?@\d+(?:/<[0-9;]+>)?(?:/\*+'?h?)?\)$").expect("static regex"),
+            // wsh(multi(...)) or wsh(sortedmulti(...))
+            regex::Regex::new(r"^wsh\((?:multi|sortedmulti)\(").expect("static regex"),
+            // sh(wsh(multi(...))) or sh(wsh(sortedmulti(...)))
+            regex::Regex::new(r"^sh\(wsh\((?:multi|sortedmulti)\(").expect("static regex"),
+        ]
+    });
+    if desc.is_empty() {
+        return Canonicity::NonCanonical;
+    }
+    if res.iter().any(|re| re.is_match(desc)) {
+        Canonicity::Canonical
+    } else {
+        Canonicity::NonCanonical
+    }
+}
+
+/// v0.8.0 Phase 6 — `is_descriptor_non_canonical(state)` is the
+/// canonicity-gating predicate used by `bundle()` to LIFT the
+/// `--account → PinValue(0)` push when descriptor is non-canonical.
+///
+/// Returns true ONLY when `--descriptor` is supplied AND its value
+/// classifies as `NonCanonical`. Returns false when `--descriptor` is
+/// absent (so the existing pin still fires under template mode +
+/// `--descriptor-file` — those modes preserve the v0.17.0 behavior).
+fn is_descriptor_non_canonical(state: &FormState) -> bool {
+    state
+        .text_value("--descriptor")
+        .map(|s| classify_descriptor_canonicity(s) == Canonicity::NonCanonical)
+        .unwrap_or(false)
+}
+
 /// v0.6.0 P4 — return the template-aware default flag values for a given
 /// `--template` selection. Single-sig templates have no template-specific
 /// defaults (the universal defaults at the form-state seed already cover
@@ -137,16 +222,27 @@ pub fn bundle(state: &FormState) -> FlagVisibility {
         vis.push(("--threshold", Visibility::Disabled));
         vis.push(("--multisig-path-family", Visibility::Disabled));
         // v0.17.0 SPEC §6.10.7 row 12 (DESCRIPTOR_WITH_NONZERO_ACCOUNT):
-        // --account is pinned to 0 when --descriptor is present (the
-        // descriptor encodes the account in @i origin paths). PinValue
-        // REPLACES user-typed value in argv per §6.10.4 emission table —
-        // distinct from Disabled which would suppress.
-        vis.push((
-            "--account",
-            Visibility::PinValue {
-                value: serde_json::json!(0),
-            },
-        ));
+        // --account is pinned to 0 when --descriptor is present AND the
+        // descriptor is canonical. PinValue REPLACES user-typed value in
+        // argv per §6.10.4 emission table — distinct from Disabled which
+        // would suppress.
+        //
+        // v0.8.0 Phase 6 R4 C1 fold (SPEC §6.10.7 row 12 amendment) — the
+        // pin is canonicity-gated. Non-canonical descriptors (per SPEC
+        // §4.12.a; classified GUI-side via `classify_descriptor_canonicity`)
+        // CONSUME `--account N` for §4.12.b default-path inference; the
+        // pin would silently coerce N to 0, defeating that feature. So the
+        // pin lifts in non-canonical mode. The toolkit's gui-schema-emitted
+        // rule remains unchanged (still encoded; drift-gate continues to
+        // assert its presence); this Option-A override is GUI-internal.
+        if !is_descriptor_non_canonical(state) {
+            vis.push((
+                "--account",
+                Visibility::PinValue {
+                    value: serde_json::json!(0),
+                },
+            ));
+        }
     }
     // v0.16.0 SPEC §6.10.7: single-sig template disables --threshold /
     // --multisig-path-family. SPEC §6.6 rows T1 + T2 +

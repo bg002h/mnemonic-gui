@@ -306,6 +306,24 @@ impl FormState {
         })
     }
 
+    /// v0.8.0 Phase 6: Return the `Text` value string for `name`, or
+    /// `None` if the flag is absent / has a different FlagValue variant.
+    /// Mirrors `dropdown_value`'s shape; used by `is_descriptor_non_canonical`
+    /// at `form/conditional.rs` to classify the descriptor string.
+    pub fn text_value(&self, name: &str) -> Option<&str> {
+        self.values.iter().find_map(|(k, v)| {
+            if k == name {
+                if let FlagValue::Text(s) = v {
+                    Some(s.as_str())
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
+        })
+    }
+
     /// v0.6.0 SPEC §6.10.2 v3: total slot-row count. Used by
     /// `slot_count_eq` / `slot_count_gte` / `slot_count_lte` Predicate
     /// evaluation. Mirrors `slot_state.rows.len()` directly — no filter
