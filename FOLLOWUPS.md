@@ -32,7 +32,7 @@ mirrors it.
 - **Where:** `src/form/conditional.rs` (gui side — slot-count signal from FormState to conditional engine); `src/schema_check.rs` (Predicate AST extension for `slot_count_op` / `slot_count_min` etc. when toolkit adds them).
 - **What:** v1 cycle deferred slot-count-dependent + post-binding rules because the GUI's conditional engine consumes FormState snapshots without slot-count exposure. A future cycle will plumb a slot-count signal through FormState + extend the Predicate AST. Concrete rules to add: SPEC §6.6 row 9 (T-in-range vs N), row 10 (single-sig with N > 1), row 11 (multisig with N == 1), row 13 (BIP-388 distinct-key), row 14 (per-`@N` annotation inconsistency).
 - **Why deferred:** Per plan §1.4 — runtime rules surface at Run time via the CLI's typed error. v1 ships argv-level submission.
-- **Status:** `open`
+- **Status:** `partially resolved 7d5e875` — v2-cycle (`mnemonic-gui-v0.6.0`, 2026-05-16) shipped the **predicate-machinery**: schema v3 +`SlotCountEq`/`SlotCountGte`/`SlotCountLte` Predicate variants (toolkit `76db841` + GUI `9d447d0`); `FormState::slot_count()` accessor + drift gate `synthesize_satisfying` arms (GUI `9d447d0`). Rows 9/10/11 **still deferred**: the slot-count *predicates* are now expressible, but their *Effects* require a new dropdown-option-disable Effect vocabulary not in v3 grammar — tracked at new FOLLOWUP `gui-schema-effect-on-dropdown-options-vocab`. Rows 13/14 remain deferred for cross-slot relational predicates — tracked at new FOLLOWUP `gui-schema-cross-slot-predicate-projection`. Row 12 (DESCRIPTOR_WITH_NONZERO_ACCOUNT) is the only §6.6 row that fully closes in v2 via `pin_value` (separate FOLLOWUP).
 - **Tier:** `cross-repo`
 - **Companion:** `bg002h/mnemonic-toolkit` `design/FOLLOWUPS.md` entry `gui-schema-runtime-conditional-projection`.
 
@@ -42,7 +42,7 @@ mirrors it.
 - **Where:** `src/schema/mod.rs:263-268` (`flag_value_is_present` always returns true for Number/Range/Timestamp/TaggedOrIndexed); `src/form/widget.rs:101-126` (`default_flag_value_for` seeds Number widgets to `min` regardless of user interaction).
 - **What:** Numeric / Range / Timestamp / TaggedOrIndexed widgets have no "no value" sentinel — once `default_flag_value_for` seeds them, the value is always-present per `flag_value_is_present`. The v0.5.0 §6.10 visibility gate sidesteps this for the common case (Hidden/Disabled flags don't emit regardless of widget value). A future cycle may add an explicit unset state for UX clarity (e.g., a "clear" affordance next to numeric widgets so users can explicitly opt out of supplying a numeric flag).
 - **Why deferred:** Per plan §1.4 — the visibility gate makes this unnecessary for the motivating bug. UX-quality improvement, not a correctness gap.
-- **Status:** `open`
+- **Status:** `resolved 84a69b8` — `mnemonic-gui-v0.6.0` P3 (2026-05-16). +`FlagValue::Unset` variant (unit, with `#[serde(other)]` for forward-compat); `flag_value_is_present(Unset)` returns false; `default_flag_value_for` returns Unset for the four Unset-default kinds; new `seeded_value_for(kind)` helper for click-to-seed; widget `Set` / `✕` affordances. Persistence-schema delta documented in CHANGELOG [0.6.0] — forward-compat preserved; v0.5 downgrade can't deserialize Unset entries (bounded impact). 14 new test cells at `tests/widget_unset_sentinel.rs`. Caveat: `#[serde(other)]` on the externally-tagged `FlagValue` enum works empirically but is not formally specified by serde — tracked at new FOLLOWUP `gui-flag-value-unset-serde-other-externally-tagged-dependency`.
 - **Tier:** `v0.6+`
 - **Companion:** `bg002h/mnemonic-toolkit` `design/FOLLOWUPS.md` cross-reference entry `gui-number-widget-unset-sentinel` (toolkit-side bookkeeping only — gui-impact-only).
 
@@ -52,7 +52,7 @@ mirrors it.
 - **Where:** `src/main.rs:197-211` (default form-state seed; v0.5.0's P5 removed the `--multisig-path-family bip87` line but left the static structure intact).
 - **What:** Replace the static screenshot-mode default seed with a template-aware default. When the user picks a multisig template (e.g., `wsh-sortedmulti`), the form auto-seeds multisig defaults (e.g., `--multisig-path-family bip87`, `--threshold` to a reasonable default); when the user picks single-sig, the form omits those flags entirely.
 - **Why deferred:** Out of v0.5.0 cycle scope per plan §7 — optional follow-on. The v0.5.0 P5 cleanup removes the unconditionally-wrong seed; the template-aware version is a UX enhancement.
-- **Status:** `open`
+- **Status:** `resolved 538dc70` — `mnemonic-gui-v0.6.0` P4 (2026-05-16). +`form::conditional::template_defaults_for(template)` returning `[]` for single-sig (`bip44`/`bip49`/`bip84`/`bip86`) and `[(--threshold, Number(2)), (--multisig-path-family, Dropdown("bip48"))]` for multisig. +`MnemonicGuiApp.last_template` per-form tracker + per-frame egui hook in `update()` that detects `--template` transitions and applies the defaults via **seed-on-empty discipline** (only seeds absent flags; preserves user-typed values across template switches; no overwrites, no clears, no undo machinery needed). 5 new test cells at `tests/template_aware_seed.rs` covering helper shape + seed-on-empty composition + multisig↔single-sig round-trip preservation. The `bip48` choice matches the canonical multisig path family; threshold-of-2 the smallest non-degenerate threshold.
 - **Tier:** `v0.6+`
 - **Companion:** `bg002h/mnemonic-toolkit` `design/FOLLOWUPS.md` cross-reference entry `gui-default-form-state-template-aware-seed` (toolkit-side bookkeeping only — gui-impact-only).
 
@@ -62,7 +62,7 @@ mirrors it.
 - **Where:** `mnemonic-toolkit/design/SPEC_mnemonic_toolkit_v0_5.md` §6.10.3 (Effect vocabulary); `mnemonic-toolkit/src/cmd/gui_schema.rs` (Effect enum + serializer); `mnemonic-toolkit/src/cmd/bundle.rs:200-205` (the rule the projection would encode — `DESCRIPTOR_WITH_NONZERO_ACCOUNT`); `src/form/conditional.rs` (consumer — Number widget value-coerce-to-zero handler).
 - **What:** Add a `pin_value: { flag, value }` Effect variant to SPEC §6.10.3 vocabulary so the GUI can coerce `--account` to 0 (or any pinned numeric value) when `--descriptor` is present, mirroring SPEC §6.6 row 12's CLI rejection at `bundle.rs:200-205`. v0.5.0's Number widget for `--account` defaults to `0` (per `default_flag_value_for`) — the safe value; the rule only fires when the user actively types a nonzero value, in which case the CLI's byte-exact error suffices for v0.5.0.
 - **Why deferred:** Per R1 I3 reviewer fold — the GUI default of 0 makes this rare misuse; the CLI error is informative. Adding a `pin_value` Effect requires SPEC §6.10.3 expansion + GUI Number-widget coercion semantics not warranted by user evidence.
-- **Status:** `open`
+- **Status:** `resolved 9d447d0` — `mnemonic-gui-v0.6.0` P2 (2026-05-16). Toolkit-side `mnemonic-toolkit-v0.17.0` `76db841`: SPEC §6.10.3 v3 grammar extension (PinValue Visibility variant + wire shape `{"pin_value": {"value": V}}`); §6.10.4 NEW emission table enumerates PinValue's REPLACE-user-value semantic; §6.10.7 row 12 flipped DEFERRED → ENCODED v2; `gui_schema.rs::bundle_conditional_rules` emits the new rule. GUI-side `9d447d0`: `schema_check.rs::VisibilityProjection +PinValue` with custom Deserialize accepting both v2 bare-string and v3 tagged-object shapes (Copy dropped); `schema::Visibility +PinValue` in lockstep; `form::conditional::bundle()` pushes the row 12 rule; `assemble_argv` extended with PinValue emission path (+ `pin_value_to_argv_token` helper for Number/String/Bool primitives). 8 new tests across conditional_visibility/argv_assembler_visibility/schema_mirror (deserialize round-trip + reject-on-unknown).
 - **Tier:** `cross-repo`
 - **Companion:** `bg002h/mnemonic-toolkit` `design/FOLLOWUPS.md` entry `gui-schema-numeric-flag-value-pin-effect`.
 
@@ -72,7 +72,7 @@ mirrors it.
 - **Where:** `mnemonic-toolkit/src/cmd/gui_schema.rs` (toolkit side — emit `meta.template_groups: { single_sig: [..], multisig: [..] }` block sourced from `Template::is_multisig()`); `src/form/conditional.rs:23` (gui side — replace module-level `SINGLE_SIG_TEMPLATES: &[&str] = &["bip44", "bip49", "bip84", "bip86"]` with parse from JSON `meta.template_groups`); `mnemonic-toolkit/src/template.rs:46-56` (`is_multisig()` source-of-truth — unchanged).
 - **What:** v0.5.0 cycle replicates the single-sig template set client-side as a module-level `SINGLE_SIG_TEMPLATES` const in `conditional.rs`. The drift gate test detects divergence, but a future cleanup cycle can collapse the const by having the toolkit emit `meta.template_groups` in the gui-schema JSON.
 - **Why deferred:** Out of v0.5.0 cycle scope — the drift gate suffices for parity enforcement. Cleanup-class change.
-- **Status:** `open`
+- **Status:** `resolved 9d447d0` — `mnemonic-gui-v0.6.0` P2 (2026-05-16). Toolkit-side `mnemonic-toolkit-v0.17.0` `76db841`: SPEC §6.10.8 NEW per-subcommand `meta` block; `gui_schema.rs::build_subcommand_meta` emits `meta.template_groups: { single_sig, multisig }` sourced from `CliTemplate::is_multisig()`. GUI-side `9d447d0`: `SINGLE_SIG_TEMPLATES` const promoted `pub(crate) → pub`; new parity test `tests/schema_mirror.rs::single_sig_templates_const_matches_meta_template_groups` (MNEMONIC_BIN-gated) asserts the runtime const matches the toolkit-emitted meta block for every template-consuming subcommand. Pair-of-checks posture (drift gate for per-rule projection + const-vs-meta for the bulk list) closes the FOLLOWUP without coupling conditional-fn purity to a runtime subprocess fetch. Defect carried forward as a new FOLLOWUP: toolkit's `build_subcommand_meta` emits the meta block for `derive-child` but derive-child has no `--template` flag — see new FOLLOWUP `gui-schema-derive-child-meta-template-groups-spurious`.
 - **Tier:** `cross-repo`
 - **Companion:** `bg002h/mnemonic-toolkit` `design/FOLLOWUPS.md` entry `gui-schema-template-groups-meta-field`.
 
@@ -298,6 +298,60 @@ install-script users (`./scripts/install.sh mnemonic-gui --from-git
 **Status:** `open` (blocked by `mnemonic-toolkit-cratesio-publish`).
 
 **Tier:** `v1+ / nice-to-have`.
+
+### `gui-schema-effect-on-dropdown-options-vocab` — dropdown-option-disable Effect grammar for SPEC §6.6 rows 9/10/11
+
+- **Surfaced:** 2026-05-16, GUI conditional-applicability v2 cycle (`mnemonic-gui-v0.6.0`) close. Filed per plan §6.10.7 closing list — unblocked by the v3 predicate-machinery (SlotCount* Predicate variants now expressible) but the *effect* side requires a new Effect grammar.
+- **Where:** `mnemonic-toolkit/design/SPEC_mnemonic_toolkit_v0_5.md` §6.10.3 (Effect vocabulary extension); `mnemonic-toolkit/src/cmd/gui_schema.rs::VisibilityProjection` (toolkit emitter); `mnemonic-gui/src/schema_check.rs::VisibilityProjection` (GUI consumer); `mnemonic-gui/src/form/widget.rs` (Dropdown widget needs per-option-disable semantic).
+- **What:** SPEC §6.6 rows 9/10/11 need to express "disable specific dropdown options" — e.g., row 9 disables `--threshold` values > N when slot-count is N; row 10 disables single-sig templates when N > 1; row 11 disables multisig templates when N == 1. The current v3 Effect grammar offers only `hidden` / `disabled` / `required` / `pin_value` — all of which act on the whole flag, not per-option. New Effect variant candidate: `disable_options: { values: [...] }` for Dropdown FlagKind.
+- **Why deferred:** Out of v0.6.0 scope per plan; unblocked by this cycle's predicate-machinery. Requires SPEC grammar extension + GUI Dropdown widget rendering change.
+- **Status:** `open`
+- **Tier:** `cross-repo`
+- **Companion:** `bg002h/mnemonic-toolkit` `design/FOLLOWUPS.md` entry `gui-schema-effect-on-dropdown-options-vocab` (to be filed at cycle close).
+
+### `gui-schema-cross-slot-predicate-projection` — cross-slot relational predicate types for SPEC §6.6 rows 8/13/14
+
+- **Surfaced:** 2026-05-16, GUI conditional-applicability v2 cycle (`mnemonic-gui-v0.6.0`) close. Filed per plan §6.10.7 closing list — these rows need predicate types beyond the v3 `slot_count_*` extensions.
+- **Where:** `mnemonic-toolkit/design/SPEC_mnemonic_toolkit_v0_5.md` §6.10.2 (Predicate AST extension); `mnemonic-toolkit/src/cmd/gui_schema.rs::Predicate` (toolkit emitter); `mnemonic-gui/src/schema_check.rs::Predicate` (GUI consumer); `mnemonic-gui/tests/gui_schema_conditional_drift.rs::synthesize_satisfying` (drift gate extension).
+- **What:** SPEC §6.6 rows 8/13/14 need relational predicates — row 8 (cross-slot equality, e.g., "two slots must NOT share an xpub"), row 13 (BIP-388 distinct-key invariant — all `@i` slots must be pairwise-distinct), row 14 (per-`@N` annotation consistency, e.g., "if `@1.xpub` is annotated `external`, all `@1.*` annotations must agree"). New Predicate variant candidates: `slot_subkey_distinct: { subkey: "xpub" }`, `slot_annotation_consistent: { annotation: "external" }`, etc.
+- **Why deferred:** Predicate-machinery missing in v3; full design requires SPEC §6.10.2 grammar extension. Out of v0.6.0 cycle scope.
+- **Status:** `open`
+- **Tier:** `cross-repo`
+- **Companion:** `bg002h/mnemonic-toolkit` `design/FOLLOWUPS.md` entry `gui-schema-cross-slot-predicate-projection` (to be filed at cycle close).
+
+### `gui-schema-derive-child-meta-template-groups-spurious` — toolkit emits `meta.template_groups` on a subcommand with no `--template` flag
+
+- **Surfaced:** 2026-05-16, GUI v0.6.0 cycle-close opus reviewer audit. Important finding (confidence 95): toolkit's `build_subcommand_meta` at `crates/mnemonic-toolkit/src/cmd/gui_schema.rs:244-259` matches `name == "derive-child"` and emits a `template_groups` block, but `crates/mnemonic-toolkit/src/cmd/derive_child.rs` has ZERO `--template` references (grep-confirmed). SPEC §6.10.8 also lists derive-child as a template-consumer in error; toolkit test `derive_child_emits_meta_template_groups` enshrines the wrong invariant.
+- **Where:** `mnemonic-toolkit/crates/mnemonic-toolkit/src/cmd/gui_schema.rs:244-259` (the spurious match arm); `mnemonic-toolkit/design/SPEC_mnemonic_toolkit_v0_5.md` §6.10.8 (matching mis-claim in prose); `mnemonic-toolkit/crates/mnemonic-toolkit/tests/cli_gui_schema_v3_extensions.rs` (the wrong-invariant test).
+- **What:** Either (a) remove `derive-child` from the `build_subcommand_meta` match arm + delete the matching test cell + correct SPEC §6.10.8 prose, or (b) consciously document why derive-child gets the meta block despite having no `--template` widget. (a) is the source-faithful fix; the off-by-N pattern matches `[feedback-r0-must-read-source-off-by-n]`.
+- **Why deferred:** Cosmetic — no GUI consumer reads derive-child's meta block today; the spurious emission is silent. Folding into the next toolkit cycle is lower-churn than cutting `mnemonic-toolkit-v0.17.1`.
+- **Status:** `open`
+- **Tier:** `cross-repo`
+- **Companion:** `bg002h/mnemonic-toolkit` `design/FOLLOWUPS.md` entry `gui-schema-derive-child-meta-template-groups-spurious` (to be filed at cycle close).
+
+### `gui-flag-value-unset-serde-other-externally-tagged-dependency` — `#[serde(other)]` on externally-tagged FlagValue enum depends on undocumented serde behavior
+
+- **Surfaced:** 2026-05-16, GUI v0.6.0 cycle-close opus reviewer audit (Important finding, confidence 85). The P3 forward-compat invariant ("v0.6+ readers map unknown FlagValue tags to Unset") depends on `#[serde(other)]` on `FlagValue::Unset` (a unit variant inside an externally-tagged enum). Per serde docs (https://serde.rs/variant-attrs.html): `#[serde(other)]` is "Only allowed on a unit variant inside of an internally tagged or adjacently tagged enum." Per serde issue #2010, on externally-tagged enums it "compiles but mysteriously doesn't work" — a request was filed to make it a compile-time error.
+- **Where:** `src/schema/mod.rs:338-339` (the `#[serde(other)] Unset` variant); `tests/widget_unset_sentinel.rs:154-165` (`flag_value_unknown_tag_deserializes_to_unset_via_serde_other` — the forward-compat assertion); `CHANGELOG.md [0.6.0]` (the forward-compat claim).
+- **What:** Empirical test passes at v0.6.0 — `serde_json::from_str::<FlagValue>(r#""FutureKitchenSink""#)` does return `FlagValue::Unset`, suggesting serde DOES handle the bare-string unit-variant fallback case correctly on externally-tagged enums. But this is undocumented behavior subject to silent change on future serde upgrades. Options for hardening: (a) bump `FlagValue` to an internally-tagged enum (breaks the wire shape — would need a persistence-schema-version bump); (b) write a custom Deserialize impl that explicitly handles the unknown-tag case (more code, but documented); (c) leave as-is + add a pinned serde version range + canary test that triggers on serde upgrades.
+- **Why deferred:** Empirically works at v0.6.0; CHANGELOG forward-compat claim is empirically supported. Hardening is defense-in-depth, not a regression.
+- **Status:** `open`
+- **Tier:** `v0.7+`
+- **Companion:** None — gui-only.
+
+### `gui-pin-value-effect-on-slot-flag-gap` — `assemble_argv` PinValue gate excludes `--slot` + drift gate lacks load-bearing rule count
+
+- **Surfaced:** 2026-05-16, GUI v0.6.0 cycle-close opus reviewer audit (two related Important findings: confidence 80 each).
+  - Finding A (PinValue / `--slot` gap): `src/form/invocation.rs::assemble_argv` wraps the visibility gate (including the new PinValue path) in `if flag.name != "--slot" || !subcommand.allows_slots {…}`. Future toolkit rules that target `--slot` with `pin_value` would silently fall through to the unguarded slot-emission branch, ignoring the rule. No current toolkit rule does this, but the gap is grep-detectable per `[feedback-r0-must-read-source-off-by-n]`.
+  - Finding B (drift gate vacuous count): `tests/gui_schema_conditional_drift.rs:249-253` asserts `total_rules > 0` only; a regression that drops rules from ~34 to a non-zero handful would silently pass. Per `[feedback-ci-snapshot-test-substring-vacuity]`, this is a flagged class of project failure mode.
+- **Where:** `src/form/invocation.rs:79-101` (the gate); `tests/gui_schema_conditional_drift.rs:249-253` (the assertion).
+- **What:** Two defense-in-depth folds:
+  - (A) Hoist the PinValue check above the slot-exemption guard, OR add `debug_assert!(!matches!(flag_vis, Visibility::PinValue { .. }))` inside the slot branch to fail-loud on future drift.
+  - (B) Tighten the drift gate count: change `assert!(total_rules > 0, …)` to `assert!(total_rules >= 34, …)` (or similar load-bearing minimum derived from the actual v0.17.0 rule count), OR collect per-subcommand counts and assert individually.
+- **Why deferred:** Both findings are defense-in-depth; neither is currently exploitable. Folding pre-cycle-close was an option per the reviewer's gate, but deferred per the "don't pile work past pushed tag" discipline.
+- **Status:** `open`
+- **Tier:** `v0.7+`
+- **Companion:** None — gui-only.
 
 ## Deferred to v0.3+
 
