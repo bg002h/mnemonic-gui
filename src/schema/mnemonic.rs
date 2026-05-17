@@ -1000,6 +1000,122 @@ const FINAL_WORD_FLAGS: &[FlagSchema] = &[
     },
 ];
 
+// ─── repair ──────────────────────────────────────────────────────────────
+//
+// v0.22.0 standalone BCH error-correction subcommand. Three card-class
+// inputs are mutually exclusive (toolkit-side `<--ms1|--mk1|--md1>`
+// required group); GUI A.2 wires the 3-way mutex via
+// `crate::form::conditional::repair`. `--ms1` is single-occurrence per
+// toolkit; `--mk1` / `--md1` are repeating per toolkit (multiple chunks
+// in a single invocation).
+//
+// Note (Phase A.1 finding): the toolkit's `gui-schema` JSON does NOT
+// emit the global `--no-auto-repair` flag for any subcommand (even
+// though clap's `--help` propagates it). The schema-mirror gate
+// consumes gui-schema JSON in preference to --help, so adding
+// `--no-auto-repair` here would surface as a hard drift failure.
+// Phase A.3 will introduce a top-level action-bar affordance for the
+// flag (per plan §5 R7 fallback) rather than per-subcommand mirroring.
+
+const REPAIR_FLAGS: &[FlagSchema] = &[
+    FlagSchema {
+        name: "--ms1",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "Single ms1 chunk to repair. `-` reads one chunk from stdin. \
+               Mutually exclusive with --mk1 / --md1.",
+        secret: true,
+    },
+    FlagSchema {
+        name: "--mk1",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: true,
+        help: "One or more mk1 chunks to repair (repeating). `-` on a \
+               single occurrence reads chunks from stdin (one per line). \
+               Mutually exclusive with --ms1 / --md1.",
+        secret: false,
+    },
+    FlagSchema {
+        name: "--md1",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: true,
+        help: "One or more md1 chunks to repair (repeating). `-` on a \
+               single occurrence reads chunks from stdin (one per line). \
+               Mutually exclusive with --ms1 / --mk1.",
+        secret: false,
+    },
+    FlagSchema {
+        name: "--json",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Emit a single JSON envelope on stdout instead of the \
+               text-form repair report.",
+        secret: false,
+    },
+];
+
+// ─── inspect ─────────────────────────────────────────────────────────────
+//
+// v0.22.0 inspection subcommand. Same 3-way card mutex as `repair`;
+// adds `--reveal-secret` (ms1-only effect — opt-in to print the BIP-39
+// entropy hex; no effect on mk1 / md1). GUI A.2 wires the same 3-way
+// mutex via `crate::form::conditional::inspect`.
+
+const INSPECT_FLAGS: &[FlagSchema] = &[
+    FlagSchema {
+        name: "--ms1",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "Single ms1 chunk to inspect. `-` reads one chunk from stdin. \
+               Mutually exclusive with --mk1 / --md1.",
+        secret: true,
+    },
+    FlagSchema {
+        name: "--mk1",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: true,
+        help: "One or more mk1 chunks to inspect (repeating). `-` reads \
+               chunks from stdin (one per line). Mutually exclusive with \
+               --ms1 / --md1.",
+        secret: false,
+    },
+    FlagSchema {
+        name: "--md1",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: true,
+        help: "One or more md1 chunks to inspect (repeating). `-` reads \
+               chunks from stdin (one per line). Mutually exclusive with \
+               --ms1 / --mk1.",
+        secret: false,
+    },
+    FlagSchema {
+        name: "--json",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Emit a single JSON envelope on stdout instead of the \
+               text-form inspect report.",
+        secret: false,
+    },
+    FlagSchema {
+        name: "--reveal-secret",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Reveal the ms1 entropy hex on stdout. Default suppresses it \
+               (summary stays at length / bit-strength). No effect for mk1 \
+               / md1 (those payloads carry no secret material).",
+        secret: true,
+    },
+];
+
 // ─── SCHEMA constant ─────────────────────────────────────────────────────
 
 // Phase 5: wire the conditional-visibility fn pointers per subcommand.
@@ -1087,18 +1203,34 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
         allows_slots: false,
         conditional: Some(crate::form::conditional::slip39_combine),
     },
+    // v0.9.0 (toolkit v0.22.0): standalone BCH error-correction subcommand.
+    SubcommandSchema {
+        name: "repair",
+        human_name: "Repair (BCH error-correct ms1 / mk1 / md1)",
+        flags: REPAIR_FLAGS,
+        positional_args: NO_POSITIONALS,
+        allows_slots: false,
+        conditional: Some(crate::form::conditional::repair),
+    },
+    // v0.9.0 (toolkit v0.22.0): describe contents of an m-format card.
+    SubcommandSchema {
+        name: "inspect",
+        human_name: "Inspect (describe ms1 / mk1 / md1 contents)",
+        flags: INSPECT_FLAGS,
+        positional_args: NO_POSITIONALS,
+        allows_slots: false,
+        conditional: Some(crate::form::conditional::inspect),
+    },
 ];
 
-// `pinned_version` matches the literal `--version` output string that the
-// runtime soft-check (SPEC §11) reads at GUI launch. At v0.13.0 the
-// `mnemonic-toolkit-v0.13.0` tag DOES match the crate-package version
-// `0.13.0`, so the string here ("mnemonic 0.13.0") aligns with both. The
-// git-tag string lives in `pinned-upstream.toml`'s `[mnemonic].tag` field
-// for CI install; `pinned_version` here is the runtime-banner comparison.
-// Phase 9's `schema_check.rs` reads BOTH: tag for CI install,
-// `pinned_version` for runtime soft-check.
+// `pinned_version` is rendered as a monospace label in the action-bar
+// `Pinned:` row at `src/main.rs:347`. There is NO runtime comparison
+// logic that consumes this field — `schema_check.rs` reads
+// `pinned-upstream.toml` + the `<cli> gui-schema` JSON, not this string.
+// Bump it in lockstep with the toolkit tag for human-display parity only;
+// drift here is a cosmetic banner mismatch, not a functional error.
 pub const SCHEMA: Schema = Schema {
     cli_name: "mnemonic",
-    pinned_version: "mnemonic 0.13.0",
+    pinned_version: "mnemonic 0.22.1",
     subcommands: SUBCOMMANDS,
 };

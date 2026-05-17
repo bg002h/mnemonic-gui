@@ -3,6 +3,93 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## [0.9.0] — 2026-05-17
+
+Catchup release wiring the v0.22.0 + v0.22.1 toolkit BCH
+error-correction surface into the desktop GUI. Lockstep with the
+already-shipped `mnemonic-toolkit-v0.22.1` (BCH repair launch +
+verify-bundle auto-fire) and `mk-cli-v0.4.0` (sibling-CLI repair
+subcommand) cycle releases.
+
+### Added
+
+- `mnemonic repair` GUI surface: new `REPAIR_FLAGS` schema array
+  (`--ms1` secret/Option, `--mk1` repeating, `--md1` repeating,
+  `--json`) wired into `SUBCOMMANDS` with `conditional::repair`
+  3-way card mutex.
+- `mnemonic inspect` GUI surface: new `INSPECT_FLAGS` schema array
+  (same 3-way card mutex + `--json` + `--reveal-secret`) with
+  `conditional::inspect` mutex.
+- `form::conditional::three_way_card_mutex` helper (shared between
+  `repair` + `inspect`) — when all 3 cards unset, all 3 are
+  Required; when exactly 1 is set, the other 2 are Disabled; ≥2
+  set lets the CLI rejection surface naturally. NET-NEW conditional
+  pattern (distinct from `verify_bundle::*`'s
+  `bundle_json XOR cards-group` mutex).
+- Action-bar `--no-auto-repair` checkbox (R7 fallback; load-bearing
+  per Phase A.1 finding — see "Why a top-level checkbox" below).
+  When checked, `runner::prepend_no_auto_repair` splices the global
+  flag into argv after the binary name at spawn time.
+- `render_exit_badge` helper (`src/main.rs`) — green badge
+  `(60, 180, 75)` on exit 5 announcing "Repair Applied (BCH
+  auto-fire succeeded)"; default label preserved for other exit
+  codes. Matches existing slot_editor warning chroma.
+- D23 `MNEMONIC_FORCE_TTY=1` spawn-time env-var
+  (`src/runner.rs::run`) — toolkit's auto-fire gate is
+  `std::io::stdout().is_terminal() && !no_auto_repair`; GUI
+  subprocesses are piped (never TTY), so without this env override
+  the GUI would never see auto-fire repair reports from
+  `convert` / `inspect` / `verify-bundle` invocations. Filed
+  `toolkit-mnemonic-force-tty-promote-from-test-only` toolkit-side
+  + GUI-side companion to promote the env-var from its currently
+  test-only documentation to a first-class public contract in a
+  future toolkit minor.
+
+### Changed
+
+- Toolkit pin: `mnemonic-toolkit-v0.20.0` → `v0.22.1` across 3
+  sites (`Cargo.toml:42` git-dep tag, `pinned-upstream.toml:22`
+  `[mnemonic] tag`, `src/schema/mnemonic.rs` `pinned_version`
+  monospace label).
+- mk pin: `pinned-upstream.toml [mk] tag` →
+  `mk-cli-v0.4.0` (lockstep with the mk-cli v0.4.0 release shipped
+  concurrently; the prior `mk-cli-v0.3.1` → `v0.4.0` bump landed
+  ahead of this release at `a15baf2`).
+
+### Fixed
+
+- Cleaned up stale "runtime soft-check (SPEC §11)" comment block at
+  `src/schema/mnemonic.rs:1092-1099`. The `pinned_version` field is
+  render-only at `main.rs:347` — there is no comparison logic;
+  comment was misleading future maintainers.
+
+### Why a top-level checkbox for `--no-auto-repair`
+
+Phase A.1 surfaced that the toolkit's `mnemonic gui-schema` JSON
+output (the schema-mirror drift-gate's source-of-truth) does NOT
+emit global flags like `--no-auto-repair` for any subcommand — only
+clap's per-subcommand `--help` TEXT propagates them. Adding
+`--no-auto-repair` to the 10 existing `*_FLAGS` arrays hard-failed
+the drift gate. The action-bar checkbox is therefore load-bearing
+for v0.9.0 (~30 LOC across `runner::prepend_no_auto_repair` +
+`MnemonicGuiApp.no_auto_repair` field + `main.rs` checkbox cell).
+Tracked as `gui-schema-global-flag-emission` (toolkit-side primary
++ GUI companion); when the toolkit emits global flags per-
+subcommand in a future cycle, the GUI can drop the action-bar
+affordance in favor of native per-subcommand schema mirroring.
+
+### Tests
+
+- +12 cells (264 → 276): 8 conditional-visibility cells in
+  `tests/conditional_visibility.rs` (4 repair × 4 inspect mutex
+  states) + 4 runner cells (D23 env injection + 3
+  prepend-helper edge cases).
+- Schema-mirror + drift gates green against
+  `mnemonic-toolkit-v0.22.1`.
+- Manual smoke confirmed: corrupted ms1 in Convert → green exit-5
+  badge + repair report in stderr + corrected ms1 in stdout;
+  checkbox opt-out path correctly suppresses auto-fire.
+
 ## [0.7.2] — 2026-05-16
 
 ### Fixed — revert v0.7.0 disable_options for --template (UX flaw); migrate to inline warning banner

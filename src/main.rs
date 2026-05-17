@@ -80,6 +80,23 @@ struct MnemonicGuiApp {
     show_cmdline: bool,
     show_stdout: bool,
     show_stderr: bool,
+    /// v0.9.0 R7 (load-bearing per Phase A.1 finding) — global action-bar
+    /// `--no-auto-repair` opt-out. Toolkit v0.22.1 auto-fires BCH repair on
+    /// `convert`/`inspect`/`verify-bundle` when stdout is a TTY (which the
+    /// GUI forces via `MNEMONIC_FORCE_TTY=1` per D23 in `runner::run`).
+    /// When this field is `true`, the runner splices `--no-auto-repair`
+    /// between the binary name and the subcommand before spawn, disabling
+    /// the auto-fire short-circuit for that invocation.
+    ///
+    /// Persists across subcommand-tab switches (single top-level field;
+    /// no per-(cli, subcommand) keying). Default `false` (auto-fire ON).
+    ///
+    /// Necessary because `mnemonic gui-schema` v4 JSON does NOT emit global
+    /// flags per-subcommand; we cannot wire `--no-auto-repair` via the
+    /// existing schema-driven form pipeline. FOLLOWUP
+    /// `gui-schema-global-flag-emission` tracks fixing this gap toolkit-side
+    /// (and dropping this action-bar checkbox when it lands).
+    pub no_auto_repair: bool,
     /// Run-confirm modal state. None = no modal; Some(argv) = pending.
     pending_confirm_argv: Option<Vec<String>>,
     /// v0.6.0 P4 — last-observed `--template` value per form key, used by
@@ -240,6 +257,7 @@ impl MnemonicGuiApp {
             show_cmdline: true,
             show_stdout: true,
             show_stderr: true,
+            no_auto_repair: false,
             pending_confirm_argv: None,
             last_template: BTreeMap::new(),
         }
@@ -299,6 +317,15 @@ impl eframe::App for MnemonicGuiApp {
                 ui.checkbox(&mut self.show_cmdline, "show command-line");
                 ui.checkbox(&mut self.show_stdout, "show stdout");
                 ui.checkbox(&mut self.show_stderr, "show stderr");
+                // v0.9.0 R7 action-bar checkbox — load-bearing fallback for
+                // the Phase A.1 schema-mirror finding. See the
+                // `no_auto_repair` field doc on `MnemonicGuiApp` and the
+                // `runner::prepend_no_auto_repair` doc-comment for the full
+                // rationale.
+                ui.checkbox(
+                    &mut self.no_auto_repair,
+                    "No auto-repair (--no-auto-repair)",
+                );
             });
             if let Some(ref err) = self.last_run_error {
                 ui.colored_label(egui::Color32::from_rgb(220, 60, 60), format!("subprocess error: {}", err));
@@ -310,10 +337,7 @@ impl eframe::App for MnemonicGuiApp {
                         render_copy_command(&result.argv, ShellFlavor::Posix)
                     ));
                 }
-                ui.label(format!(
-                    "exit: {}",
-                    result.exit_code.map(|n| n.to_string()).unwrap_or_else(|| "(killed)".into())
-                ));
+                render_exit_badge(ui, result.exit_code);
                 if self.show_stdout && !result.stdout.is_empty() {
                     ui.label("stdout:");
                     egui::ScrollArea::vertical()
@@ -704,6 +728,43 @@ impl eframe::App for MnemonicGuiApp {
     }
 }
 
+/// Render the subprocess exit-code line in the output panel.
+///
+/// v0.9.0 (D26 cross-CLI parity): exit 5 means the toolkit auto-fired BCH
+/// repair and the corrected card is on stdout (`ToolkitError::
+/// RepairShortCircuit { exit_code: 5 }`). Render it as a green badge so
+/// users see the success at a glance; all other exit codes (including 0)
+/// render in the default label colour.
+///
+/// Cases:
+/// - `Some(0)` → plain `exit: 0` label.
+/// - `Some(5)` → green badge with explanatory message.
+/// - `Some(n)` for `n != 0 && n != 5` → plain `exit: <n>` label
+///   (subprocess error path; stderr already renders below).
+/// - `None` → plain `exit: (killed)` label (signal / no exit code).
+fn render_exit_badge(ui: &mut egui::Ui, exit_code: Option<i32>) {
+    match exit_code {
+        Some(5) => {
+            // Saturated green chosen to match the project's existing colour
+            // palette (warning amber at form/slot_editor.rs:233 uses (220,
+            // 165, 0); error red at main.rs:304 uses (220, 60, 60)). Green
+            // (60, 180, 75) sits in the same chroma band and stays readable
+            // on egui's default dark/light themes.
+            ui.colored_label(
+                egui::Color32::from_rgb(60, 180, 75),
+                "exit: 5 — Repair Applied (BCH auto-fire succeeded; \
+                 corrected chunk on stdout)",
+            );
+        }
+        Some(n) => {
+            ui.label(format!("exit: {}", n));
+        }
+        None => {
+            ui.label("exit: (killed)");
+        }
+    }
+}
+
 fn spawn_and_capture(app: &mut MnemonicGuiApp, argv: Vec<String>) {
     if argv.is_empty() {
         return;
@@ -722,6 +783,9 @@ fn spawn_and_capture(app: &mut MnemonicGuiApp, argv: Vec<String>) {
         ));
         return;
     }
+    // v0.9.0 R7 — splice the action-bar `--no-auto-repair` checkbox into
+    // argv BEFORE the runner spawn. No-op when the checkbox is unchecked.
+    let argv = runner::prepend_no_auto_repair(argv, app.no_auto_repair);
     match runner::run(argv) {
         Ok(result) => {
             app.last_run = Some(result);

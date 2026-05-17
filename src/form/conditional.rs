@@ -724,3 +724,78 @@ pub fn slip39_combine(state: &FormState) -> FlagVisibility {
     }
     vis
 }
+
+/// v0.9.0 Phase A.2 — 3-way card mutex helper shared between `repair` and
+/// `inspect` (both subcommands carry the identical `<--ms1|--mk1|--md1>`
+/// required-group at the toolkit-CLI level).
+///
+/// **NET-NEW pattern** — `verify_bundle::*` at L415-428 above is a
+/// `--bundle-json XOR (cards-group)` mutex (a 2-way between one flag and
+/// a group), NOT a 3-way among 3 equal-status cards. Phase A.0 recon
+/// confirmed no prior `conditional.rs` rule had this shape.
+///
+/// Semantics (count of populated card flags in `state.has_value`):
+/// - 0 set → all 3 marked Required (CLI will fail with "one of ... is
+///   required" otherwise; surface that pre-Run).
+/// - exactly 1 set → other 2 marked Disabled (CLI's required-group
+///   accepted; competing cards would trigger clap's `ArgumentConflict`).
+/// - 2+ set → emit NOTHING; let the toolkit's clap-derive `ArgumentConflict`
+///   error fall through with its full byte-exact diagnostic. The GUI does
+///   NOT pre-flight reject (`run_conditional` returning empty here means
+///   all 3 stay `Visibility::Visible` per the default fallback in
+///   `vis_of`); the user-typed second card stays visible-as-typed so they
+///   can see what they entered and choose which one to remove.
+fn three_way_card_mutex(state: &FormState) -> FlagVisibility {
+    let has_ms1 = state.has_value("--ms1");
+    let has_mk1 = state.has_value("--mk1");
+    let has_md1 = state.has_value("--md1");
+    let set_count = (has_ms1 as u8) + (has_mk1 as u8) + (has_md1 as u8);
+    let mut vis = Vec::new();
+    match set_count {
+        0 => {
+            vis.push(("--ms1", Visibility::Required));
+            vis.push(("--mk1", Visibility::Required));
+            vis.push(("--md1", Visibility::Required));
+        }
+        1 => {
+            if has_ms1 {
+                vis.push(("--mk1", Visibility::Disabled));
+                vis.push(("--md1", Visibility::Disabled));
+            } else if has_mk1 {
+                vis.push(("--ms1", Visibility::Disabled));
+                vis.push(("--md1", Visibility::Disabled));
+            } else {
+                // has_md1
+                vis.push(("--ms1", Visibility::Disabled));
+                vis.push(("--mk1", Visibility::Disabled));
+            }
+        }
+        _ => {
+            // 2+ set: hand-off to toolkit's CLI rejection. Empty vis means
+            // all 3 fall through to Visibility::Visible.
+        }
+    }
+    vis
+}
+
+/// `repair` subcommand conditionals (v0.9.0 Phase A.2).
+///
+/// 3-way mutex among `--ms1` / `--mk1` / `--md1`. `--json` is orthogonal
+/// (always Visible; never Required; never Disabled).
+///
+/// Upstream (`crates/mnemonic-toolkit/src/cmd/repair.rs`): clap-derive
+/// declares the cards in a required-group via the `#[arg(group = ...)]`
+/// plus a `#[command(group(ArgGroup::new(...).required(true).multiple(false)))]`
+/// attribute; clap rejects 2+ cards at runtime with an ArgumentConflict.
+pub fn repair(state: &FormState) -> FlagVisibility {
+    three_way_card_mutex(state)
+}
+
+/// `inspect` subcommand conditionals (v0.9.0 Phase A.2).
+///
+/// Same 3-way card mutex as `repair`. `--reveal-secret` and `--json` are
+/// orthogonal (always Visible; never Required; never Disabled). Same
+/// upstream required-group pattern as `repair`.
+pub fn inspect(state: &FormState) -> FlagVisibility {
+    three_way_card_mutex(state)
+}

@@ -910,3 +910,96 @@ fn cell_v0_17_bundle_account_pin_value_zero_when_descriptor() {
         Visibility::Visible,
     );
 }
+
+// ─── v0.9.0 Phase A.2: repair + inspect 3-way card mutex (8 cells) ──────
+//
+// `repair` and `inspect` carry an identical `<--ms1|--mk1|--md1>`
+// required-group mutex at the toolkit-CLI level. Each fn exercises the 4
+// load-bearing quadrants of the 3-way:
+//   - all unset → all 3 Required
+//   - exactly one set → other 2 Disabled (one cell per chosen card)
+// The 2+-set case is NOT cell'd here: per plan §2.A.1, the GUI hands off
+// to the toolkit's clap-derive ArgumentConflict rather than pre-flight
+// rejecting. (The handoff is implicit in the implementation — empty
+// FlagVisibility for that branch — so a cell would assert on the
+// absence of override, which is observed via the Visible default.)
+
+#[test]
+fn repair_all_unset_marks_all_three_required() {
+    let empty = FormState::default();
+    let vis = run_conditional("repair", &empty);
+    assert_eq!(vis_of(&vis, "--ms1"), Visibility::Required);
+    assert_eq!(vis_of(&vis, "--mk1"), Visibility::Required);
+    assert_eq!(vis_of(&vis, "--md1"), Visibility::Required);
+    // Orthogonal: --json stays Visible (no override emitted).
+    assert_eq!(vis_of(&vis, "--json"), Visibility::Visible);
+}
+
+#[test]
+fn repair_ms1_set_marks_mk1_md1_disabled() {
+    let state = FormState::from_pairs(vec![("--ms1", FlagValue::Text("ms1xyz...".into()))]);
+    let vis = run_conditional("repair", &state);
+    assert_eq!(vis_of(&vis, "--mk1"), Visibility::Disabled);
+    assert_eq!(vis_of(&vis, "--md1"), Visibility::Disabled);
+    // Chosen card stays Visible (no Required, no Disabled).
+    assert_eq!(vis_of(&vis, "--ms1"), Visibility::Visible);
+}
+
+#[test]
+fn repair_mk1_set_marks_ms1_md1_disabled() {
+    let state = FormState::from_pairs(vec![("--mk1", FlagValue::Text("mk1abc...".into()))]);
+    let vis = run_conditional("repair", &state);
+    assert_eq!(vis_of(&vis, "--ms1"), Visibility::Disabled);
+    assert_eq!(vis_of(&vis, "--md1"), Visibility::Disabled);
+    assert_eq!(vis_of(&vis, "--mk1"), Visibility::Visible);
+}
+
+#[test]
+fn repair_md1_set_marks_ms1_mk1_disabled() {
+    let state = FormState::from_pairs(vec![("--md1", FlagValue::Text("md1def...".into()))]);
+    let vis = run_conditional("repair", &state);
+    assert_eq!(vis_of(&vis, "--ms1"), Visibility::Disabled);
+    assert_eq!(vis_of(&vis, "--mk1"), Visibility::Disabled);
+    assert_eq!(vis_of(&vis, "--md1"), Visibility::Visible);
+}
+
+#[test]
+fn inspect_all_unset_marks_all_three_required() {
+    let empty = FormState::default();
+    let vis = run_conditional("inspect", &empty);
+    assert_eq!(vis_of(&vis, "--ms1"), Visibility::Required);
+    assert_eq!(vis_of(&vis, "--mk1"), Visibility::Required);
+    assert_eq!(vis_of(&vis, "--md1"), Visibility::Required);
+    // Orthogonal flags: --json + --reveal-secret stay Visible.
+    assert_eq!(vis_of(&vis, "--json"), Visibility::Visible);
+    assert_eq!(vis_of(&vis, "--reveal-secret"), Visibility::Visible);
+}
+
+#[test]
+fn inspect_ms1_set_marks_mk1_md1_disabled() {
+    let state = FormState::from_pairs(vec![("--ms1", FlagValue::Text("ms1xyz...".into()))]);
+    let vis = run_conditional("inspect", &state);
+    assert_eq!(vis_of(&vis, "--mk1"), Visibility::Disabled);
+    assert_eq!(vis_of(&vis, "--md1"), Visibility::Disabled);
+    assert_eq!(vis_of(&vis, "--ms1"), Visibility::Visible);
+    // Orthogonal flags stay Visible regardless of card selection.
+    assert_eq!(vis_of(&vis, "--reveal-secret"), Visibility::Visible);
+}
+
+#[test]
+fn inspect_mk1_set_marks_ms1_md1_disabled() {
+    let state = FormState::from_pairs(vec![("--mk1", FlagValue::Text("mk1abc...".into()))]);
+    let vis = run_conditional("inspect", &state);
+    assert_eq!(vis_of(&vis, "--ms1"), Visibility::Disabled);
+    assert_eq!(vis_of(&vis, "--md1"), Visibility::Disabled);
+    assert_eq!(vis_of(&vis, "--mk1"), Visibility::Visible);
+}
+
+#[test]
+fn inspect_md1_set_marks_ms1_mk1_disabled() {
+    let state = FormState::from_pairs(vec![("--md1", FlagValue::Text("md1def...".into()))]);
+    let vis = run_conditional("inspect", &state);
+    assert_eq!(vis_of(&vis, "--ms1"), Visibility::Disabled);
+    assert_eq!(vis_of(&vis, "--mk1"), Visibility::Disabled);
+    assert_eq!(vis_of(&vis, "--md1"), Visibility::Visible);
+}
