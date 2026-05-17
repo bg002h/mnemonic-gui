@@ -104,6 +104,28 @@ pub fn assemble_argv(
         // ascending order. The schema still carries a `--slot` FlagSchema
         // entry so the schema-mirror flag-name test sees it.
         if flag.name == "--slot" && subcommand.allows_slots {
+            // v0.6.1 P3 #5A defense-in-depth: the visibility gate above is
+            // wrapped in `if flag.name != "--slot" || !subcommand.allows_slots`
+            // and so does NOT run for --slot on slot-bearing subcommands. A
+            // future toolkit rule that targets --slot with PinValue would
+            // silently fall through to this slot-emission branch and emit
+            // malformed argv (pin_value's single-value emission semantic
+            // doesn't map onto the multi-row @N.subkey=value slot grammar).
+            // debug_assert fails loud in dev / CI debug-profile; release-
+            // mode `if-suppress` is the defensive net. A future cycle that
+            // legitimately wants pin_value-on-slot semantics MUST remove
+            // this debug_assert and replace with the new design.
+            // Tracks FOLLOWUP `gui-pin-value-effect-on-slot-flag-gap`.
+            debug_assert!(
+                !matches!(flag_vis, Visibility::PinValue { .. }),
+                "pin_value on --slot is unspecified — see FOLLOWUP \
+                 gui-pin-value-effect-on-slot-flag-gap. Encountered \
+                 pin_value for --slot on subcommand `{}`",
+                subcommand.name,
+            );
+            if matches!(flag_vis, Visibility::PinValue { .. }) {
+                continue;
+            }
             for token in state.slots.to_slot_argv() {
                 argv.push(token);
             }

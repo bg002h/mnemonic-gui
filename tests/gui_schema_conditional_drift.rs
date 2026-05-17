@@ -21,6 +21,7 @@ use mnemonic_gui::schema_check::{
     parse_gui_schema_conditional_rules, ConditionalRule, Effect, Predicate,
     VisibilityProjection,
 };
+use std::collections::BTreeMap;
 use std::path::PathBuf;
 use std::process::Command;
 
@@ -190,7 +191,10 @@ fn gui_schema_conditional_rules_match_hand_coded_conditionals() {
     // pull conditional_rules and exercise every rule.
     let root: serde_json::Value = serde_json::from_str(&json).unwrap();
     let subs = root["subcommands"].as_array().expect("subcommands array");
-    let mut total_rules = 0_usize;
+    // v0.6.1 P3 #5B: per-subcommand rule counts replace the prior
+    // `total_rules > 0` vacuous-pass assertion. Populated only for
+    // subcommands the gate ACTUALLY exercises (post early-exit checks).
+    let mut per_subcommand_rules: BTreeMap<String, usize> = BTreeMap::new();
     let mut skipped_no_conditional = 0_usize;
 
     for sub in subs {
@@ -217,9 +221,9 @@ fn gui_schema_conditional_rules_match_hand_coded_conditionals() {
             );
             continue;
         };
+        per_subcommand_rules.insert(sub_name.to_string(), rules.len());
 
         for rule in &rules {
-            total_rules += 1;
             // Satisfied direction: synthesize FormState, invoke fn, check.
             let state = synthesize_satisfying(&rule.when, FormState::default());
             let vis_map = conditional_fn(&state);
@@ -246,10 +250,38 @@ fn gui_schema_conditional_rules_match_hand_coded_conditionals() {
             );
         }
     }
+    // v0.6.1 P3 #5B: per-subcommand lower-bound floors. The prior
+    // `total_rules > 0` assertion would have silently passed a regression
+    // that dropped the actual ~34 emitted rules down to a non-zero
+    // handful (per [feedback-ci-snapshot-test-substring-vacuity]). The
+    // floors below are the v0.17.1 baseline; future cycles that legitimately
+    // REDUCE a subcommand's rule count (rare — typically only on intentional
+    // grammar refactors) must bump the floor in lockstep.
+    // Tracks FOLLOWUP `gui-pin-value-effect-on-slot-flag-gap` (sub-fold B).
+    const SUBCOMMAND_FLOORS: &[(&str, usize)] = &[
+        ("bundle", 11),
+        ("verify-bundle", 10),
+        ("export-wallet", 6),
+        ("convert", 4),
+        ("derive-child", 3),
+    ];
+    for (name, floor) in SUBCOMMAND_FLOORS {
+        let actual = per_subcommand_rules.get(*name).copied().unwrap_or(0);
+        assert!(
+            actual >= *floor,
+            "drift gate per-subcommand floor violated: subcommand `{name}` \
+             emitted {actual} rules, expected >= {floor}. Either a \
+             regression dropped rules, or an intentional reduction requires \
+             bumping the floor in tests/gui_schema_conditional_drift.rs::\
+             SUBCOMMAND_FLOORS. (skipped_no_conditional: {skipped_no_conditional})"
+        );
+    }
+    // Total-count sanity check derived from the floors (sum = 34).
+    let total_rules: usize = per_subcommand_rules.values().sum();
     assert!(
-        total_rules > 0,
-        "drift gate must exercise at least one rule; got {total_rules} \
-         (skipped_no_conditional: {skipped_no_conditional})"
+        total_rules >= 34,
+        "drift gate total: expected >= 34 rules across all subcommands, got \
+         {total_rules}. Per-subcommand breakdown: {per_subcommand_rules:?}"
     );
 }
 

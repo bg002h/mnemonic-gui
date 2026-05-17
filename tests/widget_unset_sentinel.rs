@@ -149,19 +149,97 @@ fn flag_value_unset_serde_roundtrip() {
     assert_eq!(back, FlagValue::Unset);
 }
 
-// ── (5) #[serde(other)] forward-compat ─────────────────────────────────
+// ── (5) #[serde(other)] forward-compat — load-bearing CANARY pair ──────
+//
+// The 3 cells below collectively pin the v0.6.0 empirically-observed
+// behavior of `#[serde(other)]` on `FlagValue::Unset` (an externally-
+// tagged enum). Per serde docs (https://serde.rs/variant-attrs.html):
+// `#[serde(other)]` is "Only allowed on a unit variant inside of an
+// internally tagged or adjacently tagged enum"; per serde-rs/serde#2010
+// on externally-tagged enums it "compiles but mysteriously doesn't
+// work" — a request was filed to make it a compile-time error.
+// Empirically, on `FlagValue` it DOES correctly fall back unknown tags
+// to Unset for BOTH bare-string and tagged-object serde branches, but
+// this is undocumented and could silently change on a future serde
+// upgrade. The 3 cells together cover the full forward-compat surface
+// and fail LOUDLY if serde changes the behavior, forcing reconsideration
+// of the v0.6.0 forward-compat claim in CHANGELOG [0.6.0]/[0.6.1].
+// Tracks FOLLOWUP `gui-flag-value-unset-serde-other-externally-tagged-
+// dependency` (filed v0.6.0 cycle close; resolved v0.6.1 via this canary
+// pair).
 
 #[test]
 fn flag_value_unknown_tag_deserializes_to_unset_via_serde_other() {
-    // A future GUI (v0.7+) might add a FlagValue variant that v0.6's
-    // FlagValue doesn't know. `#[serde(other)]` on Unset makes v0.6 map
-    // such a tag to Unset rather than panic on deserialize. Surfaces as
-    // graceful state-restore: the user's saved value is lost (becomes
-    // Unset = no value), but the form-state file as a whole loads.
+    // CANARY (bare-string branch). A future GUI (v0.7+) might add a
+    // FlagValue variant that v0.6's FlagValue doesn't know. `#[serde(
+    // other)]` on Unset makes v0.6 map such a tag to Unset rather than
+    // panic on deserialize. Surfaces as graceful state-restore: the
+    // user's saved value is lost (becomes Unset = no value), but the
+    // form-state file as a whole loads. THIS TEST FAILS LOUDLY if the
+    // bare-string serde fallback breaks.
     let unknown_tag_json = r#""FutureKitchenSink""#;
-    let parsed: FlagValue =
-        serde_json::from_str(unknown_tag_json).expect("unknown tag must map to Unset, not panic");
+    let parsed: FlagValue = serde_json::from_str(unknown_tag_json).expect(
+        "CANARY: serde behavior changed — see FOLLOWUP \
+         gui-flag-value-unset-serde-other-externally-tagged-dependency",
+    );
     assert_eq!(parsed, FlagValue::Unset);
+}
+
+#[test]
+fn flag_value_unset_canary_known_tags_still_deserialize_correctly() {
+    // Regression guard for the canary pair: ensure `#[serde(other)]`
+    // doesn't accidentally swallow known tags too. Every existing variant
+    // tag must continue to deserialize to its specific variant, NOT to
+    // Unset. If this fires, the fallback became over-broad — serde would
+    // be silently mapping legitimate state.json contents to Unset, losing
+    // every user-typed value across the form.
+    assert_eq!(
+        serde_json::from_str::<FlagValue>(r#"{"Text": ""}"#).unwrap(),
+        FlagValue::Text(String::new())
+    );
+    assert_eq!(
+        serde_json::from_str::<FlagValue>(r#"{"Number": 42}"#).unwrap(),
+        FlagValue::Number(42)
+    );
+    assert_eq!(
+        serde_json::from_str::<FlagValue>(r#""Unset""#).unwrap(),
+        FlagValue::Unset
+    );
+    // (NOT exhaustive over all variants — sample-test the common ones; the
+    // existing `flag_value_unset_serde_roundtrip` test above covers the
+    // Unset-self round-trip; this cell focuses on the known-tag selectivity.)
+}
+
+#[test]
+fn flag_value_unset_canary_unknown_tagged_object_currently_fails_to_deserialize() {
+    // NEGATIVE CANARY (tagged-object branch). The companion bare-string
+    // canary above passes — serde's `#[serde(other)]` DOES fall through
+    // unknown unit-variant tags to Unset on externally-tagged FlagValue.
+    // But for tagged-object payloads (a hypothetical future
+    // `FutureWithPayload(SomeStruct)` variant serialized as
+    // `{"FutureWithPayload": {...}}`), the v0.6 + current serde behavior
+    // is to FAIL the whole deserialization rather than fall back — the
+    // observed v0.6.1 limit on the forward-compat claim. Per
+    // serde-rs/serde#2010 this is the documented "non-functional on
+    // externally-tagged enums" behavior; empirically the bare-string
+    // case works (the v0.6.1 P3 #4 discovery surfaced this asymmetry).
+    //
+    // This NEGATIVE canary fires if serde ever DOES make tagged-object
+    // fallback work — at which point the v0.6.x forward-compat claim
+    // can be broadened. Until then, the CHANGELOG/FOLLOWUP notes
+    // qualify the forward-compat as "future unit-variant additions only".
+    // Tracks FOLLOWUP `gui-flag-value-unset-serde-other-externally-
+    // tagged-dependency`.
+    let result: Result<FlagValue, _> =
+        serde_json::from_str(r#"{"FutureWithPayload": {"x": 1, "y": 2}}"#);
+    assert!(
+        result.is_err(),
+        "NEGATIVE CANARY fired: tagged-object unknown variant deserialized \
+         successfully (was {result:?}). serde behavior changed — the v0.6.x \
+         forward-compat claim can now be broadened to cover data-carrying \
+         future variants. Update CHANGELOG + FOLLOWUP \
+         gui-flag-value-unset-serde-other-externally-tagged-dependency.",
+    );
 }
 
 // ── (6) argv assembler skips Unset (load-bearing P3 fix) ───────────────
