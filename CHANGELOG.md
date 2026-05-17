@@ -3,6 +3,123 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## [0.6.1] — 2026-05-16
+
+### Fixed — defense-in-depth folds (canary tests for serde-other dependency + drift gate per-subcommand floors + --slot PinValue debug_assert)
+
+Patch release folding 3 FOLLOWUPs filed at the `mnemonic-gui-v0.6.0`
+cycle-close opus reviewer audit. No SPEC grammar additions; no
+wire-format changes; no widget refactors. Pure defense-in-depth +
+toolkit-side cosmetic fix.
+
+#### Companion toolkit bump: `mnemonic-toolkit-v0.17.1`
+
+`mnemonic-toolkit-v0.17.0` → `mnemonic-toolkit-v0.17.1` (commit
+`7ed3784`) on both the documentary `pinned-upstream.toml [mnemonic].tag`
+(P2 commit `6d57a89`) and the load-bearing
+`Cargo.toml [dependencies] mnemonic-toolkit` pin (this release commit).
+The toolkit patch drops a spurious `meta.template_groups` block from
+the `derive-child` subcommand's gui-schema output — silently emitted
+in v0.17.0 despite derive-child having no `--template` flag. The GUI
+does not consume derive-child's meta block, so no GUI source change is
+required for the toolkit fix; the GUI just picks up the cleaner JSON
+shape via the bump.
+
+#### #4 (`gui-flag-value-unset-serde-other-externally-tagged-dependency`) — canary pair
+
+Added 2 cells to `tests/widget_unset_sentinel.rs` covering distinct
+serde branches; re-purposed the existing
+`flag_value_unknown_tag_deserializes_to_unset_via_serde_other` cell
+(at lines 154-165) as the load-bearing CANARY anchor.
+
+- `flag_value_unset_canary_known_tags_still_deserialize_correctly` —
+  regression guard for the canary pair; ensures `#[serde(other)]`
+  doesn't accidentally swallow known tags too.
+- `flag_value_unset_canary_unknown_tagged_object_currently_fails_to_deserialize`
+  — **NEGATIVE** canary documenting an empirical v0.6.1 discovery:
+  `#[serde(other)]` on externally-tagged FlagValue does NOT fall back
+  tagged-object unknown variants (only bare-string unknown variants).
+  The initial positive test failed (RED); inverted to a negative
+  assertion that pins the observed asymmetry. If a future serde
+  upgrade DOES make tagged-object fallback work, the canary fires and
+  the v0.6.x forward-compat claim can be broadened.
+
+**Forward-compat scope correction**: the v0.6.0 CHANGELOG claim
+"v0.6+ readers map any unknown tag in state.json to Unset" is
+**PARTIAL** — covers future *unit-variant* additions only; future
+*data-carrying* variants would cause v0.6 readers to fail state.json
+deserialization entirely. State.json files containing only known tags
+(every variant currently shipped) continue to load fine; the
+narrowing applies only to hypothetical future GUI versions adding new
+data-carrying FlagValue variants.
+
+#### #5A (`gui-pin-value-effect-on-slot-flag-gap`, sub-fold A) — slot-emit debug_assert
+
+`src/form/invocation.rs::assemble_argv` lines 106-111 (the slot-emit
+branch) gain a `debug_assert!(!matches!(flag_vis, Visibility::PinValue
+{ .. }), ...)` + release-mode defensive `if-suppress`. The visibility
+gate at lines 87-101 is `if flag.name != "--slot" || !subcommand.allows_slots`-
+wrapped and so does not run for `--slot` on slot-bearing subcommands;
+a future toolkit rule emitting PinValue for `--slot` would silently
+fall through to the slot-emission branch and emit malformed argv
+(pin_value's single-value emission semantic doesn't map onto `--slot`'s
+multi-row `@N.subkey=value` grammar). The debug_assert fails loud in
+dev/CI debug-profile; the release-mode `if-suppress` is the
+defensive net.
+
+A future cycle wanting legitimate pin_value-on-slot semantics must
+remove this debug_assert and replace with the new design; the loud
+fail makes that requirement visible at first encounter.
+
+#### #5B (`gui-pin-value-effect-on-slot-flag-gap`, sub-fold B) — drift gate per-subcommand floors
+
+`tests/gui_schema_conditional_drift.rs` replaces the prior
+`assert!(total_rules > 0)` (vacuously satisfiable per
+`[feedback-ci-snapshot-test-substring-vacuity]`) with per-subcommand
+lower-bound floors. v0.17.1 baseline:
+
+| Subcommand | Floor |
+| --- | --- |
+| `bundle` | 11 |
+| `verify-bundle` | 10 |
+| `export-wallet` | 6 |
+| `convert` | 4 |
+| `derive-child` | 3 |
+| **Total** | **≥ 34** |
+
+Failure message cites the floor table location so future
+legitimate-reduction cycles (e.g., a grammar refactor consolidating
+two rules into one) know exactly what to update. Added
+`use std::collections::BTreeMap` import + `per_subcommand_rules`
+accumulator populated only after the early-exit checks succeed.
+
+### Verification
+
+- `MNEMONIC_BIN=<path>/v0.17.1/mnemonic cargo test --offline`:
+  23 test binaries, **222 passed**, 0 failed, 1 ignored (was 220 at
+  v0.6.0; +2 net new cells in widget_unset_sentinel.rs).
+- Drift gate exercises per-subcommand floors against the v0.17.1
+  binary: all met (bundle 11 ≥ 11, etc.); total = 34.
+- `cargo clippy --all-targets --offline` → no new lints from this
+  cycle (pre-existing lints in unrelated test files unchanged).
+- Bumps: `Cargo.toml [package].version 0.6.0 → 0.6.1`,
+  `[dependencies] mnemonic-toolkit tag mnemonic-toolkit-v0.17.0 →
+  mnemonic-toolkit-v0.17.1` (commit `7ed3784`), Cargo.lock in lockstep
+  with both the workspace member bump and the git-dep tag bump.
+
+### Closes FOLLOWUPS (3)
+
+The cycle-close commit flips Status on these entries (toolkit + gui
+repos):
+
+- `gui-schema-derive-child-meta-template-groups-spurious` (cross-repo) —
+  resolved at toolkit `7ed3784` / gui `4712a1c`-or-release-SHA.
+- `gui-flag-value-unset-serde-other-externally-tagged-dependency` (gui-only)
+  — resolved at GUI v0.6.1 SHA via the canary pair + scope-narrowed
+  CHANGELOG claim.
+- `gui-pin-value-effect-on-slot-flag-gap` (gui-only) — resolved at
+  GUI v0.6.1 SHA (both sub-folds A + B).
+
 ## [0.6.0] — 2026-05-16
 
 ### Added — SPEC §6.10 v3 consumer (pin_value Effect + slot_count predicates + meta.template_groups)
