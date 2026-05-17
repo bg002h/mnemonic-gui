@@ -429,6 +429,23 @@ impl eframe::App for MnemonicGuiApp {
                     if matches!(v, mnemonic_gui::schema::Visibility::Hidden) {
                         continue;
                     }
+                    // v0.7.0: extract disabled_options orthogonally from the
+                    // primary first-rule-wins visibility, so a flag can
+                    // simultaneously be (e.g.) Required AND have invalid
+                    // Dropdown options greyed out. The Dropdown widget
+                    // consumes `disabled_options` directly; the primary
+                    // Visibility decorates the label + gates add_enabled_ui.
+                    let disabled_options: Vec<String> = vis
+                        .iter()
+                        .filter(|(k, _)| *k == flag.name)
+                        .filter_map(|(_, v)| match v {
+                            mnemonic_gui::schema::Visibility::DisableOptions {
+                                values,
+                            } => Some(values.clone()),
+                            _ => None,
+                        })
+                        .flatten()
+                        .collect();
                     // v0.2 Phase B.1: render_with_dispatch handles both
                     // secret (SecretLineEdit via state.secret_widgets) and
                     // non-secret (FlagValue via state.values) paths,
@@ -443,6 +460,7 @@ impl eframe::App for MnemonicGuiApp {
                                 &active_sub_name,
                                 flag,
                                 state,
+                                &disabled_options,
                             );
                         },
                     );

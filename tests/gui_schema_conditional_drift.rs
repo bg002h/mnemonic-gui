@@ -56,12 +56,16 @@ fn subcommand_named(name: &str) -> Option<&'static SubcommandSchema> {
 
 /// Translate the JSON-side VisibilityProjection to the GUI-side Visibility.
 /// v0.6.0 (schema v3): added PinValue arm.
+/// v0.7.0 (schema v4): added DisableOptions arm.
 fn vis_to_visibility(v: VisibilityProjection) -> Visibility {
     match v {
         VisibilityProjection::Hidden => Visibility::Hidden,
         VisibilityProjection::Disabled => Visibility::Disabled,
         VisibilityProjection::Required => Visibility::Required,
         VisibilityProjection::PinValue { value } => Visibility::PinValue { value },
+        VisibilityProjection::DisableOptions { values } => {
+            Visibility::DisableOptions { values }
+        }
     }
 }
 
@@ -225,41 +229,53 @@ fn gui_schema_conditional_rules_match_hand_coded_conditionals() {
 
         for rule in &rules {
             // Satisfied direction: synthesize FormState, invoke fn, check.
+            // v0.7.0: search for an entry MATCHING the expected visibility
+            // rather than the first entry for the flag. Multiple rules can
+            // emit entries for the same flag with orthogonal effects (e.g.,
+            // --template can be both Required AND have DisableOptions). The
+            // runtime render loop handles composition by consuming the
+            // primary first-rule-wins visibility + extracting DisableOptions
+            // separately; the drift gate verifies the GUI EMITS the rule's
+            // expected visibility somewhere in the map (presence, not order).
             let state = synthesize_satisfying(&rule.when, FormState::default());
             let vis_map = conditional_fn(&state);
-            let actual = vis_map
-                .iter()
-                .find(|(k, _)| *k == rule.effect.flag.as_str())
-                .map(|(_, v)| v.clone())
-                .unwrap_or(Visibility::Visible);
             let expected = vis_to_visibility(rule.effect.visibility.clone());
-            assert_eq!(
-                actual,
-                expected,
+            let found = vis_map
+                .iter()
+                .any(|(k, v)| *k == rule.effect.flag.as_str() && v == &expected);
+            assert!(
+                found,
                 "drift in subcommand `{sub_name}`:\n  \
                  rule rationale: {}\n  \
                  spec_ref: {}\n  \
                  predicate: {:?}\n  \
                  target flag: {}\n  \
                  expected visibility: {expected:?}\n  \
-                 actual visibility:   {actual:?}",
+                 vis_map for this flag: {:?}",
                 rule.rationale,
                 rule.spec_ref,
                 rule.when,
                 rule.effect.flag,
+                vis_map
+                    .iter()
+                    .filter(|(k, _)| *k == rule.effect.flag.as_str())
+                    .collect::<Vec<_>>(),
             );
         }
     }
     // v0.6.1 P3 #5B: per-subcommand lower-bound floors. The prior
     // `total_rules > 0` assertion would have silently passed a regression
-    // that dropped the actual ~34 emitted rules down to a non-zero
+    // that dropped the actual ~36 emitted rules down to a non-zero
     // handful (per [feedback-ci-snapshot-test-substring-vacuity]). The
-    // floors below are the v0.17.1 baseline; future cycles that legitimately
-    // REDUCE a subcommand's rule count (rare — typically only on intentional
-    // grammar refactors) must bump the floor in lockstep.
-    // Tracks FOLLOWUP `gui-pin-value-effect-on-slot-flag-gap` (sub-fold B).
+    // floors below are the v0.18.0/v0.7.0 baseline; future cycles that
+    // legitimately REDUCE a subcommand's rule count (rare — typically
+    // only on intentional grammar refactors) must bump the floor in
+    // lockstep.
+    // v0.7.0 cycle: bundle bumps 11 -> 13 (rows 10 + 11 added — two
+    // disable_options rules for slot_count-driven --template option
+    // disablement). Total bumps 34 -> 36 in lockstep.
     const SUBCOMMAND_FLOORS: &[(&str, usize)] = &[
-        ("bundle", 11),
+        ("bundle", 13),
         ("verify-bundle", 10),
         ("export-wallet", 6),
         ("convert", 4),
@@ -276,11 +292,11 @@ fn gui_schema_conditional_rules_match_hand_coded_conditionals() {
              SUBCOMMAND_FLOORS. (skipped_no_conditional: {skipped_no_conditional})"
         );
     }
-    // Total-count sanity check derived from the floors (sum = 34).
+    // Total-count sanity check derived from the floors (sum = 36).
     let total_rules: usize = per_subcommand_rules.values().sum();
     assert!(
-        total_rules >= 34,
-        "drift gate total: expected >= 34 rules across all subcommands, got \
+        total_rules >= 36,
+        "drift gate total: expected >= 36 rules across all subcommands, got \
          {total_rules}. Per-subcommand breakdown: {per_subcommand_rules:?}"
     );
 }

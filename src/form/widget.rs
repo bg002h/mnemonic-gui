@@ -71,6 +71,7 @@ pub fn render_with_dispatch(
     subcommand: &str,
     flag: &FlagSchema,
     state: &mut FormState,
+    disabled_options: &[String],
 ) {
     if crate::secrets::flag_is_secret(flag) && matches!(flag.kind, FlagKind::Text) {
         ui.horizontal(|ui| {
@@ -85,13 +86,18 @@ pub fn render_with_dispatch(
     }
 
     // Non-secret path: look up FlagValue from state.values, render via
-    // the existing FlagValue-based renderer, then write back.
+    // the existing FlagValue-based renderer, then write back. The Number
+    // widget reads state.slot_count() via the NumberMax::FromSlotCount
+    // resolve; the Dropdown widget consumes `disabled_options` directly
+    // (extracted upstream from the vis map's DisableOptions entries for
+    // this flag — orthogonal to the primary first-rule-wins Visibility
+    // which decorates the label).
     let idx = state.values.iter().position(|(k, _)| k == flag.name);
     let mut value = match idx {
         Some(i) => state.values[i].1.clone(),
         None => default_flag_value_for(&flag.kind),
     };
-    render(ui, tab, subcommand, flag, &mut value);
+    render(ui, tab, subcommand, flag, &mut value, state, disabled_options);
     match idx {
         Some(i) => state.values[i].1 = value,
         None => state.values.push((flag.name.to_string(), value)),
@@ -165,6 +171,8 @@ pub fn render(
     subcommand: &str,
     flag: &FlagSchema,
     value: &mut FlagValue,
+    state: &FormState,
+    disabled_options: &[String],
 ) {
     // v0.6.0 P3 — transition sentinel for Unset ↔ seeded swaps. Mutating
     // *value mid-match would conflict with the destructured borrow inside
@@ -198,17 +206,30 @@ pub fn render(
                 }
             }
             (FlagKind::Number { min, max }, FlagValue::Number(n)) => {
-                ui.add(egui::DragValue::new(n).range(*min..=*max));
+                let resolved_max = max.resolve(state);
+                ui.add(egui::DragValue::new(n).range(*min..=resolved_max));
                 if ui.small_button("✕").on_hover_text("clear (Unset)").clicked() {
                     transition = Some(FlagValue::Unset);
                 }
             }
             (FlagKind::Dropdown(opts), FlagValue::Dropdown(sel)) => {
+                // v0.7.0 SPEC §6.10.4 v4 — `disabled_options` greys out the
+                // listed option values + renders them non-selectable.
+                // Orthogonal to the primary Visibility (which decorates the
+                // label via Required/PinValue/etc and is consumed upstream
+                // in main.rs's `add_enabled_ui` gate for Disabled). A flag
+                // can simultaneously be Required (red asterisk on label) AND
+                // have invalid Dropdown options greyed out (e.g., --template
+                // when slot_count>=2 and no descriptor).
                 egui::ComboBox::from_id_salt(("flag_dropdown", flag.name))
                     .selected_text(sel.as_str())
                     .show_ui(ui, |ui| {
                         for opt in *opts {
-                            ui.selectable_value(sel, (*opt).to_string(), *opt);
+                            let is_disabled =
+                                disabled_options.iter().any(|d| d == *opt);
+                            ui.add_enabled_ui(!is_disabled, |ui| {
+                                ui.selectable_value(sel, (*opt).to_string(), *opt);
+                            });
                         }
                     });
             }

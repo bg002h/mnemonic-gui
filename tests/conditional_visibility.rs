@@ -755,6 +755,84 @@ fn cell_v0_16_derive_child_dice_sides_visible_when_application_other() {
     assert_eq!(vis_of(&vis, "--dice-sides"), Visibility::Visible);
 }
 
+// ─── v0.7.0 SPEC §6.10.3 v4 disable_options Effect ──────────────────────
+
+fn state_with_slot_count(count: usize) -> FormState {
+    let mut state = FormState::default();
+    while state.slots.rows.len() < count {
+        state.slots.rows.push(mnemonic_gui::form::slot_editor::SlotRow::default());
+    }
+    state.slots.rows.truncate(count);
+    state
+}
+
+/// v0.7.0 helper: extract all DisableOptions value-lists for a given flag
+/// from the vis map. v0.7.0 supports multiple visibility entries per flag
+/// (orthogonal composition — e.g., --template can be both Required AND
+/// have DisableOptions). vis_of() returns only the first-rule-wins match;
+/// this helper specifically pulls DisableOptions entries regardless of
+/// order.
+fn disabled_options_for(
+    vis: &[(&'static str, Visibility)],
+    flag: &str,
+) -> Vec<String> {
+    vis.iter()
+        .filter(|(k, _)| *k == flag)
+        .filter_map(|(_, v)| match v {
+            Visibility::DisableOptions { values } => Some(values.clone()),
+            _ => None,
+        })
+        .flatten()
+        .collect()
+}
+
+#[test]
+fn cell_v0_18_bundle_disable_single_sig_template_when_slot_count_gte_2() {
+    // SPEC §6.6 row 10 / §6.10.7: when slot_count >= 2, single-sig
+    // --template values become invalid (single-sig requires exactly 1
+    // slot). The GUI greys out those Dropdown options via
+    // Visibility::DisableOptions per §6.10.3 v4. The DisableOptions
+    // entry may coexist with the v0.16.0 Visibility::Required entry
+    // for --template (orthogonal effects: asterisk decoration +
+    // per-option grey-out); this cell asserts on the DisableOptions
+    // entry specifically via the v0.7.0 helper.
+    let state = state_with_slot_count(2);
+    let vis = run_conditional("bundle", &state);
+    let disabled = disabled_options_for(&vis, "--template");
+    let set: std::collections::BTreeSet<&str> = disabled.iter().map(|s| s.as_str()).collect();
+    let expected: std::collections::BTreeSet<&str> =
+        ["bip44", "bip49", "bip84", "bip86"].iter().copied().collect();
+    assert_eq!(
+        set, expected,
+        "row 10 must disable the single-sig template set when slot_count >= 2"
+    );
+}
+
+#[test]
+fn cell_v0_18_bundle_disable_multisig_template_when_slot_count_eq_1() {
+    // SPEC §6.6 row 11 / §6.10.7: when slot_count == 1, multisig
+    // --template values become invalid (multisig requires 2+ slots).
+    let state = state_with_slot_count(1);
+    let vis = run_conditional("bundle", &state);
+    let disabled = disabled_options_for(&vis, "--template");
+    let set: std::collections::BTreeSet<&str> = disabled.iter().map(|s| s.as_str()).collect();
+    let expected: std::collections::BTreeSet<&str> = [
+        "sh-wsh-multi",
+        "sh-wsh-sortedmulti",
+        "wsh-multi",
+        "wsh-sortedmulti",
+        "tr-multi-a",
+        "tr-sortedmulti-a",
+    ]
+    .iter()
+    .copied()
+    .collect();
+    assert_eq!(
+        set, expected,
+        "row 11 must disable the multisig template set when slot_count == 1"
+    );
+}
+
 // ─── v0.6.0 SPEC §6.10.3 v3 pin_value Effect ─────────────────────────────
 
 #[test]

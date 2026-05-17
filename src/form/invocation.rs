@@ -69,6 +69,14 @@ pub fn assemble_argv(
             .map(|(_, v)| v.clone())
             .unwrap_or(Visibility::Visible)
     };
+    // v0.7.0 SPEC §6.10.4 v4-cycle: `Visibility::DisableOptions` is
+    // SCHEMA-TIME ONLY — it greys out specific Dropdown options at
+    // render time but does NOT join the suppress set. If `state.values`
+    // already holds a now-disabled option value (carried over from a
+    // prior frame), argv emits it; CLI rows 10/11 catch the residual.
+    // `Visibility::PinValue` is also intentionally NOT in this set: it
+    // REPLACES the user-typed value with the pinned value and emits
+    // the pair (handled below in the per-flag emit branch).
     let suppresses = |v: &Visibility| matches!(v, Visibility::Hidden | Visibility::Disabled);
 
     for flag in subcommand.flags {

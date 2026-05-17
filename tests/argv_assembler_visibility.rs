@@ -270,3 +270,63 @@ fn bundle_pin_value_account_emits_zero_even_when_user_omits() {
         "argv must contain --account 0 even without user input; got {argv:?}",
     );
 }
+
+// ── v0.7.0 SPEC §6.10.4 v4 disable_options no-impact argv contract ─────
+
+fn state_with_slot_count(count: usize) -> FormState {
+    let mut state = FormState::default();
+    while state.slots.rows.len() < count {
+        state.slots.rows.push(mnemonic_gui::form::slot_editor::SlotRow::default());
+    }
+    state.slots.rows.truncate(count);
+    state
+}
+
+#[test]
+fn disable_options_does_not_suppress_argv_emission() {
+    // SPEC §6.10.4 v4 emission table: `disable_options` is SCHEMA-TIME
+    // ONLY — does NOT join the suppress set. If `state.values` already
+    // holds a now-disabled value (e.g., user picked bip84 with 1 slot,
+    // then added a 2nd slot which fires row 10 disabling single-sig
+    // templates), argv still emits `--template bip84`. CLI row 10 is
+    // the residual safety net.
+    //
+    // This test pins that contract: a state with slot_count=2 + a
+    // single-sig template value emits `--template bip84` regardless of
+    // the row-10 disable_options visibility.
+    let mut state = state_with_slot_count(2);
+    state.values.push(("--template".into(), FlagValue::Dropdown("bip84".into())));
+    let argv = argv_for("bundle", &state);
+    assert!(
+        contains_pair(&argv, "--template", "bip84"),
+        "argv must STILL contain --template bip84 even when row-10 \
+         disable_options has greyed it out (schema-time only contract); \
+         got {argv:?}",
+    );
+}
+
+#[test]
+fn threshold_widget_stale_value_above_slot_count_emits_argv_unchanged() {
+    // SPEC §6.10.4 v4 / R0 I4: when --threshold = 5 with 5 slots, then
+    // user deletes 2 → slot_count = 3 → state.values still has Number(5).
+    // egui::DragValue's .range() clamps the in-widget value on next
+    // user interaction but does NOT auto-mutate the underlying state.
+    // argv emits `--threshold 5` regardless; CLI row 9 rejects.
+    //
+    // Plan choice: NO auto-clamp at frame boundary (matches the v0.6.0
+    // P3 "preserve user values" discipline). This test pins the
+    // contract — auto-clamp would silently lose user intent and is
+    // YAGNI for v0.7.0.
+    let mut state = state_with_slot_count(3);
+    state.values.push(("--threshold".into(), FlagValue::Number(5)));
+    // Add a multisig template so --threshold isn't suppressed by the
+    // pre-existing v0.16.0 "single-sig disables threshold" rule.
+    state.values.push(("--template".into(), FlagValue::Dropdown("wsh-multi".into())));
+    let argv = argv_for("bundle", &state);
+    assert!(
+        contains_pair(&argv, "--threshold", "5"),
+        "argv must emit --threshold 5 even when slot_count=3 (no auto-\
+         clamp at frame boundary); CLI row 9 catches the residual. \
+         Got: {argv:?}",
+    );
+}

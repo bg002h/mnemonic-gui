@@ -11,7 +11,7 @@
 //! upstream `conflicts_with` / `required_unless_present_any` constraints
 //! into hand-coded `fn(&FormState) -> FlagVisibility` callbacks here.
 
-use super::{FlagKind, FlagSchema, PositionalArgSchema, Schema, SubcommandSchema};
+use super::{FlagKind, FlagSchema, NumberMax, PositionalArgSchema, Schema, SubcommandSchema};
 
 /// Empty positional-args slice — all five mnemonic-toolkit subcommands
 /// take their input via flags (`--slot`, `--from`, etc.) with zero
@@ -176,7 +176,7 @@ const BUNDLE_FLAGS: &[FlagSchema] = &[
         name: "--account",
         kind: FlagKind::Number {
             min: 0,
-            max: 2_147_483_647,
+            max: NumberMax::Static(2_147_483_647),
         },
         required: false,
         repeating: false,
@@ -225,7 +225,7 @@ const BUNDLE_FLAGS: &[FlagSchema] = &[
     },
     FlagSchema {
         name: "--threshold",
-        kind: FlagKind::Number { min: 1, max: 16 },
+        kind: FlagKind::Number { min: 1, max: NumberMax::FromSlotCount },
         required: false,
         repeating: false,
         help: "Multisig threshold K (1 <= K <= N <= 16).",
@@ -309,7 +309,7 @@ const VERIFY_BUNDLE_FLAGS: &[FlagSchema] = &[
         name: "--account",
         kind: FlagKind::Number {
             min: 0,
-            max: 2_147_483_647,
+            max: NumberMax::Static(2_147_483_647),
         },
         required: false,
         repeating: false,
@@ -385,7 +385,7 @@ const VERIFY_BUNDLE_FLAGS: &[FlagSchema] = &[
     },
     FlagSchema {
         name: "--threshold",
-        kind: FlagKind::Number { min: 1, max: 16 },
+        kind: FlagKind::Number { min: 1, max: NumberMax::FromSlotCount },
         required: false,
         repeating: false,
         help: "Multisig threshold K.",
@@ -488,7 +488,7 @@ const CONVERT_FLAGS: &[FlagSchema] = &[
         name: "--account",
         kind: FlagKind::Number {
             min: 0,
-            max: 2_147_483_647,
+            max: NumberMax::Static(2_147_483_647),
         },
         required: false,
         repeating: false,
@@ -566,7 +566,7 @@ const EXPORT_WALLET_FLAGS: &[FlagSchema] = &[
     },
     FlagSchema {
         name: "--threshold",
-        kind: FlagKind::Number { min: 1, max: 16 },
+        kind: FlagKind::Number { min: 1, max: NumberMax::FromSlotCount },
         required: false,
         repeating: false,
         help: "Multisig threshold K (1 <= K <= N).",
@@ -600,7 +600,7 @@ const EXPORT_WALLET_FLAGS: &[FlagSchema] = &[
         name: "--account",
         kind: FlagKind::Number {
             min: 0,
-            max: 2_147_483_647,
+            max: NumberMax::Static(2_147_483_647),
         },
         required: false,
         repeating: false,
@@ -651,7 +651,7 @@ const EXPORT_WALLET_FLAGS: &[FlagSchema] = &[
     },
     FlagSchema {
         name: "--bitcoin-core-version",
-        kind: FlagKind::Number { min: 24, max: 25 },
+        kind: FlagKind::Number { min: 24, max: NumberMax::Static(25) },
         required: false,
         repeating: false,
         help: "Bitcoin Core target version (24 or 25, default 25).",
@@ -699,7 +699,7 @@ const DERIVE_CHILD_FLAGS: &[FlagSchema] = &[
     },
     FlagSchema {
         name: "--length",
-        kind: FlagKind::Number { min: 0, max: 8192 },
+        kind: FlagKind::Number { min: 0, max: NumberMax::Static(8192) },
         required: true,
         repeating: false,
         help: "Per-app length validator. Pass 0 for xprv / hd-seed.",
@@ -709,7 +709,7 @@ const DERIVE_CHILD_FLAGS: &[FlagSchema] = &[
         name: "--index",
         kind: FlagKind::Number {
             min: 0,
-            max: 2_147_483_647,
+            max: NumberMax::Static(2_147_483_647),
         },
         required: true,
         repeating: false,
@@ -752,7 +752,7 @@ const DERIVE_CHILD_FLAGS: &[FlagSchema] = &[
         name: "--dice-sides",
         kind: FlagKind::Number {
             min: 2,
-            max: 4_294_967_295,
+            max: NumberMax::Static(4_294_967_295),
         },
         required: false,
         repeating: false,
@@ -792,7 +792,7 @@ const SLIP39_SPLIT_FLAGS: &[FlagSchema] = &[
     },
     FlagSchema {
         name: "--group-threshold",
-        kind: FlagKind::Number { min: 1, max: 16 },
+        kind: FlagKind::Number { min: 1, max: NumberMax::Static(16) },
         required: true,
         repeating: false,
         help: "K of the group layer (1..=group_count).",
@@ -808,7 +808,7 @@ const SLIP39_SPLIT_FLAGS: &[FlagSchema] = &[
     },
     FlagSchema {
         name: "--iteration-exponent",
-        kind: FlagKind::Number { min: 0, max: 15 },
+        kind: FlagKind::Number { min: 0, max: NumberMax::Static(15) },
         required: false,
         repeating: false,
         help: "Iteration exponent E (library-enforced 0..=15; default 0). G9 advisory at E >= 5.",
@@ -902,7 +902,7 @@ const SEED_XOR_SPLIT_FLAGS: &[FlagSchema] = &[
     },
     FlagSchema {
         name: "--shares",
-        kind: FlagKind::Number { min: 2, max: 255 },
+        kind: FlagKind::Number { min: 2, max: NumberMax::Static(255) },
         required: true,
         repeating: false,
         help: "Number of XOR shares to emit. Must be >= 2.",
@@ -947,7 +947,7 @@ const SEED_XOR_COMBINE_FLAGS: &[FlagSchema] = &[
     },
     FlagSchema {
         name: "--shares",
-        kind: FlagKind::Number { min: 2, max: 255 },
+        kind: FlagKind::Number { min: 2, max: NumberMax::Static(255) },
         required: true,
         repeating: false,
         help: "Asserted share count. Handler-side runtime check equals actual --share count.",

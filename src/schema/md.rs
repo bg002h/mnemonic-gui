@@ -11,7 +11,7 @@
 //! commands (separate concern); both are bumped in lockstep when the GUI
 //! advances its md pin.
 
-use super::{FlagKind, FlagSchema, PositionalArgSchema, Schema, SubcommandSchema};
+use super::{FlagKind, FlagSchema, NumberMax, PositionalArgSchema, Schema, SubcommandSchema};
 
 /// Networks accepted by md CLI. Same 4 values as mnemonic.rs::NETWORKS,
 /// but defined locally to avoid cross-module coupling (each CLI's schema
@@ -346,7 +346,7 @@ const ADDRESS_FLAGS: &[FlagSchema] = &[
     },
     FlagSchema {
         name: "--chain",
-        kind: FlagKind::Number { min: 0, max: 65_535 },
+        kind: FlagKind::Number { min: 0, max: NumberMax::Static(65_535) },
         required: false,
         repeating: false,
         help: "Multipath alternative selector (0 = receive, 1 = change for canonical <0;1>/*).",
@@ -364,7 +364,7 @@ const ADDRESS_FLAGS: &[FlagSchema] = &[
         name: "--index",
         kind: FlagKind::Number {
             min: 0,
-            max: 2_147_483_647,
+            max: NumberMax::Static(2_147_483_647),
         },
         required: false,
         repeating: false,
@@ -373,7 +373,7 @@ const ADDRESS_FLAGS: &[FlagSchema] = &[
     },
     FlagSchema {
         name: "--count",
-        kind: FlagKind::Number { min: 1, max: 10_000 },
+        kind: FlagKind::Number { min: 1, max: NumberMax::Static(10_000) },
         required: false,
         repeating: false,
         help: "Number of consecutive addresses to derive starting at --index. Default 1.",

@@ -29,6 +29,27 @@ use crate::schema::{FlagVisibility, FormState, Visibility};
 /// SPEC source-of-truth; the parity test gates them.
 pub const SINGLE_SIG_TEMPLATES: &[&str] = &["bip44", "bip49", "bip84", "bip86"];
 
+/// SPEC §6.10.8 multisig template set (mirror partition of
+/// `SINGLE_SIG_TEMPLATES`). Source-of-truth: toolkit
+/// `crates/mnemonic-toolkit/src/template.rs::CliTemplate::is_multisig()`
+/// returning `true`. v0.7.0 SPEC §6.10.7 v3-cycle uses this list for
+/// the bundle row-11 `disable_options` visibility projection
+/// (`slot_count_eq: 1` → `--template` multisig options greyed out).
+/// Parity with the toolkit's `meta.template_groups.multisig` is gated
+/// by `tests/schema_mirror.rs` (sibling of the SINGLE_SIG parity test).
+pub const MULTISIG_TEMPLATES: &[&str] = &[
+    // Order matches toolkit `CliTemplate::value_variants()` iteration
+    // order (template.rs:25-40). The drift gate's per-rule check
+    // compares the GUI's emitted Vec<String> bit-exactly with the
+    // toolkit's emitted JSON array, so order must be preserved.
+    "wsh-multi",
+    "wsh-sortedmulti",
+    "sh-wsh-multi",
+    "sh-wsh-sortedmulti",
+    "tr-multi-a",
+    "tr-sortedmulti-a",
+];
+
 /// SPEC §6.10.7 taproot-multi-leaf template set (templates that require an
 /// explicit internal key). Same source-of-truth + drift-gate posture as
 /// `SINGLE_SIG_TEMPLATES`.
@@ -133,6 +154,30 @@ pub fn bundle(state: &FormState) -> FlagVisibility {
     if template_is_single_sig {
         vis.push(("--threshold", Visibility::Disabled));
         vis.push(("--multisig-path-family", Visibility::Disabled));
+    }
+    // v0.18.0 SPEC §6.10.7 v3-cycle: disable invalid --template options
+    // based on slot_count. Schema-time only (does NOT affect argv per
+    // §6.10.4); CLI rows 10/11 are the residual safety net for stale
+    // pre-disabled values. Emit at END to honor first-rule-wins (more-
+    // specific descriptor/template-driven rules above take precedence).
+    let slot_count = state.slot_count();
+    if slot_count >= 2 {
+        // SPEC §6.6 row 10: single-sig templates require exactly 1 slot.
+        vis.push((
+            "--template",
+            Visibility::DisableOptions {
+                values: SINGLE_SIG_TEMPLATES.iter().map(|s| s.to_string()).collect(),
+            },
+        ));
+    }
+    if slot_count == 1 {
+        // SPEC §6.6 row 11: multisig templates require 2+ slots.
+        vis.push((
+            "--template",
+            Visibility::DisableOptions {
+                values: MULTISIG_TEMPLATES.iter().map(|s| s.to_string()).collect(),
+            },
+        ));
     }
     vis
 }

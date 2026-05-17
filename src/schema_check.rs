@@ -169,14 +169,16 @@ pub struct Effect {
 /// SPEC §6.10.3 VisibilityProjection. `Visible` is the implicit default and
 /// never appears as an Effect value.
 ///
-/// v0.6.0 (schema v3) gains `PinValue { value }` per SPEC §6.10.3. The
-/// wire shape co-exists with v2's bare-string for Hidden/Disabled/Required:
+/// v0.6.0 (schema v3) gains `PinValue { value }` per SPEC §6.10.3.
+/// v0.7.0 (schema v4) gains `DisableOptions { values }` per SPEC §6.10.3.
+/// All variants co-exist with v2's bare-string for Hidden/Disabled/Required:
 ///
-///   bare string : `"hidden"` / `"disabled"` / `"required"`     (v2 + v3)
-///   tagged map  : `{"pin_value": {"value": <JSON>}}`           (v3 only)
+///   bare string : `"hidden"` / `"disabled"` / `"required"`            (v2+)
+///   tagged map  : `{"pin_value": {"value": <JSON>}}`                  (v3+)
+///   tagged map  : `{"disable_options": {"values": [<string>, ...]}}`  (v4+)
 ///
 /// `Copy` dropped because `serde_json::Value` isn't Copy. Custom
-/// `Deserialize` impl below accepts both shapes; serializer-side is
+/// `Deserialize` impl below accepts all shapes; serializer-side is
 /// toolkit-only so no `Serialize` impl on the GUI mirror.
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub enum VisibilityProjection {
@@ -184,12 +186,13 @@ pub enum VisibilityProjection {
     Disabled,
     Required,
     PinValue { value: serde_json::Value },
+    DisableOptions { values: Vec<String> },
 }
 
 impl<'de> Deserialize<'de> for VisibilityProjection {
     fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        // Accept either a bare string (v2 + Hidden/Disabled/Required in v3)
-        // or a single-key map (v3 pin_value tagged-object).
+        // Accept either a bare string (v2 + Hidden/Disabled/Required in v3+)
+        // or a single-key map (v3 pin_value, v4 disable_options tagged-objects).
         #[derive(Deserialize)]
         #[serde(untagged)]
         enum Shape {
@@ -203,11 +206,17 @@ impl<'de> Deserialize<'de> for VisibilityProjection {
                 "required" => Ok(VisibilityProjection::Required),
                 other => Err(serde::de::Error::unknown_variant(
                     other,
-                    &["hidden", "disabled", "required", "pin_value"],
+                    &[
+                        "hidden",
+                        "disabled",
+                        "required",
+                        "pin_value",
+                        "disable_options",
+                    ],
                 )),
             },
             Shape::Map(m) => {
-                // v3: only `pin_value` is defined. Future tagged variants
+                // v3: pin_value. v4: disable_options. Future tagged variants
                 // would extend this match.
                 if let Some(payload) = m.get("pin_value") {
                     let value = payload
@@ -215,6 +224,26 @@ impl<'de> Deserialize<'de> for VisibilityProjection {
                         .ok_or_else(|| serde::de::Error::missing_field("value"))?
                         .clone();
                     Ok(VisibilityProjection::PinValue { value })
+                } else if let Some(payload) = m.get("disable_options") {
+                    let values_node = payload
+                        .get("values")
+                        .ok_or_else(|| serde::de::Error::missing_field("values"))?;
+                    let values_array = values_node.as_array().ok_or_else(|| {
+                        serde::de::Error::custom(
+                            "disable_options.values must be a JSON array of strings",
+                        )
+                    })?;
+                    let values: Result<Vec<String>, _> = values_array
+                        .iter()
+                        .map(|v| {
+                            v.as_str().map(String::from).ok_or_else(|| {
+                                serde::de::Error::custom(
+                                    "disable_options.values entries must be strings",
+                                )
+                            })
+                        })
+                        .collect();
+                    Ok(VisibilityProjection::DisableOptions { values: values? })
                 } else {
                     let keys: Vec<&str> = m.keys().map(String::as_str).collect();
                     Err(serde::de::Error::custom(format!(

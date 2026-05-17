@@ -28,7 +28,7 @@
 use mnemonic_gui::form::invocation::assemble_argv;
 use mnemonic_gui::form::widget::{default_flag_value_for, seeded_value_for};
 use mnemonic_gui::schema::{
-    self, FlagKind, FlagValue, FormState, TaggedOrIndexedValue, TimestampValue,
+    self, FlagKind, FlagValue, FormState, NumberMax, TaggedOrIndexedValue, TimestampValue,
 };
 
 fn subcommand(name: &str) -> &'static schema::SubcommandSchema {
@@ -61,7 +61,7 @@ fn flag_value_unset_is_not_present_via_has_value() {
 #[test]
 fn default_flag_value_for_number_kind_returns_unset() {
     assert_eq!(
-        default_flag_value_for(&FlagKind::Number { min: 0, max: 100 }),
+        default_flag_value_for(&FlagKind::Number { min: 0, max: NumberMax::Static(100) }),
         FlagValue::Unset,
     );
 }
@@ -109,7 +109,7 @@ fn default_flag_value_for_text_kind_returns_empty_string_not_unset() {
 #[test]
 fn seeded_value_for_number_returns_min() {
     assert_eq!(
-        seeded_value_for(&FlagKind::Number { min: 3, max: 100 }),
+        seeded_value_for(&FlagKind::Number { min: 3, max: NumberMax::Static(100) }),
         FlagValue::Number(3),
     );
 }

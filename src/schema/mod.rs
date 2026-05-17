@@ -84,8 +84,11 @@ pub struct FlagSchema {
 pub enum FlagKind {
     /// Free-form text.
     Text,
-    /// Integer with inclusive bounds.
-    Number { min: i64, max: i64 },
+    /// Integer with inclusive bounds. v0.7.0: `max` is `NumberMax` (was
+    /// `i64`) to support `FromSlotCount` (closes SPEC §6.6 row 9 via the
+    /// GUI's `--threshold` widget binding its resolved max to the user's
+    /// configured slot_count).
+    Number { min: i64, max: NumberMax },
     /// One-of choice from a static list.
     Dropdown(&'static [&'static str]),
     /// Flag presence/absence.
@@ -105,14 +108,63 @@ pub enum FlagKind {
     Path { stdio_sentinel: bool },
 }
 
+/// Resolved-at-render-time upper bound for a `FlagKind::Number`. SPEC §6.6
+/// row 9 closes GUI-side via this enum: `--threshold`'s max equals the
+/// user's current slot_count, but slot_count is FormState-derived (not a
+/// compile-time constant), so the enum has a `FromSlotCount` variant that
+/// the widget renderer resolves against `state.slot_count()` at frame
+/// boundary.
+///
+/// **Resolve discipline (defensive bound):** when slot_count == 0 (no
+/// slots configured), the resolved max is `1` (matching the `min`
+/// declared by the toolkit's clap-derive `value_parser!(1..)`). The
+/// degenerate range `1..=1` is valid (the user can only enter `1`, which
+/// is also the only valid threshold for a 1-slot configuration that hasn't
+/// been built yet); CLI row 9 catches the residual case if the user emits
+/// argv with slot_count==0.
+///
+/// **Toolkit wire-format:** the toolkit does NOT emit `FromSlotCount` over
+/// the wire — this is a GUI-internal extension (Option A per the v0.7.0
+/// design doc). The toolkit's gui-schema JSON `Flag` shape emits only
+/// `kind: "number"` without min/max bounds (clap-derive's `value_parser!`
+/// bounds live CLI-side only and never reach the GUI). The GUI's per-flag
+/// `min`/`max: NumberMax` here is GUI-declared in `src/schema/mnemonic.rs`
+/// etc., not toolkit-derived.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum NumberMax {
+    /// Concrete upper bound resolved at compile time (e.g., u32::MAX cast
+    /// or a script-type-derived cap).
+    Static(i64),
+    /// Resolved at render time as `state.slot_count().max(1) as i64`.
+    /// Used by `--threshold` only (SPEC §6.6 row 9).
+    FromSlotCount,
+}
+
+impl NumberMax {
+    /// Resolve to a concrete `i64` upper bound given the current FormState.
+    /// `FromSlotCount` falls back to `1` when `slot_count() == 0` (degenerate
+    /// but valid range `min..=1`; the CLI catches the residual case per
+    /// SPEC §6.6 row 9 if argv is emitted from that state).
+    pub fn resolve(self, state: &FormState) -> i64 {
+        match self {
+            NumberMax::Static(n) => n,
+            NumberMax::FromSlotCount => state.slot_count().max(1) as i64,
+        }
+    }
+}
+
 /// Per-flag visibility decision returned by a `SubcommandSchema.conditional`
 /// function. Phase 5 wires the conditionals; Phase 1 declares the shape.
 ///
 /// v0.6.0 SPEC §6.10.3 v3: gained `PinValue { value }` variant for the v3
-/// pin_value Effect. Dropped `Copy` because `serde_json::Value` isn't Copy;
-/// downstream consumers `.clone()` instead. Argv emission semantics per
-/// §6.10.4: Hidden/Disabled suppress; Required is decorative; PinValue
-/// REPLACES the user-typed value with `value` and emits the pair.
+/// pin_value Effect. v0.7.0 SPEC §6.10.3 v4: gained `DisableOptions {
+/// values }` variant for the v4 disable_options Effect. Dropped `Copy`
+/// because `serde_json::Value` isn't Copy; downstream consumers `.clone()`
+/// instead. Argv emission semantics per §6.10.4: Hidden/Disabled suppress;
+/// Required is decorative; PinValue REPLACES the user-typed value with
+/// `value` and emits the pair; DisableOptions is schema-time only (does
+/// NOT affect argv emission — stale state values still emit if their
+/// option was disabled mid-frame; CLI rows 10/11 catch the residual).
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Visibility {
     /// Render the flag normally.
@@ -129,6 +181,12 @@ pub enum Visibility {
     /// read-only with a tooltip. SPEC §6.10.3 / §6.10.4 (v3). Argv
     /// emission REPLACES whatever the user typed with this pinned value.
     PinValue { value: serde_json::Value },
+    /// Dropdown-only: render the listed option values as greyed-out +
+    /// non-selectable. Schema-time only per SPEC §6.10.4 (v4): does NOT
+    /// affect argv emission. If the user's `state.values` still holds a
+    /// now-disabled value from an earlier frame, argv emits it; CLI
+    /// rows 10/11 catch the residual at run time.
+    DisableOptions { values: Vec<String> },
 }
 
 /// Map flag-name → visibility. Returned by `SubcommandSchema.conditional`.

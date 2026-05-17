@@ -128,7 +128,14 @@ fn cell_help_icon_emits_open_url_for_mnemonic_convert_from() {
 
     let mut harness = Harness::new_ui_state(
         |ui, state| {
-            widget::render_with_dispatch(ui, CliTab::Mnemonic, "convert", flag, state);
+            widget::render_with_dispatch(
+                ui,
+                CliTab::Mnemonic,
+                "convert",
+                flag,
+                state,
+                &[],
+            );
         },
         initial,
     );

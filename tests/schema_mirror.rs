@@ -659,3 +659,68 @@ fn single_sig_templates_const_matches_meta_template_groups() {
         "expected at least one subcommand with meta.template_groups; got {checked}",
     );
 }
+
+#[test]
+fn multisig_templates_const_matches_meta_template_groups() {
+    // SPEC §6.10.8 v3-cycle (v0.7.0) sibling of the SINGLE_SIG parity
+    // test. The GUI's `MULTISIG_TEMPLATES` const at
+    // `src/form/conditional.rs` is the runtime source-of-truth for the
+    // bundle row-11 `disable_options` projection (slot_count_eq: 1 →
+    // multisig template options greyed out). Drift between the const
+    // and the toolkit's `meta.template_groups.multisig` block would
+    // surface as a row-11 emission that disables the WRONG template
+    // values — a silent correctness bug. Same skip discipline as the
+    // SINGLE_SIG sibling.
+    let bin: String = match std::env::var("MNEMONIC_BIN").ok() {
+        Some(b) => b,
+        None => match Command::new("mnemonic").arg("--help").output() {
+            Ok(_) => "mnemonic".into(),
+            Err(_) => {
+                eprintln!(
+                    "MNEMONIC_BIN unset + PATH lookup failed; \
+                     skipping multisig_templates const-vs-meta parity"
+                );
+                return;
+            }
+        },
+    };
+    let out = Command::new(&bin)
+        .arg("gui-schema")
+        .output()
+        .expect("failed to spawn `mnemonic gui-schema`");
+    assert!(
+        out.status.success(),
+        "`mnemonic gui-schema` exited non-zero: {:?}",
+        out.status
+    );
+    let json: serde_json::Value =
+        serde_json::from_slice(&out.stdout).expect("gui-schema stdout must be JSON");
+    let subs = json["subcommands"].as_array().expect("subcommands array");
+    let const_set: BTreeSet<String> = mnemonic_gui::form::conditional::MULTISIG_TEMPLATES
+        .iter()
+        .map(|s| s.to_string())
+        .collect();
+    let mut checked = 0_usize;
+    for sub in subs {
+        let Some(meta) = sub.get("meta") else { continue };
+        let Some(groups) = meta.get("template_groups") else { continue };
+        let multisig: BTreeSet<String> = groups["multisig"]
+            .as_array()
+            .expect("multisig array")
+            .iter()
+            .map(|v| v.as_str().expect("template name string").to_string())
+            .collect();
+        assert_eq!(
+            multisig, const_set,
+            "MULTISIG_TEMPLATES const drift vs toolkit's meta.template_groups \
+             for subcommand `{}`. Update the const in lockstep with the toolkit's \
+             CliTemplate::is_multisig() partition.",
+            sub["name"].as_str().unwrap_or("<?>"),
+        );
+        checked += 1;
+    }
+    assert!(
+        checked > 0,
+        "expected at least one subcommand with meta.template_groups; got {checked}",
+    );
+}

@@ -3,6 +3,111 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## [0.7.0] — 2026-05-16
+
+### Added — SPEC §6.10 v3-cycle GUI consumer (schema v4 disable_options Effect + GUI-internal NumberMax::FromSlotCount)
+
+Lockstep with `mnemonic-toolkit-v0.18.0`. Closes the v0.6.0-cycle
+FOLLOWUP `gui-schema-effect-on-dropdown-options-vocab` (Batch B-1).
+
+#### Wire-format consumer (`src/schema_check.rs`)
+
+- `VisibilityProjection` enum gains the `DisableOptions { values:
+  Vec<String> }` variant. Custom `Deserialize` extended to accept the
+  new tagged-object wire shape `{"disable_options": {"values": [<string>,
+  ...]}}` alongside v3's `pin_value` + v2's bare-string. Fail-CLOSED
+  posture preserved for any other tagged-object key.
+
+#### GUI-internal NumberMax FlagKind extension (`src/schema/mod.rs`)
+
+- `FlagKind::Number { max: i64 → max: NumberMax }` shape change
+  (BREAKING for any out-of-tree consumer of `mnemonic_gui::schema::
+  FlagKind`; this GUI is the sole consumer at release time, verified
+  via `grep -rn "use mnemonic_gui::schema::FlagKind" /scratch/code/`).
+- New `NumberMax = Static(i64) | FromSlotCount` enum closes SPEC §6.6
+  row 9 (`--threshold` max equals `state.slot_count()`) GUI-side, with
+  no toolkit wire-format change (Option A per the v0.7.0 design doc —
+  toolkit does not emit `from_slot_count` and the bounds live in the
+  GUI's per-flag declaration alone).
+- `NumberMax::resolve(state)` helper falls back to `1` when
+  `slot_count() == 0` (degenerate but valid range `min..=1`; CLI row 9
+  catches the residual case).
+- `Visibility` enum gains `DisableOptions { values }` (mirror of the
+  wire-format consumer's `VisibilityProjection` extension).
+- 25-site FlagKind::Number cascade migrated to `NumberMax::Static(N)`
+  (or `FromSlotCount` for the 3 `--threshold` instances in
+  `src/schema/mnemonic.rs`); zero out-of-tree consumers affected.
+
+#### Conditional fn additions (`src/form/conditional.rs`)
+
+- New `MULTISIG_TEMPLATES: &[&str]` const (mirror of
+  `SINGLE_SIG_TEMPLATES`; order matches toolkit
+  `CliTemplate::value_variants()` for drift-gate parity).
+- `bundle()` gains two new rules: row 10 (`slot_count >= 2` →
+  `--template DisableOptions { single_sig }`) + row 11 (`slot_count ==
+  1` → `--template DisableOptions { multisig }`).
+
+#### Render-time composition (`src/form/widget.rs` + `src/main.rs`)
+
+- `render_with_dispatch` + `render` signatures gain `state: &FormState`
+  (for `NumberMax::FromSlotCount` resolve) + `disabled_options:
+  &[String]` (orthogonal Dropdown-option grey-out — extracted at
+  the main.rs render-loop call-site by filtering the vis map for
+  `Visibility::DisableOptions` entries).
+- Number widget arm uses `max.resolve(state)` to compute the runtime
+  upper bound; Dropdown widget arm iterates `disabled_options` to grey
+  out + non-select listed values via `egui::Ui::add_enabled_ui`.
+- A flag can now have BOTH a primary first-rule-wins Visibility (e.g.,
+  `Required` red-asterisk decoration on the label) AND `DisableOptions`
+  (per-option grey-out in the Dropdown) — orthogonal effects compose.
+
+### Drift gate floors raised
+
+`tests/gui_schema_conditional_drift.rs::SUBCOMMAND_FLOORS`: `bundle`
+bumps `11 → 13`; total `34 → 36`. Other floors unchanged. The drift
+gate's per-rule `find` was upgraded from "first entry per flag" to
+"any entry matching the expected visibility variant" — the runtime
+render-loop honours first-rule-wins for the primary visibility +
+extracts `DisableOptions` separately, so the test should verify
+presence-by-content rather than first-match.
+
+### New test files / cells
+
+- NEW `tests/number_max_from_slot_count.rs`: 4 cells unit-testing
+  `NumberMax::resolve` (FromSlotCount happy path + slot_count==0
+  clamp-to-1 + Static round-trip + monotonic increase across
+  slot_count 1..=8).
+- NEW cells in `tests/conditional_visibility.rs`: row 10 + row 11
+  DisableOptions assertions via a new `disabled_options_for` helper
+  (composition-aware lookup).
+- NEW cells in `tests/argv_assembler_visibility.rs`: pins the
+  "disable_options is schema-time only" argv contract +
+  "threshold value above slot_count emits unchanged" stale-state
+  contract (no auto-clamp at frame boundary).
+- NEW cell in `tests/schema_mirror.rs`: MULTISIG_TEMPLATES const-vs-
+  meta-block parity (sibling of the SINGLE_SIG cell).
+
+### Closes FOLLOWUPS
+
+- `gui-schema-effect-on-dropdown-options-vocab` (cross-repo) —
+  toolkit emits the v4 `disable_options` Effect; GUI consumes via
+  schema_check + render-time Dropdown filtering. Row 9 also closes
+  GUI-side via `NumberMax::FromSlotCount` (no toolkit wire change).
+
+### Verification
+
+- `MNEMONIC_BIN=...v0.18.0/mnemonic cargo test --offline`: **226
+  passed, 0 failed, 1 ignored** (was 222 at v0.6.1; +6 net new cells).
+- Drift gate per-subcommand floor `bundle ≥ 13` + total ≥ 36 pass.
+- Build green on local linux release profile.
+
+### Companion
+
+Toolkit pin bumped in lockstep: `Cargo.toml [dependencies]
+mnemonic-toolkit` tag `v0.17.1 → v0.18.0`; `pinned-upstream.toml`
+[mnemonic].tag matches (bumped separately in commit `c90d730`
+as the schema-mirror entry-criterion).
+
 ## [0.6.1] — 2026-05-16
 
 ### Fixed — defense-in-depth folds (canary tests for serde-other dependency + drift gate per-subcommand floors + --slot PinValue debug_assert)
