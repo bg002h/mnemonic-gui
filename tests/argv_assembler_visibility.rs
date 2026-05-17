@@ -282,28 +282,12 @@ fn state_with_slot_count(count: usize) -> FormState {
     state
 }
 
-#[test]
-fn disable_options_does_not_suppress_argv_emission() {
-    // SPEC §6.10.4 v4 emission table: `disable_options` is SCHEMA-TIME
-    // ONLY — does NOT join the suppress set. If `state.values` already
-    // holds a now-disabled value (e.g., user picked bip84 with 1 slot,
-    // then added a 2nd slot which fires row 10 disabling single-sig
-    // templates), argv still emits `--template bip84`. CLI row 10 is
-    // the residual safety net.
-    //
-    // This test pins that contract: a state with slot_count=2 + a
-    // single-sig template value emits `--template bip84` regardless of
-    // the row-10 disable_options visibility.
-    let mut state = state_with_slot_count(2);
-    state.values.push(("--template".into(), FlagValue::Dropdown("bip84".into())));
-    let argv = argv_for("bundle", &state);
-    assert!(
-        contains_pair(&argv, "--template", "bip84"),
-        "argv must STILL contain --template bip84 even when row-10 \
-         disable_options has greyed it out (schema-time only contract); \
-         got {argv:?}",
-    );
-}
+// v0.7.2 — `disable_options_does_not_suppress_argv_emission` deleted.
+// The v0.7.0 row 10/11 DisableOptions emissions were reverted in
+// v0.7.2 (UX flaw); the schema-time-no-argv-impact contract that
+// cell pinned no longer has a live emission to verify against.
+// argv-emission semantics for DisableOptions remain documented at
+// SPEC §6.10.4 (the grammar variant still exists for future cycles).
 
 #[test]
 fn threshold_widget_stale_value_above_slot_count_emits_argv_unchanged() {

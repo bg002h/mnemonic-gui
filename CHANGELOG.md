@@ -3,6 +3,88 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## [0.7.2] — 2026-05-16
+
+### Fixed — revert v0.7.0 disable_options for --template (UX flaw); migrate to inline warning banner
+
+Lockstep with `mnemonic-toolkit-v0.18.1`. Drops the v0.7.0 bundle()
+visibility pushes that disabled --template options based on
+slot_count, and replaces them with a GUI-internal warning banner
+adjacent to the slot grid.
+
+#### Why the v0.7.0 emission was wrong
+
+v0.7.0 added two `Visibility::DisableOptions` entries on bundle's
+`--template`:
+- slot_count >= 2 → disable single-sig template options
+- slot_count == 1 → disable multisig template options
+
+**Row 11 was a design flaw**: `slot_count == 1` is the natural
+TRANSIENT state when a user is building UP to multisig (slots get
+added one at a time, passing through 1 on the way to 2+). Disabling
+multisig templates at that transient state prevents the user from
+selecting their intended template before completing slot setup —
+the user can only ever pick from single-sig, even when they meant
+to build a multisig wallet. Row 10 had the symmetric flaw during
+multisig→single-sig template switches.
+
+Surfaced 2026-05-16 by user report: "for bundle command, i can not
+select anything but the 4 single sig formats for --template".
+
+#### Replacement: warning banner (Option A pattern)
+
+Mirrors the v0.7.1 row-8 slot-contiguity warning. The --template
+dropdown renders all options normally; an inline orange warning
+banner fires adjacent to the slot grid when the chosen template +
+slot_count combination would fail CLI rows 10/11 at runtime. The
+warning text suggests both directions of fix (change template OR
+adjust slot count) so the user can pick whichever matches their
+intent. CLI's mode-violation ladder (§6.6 rows 10/11) remains the
+authoritative gate.
+
+#### Changes
+
+- `src/form/conditional.rs::bundle`: row 10 + row 11 visibility
+  pushes deleted. Replaced with explanatory in-line comment.
+- `src/form/conditional.rs::template_slot_count_warning` (NEW):
+  helper returning `Option<String>` when the chosen template +
+  slot_count combination is invalid.
+- `src/main.rs`: after `slot_editor::render`, calls the helper +
+  renders the warning via `ui.colored_label`.
+- `Visibility::DisableOptions` enum variant retained for forward-
+  compat (still a defined v4 grammar surface; just unused after
+  rollback).
+- `tests/conditional_visibility.rs`: row 10/11 disable_options
+  assertions DELETED; replaced with
+  `cell_v0_18_1_bundle_emits_no_disable_options_after_row_10_11_rollback`
+  (anti-regression guard) + 7 new cells covering the
+  `template_slot_count_warning` helper (none for unset; valid
+  single-sig/multisig configurations; row 10/11 fire conditions
+  including the user's reported scenario).
+- `tests/argv_assembler_visibility.rs::disable_options_does_not_suppress_argv_emission`:
+  DELETED (no live emission to verify the no-suppress contract
+  against; SPEC §6.10.4 still documents the contract for future
+  grammar use).
+- `tests/gui_schema_conditional_drift.rs::SUBCOMMAND_FLOORS`:
+  bundle floor 13 → 11; total floor 36 → 34 (v0.17.1 baseline).
+
+#### Closes
+
+(No FOLLOWUP closures; same-cycle bugfix for a v0.7.0 design issue.)
+
+#### Verification
+
+- `MNEMONIC_BIN=...v0.18.1/mnemonic cargo test --offline`: 240
+  passed, 0 failed, 1 ignored (was 235 at v0.7.1; net +5 cells —
+  deleted 2 row-10/11 cells + 1 argv-no-suppress cell; added 1
+  anti-regression guard + 7 warning-helper cells).
+
+#### Companion
+
+Toolkit pin bumped in lockstep: `Cargo.toml [dependencies]
+mnemonic-toolkit` tag `v0.18.0 → v0.18.1`; `pinned-upstream.toml`
+`[mnemonic].tag` matches.
+
 ## [0.7.1] — 2026-05-16
 
 ### Added — SPEC §6.6 row 8 GUI-internal slot-contiguity pre-check (Batch B-2 partial closure)

@@ -155,31 +155,63 @@ pub fn bundle(state: &FormState) -> FlagVisibility {
         vis.push(("--threshold", Visibility::Disabled));
         vis.push(("--multisig-path-family", Visibility::Disabled));
     }
-    // v0.18.0 SPEC §6.10.7 v3-cycle: disable invalid --template options
-    // based on slot_count. Schema-time only (does NOT affect argv per
-    // §6.10.4); CLI rows 10/11 are the residual safety net for stale
-    // pre-disabled values. Emit at END to honor first-rule-wins (more-
-    // specific descriptor/template-driven rules above take precedence).
-    let slot_count = state.slot_count();
-    if slot_count >= 2 {
-        // SPEC §6.6 row 10: single-sig templates require exactly 1 slot.
-        vis.push((
-            "--template",
-            Visibility::DisableOptions {
-                values: SINGLE_SIG_TEMPLATES.iter().map(|s| s.to_string()).collect(),
-            },
-        ));
-    }
-    if slot_count == 1 {
-        // SPEC §6.6 row 11: multisig templates require 2+ slots.
-        vis.push((
-            "--template",
-            Visibility::DisableOptions {
-                values: MULTISIG_TEMPLATES.iter().map(|s| s.to_string()).collect(),
-            },
-        ));
-    }
+    // v0.7.1 introduced row 10/11 DisableOptions pushes here; v0.7.2
+    // reverted them. Row 11 was a design flaw: slot_count == 1 is the
+    // natural TRANSIENT state during multisig setup (slots added one
+    // at a time, passing through 1 on the way to 2+). Disabling
+    // multisig templates at that transient state prevented users from
+    // selecting their intended template before completing slot setup.
+    // Row 10 had the symmetric flaw on multisig→single-sig switches.
+    // Template/slot_count mismatch detection migrated to
+    // `template_slot_count_warning` + an inline warning banner
+    // rendered in `main.rs` adjacent to the slot grid (Option A
+    // pattern matching v0.7.1 row-8 slot-contiguity check).
     vis
+}
+
+/// v0.7.2 SPEC §6.6 rows 10/11 — GUI-internal template/slot_count
+/// mismatch detector. Returns `Some(warning_text)` when the chosen
+/// `--template` value combined with the current `slot_count` would
+/// fail CLI row 10 or row 11 at runtime; `None` otherwise.
+///
+/// The returned text is rendered as an inline warning banner adjacent
+/// to the slot grid (see `main.rs` consumer). Suggests both directions
+/// of fix (change template OR adjust slot count) so the user can pick
+/// whichever matches their intent.
+///
+/// **Option A pattern** (mirrors v0.7.1 row-8 `detect_slot_index_gaps`):
+/// pure GUI-internal pre-check; no toolkit wire-format involvement.
+/// The CLI's mode-violation ladder (§6.6 rows 10/11) remains the
+/// authoritative gate.
+///
+/// `template` is `None` when descriptor mode is active (`--template`
+/// disabled by the v0.16.0 mutex rule); the warning suppresses there.
+pub fn template_slot_count_warning(
+    template: Option<&str>,
+    slot_count: usize,
+) -> Option<String> {
+    let template = template?;
+    if SINGLE_SIG_TEMPLATES.contains(&template) {
+        // Row 10: single-sig requires exactly 1 slot.
+        if slot_count >= 2 {
+            return Some(format!(
+                "⚠ template '{template}' is single-sig (requires 1 slot); \
+                 you have {slot_count} slots. Use a multisig template or \
+                 remove slots."
+            ));
+        }
+    } else if MULTISIG_TEMPLATES.contains(&template) {
+        // Row 11: multisig requires 2+ slots.
+        if slot_count < 2 {
+            return Some(format!(
+                "⚠ template '{template}' is multisig (requires 2+ slots); \
+                 you have {slot_count} slot{}. Add slots or use a \
+                 single-sig template.",
+                if slot_count == 1 { "" } else { "s" }
+            ));
+        }
+    }
+    None
 }
 
 /// `verify-bundle` subcommand conditionals.

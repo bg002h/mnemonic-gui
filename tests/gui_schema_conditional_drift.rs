@@ -271,11 +271,15 @@ fn gui_schema_conditional_rules_match_hand_coded_conditionals() {
     // legitimately REDUCE a subcommand's rule count (rare — typically
     // only on intentional grammar refactors) must bump the floor in
     // lockstep.
-    // v0.7.0 cycle: bundle bumps 11 -> 13 (rows 10 + 11 added — two
-    // disable_options rules for slot_count-driven --template option
-    // disablement). Total bumps 34 -> 36 in lockstep.
+    // v0.7.0 cycle: bundle bumped 11 -> 13 (rows 10 + 11 added).
+    // v0.7.2 cycle: REVERTED — bundle 13 -> 11 (row 10/11 disable_options
+    // rolled back; UX flaw — row 11 disabled multisig at transient
+    // slot_count==1 state, blocking multisig setup). Template/
+    // slot_count mismatch UX migrated to a GUI-internal warning banner
+    // (Option A pattern, mirrors v0.7.1 row-8 contiguity check).
+    // Total floor: 36 -> 34 in lockstep.
     const SUBCOMMAND_FLOORS: &[(&str, usize)] = &[
-        ("bundle", 13),
+        ("bundle", 11),
         ("verify-bundle", 10),
         ("export-wallet", 6),
         ("convert", 4),
@@ -292,11 +296,11 @@ fn gui_schema_conditional_rules_match_hand_coded_conditionals() {
              SUBCOMMAND_FLOORS. (skipped_no_conditional: {skipped_no_conditional})"
         );
     }
-    // Total-count sanity check derived from the floors (sum = 36).
+    // Total-count sanity check derived from the floors (sum = 34).
     let total_rules: usize = per_subcommand_rules.values().sum();
     assert!(
-        total_rules >= 36,
-        "drift gate total: expected >= 36 rules across all subcommands, got \
+        total_rules >= 34,
+        "drift gate total: expected >= 34 rules across all subcommands, got \
          {total_rules}. Per-subcommand breakdown: {per_subcommand_rules:?}"
     );
 }

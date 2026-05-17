@@ -490,6 +490,26 @@ impl eframe::App for MnemonicGuiApp {
                         }
                     });
                     mnemonic_gui::form::slot_editor::render(ui, &mut state.slots);
+                    // v0.7.2 SPEC §6.6 rows 10/11 — GUI-internal
+                    // template/slot_count mismatch warning (Option A
+                    // pattern, mirrors row-8 contiguity warning inside
+                    // the slot grid). Renders inline orange banner when
+                    // the chosen --template is incompatible with the
+                    // current slot_count; suggests both directions of
+                    // fix. CLI rows 10/11 remain the authoritative gate.
+                    let template = state.dropdown_value("--template");
+                    let slot_count = state.slot_count();
+                    if let Some(warning) =
+                        mnemonic_gui::form::conditional::template_slot_count_warning(
+                            template,
+                            slot_count,
+                        )
+                    {
+                        ui.colored_label(
+                            egui::Color32::from_rgb(220, 165, 0),
+                            warning,
+                        );
+                    }
                 }
                 // Positional args.
                 for (i, pos) in sub.positional_args.iter().enumerate() {

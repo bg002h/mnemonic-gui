@@ -766,71 +766,124 @@ fn state_with_slot_count(count: usize) -> FormState {
     state
 }
 
-/// v0.7.0 helper: extract all DisableOptions value-lists for a given flag
-/// from the vis map. v0.7.0 supports multiple visibility entries per flag
-/// (orthogonal composition — e.g., --template can be both Required AND
-/// have DisableOptions). vis_of() returns only the first-rule-wins match;
-/// this helper specifically pulls DisableOptions entries regardless of
-/// order.
-fn disabled_options_for(
-    vis: &[(&'static str, Visibility)],
-    flag: &str,
-) -> Vec<String> {
-    vis.iter()
-        .filter(|(k, _)| *k == flag)
-        .filter_map(|(_, v)| match v {
-            Visibility::DisableOptions { values } => Some(values.clone()),
-            _ => None,
-        })
-        .flatten()
-        .collect()
-}
+// ── v0.7.2 template/slot_count warning helper ─────────────────────────
 
 #[test]
-fn cell_v0_18_bundle_disable_single_sig_template_when_slot_count_gte_2() {
-    // SPEC §6.6 row 10 / §6.10.7: when slot_count >= 2, single-sig
-    // --template values become invalid (single-sig requires exactly 1
-    // slot). The GUI greys out those Dropdown options via
-    // Visibility::DisableOptions per §6.10.3 v4. The DisableOptions
-    // entry may coexist with the v0.16.0 Visibility::Required entry
-    // for --template (orthogonal effects: asterisk decoration +
-    // per-option grey-out); this cell asserts on the DisableOptions
-    // entry specifically via the v0.7.0 helper.
-    let state = state_with_slot_count(2);
-    let vis = run_conditional("bundle", &state);
-    let disabled = disabled_options_for(&vis, "--template");
-    let set: std::collections::BTreeSet<&str> = disabled.iter().map(|s| s.as_str()).collect();
-    let expected: std::collections::BTreeSet<&str> =
-        ["bip44", "bip49", "bip84", "bip86"].iter().copied().collect();
+fn template_warning_none_when_template_unset() {
+    // No template chosen (e.g., descriptor mode active or pre-selection)
+    // — warning suppresses regardless of slot_count.
     assert_eq!(
-        set, expected,
-        "row 10 must disable the single-sig template set when slot_count >= 2"
+        mnemonic_gui::form::conditional::template_slot_count_warning(None, 0),
+        None,
+    );
+    assert_eq!(
+        mnemonic_gui::form::conditional::template_slot_count_warning(None, 5),
+        None,
     );
 }
 
 #[test]
-fn cell_v0_18_bundle_disable_multisig_template_when_slot_count_eq_1() {
-    // SPEC §6.6 row 11 / §6.10.7: when slot_count == 1, multisig
-    // --template values become invalid (multisig requires 2+ slots).
-    let state = state_with_slot_count(1);
-    let vis = run_conditional("bundle", &state);
-    let disabled = disabled_options_for(&vis, "--template");
-    let set: std::collections::BTreeSet<&str> = disabled.iter().map(|s| s.as_str()).collect();
-    let expected: std::collections::BTreeSet<&str> = [
-        "sh-wsh-multi",
-        "sh-wsh-sortedmulti",
-        "wsh-multi",
-        "wsh-sortedmulti",
-        "tr-multi-a",
-        "tr-sortedmulti-a",
-    ]
-    .iter()
-    .copied()
-    .collect();
+fn template_warning_none_for_single_sig_with_one_slot() {
+    // bip84 + 1 slot = valid single-sig configuration. No warning.
     assert_eq!(
-        set, expected,
-        "row 11 must disable the multisig template set when slot_count == 1"
+        mnemonic_gui::form::conditional::template_slot_count_warning(Some("bip84"), 1),
+        None,
     );
+    assert_eq!(
+        mnemonic_gui::form::conditional::template_slot_count_warning(Some("bip44"), 1),
+        None,
+    );
+}
+
+#[test]
+fn template_warning_none_for_single_sig_with_zero_slots() {
+    // bip84 + 0 slots = valid pre-build state (user picked template,
+    // hasn't added the cosigner slot yet). No warning.
+    assert_eq!(
+        mnemonic_gui::form::conditional::template_slot_count_warning(Some("bip84"), 0),
+        None,
+    );
+}
+
+#[test]
+fn template_warning_fires_for_single_sig_with_two_slots() {
+    // SPEC §6.6 row 10: single-sig + 2+ slots is invalid. Warning text
+    // suggests both directions of fix.
+    let warning =
+        mnemonic_gui::form::conditional::template_slot_count_warning(Some("bip84"), 2);
+    let text = warning.expect("single-sig + 2 slots must fire row 10 warning");
+    assert!(text.contains("bip84"), "warning must name the template; got: {text}");
+    assert!(text.contains("single-sig"), "warning must explain template kind");
+    assert!(text.contains("2"), "warning must cite the slot count");
+    assert!(
+        text.contains("multisig") || text.contains("remove"),
+        "warning must suggest a fix; got: {text}"
+    );
+}
+
+#[test]
+fn template_warning_fires_for_multisig_with_zero_slots() {
+    // SPEC §6.6 row 11: multisig + 0 slots is invalid. Warning fires.
+    let warning =
+        mnemonic_gui::form::conditional::template_slot_count_warning(Some("wsh-multi"), 0);
+    let text = warning.expect("multisig + 0 slots must fire row 11 warning");
+    assert!(text.contains("wsh-multi"));
+    assert!(text.contains("multisig"));
+    assert!(text.contains("0 slot"));
+}
+
+#[test]
+fn template_warning_fires_for_multisig_with_one_slot() {
+    // The transient state that v0.7.0 incorrectly disabled. v0.7.2
+    // shows a warning instead of disabling, so the user can complete
+    // their multisig setup.
+    let warning =
+        mnemonic_gui::form::conditional::template_slot_count_warning(Some("wsh-sortedmulti"), 1);
+    let text = warning.expect("multisig + 1 slot must fire row 11 warning");
+    assert!(text.contains("wsh-sortedmulti"));
+    assert!(text.contains("1 slot"));
+    assert!(
+        text.contains("Add") || text.contains("single-sig"),
+        "warning must suggest a fix; got: {text}"
+    );
+}
+
+#[test]
+fn template_warning_none_for_multisig_with_two_or_more_slots() {
+    // Valid multisig configuration. No warning.
+    assert_eq!(
+        mnemonic_gui::form::conditional::template_slot_count_warning(Some("wsh-multi"), 2),
+        None,
+    );
+    assert_eq!(
+        mnemonic_gui::form::conditional::template_slot_count_warning(Some("tr-multi-a"), 5),
+        None,
+    );
+}
+
+#[test]
+fn cell_v0_18_1_bundle_emits_no_disable_options_after_row_10_11_rollback() {
+    // v0.18.1 + v0.7.2 reverted the v0.18.0 row 10/11 DisableOptions
+    // emissions (UX flaw: row 11 disabled multisig at slot_count==1,
+    // the natural transient state during multisig setup). The
+    // template/slot_count mismatch UX migrated to a GUI-internal
+    // warning banner via `template_slot_count_warning` (rendered
+    // adjacent to the slot grid in main.rs). bundle()'s conditional
+    // fn must NOT push any DisableOptions entries for --template
+    // (or any other flag) at any slot_count.
+    for slot_count in [0_usize, 1, 2, 5] {
+        let state = state_with_slot_count(slot_count);
+        let vis = run_conditional("bundle", &state);
+        let any_disable_options = vis
+            .iter()
+            .any(|(_, v)| matches!(v, Visibility::DisableOptions { .. }));
+        assert!(
+            !any_disable_options,
+            "bundle() must emit ZERO DisableOptions entries at slot_count={slot_count} \
+             (v0.7.2 reverted v0.7.0's row 10/11 disable_options pushes); \
+             vis: {vis:?}"
+        );
+    }
 }
 
 // ─── v0.6.0 SPEC §6.10.3 v3 pin_value Effect ─────────────────────────────
