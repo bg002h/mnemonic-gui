@@ -3,6 +3,60 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## [0.7.1] — 2026-05-16
+
+### Added — SPEC §6.6 row 8 GUI-internal slot-contiguity pre-check (Batch B-2 partial closure)
+
+Closes the row-8 share of the v0.6.0-cycle FOLLOWUP `gui-schema-cross-
+slot-predicate-projection`. Rows 13/14 are closed as wontfix (CLI
+rejection is sufficient; GUI pre-check would add marginal UX at
+significant code cost — full BIP-388 distinct-key enforcement requires
+the toolkit's xpub derivation logic which can't be replicated GUI-side
+for phrase-bearing slots).
+
+#### What shipped
+
+- `src/form/slot_editor.rs::detect_slot_index_gaps(rows)` helper —
+  returns sorted `Vec<u8>` of missing indices that would cause the
+  CLI to reject the bundle with `error: slot indices must be
+  contiguous starting at @0; missing @{i}`. Operates on UNIQUE
+  indices (duplicate-index rows with different subkeys are NOT a
+  contiguity violation).
+- `slot_editor::render()` calls the helper after the slot grid +
+  Add-slot button. When gaps are detected, renders an inline orange
+  warning banner: `⚠ slot indices must be contiguous starting at @0;
+  missing @0, @2, ...`.
+
+#### Design pattern
+
+Option A (mirrors v0.7.0 `NumberMax::FromSlotCount` for row 9): pure
+GUI-internal pre-check; no toolkit wire-format change. The CLI still
+authoritatively rejects non-contiguous bundles at runtime; the GUI's
+pre-check is purely UX.
+
+#### NEW test file
+
+- `tests/slot_editor_contiguity.rs` — 9 cells covering: empty set,
+  single slot @0, contiguous N-slot, missing @0, single slot @3 (all
+  lower missing), middle gap, multiple middle gaps, duplicate
+  indices (non-violation), unsorted input.
+
+#### Closes FOLLOWUPS
+
+- `gui-schema-cross-slot-predicate-projection` (cross-repo) — row 8
+  resolved GUI-side (Option A); rows 13/14 wontfix with rationale.
+  All v0.6.0-cycle-close FOLLOWUPs are now closed (Batch A v0.6.1 +
+  Batch B-1 v0.7.0 + Batch B-2 v0.7.1).
+
+### Verification
+
+- `MNEMONIC_BIN=...v0.18.0/mnemonic cargo test --offline`: 235
+  passed, 0 failed, 1 ignored (was 226 at v0.7.0; +9 new cells in
+  the contiguity test file).
+- No toolkit functional change required; toolkit-side companion is
+  docs-only (SPEC §6.10.7 row 8 → `ENCODED v3 (GUI-internal)` + the
+  cross-repo FOLLOWUP closure with the same partition note).
+
 ## [0.7.0] — 2026-05-16
 
 ### Added — SPEC §6.10 v3-cycle GUI consumer (schema v4 disable_options Effect + GUI-internal NumberMax::FromSlotCount)

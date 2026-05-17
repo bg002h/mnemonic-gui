@@ -144,6 +144,29 @@ impl SlotState {
     }
 }
 
+/// v0.7.1 SPEC §6.6 row 8 — detect non-contiguous slot indices.
+///
+/// Returns the sorted list of missing indices (`Vec<u8>`) that would cause
+/// the CLI to reject the bundle with `error: slot indices must be
+/// contiguous starting at @0; missing @{i}`. Empty result means all slots
+/// are contiguous starting at @0 (or the slot set is empty).
+///
+/// Duplicate-index rows are NOT a contiguity violation (multiple subkeys
+/// per slot index — e.g., `@0.phrase + @0.path` — are a legitimate row
+/// shape). The detector operates on UNIQUE indices.
+///
+/// Option A pattern (mirrors v0.7.0 `NumberMax::FromSlotCount` for row 9):
+/// pure GUI-internal pre-check; no toolkit wire-format change. The CLI
+/// still authoritatively rejects non-contiguous bundles at runtime.
+pub fn detect_slot_index_gaps(rows: &[SlotRow]) -> Vec<u8> {
+    if rows.is_empty() {
+        return Vec::new();
+    }
+    let unique: std::collections::BTreeSet<u8> = rows.iter().map(|r| r.index).collect();
+    let max_index = *unique.iter().max().expect("non-empty set has a max");
+    (0..=max_index).filter(|i| !unique.contains(i)).collect()
+}
+
 /// Render the SlotEditor inside a vertical scroll area (SPEC §B.4 R1 L-2:
 /// row-height ~32px, no virtualization in v0.1 — N ≤ 16 cosigners bounds
 /// the row count below the threshold where virtualization matters).
@@ -176,6 +199,26 @@ pub fn render(ui: &mut egui::Ui, state: &mut SlotState) {
             }
             if ui.button("+ Add slot").clicked() {
                 state.rows.push(SlotRow::default());
+            }
+            // v0.7.1 SPEC §6.6 row 8 — inline contiguity warning. Pre-checks
+            // the CLI's mode-violation row 8 (`error: slot indices must be
+            // contiguous starting at @0; missing @{i}`) so the user sees
+            // the issue before hitting the CLI error. Renders nothing when
+            // the slot set is contiguous (or empty). Option A pattern: no
+            // toolkit wire-format change; the CLI is still authoritative.
+            let gaps = detect_slot_index_gaps(&state.rows);
+            if !gaps.is_empty() {
+                let missing = gaps
+                    .iter()
+                    .map(|i| format!("@{i}"))
+                    .collect::<Vec<_>>()
+                    .join(", ");
+                ui.colored_label(
+                    egui::Color32::from_rgb(220, 165, 0),
+                    format!(
+                        "⚠ slot indices must be contiguous starting at @0; missing {missing}"
+                    ),
+                );
             }
         });
 }
