@@ -25,6 +25,11 @@ fn cell_1_bundle_phrase_minimal_argv() {
     // v0.2 Phase B.1: secret-class flags (e.g. --passphrase) route
     // through state.secret_widgets, NOT state.values, per SPEC §3
     // assemble_argv branch.
+    //
+    // v0.10.0 B.3 (D33): `--account` with value `0` is suppressed by the
+    // default-suppression predicate (the toolkit v5 schema declares
+    // `default_value: 0`); the toolkit picks up the same value from its
+    // own defaults. To force emission, use a non-default value (`1` etc).
     let mut state = FormState::from_pairs(vec![
         ("--network", FlagValue::Dropdown("mainnet".into())),
         ("--template", FlagValue::Dropdown("bip84".into())),
@@ -40,7 +45,7 @@ fn cell_1_bundle_phrase_minimal_argv() {
         argv,
         vec![
             "mnemonic", "bundle", "--network", "mainnet", "--template", "bip84",
-            "--passphrase", "hunter2", "--account", "0", "--json",
+            "--passphrase", "hunter2", "--json",
         ]
     );
 }
@@ -84,6 +89,12 @@ fn cell_2_convert_from_to_argv() {
 fn cell_3_export_wallet_range_timestamp_argv() {
     // Covers Range + Timestamp (both Now and Unix variants reachable in
     // separate fixtures; this fixture pins Range + Timestamp::Unix).
+    //
+    // v0.10.0 B.3 (D33): `--range 0,999` and `--format bitcoin-core` are
+    // suppressed by the default-suppression predicate (toolkit v5 schema
+    // declares those as the defaults). `--timestamp 1700000000` is an
+    // Epoch value, which D33 specifies "Epoch(n) never matches `now`" so
+    // it emits regardless of the `--timestamp now` schema default.
     let state = FormState::from_pairs(vec![
         ("--template", FlagValue::Dropdown("bip84".into())),
         ("--range", FlagValue::Range(0, 999)),
@@ -97,7 +108,7 @@ fn cell_3_export_wallet_range_timestamp_argv() {
     );
     // Schema declares: --template, ..., --format, --output, --range,
     // --timestamp, ... — so --format precedes --range / --timestamp per
-    // SPEC §6.3.
+    // SPEC §6.3. Default-suppression drops --range + --format.
     assert_eq!(
         argv,
         vec![
@@ -105,10 +116,6 @@ fn cell_3_export_wallet_range_timestamp_argv() {
             "export-wallet",
             "--template",
             "bip84",
-            "--format",
-            "bitcoin-core",
-            "--range",
-            "0,999",
             "--timestamp",
             "1700000000",
         ]
@@ -118,6 +125,10 @@ fn cell_3_export_wallet_range_timestamp_argv() {
 #[test]
 fn cell_3b_export_wallet_timestamp_now_argv() {
     // Targeted: Timestamp::Now → literal "now" token.
+    //
+    // v0.10.0 B.3 (D33): `--timestamp now` is the toolkit v5 default;
+    // default-suppression drops it from argv. The toolkit picks up `now`
+    // from its own clap-derive default at parse time, preserving semantics.
     let state = FormState::from_pairs(vec![(
         "--timestamp",
         FlagValue::Timestamp(TimestampValue::Now),
@@ -127,7 +138,7 @@ fn cell_3b_export_wallet_timestamp_now_argv() {
         subcommand("export-wallet"),
         &state,
     );
-    assert_eq!(argv, vec!["mnemonic", "export-wallet", "--timestamp", "now"]);
+    assert_eq!(argv, vec!["mnemonic", "export-wallet"]);
 }
 
 #[test]
@@ -215,16 +226,18 @@ fn cell_5_bundle_descriptor_file_argv() {
 #[test]
 fn cell_5b_export_wallet_output_stdio_sentinel_argv() {
     // Covers Path { stdio_sentinel: true } — `-` is a real argv token.
+    //
+    // v0.10.0 B.3 (D33): `--output -` is the toolkit v5 default;
+    // default-suppression drops it from argv. To force emission, supply a
+    // non-default path (`/tmp/foo` etc). Emission behavior for non-default
+    // paths is covered by `cell_5_bundle_descriptor_file_argv`.
     let state = FormState::from_pairs(vec![("--output", FlagValue::Path("-".into()))]);
     let argv = assemble_argv(
         &schema::mnemonic::SCHEMA,
         subcommand("export-wallet"),
         &state,
     );
-    assert_eq!(
-        argv,
-        vec!["mnemonic", "export-wallet", "--output", "-"]
-    );
+    assert_eq!(argv, vec!["mnemonic", "export-wallet"]);
 }
 
 #[test]
@@ -249,9 +262,13 @@ fn cell_7_emission_order_follows_schema_declaration() {
     //
     // v0.2 Phase B.1: --passphrase lives in state.secret_widgets, not
     // state.values; the emission order still follows the schema.
+    //
+    // v0.10.0 B.3 (D33): `--account 0` is the schema default — suppressed.
+    // Bump to `1` to force emission and still exercise the reverse-insert
+    // → schema-order assertion.
     let mut state = FormState::from_pairs(vec![
         // Insert in REVERSE schema order.
-        ("--account", FlagValue::Number(0)),
+        ("--account", FlagValue::Number(1)),
         ("--template", FlagValue::Dropdown("bip84".into())),
         ("--network", FlagValue::Dropdown("signet".into())),
     ]);
@@ -267,7 +284,7 @@ fn cell_7_emission_order_follows_schema_declaration() {
             "--network", "signet",
             "--template", "bip84",
             "--passphrase", "p",
-            "--account", "0",
+            "--account", "1",
         ]
     );
 }
@@ -323,4 +340,244 @@ fn secret_class_flag_emitted_from_secret_widget_not_values_map() {
     );
     // --account must still emit from state.values (non-secret path).
     assert!(joined.contains("--account 7"));
+}
+
+// ─── v0.10.0 B.3 (D33) default-suppression cells ─────────────────────────
+//
+// D33 contract: when a form-state value equals the schema-declared
+// `default_value` for a flag, the argv assembler suppresses the flag from
+// emission. The toolkit picks up the same value from its own clap-derive
+// default at parse time, so explicit emission is noise. Per-FlagKind
+// compare-predicate table in `src/form/invocation.rs::is_at_default`.
+//
+// Coverage strategy: one cell per FlagKind variant exercising the
+// suppression (default-equal value suppressed) AND a paired negative-
+// control cell asserting non-default values still emit normally.
+//
+// NodeValueComposite + Boolean trivially-suppressed cases are covered
+// by pre-existing cells (`cell_6_node_value_composite_empty_value_omitted`
+// + the Boolean(false) omission in `cell_1`).
+
+mod d33_default_suppression {
+    use super::*;
+
+    #[test]
+    fn d33_number_at_default_suppresses_account_zero() {
+        // bundle's --account schema default is "0" (toolkit v5 schema).
+        // Number(0) → suppressed.
+        let state = FormState::from_pairs(vec![
+            ("--network", FlagValue::Dropdown("mainnet".into())),
+            ("--account", FlagValue::Number(0)),
+        ]);
+        let argv =
+            assemble_argv(&schema::mnemonic::SCHEMA, subcommand("bundle"), &state);
+        assert!(
+            !argv.iter().any(|a| a == "--account"),
+            "--account 0 (schema default) must be suppressed; got {argv:?}"
+        );
+        assert!(
+            !argv.iter().any(|a| a == "0"),
+            "the default value 0 must NOT leak as a positional; got {argv:?}"
+        );
+    }
+
+    #[test]
+    fn d33_number_non_default_emits_account_nonzero() {
+        // Negative control: --account 1 is NOT the default → emits.
+        let state = FormState::from_pairs(vec![
+            ("--network", FlagValue::Dropdown("mainnet".into())),
+            ("--account", FlagValue::Number(1)),
+        ]);
+        let argv =
+            assemble_argv(&schema::mnemonic::SCHEMA, subcommand("bundle"), &state);
+        assert!(
+            argv.iter().zip(argv.iter().skip(1)).any(|(a, b)| a == "--account" && b == "1"),
+            "--account 1 (non-default) must emit; got {argv:?}"
+        );
+    }
+
+    #[test]
+    fn d33_text_at_default_suppresses() {
+        // No --network default exists for export-wallet (schema's default
+        // is "mainnet" Dropdown). Text-default coverage uses Path below.
+        // Empty text is already trivially suppressed by emit_one.
+        // Synthetic case: bundle's --passphrase is Text-secret; secrets
+        // bypass emit_one's is_at_default. Use the export-wallet --network
+        // (Dropdown) below for the at-default path; here we anchor the
+        // empty-text already-suppressed path as the D33 trivial baseline.
+        let state = FormState::from_pairs(vec![(
+            "--descriptor",
+            FlagValue::Text("".into()),
+        )]);
+        let argv =
+            assemble_argv(&schema::mnemonic::SCHEMA, subcommand("bundle"), &state);
+        assert!(
+            !argv.iter().any(|a| a == "--descriptor"),
+            "empty Text already suppressed (pre-D33 baseline); got {argv:?}"
+        );
+    }
+
+    #[test]
+    fn d33_path_at_default_suppresses_output_dash() {
+        // export-wallet --output schema default is "-" (toolkit v5).
+        // Path("-") → suppressed.
+        let state = FormState::from_pairs(vec![("--output", FlagValue::Path("-".into()))]);
+        let argv = assemble_argv(
+            &schema::mnemonic::SCHEMA,
+            subcommand("export-wallet"),
+            &state,
+        );
+        assert!(
+            !argv.iter().any(|a| a == "--output"),
+            "--output - (schema default) must be suppressed; got {argv:?}"
+        );
+    }
+
+    #[test]
+    fn d33_path_non_default_emits() {
+        // Negative control: --output /tmp/foo is NOT the default → emits.
+        let state = FormState::from_pairs(vec![(
+            "--output",
+            FlagValue::Path("/tmp/foo.json".into()),
+        )]);
+        let argv = assemble_argv(
+            &schema::mnemonic::SCHEMA,
+            subcommand("export-wallet"),
+            &state,
+        );
+        assert!(
+            argv.iter().any(|a| a == "/tmp/foo.json"),
+            "--output /tmp/foo.json (non-default) must emit; got {argv:?}"
+        );
+    }
+
+    #[test]
+    fn d33_range_at_default_suppresses_zero_999() {
+        // export-wallet --range schema default is "0,999" (toolkit v5).
+        // Range(0, 999) → suppressed.
+        let state = FormState::from_pairs(vec![("--range", FlagValue::Range(0, 999))]);
+        let argv = assemble_argv(
+            &schema::mnemonic::SCHEMA,
+            subcommand("export-wallet"),
+            &state,
+        );
+        assert!(
+            !argv.iter().any(|a| a == "--range"),
+            "--range 0,999 (schema default) must be suppressed; got {argv:?}"
+        );
+    }
+
+    #[test]
+    fn d33_range_non_default_emits() {
+        // Negative control: --range 0,500 is NOT the default → emits.
+        let state = FormState::from_pairs(vec![("--range", FlagValue::Range(0, 500))]);
+        let argv = assemble_argv(
+            &schema::mnemonic::SCHEMA,
+            subcommand("export-wallet"),
+            &state,
+        );
+        assert!(
+            argv.iter().any(|a| a == "0,500"),
+            "--range 0,500 (non-default) must emit; got {argv:?}"
+        );
+    }
+
+    #[test]
+    fn d33_timestamp_now_at_default_suppresses() {
+        // export-wallet --timestamp schema default is "now".
+        // Timestamp::Now → suppressed.
+        let state = FormState::from_pairs(vec![(
+            "--timestamp",
+            FlagValue::Timestamp(TimestampValue::Now),
+        )]);
+        let argv = assemble_argv(
+            &schema::mnemonic::SCHEMA,
+            subcommand("export-wallet"),
+            &state,
+        );
+        assert!(
+            !argv.iter().any(|a| a == "--timestamp"),
+            "--timestamp now (schema default) must be suppressed; got {argv:?}"
+        );
+    }
+
+    #[test]
+    fn d33_timestamp_epoch_never_matches_now_default() {
+        // D33: "Timestamp(Epoch(n)) never matches `now` default; epoch
+        // values always emit."
+        let state = FormState::from_pairs(vec![(
+            "--timestamp",
+            FlagValue::Timestamp(TimestampValue::Unix(0)),
+        )]);
+        let argv = assemble_argv(
+            &schema::mnemonic::SCHEMA,
+            subcommand("export-wallet"),
+            &state,
+        );
+        assert!(
+            argv.iter().any(|a| a == "--timestamp"),
+            "Epoch Timestamp(0) must emit (D33: epoch never matches `now`); got {argv:?}"
+        );
+        assert!(
+            argv.iter().any(|a| a == "0"),
+            "epoch value 0 must appear as the token; got {argv:?}"
+        );
+    }
+
+    #[test]
+    fn d33_dropdown_at_default_suppresses_format_bitcoin_core() {
+        // export-wallet --format schema default is "bitcoin-core" (v5).
+        let state = FormState::from_pairs(vec![(
+            "--format",
+            FlagValue::Dropdown("bitcoin-core".into()),
+        )]);
+        let argv = assemble_argv(
+            &schema::mnemonic::SCHEMA,
+            subcommand("export-wallet"),
+            &state,
+        );
+        assert!(
+            !argv.iter().any(|a| a == "--format"),
+            "--format bitcoin-core (schema default) must be suppressed; got {argv:?}"
+        );
+    }
+
+    #[test]
+    fn d33_dropdown_non_default_emits() {
+        // Negative control: --format coldcard is NOT the default → emits.
+        let state = FormState::from_pairs(vec![(
+            "--format",
+            FlagValue::Dropdown("coldcard".into()),
+        )]);
+        let argv = assemble_argv(
+            &schema::mnemonic::SCHEMA,
+            subcommand("export-wallet"),
+            &state,
+        );
+        assert!(
+            argv.iter().zip(argv.iter().skip(1)).any(|(a, b)| a == "--format" && b == "coldcard"),
+            "--format coldcard (non-default) must emit; got {argv:?}"
+        );
+    }
+
+    #[test]
+    fn d33_no_default_value_always_emits() {
+        // For flags without a schema-declared default (most flags),
+        // `is_at_default` returns false → emit normally. Anchors the
+        // "fall-through" path of the predicate.
+        let state = FormState::from_pairs(vec![(
+            "--threshold",
+            FlagValue::Number(2),
+        )]);
+        let argv = assemble_argv(
+            &schema::mnemonic::SCHEMA,
+            subcommand("export-wallet"),
+            &state,
+        );
+        // --threshold has no schema default → emits.
+        assert!(
+            argv.iter().any(|a| a == "--threshold"),
+            "flags without default_value must always emit when Set; got {argv:?}"
+        );
+    }
 }

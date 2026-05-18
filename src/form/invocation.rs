@@ -14,6 +14,84 @@ use crate::schema::{
     TimestampValue, Visibility,
 };
 
+/// v0.10.0 B.3 (D33) — compare the user-typed `value` against the flag's
+/// schema-declared `default_value` per the D33 per-FlagKind compare-predicate
+/// table. Returns `true` iff the value equals the schema default; in that
+/// case the argv assembler suppresses the flag from emission (the user
+/// hasn't deviated from the toolkit's own default, so adding it to argv
+/// would be noise).
+///
+/// Flags without a declared `default_value` (`default_value == None`) always
+/// return `false` — those flags emit whenever Set per the existing
+/// `emit_one` rules.
+///
+/// D33 compare-predicate table:
+///
+/// | FlagKind            | Predicate                                                          |
+/// |---------------------|---------------------------------------------------------------------|
+/// | Boolean             | `value == default` (trivially: false-default already suppressed)    |
+/// | Text                | `value.is_empty() OR value == default_str`                          |
+/// | Path                | `value == default_str` (sentinels like `"-"` matched literally)     |
+/// | Number              | `value == default_int` (decimal parse of default_str)               |
+/// | Range               | `"<a>,<b>" == default_str` (range serialization preserved)          |
+/// | Timestamp           | `Now` matches `"now"`; `Epoch(n)` never matches `"now"`             |
+/// | Dropdown            | `value == default_str`                                              |
+/// | TaggedOrIndexed     | per-variant default rare; falls back to "always emit if Set"        |
+/// | NodeValueComposite  | empty-value already trivially suppressed by `emit_one`              |
+///
+/// Defensive parse failures (e.g., garbage default_str on a Number flag)
+/// return `false` so the flag emits — never silently drop a user-typed
+/// value due to a schema typo.
+pub fn is_at_default(flag: &FlagSchema, value: &FlagValue) -> bool {
+    let Some(default_str) = flag.default_value else {
+        return false;
+    };
+    match (&flag.kind, value) {
+        // Boolean: presence-only emission. Boolean(false) is already
+        // trivially suppressed by emit_one (no token emitted). Boolean(true)
+        // when default is "true" (rare; toolkit v5 doesn't emit Boolean
+        // defaults) is suppressed.
+        (FlagKind::Boolean, FlagValue::Boolean(b)) => match default_str {
+            "true" => *b,
+            "false" => !*b,
+            _ => false,
+        },
+        // Text: empty is already trivially suppressed; non-empty matches
+        // default_str suppress.
+        (FlagKind::Text, FlagValue::Text(s)) => s.is_empty() || s == default_str,
+        // Path: empty already trivially suppressed; non-empty matches
+        // default_str (e.g., "-" sentinel) suppress.
+        (FlagKind::Path { .. }, FlagValue::Path(p)) => p == default_str,
+        // Number: parse default_str as i64; compare. Parse failure → false
+        // (defensive; emit user-typed value).
+        (FlagKind::Number { .. }, FlagValue::Number(n)) => {
+            default_str.parse::<i64>().is_ok_and(|d| d == *n)
+        }
+        // Range: format the user-typed pair the same way emit_one does
+        // ("<a>,<b>") and compare against the schema default_str.
+        (FlagKind::Range, FlagValue::Range(a, b)) => {
+            format!("{},{}", a, b) == default_str
+        }
+        // Timestamp: Now matches "now"; Epoch(n) never matches "now"
+        // (epoch values always emit per D33).
+        (FlagKind::Timestamp, FlagValue::Timestamp(t)) => match t {
+            TimestampValue::Now => default_str == "now",
+            TimestampValue::Unix(_) => false,
+        },
+        // Dropdown: literal string equality against default_str.
+        (FlagKind::Dropdown(_), FlagValue::Dropdown(s)) => s == default_str,
+        // TaggedOrIndexed: per-variant default is rare. Default to false
+        // (always emit if Set).
+        (FlagKind::TaggedOrIndexed(_), FlagValue::TaggedOrIndexed(_)) => false,
+        // NodeValueComposite: empty value already trivially suppressed by
+        // emit_one; non-empty composite values have no toolkit default
+        // emission per v5 schema observation.
+        (FlagKind::NodeValueComposite(_), FlagValue::NodeValueComposite { .. }) => false,
+        // Unset / type-shape mismatch: not at default.
+        _ => false,
+    }
+}
+
 /// Shell flavor for `render_copy_command`.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ShellFlavor {
@@ -215,6 +293,14 @@ fn pin_value_to_argv_token(v: &serde_json::Value) -> Option<String> {
 }
 
 fn emit_one(flag: &FlagSchema, value: &FlagValue, argv: &mut Vec<String>) {
+    // v0.10.0 B.3 (D33): default-value suppression. When the user's typed
+    // value equals the toolkit-declared default for this flag, omit the
+    // flag from argv entirely — the toolkit will pick up the same value
+    // from its own defaults at parse time, so emitting it explicitly is
+    // noise. See `is_at_default` doc for the per-FlagKind compare table.
+    if is_at_default(flag, value) {
+        return;
+    }
     match (&flag.kind, value) {
         (FlagKind::Text, FlagValue::Text(v))
             if !v.is_empty() => {

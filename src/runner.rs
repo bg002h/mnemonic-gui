@@ -24,38 +24,6 @@ pub struct RunResult {
     pub stderr: Vec<u8>,
 }
 
-/// Pure-function helper: given a caller-assembled `argv` (binary name +
-/// subcommand args) and the action-bar's `no_auto_repair` flag, return the
-/// argv vector that should actually be passed to the OS spawn.
-///
-/// When `no_auto_repair == true`, `--no-auto-repair` is spliced in BETWEEN
-/// `argv[0]` (the binary name) and `argv[1..]` (the subcommand + flags).
-/// Toolkit's clap-derive accepts global flags either before or after the
-/// subcommand, but the safer-by-convention position is between the binary
-/// and the subcommand — matches how the toolkit's own `--help` output
-/// renders the flag.
-///
-/// When `no_auto_repair == false` the argv is returned unchanged.
-///
-/// Empty argv (degenerate) is returned unchanged regardless of the flag,
-/// so the caller's existing "empty argv" guard in `run` still fires.
-///
-/// This is the load-bearing R7 fallback for the schema-mirror gap surfaced
-/// in Phase A.1 (`mnemonic gui-schema` JSON does NOT emit global flags
-/// per-subcommand, so we cannot wire `--no-auto-repair` via per-subcommand
-/// schemas; the action-bar checkbox is the workaround until FOLLOWUP
-/// `gui-schema-global-flag-emission` lands toolkit-side).
-pub fn prepend_no_auto_repair(argv: Vec<String>, no_auto_repair: bool) -> Vec<String> {
-    if !no_auto_repair || argv.is_empty() {
-        return argv;
-    }
-    let mut out = Vec::with_capacity(argv.len() + 1);
-    out.push(argv[0].clone());
-    out.push("--no-auto-repair".to_string());
-    out.extend(argv.into_iter().skip(1));
-    out
-}
-
 /// Spawn `argv[0]` with `argv[1..]` as args; pipe stdout + stderr; wait
 /// for exit. SPEC §B.7 invariants:
 ///
@@ -92,16 +60,17 @@ pub fn prepend_no_auto_repair(argv: Vec<String>, no_auto_repair: bool) -> Vec<St
 /// contract in a future toolkit minor release, with a companion mirror
 /// entry GUI-side per CLAUDE.md mirror invariant.
 ///
-/// # R7 action-bar opt-out
+/// # `--no-auto-repair` propagation (v0.10.0 B.3 / D33)
 ///
-/// The GUI's top-level action bar carries a `--no-auto-repair` checkbox.
-/// When the user checks it, `MnemonicGuiApp` calls `prepend_no_auto_repair`
-/// before invoking `run`, so the resulting argv carries `--no-auto-repair`
-/// between the binary name and the subcommand. The MNEMONIC_FORCE_TTY=1
-/// override forces auto-fire ON by default; the checkbox forces it OFF
-/// per-invocation. Both knobs are GUI-internal — they do not appear in
-/// the toolkit's per-subcommand schemas (see Phase A.1 R7 finding +
-/// FOLLOWUP `gui-schema-global-flag-emission`).
+/// Pre-v0.10.0 the GUI carried an action-bar `--no-auto-repair` checkbox +
+/// `prepend_no_auto_repair` helper as the load-bearing R7 fallback for
+/// the v4 schema's missing global-flag emission. Toolkit v5 schema now
+/// emits `--no-auto-repair` as a per-subcommand flag with `global: true`;
+/// the GUI mirrors this via standard FlagSchema entries in each
+/// subcommand. Users see the flag in the standard form widget per
+/// subcommand and toggle it like any other Boolean. The MNEMONIC_FORCE_TTY=1
+/// env-var still forces auto-fire ON by default for the GUI's piped-stdout
+/// invocations.
 pub fn run<I, S>(argv: I) -> io::Result<RunResult>
 where
     I: IntoIterator<Item = S>,
@@ -148,51 +117,12 @@ where
 mod tests {
     use super::*;
 
-    // ── prepend_no_auto_repair unit cells ────────────────────────────────
-
-    #[test]
-    fn prepend_no_auto_repair_off_is_identity() {
-        let argv = vec![
-            "mnemonic".to_string(),
-            "convert".to_string(),
-            "--ms1".to_string(),
-            "ms1bad".to_string(),
-        ];
-        let out = prepend_no_auto_repair(argv.clone(), false);
-        assert_eq!(out, argv, "no_auto_repair=false must leave argv unchanged");
-    }
-
-    #[test]
-    fn prepend_no_auto_repair_on_splices_global_flag_after_binary() {
-        let argv = vec![
-            "mnemonic".to_string(),
-            "convert".to_string(),
-            "--ms1".to_string(),
-            "ms1bad".to_string(),
-        ];
-        let out = prepend_no_auto_repair(argv, true);
-        assert_eq!(
-            out,
-            vec![
-                "mnemonic".to_string(),
-                "--no-auto-repair".to_string(),
-                "convert".to_string(),
-                "--ms1".to_string(),
-                "ms1bad".to_string(),
-            ],
-            "no_auto_repair=true must splice --no-auto-repair between argv[0] and argv[1..]"
-        );
-    }
-
-    #[test]
-    fn prepend_no_auto_repair_empty_argv_is_unchanged() {
-        let out = prepend_no_auto_repair(vec![], true);
-        assert!(
-            out.is_empty(),
-            "empty argv is preserved even when no_auto_repair=true \
-             (the run() empty-argv guard still fires)"
-        );
-    }
+    // v0.10.0 B.3 (D33): the `prepend_no_auto_repair_*` cells covering the
+    // pre-v0.10.0 R7 fallback helper have been DELETED in lockstep with
+    // the helper's removal. `--no-auto-repair` is now a first-class
+    // FlagSchema entry per subcommand (toolkit v5 `global: true`); the
+    // standard argv-assembler path carries it. The `MNEMONIC_FORCE_TTY=1`
+    // spawn-env integration cell below is preserved (D23 contract).
 
     // ── env-var injection integration cell ───────────────────────────────
 

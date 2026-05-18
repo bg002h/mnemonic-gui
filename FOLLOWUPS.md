@@ -12,20 +12,22 @@ mirrors it.
 - **Surfaced:** 2026-05-17, v0.22.x follow-ups cycle Phase A.1 execution (v0.9.0 catchup). Plan §5 R7 realized: Phase A.1 attempted to add `--no-auto-repair` to the 10 existing `*_FLAGS` arrays in `src/schema/mnemonic.rs` and the schema-mirror drift gate hard-failed. The toolkit's `mnemonic gui-schema` v4 JSON output (which the gate consumes as source-of-truth) does NOT emit global flags for any subcommand — only clap's per-subcommand `--help` TEXT propagates them. Phase A.0 reconnaissance only checked help-text propagation, missing the JSON gap.
 - **Where:** toolkit-side `crates/mnemonic-toolkit/src/cmd/gui_schema.rs` (the emitter that omits global flags); GUI-side `src/runner.rs::prepend_no_auto_repair` + `MnemonicGuiApp.no_auto_repair` field + action-bar checkbox in `src/main.rs` (the v0.9.0 fallback; ~30 LOC; load-bearing until toolkit-side fix lands).
 - **What:** Extend the toolkit's `cmd::gui_schema` JSON emitter to include global flags (e.g. `--no-auto-repair`, `--debug`, etc.) per-subcommand so downstream consumers can mirror them natively. Until then, mnemonic-gui v0.9.0 ships an action-bar `--no-auto-repair` checkbox (prepended to argv at spawn time via `runner::prepend_no_auto_repair`) as the load-bearing fallback. When toolkit emits global flags per-subcommand, GUI can drop the action-bar checkbox and surface `--no-auto-repair` in each subcommand's form natively.
-- **Why deferred:** R7 fallback is functionally complete; the toolkit-side emitter fix is a future cycle's mechanical extension. The action-bar checkbox UX is marginally worse (top-level vs per-form affordance) but not broken.
-- **Status:** open
+- **Why deferred (historical):** R7 fallback was functionally complete at v0.9.0; the toolkit-side emitter fix shipped in v0.24.0 Tranche B.3.
+- **Resolution:** RESOLVED in `mnemonic-gui-v0.10.0` (companion close lockstep with `mnemonic-toolkit-v0.24.0` Tranche B.3). Toolkit gui-schema v5 envelope emits `global: true` for `--no-auto-repair` per-subcommand; GUI consumes the v5 field, mirrors the flag in every subcommand's form natively, and retires the v0.9.0 R7 action-bar checkbox + `runner::prepend_no_auto_repair` helper at 5 sites.
+- **Status:** RESOLVED in mnemonic-gui-v0.10.0
 - **Tier:** `cross-repo`
-- **Companion:** `bg002h/mnemonic-toolkit` `design/FOLLOWUPS.md` entry `gui-schema-global-flag-emission` (toolkit-side primary).
+- **Companion:** `bg002h/mnemonic-toolkit` `design/FOLLOWUPS.md` entry `gui-schema-global-flag-emission` (toolkit-side primary; resolved at toolkit v0.24.0).
 
 ### `toolkit-mnemonic-force-tty-promote-from-test-only` — toolkit-side: promote `MNEMONIC_FORCE_TTY` env-var from test-only to first-class public contract
 
 - **Surfaced:** 2026-05-17, v0.22.x follow-ups cycle D23 lock execution (v0.9.0 catchup). Plan §5 R1 mitigation.
 - **Where:** GUI-side `src/runner.rs::run` (sets `MNEMONIC_FORCE_TTY=1` via `Command::env`); toolkit-side `crates/mnemonic-toolkit/src/cmd/verify_bundle.rs::run` doc-comment (classifies the env-var as test-only) + `crates/mnemonic-toolkit/src/cmd/{convert,inspect}.rs` (same env-var consumed via `is_terminal()` gate).
 - **What:** mnemonic-gui v0.9.0 sets `MNEMONIC_FORCE_TTY=1` in the toolkit subprocess env so that the toolkit's `std::io::stdout().is_terminal() && !no_auto_repair` auto-fire gate fires for GUI-spawned invocations (GUI subprocesses are piped, not TTY — without the env override the GUI would never see auto-fire repair reports from `convert` / `inspect` / `verify-bundle`). The env-var is currently documented test-only in toolkit's `verify_bundle::run` doc-comment. GUI consumption creates a load-bearing dependency on the env-var's behavior; promotion to a first-class public contract (with explicit semver guarantee on its semantics) would harden the GUI side against silent toolkit-internal refactors.
-- **Why deferred:** Functional risk is documentary, not behavioral; the env-var works correctly at toolkit v0.22.1. Toolkit-side promotion is a future cycle's documentation + semver-contract addition.
-- **Status:** open
+- **Why deferred (historical):** Functional risk was documentary, not behavioral; the env-var worked correctly at toolkit v0.22.1. Toolkit-side promotion shipped in v0.24.0 Tranche A.
+- **Resolution:** RESOLVED in `mnemonic-gui-v0.10.0` (companion close lockstep with `mnemonic-toolkit-v0.24.0` Tranche A). Toolkit promoted `MNEMONIC_FORCE_TTY` from test-only to first-class public API (semver-stable contract); doc-comment rewritten in `cmd/verify_bundle.rs::run`; manual subsection added under verify-bundle auto-fire. GUI's load-bearing dep on the env-var is now backed by a public contract.
+- **Status:** RESOLVED in mnemonic-gui-v0.10.0
 - **Tier:** `cross-repo`
-- **Companion:** `bg002h/mnemonic-toolkit` `design/FOLLOWUPS.md` entry `toolkit-mnemonic-force-tty-promote-from-test-only` (toolkit-side primary).
+- **Companion:** `bg002h/mnemonic-toolkit` `design/FOLLOWUPS.md` entry `toolkit-mnemonic-force-tty-promote-from-test-only` (toolkit-side primary; resolved at toolkit v0.24.0).
 
 ### `clippy-test-target-cleanup` — `cargo clippy --workspace --all-targets -- -D warnings` fails on 8 pre-existing lints in test files
 
@@ -33,7 +35,7 @@ mirrors it.
 - **Where:** `tests/manual_anchor_coverage.rs:25-27` (3 × overindented doc-list), `tests/slot_editor_contiguity.rs:24` (1 × `field_reassign_with_default`), `tests/conditional_visibility.rs:685` (1 × `len_zero`), plus 3 `doc_lazy_continuation` matches added by newer rustc/clippy releases.
 - **What:** A dedicated cleanup pass to fix all 8 test-target lints so `cargo clippy --workspace --all-targets -- -D warnings` runs clean. Optionally tighten CI gates to use `--all-targets` once the cleanup lands.
 - **Why deferred:** Test-only; lib/bin clippy stays clean; v0.9.0 cycle scope didn't include test-target lint cleanup. Filed for a dedicated cleanup pass.
-- **Status:** open
+- **Status:** RESOLVED in mnemonic-gui-v0.10.0
 - **Tier:** `v0.10+`
 - **Companion:** None — gui-only.
 
@@ -42,10 +44,11 @@ mirrors it.
 - **Surfaced:** 2026-05-17, v0.22.x follow-ups cycle Phase B.8 (release-boundary docs). GUI-side companion to the descriptor-mnemonic primary entry (filed after Phase B.6 + B.7 surfaced the gap).
 - **Where:** GUI invokes the toolkit's `mnemonic repair --md1` via `src/runner.rs::run` (spawned subprocess + `MNEMONIC_FORCE_TTY=1` env per D23). Post-toolkit-v0.23.0 (Phase B.7 D29 migration), the `--md1` branch delegates to `md_codec::decode_with_correction` (md-codec v0.34.0 — Phase B.2), which integrates via `chunk::split` + `chunk::reassemble` and only accepts chunked-form md1 input (those bearing a chunk header, as emitted by `md encode --force-chunked` or by automatic chunking when the payload exceeds 320 bits). Non-chunked single-string md1 (the form emitted by plain `md encode` for small payloads) is rejected with a wire-format error. GUI users attempting to repair a non-chunked md1 through the toolkit-spawn pathway will see the wire-format-mismatch error surface in the stderr pane, with no corrected output on stdout.
 - **What:** GUI-side consumer tracker for the md-codec primary. No GUI code change in this cycle — the GUI is a passive consumer of whatever the toolkit's `mnemonic repair --md1` accepts. When the primary lands its non-chunked-form coverage (md-codec patch release) and the toolkit consumes the updated codec API, the GUI's repair surface inherits the broader input acceptance automatically (no GUI work required). For UX clarity in the meantime, consider documenting the constraint in the GUI's repair-form help text or tooltips so users understand why some md1 inputs are rejected.
-- **Why deferred:** Constraint lives in the codec; GUI scope is unaffected beyond the documentation suggestion. Tracked for cross-repo visibility so the GUI cycle that picks up the toolkit's eventual non-chunked-form support can coordinate with the consumer migration.
-- **Status:** open
+- **Why deferred (historical):** Constraint lived in the codec; GUI scope was unaffected beyond the documentation suggestion. Tracked for cross-repo visibility until the codec primary lands.
+- **Resolution:** RESOLVED in `mnemonic-gui-v0.10.0` (downstream-consumer companion close lockstep with `md-codec-v0.35.0`). md-codec v0.35.0 (Tranche D.1) added non-chunked-form detection in `decode_with_correction`; toolkit v0.24.0 consumes it transparently via the unchanged `repair_via_md_codec` delegation. GUI's repair surface now accepts non-chunked single-string md1 via the toolkit-spawn pathway — no GUI code change required beyond the toolkit pin bump.
+- **Status:** RESOLVED in mnemonic-gui-v0.10.0
 - **Tier:** `cross-repo`
-- **Companion:** `bg002h/descriptor-mnemonic` `design/FOLLOWUPS.md` `md-codec-decode-with-correction-supports-non-chunked-md1` (primary); `bg002h/mnemonic-toolkit` `design/FOLLOWUPS.md` `md-codec-decode-with-correction-supports-non-chunked-md1` (toolkit-side consumer); `bg002h/mnemonic-secret` `design/FOLLOWUPS.md` `md-codec-decode-with-correction-supports-non-chunked-md1` (sibling-codec mirror).
+- **Companion:** `bg002h/descriptor-mnemonic` `design/FOLLOWUPS.md` `md-codec-decode-with-correction-supports-non-chunked-md1` (primary; resolved at md-codec v0.35.0); `bg002h/mnemonic-toolkit` `design/FOLLOWUPS.md` `md-codec-decode-with-correction-supports-non-chunked-md1` (toolkit-side consumer; resolved at toolkit v0.24.0); `bg002h/mnemonic-secret` `design/FOLLOWUPS.md` `md-codec-decode-with-correction-supports-non-chunked-md1` (sibling-codec mirror).
 
 ### gui-conditional-applicability-drift-fix
 

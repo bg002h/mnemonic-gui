@@ -10,7 +10,7 @@
 //! `tests/conditional_visibility.rs` enumerates EVERY active constraint
 //! as a discrete test cell — drift surfaces as a test failure.
 
-use crate::schema::{FlagVisibility, FormState, Visibility};
+use crate::schema::{FlagValue, FlagVisibility, FormState, Visibility};
 
 /// SPEC §6.10.7 single-sig template set, mirrored from
 /// `mnemonic-toolkit::CliTemplate::is_multisig()` source-of-truth at
@@ -438,11 +438,33 @@ pub fn verify_bundle(state: &FormState) -> FlagVisibility {
     vis
 }
 
+/// v0.10.0 B.4 helper — return true iff `--to` (a repeating Dropdown in the
+/// convert subcommand schema) contains an entry whose Dropdown value equals
+/// `target`. `dropdown_value` only inspects the first match in `state.values`,
+/// so for repeating dropdowns we iterate manually.
+///
+/// SPEC §6.7 + `schema/mnemonic.rs:415-422` define `--to` as
+/// `FlagKind::Dropdown(NODE_TYPES)` with `repeating: true`; the argv assembler
+/// at `form/invocation.rs:175-178` consumes all matching rows in order. This
+/// helper mirrors the same iteration shape so conditional predicates see
+/// every populated `--to` value.
+fn to_contains(state: &FormState, target: &str) -> bool {
+    state.values.iter().any(|(k, v)| {
+        k == "--to" && matches!(v, FlagValue::Dropdown(s) if s == target)
+    })
+}
+
 /// `convert` subcommand conditionals.
 ///
 /// Upstream (`crates/mnemonic-toolkit/src/cmd/convert.rs`):
 ///   :181 `--passphrase-stdin` conflicts_with = "passphrase"
 ///   :203 (v0.13.0 drift fix) `--bip38-passphrase-stdin` conflicts_with = "bip38_passphrase"
+///
+/// v0.10.0 B.4 — add 6 gap rules (electrum, script-type, template, path,
+/// xpub-prefix) gated on the `--from` node and the contents of the repeating
+/// `--to` flag. Toolkit-side these are runtime refusals (not clap-derive
+/// conflicts), so they're not emitted by the toolkit's `gui-schema`
+/// `conditional_rules` projection — they live exclusively in the GUI fn.
 pub fn convert(state: &FormState) -> FlagVisibility {
     let mut vis = Vec::new();
     let has_passphrase = state.has_value("--passphrase");
@@ -464,6 +486,89 @@ pub fn convert(state: &FormState) -> FlagVisibility {
     if has_bip38_passphrase_stdin {
         vis.push(("--bip38-passphrase", Visibility::Disabled));
     }
+
+    // ─── v0.10.0 B.4: 6 gap rules ────────────────────────────────────────
+    //
+    // Toolkit semantics ground each rule. None of these are clap-derive
+    // conflicts; they're runtime refusals in `cmd/convert.rs` (or
+    // value-dependent flag consumption). The GUI surfaces them pre-Run so
+    // the user sees inapplicable flags grey out as they pick `--from` /
+    // `--to` combinations.
+    let from_is_electrum = state.composite_node("--from") == Some("electrum-phrase");
+    let to_has_electrum = to_contains(state, "electrum-phrase");
+    let to_has_address = to_contains(state, "address");
+    let to_has_wif = to_contains(state, "wif");
+    let to_has_bip38 = to_contains(state, "bip38");
+    let to_has_xpub = to_contains(state, "xpub");
+    let to_has_xprv = to_contains(state, "xprv");
+    let to_has_fingerprint = to_contains(state, "fingerprint");
+    let has_template = state.has_value("--template");
+
+    // Gap 1 + 2: --electrum-version / --electrum-language are used ONLY by
+    // the (entropy, electrum-phrase) encode arm (convert.rs:1138-1151) and
+    // the (electrum-phrase, entropy) decode arm (convert.rs:1429-1436).
+    // Disable when neither side touches electrum-phrase.
+    if !from_is_electrum && !to_has_electrum {
+        vis.push(("--electrum-version", Visibility::Disabled));
+        vis.push(("--electrum-language", Visibility::Disabled));
+    }
+
+    // Gap 3: --script-type is used ONLY by (*, address) edges via
+    // `resolve_script_type` (convert.rs:1461-1469).
+    //   - Required when --to contains "address" AND no --template (else
+    //     the toolkit refuses with `refusal_address_no_script_type` when
+    //     both are absent).
+    //   - Disabled when --to does NOT contain "address".
+    // Required emits before Disabled so first-rule-wins picks Required
+    // when both could fire (none can; the conditions are disjoint, but
+    // the order matches export_wallet's --taproot-internal-key precedent).
+    if to_has_address && !has_template {
+        vis.push(("--script-type", Visibility::Required));
+    }
+    if !to_has_address {
+        vis.push(("--script-type", Visibility::Disabled));
+    }
+
+    // Gap 4: --template is consumed by TWO paths in convert.rs:
+    //   - Phrase/Entropy → {Xpub, Xprv, Fingerprint} derivation
+    //     (convert.rs:1049-1063 — `needs_derive` gate).
+    //   - resolve_script_type for (*, Address) script-type inference
+    //     (convert.rs:1465 — used only when --script-type is absent).
+    // Disable when --to has none of {address, xpub, xprv, fingerprint}.
+    // (The recon's narrower "address-only" predicate would block the
+    // legitimate phrase→xpub template-derivation case; we widen to match
+    // toolkit ground truth.)
+    if !to_has_address && !to_has_xpub && !to_has_xprv && !to_has_fingerprint {
+        vis.push(("--template", Visibility::Disabled));
+    }
+
+    // Gap 5: --path is consumed when --to contains any of:
+    //   - wif    (convert.rs:1094 phrase|entropy→wif; toolkit refuses with
+    //              refusal_phrase_entropy_to_wif_no_path)
+    //   - bip38  (convert.rs:1120 phrase|entropy→bip38 composite; same
+    //              refusal helper as wif)
+    //   - address (convert.rs:1164 / 1216 phrase|entropy→address and
+    //              xpub→address; toolkit refuses with refusal_address_no_path)
+    // --path is mandatory for these edges regardless of --template
+    // (template feeds script-type, NOT path inference — line 1465 only
+    // routes to script_type_from_template). Disable when --to has none
+    // of {wif, bip38, address}.
+    if to_has_wif || to_has_bip38 || to_has_address {
+        vis.push(("--path", Visibility::Required));
+    }
+    if !to_has_wif && !to_has_bip38 && !to_has_address {
+        vis.push(("--path", Visibility::Disabled));
+    }
+
+    // Gap 6: --xpub-prefix is the SLIP-0132 prefix swap on --to xpub
+    // emission (convert.rs:277-289 doc cites SPEC v0.6.1 §11.a). The flag
+    // is consumed only on (*, Xpub) targets where xpub_prefix re-encodes
+    // the canonical xpub/tpub bytes. Disable when --to does NOT contain
+    // "xpub".
+    if !to_has_xpub {
+        vis.push(("--xpub-prefix", Visibility::Disabled));
+    }
+
     vis
 }
 
@@ -725,77 +830,60 @@ pub fn slip39_combine(state: &FormState) -> FlagVisibility {
     vis
 }
 
-/// v0.9.0 Phase A.2 — 3-way card mutex helper shared between `repair` and
-/// `inspect` (both subcommands carry the identical `<--ms1|--mk1|--md1>`
-/// required-group at the toolkit-CLI level).
+/// v0.10.0 Tranche C.2 (D36) — 3-way card at-least-one helper shared
+/// between `repair` and `inspect`. Replaces the prior v0.9.0 A.2
+/// 3-way-card-mutex helper in lockstep with toolkit's D35 drop of the
+/// `<--ms1|--mk1|--md1>` clap required-group: the toolkit now accepts
+/// mixed-HRP invocations (2 or 3 cards in a single run), so the GUI
+/// must stop disabling the "other" cards once one is filled.
 ///
 /// **NET-NEW pattern** — `verify_bundle::*` at L415-428 above is a
 /// `--bundle-json XOR (cards-group)` mutex (a 2-way between one flag and
 /// a group), NOT a 3-way among 3 equal-status cards. Phase A.0 recon
-/// confirmed no prior `conditional.rs` rule had this shape.
+/// (v0.9.0) confirmed no prior `conditional.rs` rule had this shape;
+/// C.2 keeps the helper shape and only shifts the semantic from mutex
+/// to at-least-one.
 ///
 /// Semantics (count of populated card flags in `state.has_value`):
-/// - 0 set → all 3 marked Required (CLI will fail with "one of ... is
-///   required" otherwise; surface that pre-Run).
-/// - exactly 1 set → other 2 marked Disabled (CLI's required-group
-///   accepted; competing cards would trigger clap's `ArgumentConflict`).
-/// - 2+ set → emit NOTHING; let the toolkit's clap-derive `ArgumentConflict`
-///   error fall through with its full byte-exact diagnostic. The GUI does
-///   NOT pre-flight reject (`run_conditional` returning empty here means
-///   all 3 stay `Visibility::Visible` per the default fallback in
-///   `vis_of`); the user-typed second card stays visible-as-typed so they
-///   can see what they entered and choose which one to remove.
-fn three_way_card_mutex(state: &FormState) -> FlagVisibility {
-    let has_ms1 = state.has_value("--ms1");
-    let has_mk1 = state.has_value("--mk1");
-    let has_md1 = state.has_value("--md1");
-    let set_count = (has_ms1 as u8) + (has_mk1 as u8) + (has_md1 as u8);
+/// - 0 set → all 3 marked Required (visual prompt: "fill at least one";
+///   toolkit-CLI will fail with its own at-least-one diagnostic if all
+///   three are still empty at Run time).
+/// - ≥1 set → emit NOTHING for the three card flags; they all fall
+///   through to `Visibility::Visible` via `vis_of`'s default. 2 or 3
+///   cards filled is allowed (matches D35's mixed-HRP capability) and
+///   carries no Disabled/Required override.
+fn three_way_card_at_least_one(state: &FormState) -> FlagVisibility {
+    let any_set = ["--ms1", "--mk1", "--md1"]
+        .iter()
+        .any(|name| state.has_value(name));
     let mut vis = Vec::new();
-    match set_count {
-        0 => {
-            vis.push(("--ms1", Visibility::Required));
-            vis.push(("--mk1", Visibility::Required));
-            vis.push(("--md1", Visibility::Required));
-        }
-        1 => {
-            if has_ms1 {
-                vis.push(("--mk1", Visibility::Disabled));
-                vis.push(("--md1", Visibility::Disabled));
-            } else if has_mk1 {
-                vis.push(("--ms1", Visibility::Disabled));
-                vis.push(("--md1", Visibility::Disabled));
-            } else {
-                // has_md1
-                vis.push(("--ms1", Visibility::Disabled));
-                vis.push(("--mk1", Visibility::Disabled));
-            }
-        }
-        _ => {
-            // 2+ set: hand-off to toolkit's CLI rejection. Empty vis means
-            // all 3 fall through to Visibility::Visible.
-        }
+    if !any_set {
+        vis.push(("--ms1", Visibility::Required));
+        vis.push(("--mk1", Visibility::Required));
+        vis.push(("--md1", Visibility::Required));
     }
+    // ≥1 set: no override emitted; all 3 stay Visible per default.
     vis
 }
 
-/// `repair` subcommand conditionals (v0.9.0 Phase A.2).
+/// `repair` subcommand conditionals (v0.9.0 Phase A.2 → v0.10.0 C.2).
 ///
-/// 3-way mutex among `--ms1` / `--mk1` / `--md1`. `--json` is orthogonal
-/// (always Visible; never Required; never Disabled).
+/// 3-way at-least-one rule among `--ms1` / `--mk1` / `--md1`. `--json`
+/// is orthogonal (always Visible; never Required; never Disabled).
 ///
-/// Upstream (`crates/mnemonic-toolkit/src/cmd/repair.rs`): clap-derive
-/// declares the cards in a required-group via the `#[arg(group = ...)]`
-/// plus a `#[command(group(ArgGroup::new(...).required(true).multiple(false)))]`
-/// attribute; clap rejects 2+ cards at runtime with an ArgumentConflict.
+/// Upstream (`crates/mnemonic-toolkit/src/cmd/repair.rs`): D35 dropped
+/// the prior `<--ms1|--mk1|--md1>` clap required-group; the toolkit now
+/// accepts any non-empty subset (1, 2, or 3 cards) in a single
+/// invocation and emits its own diagnostic if all three are empty.
 pub fn repair(state: &FormState) -> FlagVisibility {
-    three_way_card_mutex(state)
+    three_way_card_at_least_one(state)
 }
 
-/// `inspect` subcommand conditionals (v0.9.0 Phase A.2).
+/// `inspect` subcommand conditionals (v0.9.0 Phase A.2 → v0.10.0 C.2).
 ///
-/// Same 3-way card mutex as `repair`. `--reveal-secret` and `--json` are
-/// orthogonal (always Visible; never Required; never Disabled). Same
-/// upstream required-group pattern as `repair`.
+/// Same 3-way at-least-one rule as `repair`. `--reveal-secret` and
+/// `--json` are orthogonal (always Visible; never Required; never
+/// Disabled). Same upstream D35 history as `repair`.
 pub fn inspect(state: &FormState) -> FlagVisibility {
-    three_way_card_mutex(state)
+    three_way_card_at_least_one(state)
 }

@@ -10,6 +10,12 @@
 //! `conditional` slots are all `None` at Phase 1; Phase 5 wires the 11
 //! upstream `conflicts_with` / `required_unless_present_any` constraints
 //! into hand-coded `fn(&FormState) -> FlagVisibility` callbacks here.
+//!
+//! v0.10.0 Tranche B.3 (D31/D33): mirrors toolkit v5 schema fields
+//! (`default_value`, `global`, `secret`). Each FlagSchema entry is
+//! reconciled with the toolkit's `gui-schema` JSON v5 output ground truth.
+//! `--no-auto-repair` is wired per-subcommand as `global: true`, replacing
+//! the v0.9.0 R7 action-bar fallback (D33 cycle close).
 
 use super::{FlagKind, FlagSchema, NumberMax, PositionalArgSchema, Schema, SubcommandSchema};
 
@@ -110,6 +116,32 @@ const SCRIPT_TYPES: &[&str] = &["p2wpkh", "p2sh-p2wpkh", "p2tr"];
 // GUI dropdown must offer only the two accepted tokens.
 const ELECTRUM_VERSIONS: &[&str] = &["standard", "segwit"];
 
+// ─── Global flags (toolkit v5 schema: `global: true`) ────────────────────
+//
+// v0.10.0 B.3 (D33): `--no-auto-repair` propagates to every mnemonic
+// subcommand via clap-derive's `global = true`. Per the v5 schema, it is
+// emitted in every subcommand's flag list with `global: true`. The GUI
+// mirrors this by including the FlagSchema entry in every subcommand's
+// flag array — the argv assembler emits it like any other Boolean flag.
+//
+// Pre-v0.10.0 the GUI carried an action-bar `no_auto_repair` checkbox +
+// `runner::prepend_no_auto_repair` runner helper as the load-bearing R7
+// fallback for the v4 schema's missing per-subcommand emission. v0.10.0
+// drops the action-bar checkbox + runner helper in lockstep with the
+// toolkit v5 schema-emission fix.
+const NO_AUTO_REPAIR_FLAG: FlagSchema = FlagSchema {
+    name: "--no-auto-repair",
+    kind: FlagKind::Boolean,
+    required: false,
+    repeating: false,
+    help: "Disable the auto-fire BCH error-correction short-circuit on \
+           convert/inspect/verify-bundle. Global flag — propagates to \
+           every subcommand.",
+    secret: false,
+    default_value: None,
+    global: true,
+};
+
 // ─── bundle ──────────────────────────────────────────────────────────────
 
 const BUNDLE_FLAGS: &[FlagSchema] = &[
@@ -120,6 +152,8 @@ const BUNDLE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Bitcoin network for derivations + address encoding.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--template",
@@ -129,6 +163,8 @@ const BUNDLE_FLAGS: &[FlagSchema] = &[
         help: "Pre-built template name. Mutually-required-one-of with \
                --descriptor / --descriptor-file.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--descriptor",
@@ -137,6 +173,8 @@ const BUNDLE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "User-supplied BIP-388 descriptor. XOR with --descriptor-file.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--descriptor-file",
@@ -147,6 +185,8 @@ const BUNDLE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Path to a single-line UTF-8 descriptor file.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--language",
@@ -155,6 +195,8 @@ const BUNDLE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "BIP-39 wordlist (default english).",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--passphrase",
@@ -163,6 +205,8 @@ const BUNDLE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "BIP-39 mnemonic extension passphrase.",
         secret: true,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--passphrase-stdin",
@@ -171,6 +215,8 @@ const BUNDLE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Read --passphrase value from stdin (preserves NULL bytes).",
         secret: true,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--account",
@@ -182,6 +228,8 @@ const BUNDLE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "BIP-32 account index (default 0).",
         secret: false,
+        default_value: Some("0"),
+        global: false,
     },
     FlagSchema {
         name: "--json",
@@ -190,6 +238,8 @@ const BUNDLE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Emit envelope JSON (ms1/mk1/md1 + metadata).",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--no-engraving-card",
@@ -198,6 +248,8 @@ const BUNDLE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Suppress the human-readable engraving-card panel.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--multisig-path-family",
@@ -206,6 +258,8 @@ const BUNDLE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Multisig derivation path family (default bip87).",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--privacy-preserving",
@@ -214,6 +268,8 @@ const BUNDLE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Suppress master fingerprint from mk1 + engraving card.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--self-check",
@@ -222,6 +278,8 @@ const BUNDLE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Re-parse the emitted bundle and verify round-trip.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--threshold",
@@ -230,6 +288,8 @@ const BUNDLE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Multisig threshold K (1 <= K <= N <= 16).",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--slot",
@@ -240,7 +300,10 @@ const BUNDLE_FLAGS: &[FlagSchema] = &[
                (slot, subkey) tuple. Grammar: @N.<subkey>=<value>. Handled \
                by SlotEditor composite widget (SPEC §4).",
         secret: false,
+        default_value: None,
+        global: false,
     },
+    NO_AUTO_REPAIR_FLAG,
 ];
 
 // ─── verify-bundle ───────────────────────────────────────────────────────
@@ -253,6 +316,8 @@ const VERIFY_BUNDLE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Bitcoin network.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--template",
@@ -262,6 +327,8 @@ const VERIFY_BUNDLE_FLAGS: &[FlagSchema] = &[
         help: "Template. Mutually-required-one-of with --descriptor / \
                --descriptor-file.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--descriptor",
@@ -270,6 +337,8 @@ const VERIFY_BUNDLE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "User-supplied descriptor for the re-parse path.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--descriptor-file",
@@ -280,6 +349,8 @@ const VERIFY_BUNDLE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Path to a single-line UTF-8 descriptor file.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--language",
@@ -288,6 +359,8 @@ const VERIFY_BUNDLE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "BIP-39 wordlist (default english).",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--passphrase",
@@ -296,6 +369,8 @@ const VERIFY_BUNDLE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "BIP-39 mnemonic extension passphrase.",
         secret: true,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--passphrase-stdin",
@@ -304,6 +379,8 @@ const VERIFY_BUNDLE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Read --passphrase value from stdin (preserves NULL bytes).",
         secret: true,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--account",
@@ -315,6 +392,8 @@ const VERIFY_BUNDLE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "BIP-32 account index (default 0).",
         secret: false,
+        default_value: Some("0"),
+        global: false,
     },
     FlagSchema {
         name: "--ms1",
@@ -324,6 +403,8 @@ const VERIFY_BUNDLE_FLAGS: &[FlagSchema] = &[
         help: "Per-slot ms1 card (schema-2/3 single use; schema-4 repeating). \
                Empty string is watch-only sentinel.",
         secret: true,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--mk1",
@@ -332,6 +413,8 @@ const VERIFY_BUNDLE_FLAGS: &[FlagSchema] = &[
         repeating: true,
         help: "Per-slot mk1 card (repeating).",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--md1",
@@ -340,6 +423,8 @@ const VERIFY_BUNDLE_FLAGS: &[FlagSchema] = &[
         repeating: true,
         help: "Per-slot md1 card (repeating).",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--bundle-json",
@@ -358,6 +443,8 @@ const VERIFY_BUNDLE_FLAGS: &[FlagSchema] = &[
         help: "Path to the JSON envelope from `bundle --json`. Mutually \
                exclusive with --ms1/--mk1/--md1.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--json",
@@ -366,6 +453,8 @@ const VERIFY_BUNDLE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Emit JSON-shaped output.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--multisig-path-family",
@@ -374,6 +463,8 @@ const VERIFY_BUNDLE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Multisig derivation path family.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--privacy-preserving",
@@ -382,6 +473,8 @@ const VERIFY_BUNDLE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Expect mk1 omits master fingerprint.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--threshold",
@@ -390,6 +483,8 @@ const VERIFY_BUNDLE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Multisig threshold K.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--slot",
@@ -398,7 +493,10 @@ const VERIFY_BUNDLE_FLAGS: &[FlagSchema] = &[
         repeating: true,
         help: "Slot input @N.<subkey>=<value>. Handled by SlotEditor.",
         secret: false,
+        default_value: None,
+        global: false,
     },
+    NO_AUTO_REPAIR_FLAG,
 ];
 
 // ─── convert ─────────────────────────────────────────────────────────────
@@ -411,6 +509,8 @@ const CONVERT_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Source node: <node>=<value>. `=-` reads value from stdin.",
         secret: false, // secrecy is value-dependent; per-row paste-warn fires
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--to",
@@ -419,6 +519,8 @@ const CONVERT_FLAGS: &[FlagSchema] = &[
         repeating: true,
         help: "Destination node (repeating: clap Append).",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--network",
@@ -427,6 +529,8 @@ const CONVERT_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Bitcoin network.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--template",
@@ -435,6 +539,8 @@ const CONVERT_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Template (when --to involves derivation).",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--path",
@@ -443,6 +549,8 @@ const CONVERT_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Explicit BIP-32 derivation path.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--language",
@@ -451,6 +559,8 @@ const CONVERT_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "BIP-39 wordlist (default english).",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--passphrase",
@@ -459,6 +569,8 @@ const CONVERT_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "BIP-39 PBKDF2 passphrase.",
         secret: true,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--bip38-passphrase",
@@ -467,6 +579,8 @@ const CONVERT_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "BIP-38 Scrypt passphrase (distinct from --passphrase).",
         secret: true,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--bip38-passphrase-stdin",
@@ -475,6 +589,8 @@ const CONVERT_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Read --bip38-passphrase value from stdin (preserves NULL bytes).",
         secret: true,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--passphrase-stdin",
@@ -483,6 +599,8 @@ const CONVERT_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Read --passphrase value from stdin (preserves NULL bytes).",
         secret: true,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--account",
@@ -494,6 +612,8 @@ const CONVERT_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "BIP-32 account index.",
         secret: false,
+        default_value: Some("0"),
+        global: false,
     },
     FlagSchema {
         name: "--fingerprint",
@@ -502,6 +622,8 @@ const CONVERT_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Master fingerprint (8 hex chars).",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--xpub-prefix",
@@ -510,6 +632,8 @@ const CONVERT_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "SLIP-0132 prefix override for --to xpub.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--electrum-version",
@@ -518,6 +642,8 @@ const CONVERT_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Electrum seed-version selector for (Entropy, ElectrumPhrase).",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--electrum-language",
@@ -526,6 +652,8 @@ const CONVERT_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Electrum wordlist (distinct from --language).",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--script-type",
@@ -534,6 +662,8 @@ const CONVERT_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Script-type selector for (Xpub, Address) derivation.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--json",
@@ -542,7 +672,10 @@ const CONVERT_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Emit JSON-shaped output.",
         secret: false,
+        default_value: None,
+        global: false,
     },
+    NO_AUTO_REPAIR_FLAG,
 ];
 
 // ─── export-wallet ───────────────────────────────────────────────────────
@@ -555,6 +688,8 @@ const EXPORT_WALLET_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Pre-built template. Mutually-required-one-of with --descriptor.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--descriptor",
@@ -563,6 +698,8 @@ const EXPORT_WALLET_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "User-supplied BIP-388 descriptor.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--threshold",
@@ -571,6 +708,8 @@ const EXPORT_WALLET_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Multisig threshold K (1 <= K <= N).",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--multisig-path-family",
@@ -579,6 +718,8 @@ const EXPORT_WALLET_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Multisig path family (default bip87).",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--network",
@@ -587,6 +728,8 @@ const EXPORT_WALLET_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Network (default mainnet).",
         secret: false,
+        default_value: Some("mainnet"),
+        global: false,
     },
     FlagSchema {
         name: "--language",
@@ -595,6 +738,8 @@ const EXPORT_WALLET_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Ignored (watch-only); kept for slot-parser symmetry.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--account",
@@ -606,6 +751,8 @@ const EXPORT_WALLET_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "BIP-32 account index (default 0).",
         secret: false,
+        default_value: Some("0"),
+        global: false,
     },
     FlagSchema {
         name: "--slot",
@@ -614,6 +761,8 @@ const EXPORT_WALLET_FLAGS: &[FlagSchema] = &[
         repeating: true,
         help: "Slot input @N.<subkey>=<value>. Handled by SlotEditor.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--format",
@@ -622,6 +771,8 @@ const EXPORT_WALLET_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Output format (default bitcoin-core).",
         secret: false,
+        default_value: Some("bitcoin-core"),
+        global: false,
     },
     FlagSchema {
         name: "--output",
@@ -632,6 +783,8 @@ const EXPORT_WALLET_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Output path. `-` (default) -> stdout.",
         secret: false,
+        default_value: Some("-"),
+        global: false,
     },
     FlagSchema {
         name: "--range",
@@ -640,6 +793,8 @@ const EXPORT_WALLET_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Bitcoin Core `range` field, comma-separated. Default 0,999.",
         secret: false,
+        default_value: Some("0,999"),
+        global: false,
     },
     FlagSchema {
         name: "--timestamp",
@@ -648,6 +803,8 @@ const EXPORT_WALLET_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Bitcoin Core `timestamp` field. `now` or unix seconds.",
         secret: false,
+        default_value: Some("now"),
+        global: false,
     },
     FlagSchema {
         name: "--bitcoin-core-version",
@@ -656,6 +813,8 @@ const EXPORT_WALLET_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Bitcoin Core target version (24 or 25, default 25).",
         secret: false,
+        default_value: Some("25"),
+        global: false,
     },
     FlagSchema {
         name: "--taproot-internal-key",
@@ -665,6 +824,8 @@ const EXPORT_WALLET_FLAGS: &[FlagSchema] = &[
         help: "Taproot internal-key designation for tr-multi-a / \
                tr-sortedmulti-a. `nums` or `@N` (cosigner N's xpub).",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--wallet-name",
@@ -674,7 +835,10 @@ const EXPORT_WALLET_FLAGS: &[FlagSchema] = &[
         help: "Wallet label. Required for Sparrow / Specter / Electrum / \
                Green formats.",
         secret: false,
+        default_value: None,
+        global: false,
     },
+    NO_AUTO_REPAIR_FLAG,
 ];
 
 // ─── derive-child ────────────────────────────────────────────────────────
@@ -688,6 +852,8 @@ const DERIVE_CHILD_FLAGS: &[FlagSchema] = &[
         help: "Master source. v0.7: xprv only; v0.8 also accepts \
                phrase=<bip39-mnemonic>. `=-` reads from stdin.",
         secret: false, // value-dependent
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--application",
@@ -696,6 +862,8 @@ const DERIVE_CHILD_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "BIP-85 application token.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--length",
@@ -704,6 +872,8 @@ const DERIVE_CHILD_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Per-app length validator. Pass 0 for xprv / hd-seed.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--index",
@@ -715,6 +885,8 @@ const DERIVE_CHILD_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Hardened child index (0..2^31).",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--network",
@@ -723,6 +895,8 @@ const DERIVE_CHILD_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Network for emitted hd-seed / xprv (default mainnet).",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--language",
@@ -731,6 +905,8 @@ const DERIVE_CHILD_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "BIP-39 wordlist for --application bip39 (default english).",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--passphrase",
@@ -739,6 +915,8 @@ const DERIVE_CHILD_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "BIP-39 passphrase (used only with --from phrase=).",
         secret: true,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--passphrase-stdin",
@@ -747,6 +925,8 @@ const DERIVE_CHILD_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Read --passphrase value from stdin (preserves NULL bytes).",
         secret: true,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--dice-sides",
@@ -758,7 +938,10 @@ const DERIVE_CHILD_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Number of sides for --application dice.",
         secret: false,
+        default_value: None,
+        global: false,
     },
+    NO_AUTO_REPAIR_FLAG,
 ];
 
 // ─── slip39-split ────────────────────────────────────────────────────────
@@ -773,6 +956,8 @@ const SLIP39_SPLIT_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Master secret. `phrase=<value-or->` (BIP-39) OR `entropy=<hex-or->`. `=-` reads from stdin.",
         secret: false, // value-dependent
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--passphrase",
@@ -781,6 +966,8 @@ const SLIP39_SPLIT_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "SLIP-39 passphrase (NOT BIP-39 passphrase).",
         secret: true,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--passphrase-stdin",
@@ -789,6 +976,8 @@ const SLIP39_SPLIT_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Read --passphrase value from stdin (preserves NULL bytes).",
         secret: true,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--group-threshold",
@@ -797,6 +986,8 @@ const SLIP39_SPLIT_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "K of the group layer (1..=group_count).",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--group",
@@ -805,6 +996,8 @@ const SLIP39_SPLIT_FLAGS: &[FlagSchema] = &[
         repeating: true,
         help: "Per-group `<member_count>,<member_threshold>` (e.g., `2,2`). Repeating.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--iteration-exponent",
@@ -813,6 +1006,8 @@ const SLIP39_SPLIT_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Iteration exponent E (library-enforced 0..=15; default 0). G9 advisory at E >= 5.",
         secret: false,
+        default_value: Some("0"),
+        global: false,
     },
     FlagSchema {
         name: "--language",
@@ -821,6 +1016,8 @@ const SLIP39_SPLIT_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "BIP-39 wordlist for parsing --from phrase=...; ignored for entropy= input.",
         secret: false,
+        default_value: Some("english"),
+        global: false,
     },
     FlagSchema {
         name: "--json-out",
@@ -829,7 +1026,10 @@ const SLIP39_SPLIT_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Side-effect: write versioned JSON envelope to PATH. World-readable-path advisory on stderr.",
         secret: false,
+        default_value: None,
+        global: false,
     },
+    NO_AUTO_REPAIR_FLAG,
 ];
 
 // ─── slip39-combine ──────────────────────────────────────────────────────
@@ -844,6 +1044,8 @@ const SLIP39_COMBINE_FLAGS: &[FlagSchema] = &[
         repeating: true,
         help: "SLIP-39 share mnemonic. Repeating; at most ONE may be `-` (stdin).",
         secret: true,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--passphrase",
@@ -852,6 +1054,8 @@ const SLIP39_COMBINE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "SLIP-39 passphrase used at split time.",
         secret: true,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--passphrase-stdin",
@@ -860,6 +1064,8 @@ const SLIP39_COMBINE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Read --passphrase value from stdin (preserves NULL bytes).",
         secret: true,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--to",
@@ -868,6 +1074,8 @@ const SLIP39_COMBINE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Output shape (default entropy: hex on stdout; phrase: BIP-39 mnemonic).",
         secret: false,
+        default_value: Some("entropy"),
+        global: false,
     },
     FlagSchema {
         name: "--language",
@@ -876,6 +1084,8 @@ const SLIP39_COMBINE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "BIP-39 wordlist for --to phrase; ignored for --to entropy.",
         secret: false,
+        default_value: Some("english"),
+        global: false,
     },
     FlagSchema {
         name: "--json-out",
@@ -884,7 +1094,10 @@ const SLIP39_COMBINE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Side-effect: write versioned JSON envelope to PATH.",
         secret: false,
+        default_value: None,
+        global: false,
     },
+    NO_AUTO_REPAIR_FLAG,
 ];
 
 // ─── seed-xor-split ──────────────────────────────────────────────────────
@@ -899,6 +1112,8 @@ const SEED_XOR_SPLIT_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Master BIP-39 phrase. `phrase=<value>` (inline) OR `phrase=-` (stdin).",
         secret: false, // value-dependent
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--shares",
@@ -907,6 +1122,8 @@ const SEED_XOR_SPLIT_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Number of XOR shares to emit. Must be >= 2.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--language",
@@ -915,6 +1132,8 @@ const SEED_XOR_SPLIT_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "BIP-39 wordlist for input + output (default english).",
         secret: false,
+        default_value: Some("english"),
+        global: false,
     },
     FlagSchema {
         name: "--deterministic-from-master",
@@ -923,6 +1142,8 @@ const SEED_XOR_SPLIT_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Coldcard SHA256d-deterministic share generation (interop with Coldcard's xor_seed.py).",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--json-out",
@@ -931,7 +1152,10 @@ const SEED_XOR_SPLIT_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Side-effect: write versioned JSON envelope to PATH.",
         secret: false,
+        default_value: None,
+        global: false,
     },
+    NO_AUTO_REPAIR_FLAG,
 ];
 
 // ─── seed-xor-combine ────────────────────────────────────────────────────
@@ -944,6 +1168,8 @@ const SEED_XOR_COMBINE_FLAGS: &[FlagSchema] = &[
         repeating: true,
         help: "Share phrase. `phrase=<value>` or `phrase=-`. At most ONE may be stdin.",
         secret: true,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--shares",
@@ -952,6 +1178,8 @@ const SEED_XOR_COMBINE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Asserted share count. Handler-side runtime check equals actual --share count.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--language",
@@ -960,6 +1188,8 @@ const SEED_XOR_COMBINE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "BIP-39 wordlist for inputs + output (default english).",
         secret: false,
+        default_value: Some("english"),
+        global: false,
     },
     FlagSchema {
         name: "--json-out",
@@ -968,7 +1198,10 @@ const SEED_XOR_COMBINE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Side-effect: write versioned JSON envelope to PATH.",
         secret: false,
+        default_value: None,
+        global: false,
     },
+    NO_AUTO_REPAIR_FLAG,
 ];
 
 // ─── final-word ──────────────────────────────────────────────────────────
@@ -981,6 +1214,8 @@ const FINAL_WORD_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "N-1 word partial phrase. `phrase=<words>` or `phrase=-`. Must be 11/14/17/20/23 words.",
         secret: false, // value-dependent
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--language",
@@ -989,6 +1224,8 @@ const FINAL_WORD_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "BIP-39 wordlist (default english).",
         secret: false,
+        default_value: Some("english"),
+        global: false,
     },
     FlagSchema {
         name: "--json-out",
@@ -997,25 +1234,26 @@ const FINAL_WORD_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Side-effect: write versioned JSON envelope to PATH. Candidate list still emitted to stdout.",
         secret: false,
+        default_value: None,
+        global: false,
     },
+    NO_AUTO_REPAIR_FLAG,
 ];
 
 // ─── repair ──────────────────────────────────────────────────────────────
 //
 // v0.22.0 standalone BCH error-correction subcommand. Three card-class
-// inputs are mutually exclusive (toolkit-side `<--ms1|--mk1|--md1>`
-// required group); GUI A.2 wires the 3-way mutex via
-// `crate::form::conditional::repair`. `--ms1` is single-occurrence per
-// toolkit; `--mk1` / `--md1` are repeating per toolkit (multiple chunks
-// in a single invocation).
+// inputs (`--ms1` / `--mk1` / `--md1`) form an at-least-one required
+// group: pre-v0.10.0 (toolkit pre-D35) the group was clap-mutex'd; the
+// v0.10.0-lockstep toolkit (D35) now accepts any non-empty subset of
+// the three in a single invocation. GUI C.2 wires the 3-way
+// at-least-one rule via `crate::form::conditional::repair`. `--ms1` is
+// single-occurrence per toolkit; `--mk1` / `--md1` are repeating per
+// toolkit (multiple chunks in a single invocation).
 //
-// Note (Phase A.1 finding): the toolkit's `gui-schema` JSON does NOT
-// emit the global `--no-auto-repair` flag for any subcommand (even
-// though clap's `--help` propagates it). The schema-mirror gate
-// consumes gui-schema JSON in preference to --help, so adding
-// `--no-auto-repair` here would surface as a hard drift failure.
-// Phase A.3 will introduce a top-level action-bar affordance for the
-// flag (per plan §5 R7 fallback) rather than per-subcommand mirroring.
+// v0.10.0 B.3 (D33): the global `--no-auto-repair` flag is now mirrored
+// per-subcommand from the toolkit v5 schema's `global: true` emission.
+// Replaces the v0.9.0 R7 action-bar fallback (DELETED in this cycle).
 
 const REPAIR_FLAGS: &[FlagSchema] = &[
     FlagSchema {
@@ -1024,8 +1262,10 @@ const REPAIR_FLAGS: &[FlagSchema] = &[
         required: false,
         repeating: false,
         help: "Single ms1 chunk to repair. `-` reads one chunk from stdin. \
-               Mutually exclusive with --mk1 / --md1.",
+               Combinable with --mk1 / --md1 (at least one card required).",
         secret: true,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--mk1",
@@ -1034,8 +1274,10 @@ const REPAIR_FLAGS: &[FlagSchema] = &[
         repeating: true,
         help: "One or more mk1 chunks to repair (repeating). `-` on a \
                single occurrence reads chunks from stdin (one per line). \
-               Mutually exclusive with --ms1 / --md1.",
+               Combinable with --ms1 / --md1 (at least one card required).",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--md1",
@@ -1044,8 +1286,10 @@ const REPAIR_FLAGS: &[FlagSchema] = &[
         repeating: true,
         help: "One or more md1 chunks to repair (repeating). `-` on a \
                single occurrence reads chunks from stdin (one per line). \
-               Mutually exclusive with --ms1 / --mk1.",
+               Combinable with --ms1 / --mk1 (at least one card required).",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--json",
@@ -1055,15 +1299,28 @@ const REPAIR_FLAGS: &[FlagSchema] = &[
         help: "Emit a single JSON envelope on stdout instead of the \
                text-form repair report.",
         secret: false,
+        default_value: None,
+        global: false,
     },
+    NO_AUTO_REPAIR_FLAG,
 ];
 
 // ─── inspect ─────────────────────────────────────────────────────────────
 //
-// v0.22.0 inspection subcommand. Same 3-way card mutex as `repair`;
-// adds `--reveal-secret` (ms1-only effect — opt-in to print the BIP-39
-// entropy hex; no effect on mk1 / md1). GUI A.2 wires the same 3-way
-// mutex via `crate::form::conditional::inspect`.
+// v0.22.0 inspection subcommand. Same 3-way at-least-one rule as
+// `repair` (toolkit D35 dropped the prior clap mutex); adds
+// `--reveal-secret` (ms1-only effect — opt-in to print the BIP-39
+// entropy hex; no effect on mk1 / md1). GUI C.2 wires the same 3-way
+// at-least-one rule via `crate::form::conditional::inspect`.
+//
+// v0.10.0 B.3 (D31): `--reveal-secret` is `secret: false` per toolkit v5
+// ground truth — the flag itself is a presence-only Boolean (no
+// secret-bearing value); the SECRET semantic applies to the *output* it
+// unlocks (ms1 entropy hex), not the flag-input. The output-side
+// protection lives elsewhere (paste-warn modal fires on the underlying
+// `--ms1` input; the GUI's run-confirm modal already gates secret-bearing
+// argv emissions). Reconciled with toolkit's `flag_is_secret` (which
+// returns false for this flag).
 
 const INSPECT_FLAGS: &[FlagSchema] = &[
     FlagSchema {
@@ -1072,8 +1329,10 @@ const INSPECT_FLAGS: &[FlagSchema] = &[
         required: false,
         repeating: false,
         help: "Single ms1 chunk to inspect. `-` reads one chunk from stdin. \
-               Mutually exclusive with --mk1 / --md1.",
+               Combinable with --mk1 / --md1 (at least one card required).",
         secret: true,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--mk1",
@@ -1081,9 +1340,11 @@ const INSPECT_FLAGS: &[FlagSchema] = &[
         required: false,
         repeating: true,
         help: "One or more mk1 chunks to inspect (repeating). `-` reads \
-               chunks from stdin (one per line). Mutually exclusive with \
-               --ms1 / --md1.",
+               chunks from stdin (one per line). Combinable with --ms1 / \
+               --md1 (at least one card required).",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--md1",
@@ -1091,9 +1352,11 @@ const INSPECT_FLAGS: &[FlagSchema] = &[
         required: false,
         repeating: true,
         help: "One or more md1 chunks to inspect (repeating). `-` reads \
-               chunks from stdin (one per line). Mutually exclusive with \
-               --ms1 / --mk1.",
+               chunks from stdin (one per line). Combinable with --ms1 / \
+               --mk1 (at least one card required).",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--json",
@@ -1103,6 +1366,8 @@ const INSPECT_FLAGS: &[FlagSchema] = &[
         help: "Emit a single JSON envelope on stdout instead of the \
                text-form inspect report.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--reveal-secret",
@@ -1112,8 +1377,14 @@ const INSPECT_FLAGS: &[FlagSchema] = &[
         help: "Reveal the ms1 entropy hex on stdout. Default suppresses it \
                (summary stays at length / bit-strength). No effect for mk1 \
                / md1 (those payloads carry no secret material).",
-        secret: true,
+        // v0.10.0 B.3 (D31): reconciled with toolkit v5 ground truth — the
+        // flag is `secret: false` (presence-only Boolean; the gated *output*
+        // is secret, not the input flag itself).
+        secret: false,
+        default_value: None,
+        global: false,
     },
+    NO_AUTO_REPAIR_FLAG,
 ];
 
 // ─── SCHEMA constant ─────────────────────────────────────────────────────
@@ -1231,6 +1502,6 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
 // drift here is a cosmetic banner mismatch, not a functional error.
 pub const SCHEMA: Schema = Schema {
     cli_name: "mnemonic",
-    pinned_version: "mnemonic 0.22.1",
+    pinned_version: "mnemonic 0.24.0",
     subcommands: SUBCOMMANDS,
 };

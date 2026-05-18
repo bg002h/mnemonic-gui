@@ -20,11 +20,11 @@
 use mnemonic_gui::form::slot_editor::{detect_slot_index_gaps, SlotRow, SlotSubkey};
 
 fn row_at(index: u8) -> SlotRow {
-    let mut r = SlotRow::default();
-    r.index = index;
-    r.subkey = SlotSubkey::Phrase;
-    r.value = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about".into();
-    r
+    SlotRow {
+        index,
+        subkey: SlotSubkey::Phrase,
+        value: "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about".into(),
+    }
 }
 
 #[test]

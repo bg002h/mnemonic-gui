@@ -682,7 +682,7 @@ fn cell_v0_16_bundle_compose_descriptor_first_rule_wins_over_template() {
         .filter(|(_, (k, _))| *k == "--threshold")
         .map(|(i, _)| i)
         .collect();
-    assert!(threshold_indices.len() >= 1);
+    assert!(!threshold_indices.is_empty());
 }
 
 #[test]
@@ -911,18 +911,23 @@ fn cell_v0_17_bundle_account_pin_value_zero_when_descriptor() {
     );
 }
 
-// ─── v0.9.0 Phase A.2: repair + inspect 3-way card mutex (8 cells) ──────
+// ─── v0.10.0 C.2 (D36): repair + inspect 3-way card at-least-one ────────
 //
-// `repair` and `inspect` carry an identical `<--ms1|--mk1|--md1>`
-// required-group mutex at the toolkit-CLI level. Each fn exercises the 4
-// load-bearing quadrants of the 3-way:
-//   - all unset → all 3 Required
-//   - exactly one set → other 2 Disabled (one cell per chosen card)
-// The 2+-set case is NOT cell'd here: per plan §2.A.1, the GUI hands off
-// to the toolkit's clap-derive ArgumentConflict rather than pre-flight
-// rejecting. (The handoff is implicit in the implementation — empty
-// FlagVisibility for that branch — so a cell would assert on the
-// absence of override, which is observed via the Visible default.)
+// `repair` and `inspect` carry an identical `--ms1` / `--mk1` / `--md1`
+// at-least-one rule at the GUI-conditional level (toolkit D35 dropped
+// the prior clap mutex, so 2 or 3 cards in a single invocation is now
+// allowed). The 4 load-bearing semantic states are exercised per fn:
+//   - all unset → all 3 Required (visual at-least-one prompt)
+//   - exactly one set → all 3 stay Visible (no Disabled — toolkit
+//     now accepts the other cards too)
+//   - two set → all 3 stay Visible (toolkit accepts mixed-HRP)
+//   - all three set → all 3 stay Visible (toolkit accepts triple-HRP)
+//
+// Replaces the v0.9.0 A.2 mutex cell block in lockstep with the helper
+// rename to `three_way_card_at_least_one`. Cells asserting "other 2
+// Disabled" (the prior mutex semantic) are deleted; cells asserting the
+// all-unset Required prompt are kept; new cells assert the ≥1-set
+// "all Visible" outcome at the 1-, 2-, and 3-card states.
 
 #[test]
 fn repair_all_unset_marks_all_three_required() {
@@ -936,30 +941,59 @@ fn repair_all_unset_marks_all_three_required() {
 }
 
 #[test]
-fn repair_ms1_set_marks_mk1_md1_disabled() {
+fn repair_ms1_set_clears_required_no_disable() {
     let state = FormState::from_pairs(vec![("--ms1", FlagValue::Text("ms1xyz...".into()))]);
     let vis = run_conditional("repair", &state);
-    assert_eq!(vis_of(&vis, "--mk1"), Visibility::Disabled);
-    assert_eq!(vis_of(&vis, "--md1"), Visibility::Disabled);
-    // Chosen card stays Visible (no Required, no Disabled).
+    // The chosen card stays Visible (no Required, no Disabled).
     assert_eq!(vis_of(&vis, "--ms1"), Visibility::Visible);
+    // The OTHER cards also stay Visible (D35 mutex drop — the user
+    // may legitimately add a 2nd or 3rd card; GUI must not block).
+    assert_eq!(vis_of(&vis, "--mk1"), Visibility::Visible);
+    assert_eq!(vis_of(&vis, "--md1"), Visibility::Visible);
 }
 
 #[test]
-fn repair_mk1_set_marks_ms1_md1_disabled() {
+fn repair_mk1_set_clears_required_no_disable() {
     let state = FormState::from_pairs(vec![("--mk1", FlagValue::Text("mk1abc...".into()))]);
     let vis = run_conditional("repair", &state);
-    assert_eq!(vis_of(&vis, "--ms1"), Visibility::Disabled);
-    assert_eq!(vis_of(&vis, "--md1"), Visibility::Disabled);
+    assert_eq!(vis_of(&vis, "--mk1"), Visibility::Visible);
+    assert_eq!(vis_of(&vis, "--ms1"), Visibility::Visible);
+    assert_eq!(vis_of(&vis, "--md1"), Visibility::Visible);
+}
+
+#[test]
+fn repair_md1_set_clears_required_no_disable() {
+    let state = FormState::from_pairs(vec![("--md1", FlagValue::Text("md1def...".into()))]);
+    let vis = run_conditional("repair", &state);
+    assert_eq!(vis_of(&vis, "--md1"), Visibility::Visible);
+    assert_eq!(vis_of(&vis, "--ms1"), Visibility::Visible);
     assert_eq!(vis_of(&vis, "--mk1"), Visibility::Visible);
 }
 
 #[test]
-fn repair_md1_set_marks_ms1_mk1_disabled() {
-    let state = FormState::from_pairs(vec![("--md1", FlagValue::Text("md1def...".into()))]);
+fn repair_two_cards_set_all_three_visible() {
+    // ms1 + mk1 set — toolkit accepts mixed-HRP repair runs (D35).
+    let state = FormState::from_pairs(vec![
+        ("--ms1", FlagValue::Text("ms1xyz...".into())),
+        ("--mk1", FlagValue::Text("mk1abc...".into())),
+    ]);
     let vis = run_conditional("repair", &state);
-    assert_eq!(vis_of(&vis, "--ms1"), Visibility::Disabled);
-    assert_eq!(vis_of(&vis, "--mk1"), Visibility::Disabled);
+    assert_eq!(vis_of(&vis, "--ms1"), Visibility::Visible);
+    assert_eq!(vis_of(&vis, "--mk1"), Visibility::Visible);
+    assert_eq!(vis_of(&vis, "--md1"), Visibility::Visible);
+}
+
+#[test]
+fn repair_all_three_cards_set_all_visible() {
+    // ms1 + mk1 + md1 set — toolkit accepts triple-HRP runs (D35).
+    let state = FormState::from_pairs(vec![
+        ("--ms1", FlagValue::Text("ms1xyz...".into())),
+        ("--mk1", FlagValue::Text("mk1abc...".into())),
+        ("--md1", FlagValue::Text("md1def...".into())),
+    ]);
+    let vis = run_conditional("repair", &state);
+    assert_eq!(vis_of(&vis, "--ms1"), Visibility::Visible);
+    assert_eq!(vis_of(&vis, "--mk1"), Visibility::Visible);
     assert_eq!(vis_of(&vis, "--md1"), Visibility::Visible);
 }
 
@@ -976,30 +1010,240 @@ fn inspect_all_unset_marks_all_three_required() {
 }
 
 #[test]
-fn inspect_ms1_set_marks_mk1_md1_disabled() {
+fn inspect_ms1_set_clears_required_no_disable() {
     let state = FormState::from_pairs(vec![("--ms1", FlagValue::Text("ms1xyz...".into()))]);
     let vis = run_conditional("inspect", &state);
-    assert_eq!(vis_of(&vis, "--mk1"), Visibility::Disabled);
-    assert_eq!(vis_of(&vis, "--md1"), Visibility::Disabled);
     assert_eq!(vis_of(&vis, "--ms1"), Visibility::Visible);
-    // Orthogonal flags stay Visible regardless of card selection.
+    assert_eq!(vis_of(&vis, "--mk1"), Visibility::Visible);
+    assert_eq!(vis_of(&vis, "--md1"), Visibility::Visible);
+    // Orthogonal flag stays Visible regardless of card selection.
     assert_eq!(vis_of(&vis, "--reveal-secret"), Visibility::Visible);
 }
 
 #[test]
-fn inspect_mk1_set_marks_ms1_md1_disabled() {
+fn inspect_mk1_set_clears_required_no_disable() {
     let state = FormState::from_pairs(vec![("--mk1", FlagValue::Text("mk1abc...".into()))]);
     let vis = run_conditional("inspect", &state);
-    assert_eq!(vis_of(&vis, "--ms1"), Visibility::Disabled);
-    assert_eq!(vis_of(&vis, "--md1"), Visibility::Disabled);
+    assert_eq!(vis_of(&vis, "--mk1"), Visibility::Visible);
+    assert_eq!(vis_of(&vis, "--ms1"), Visibility::Visible);
+    assert_eq!(vis_of(&vis, "--md1"), Visibility::Visible);
+}
+
+#[test]
+fn inspect_md1_set_clears_required_no_disable() {
+    let state = FormState::from_pairs(vec![("--md1", FlagValue::Text("md1def...".into()))]);
+    let vis = run_conditional("inspect", &state);
+    assert_eq!(vis_of(&vis, "--md1"), Visibility::Visible);
+    assert_eq!(vis_of(&vis, "--ms1"), Visibility::Visible);
     assert_eq!(vis_of(&vis, "--mk1"), Visibility::Visible);
 }
 
 #[test]
-fn inspect_md1_set_marks_ms1_mk1_disabled() {
-    let state = FormState::from_pairs(vec![("--md1", FlagValue::Text("md1def...".into()))]);
+fn inspect_two_cards_set_all_three_visible() {
+    // mk1 + md1 set — toolkit accepts mixed-HRP inspect runs (D35).
+    let state = FormState::from_pairs(vec![
+        ("--mk1", FlagValue::Text("mk1abc...".into())),
+        ("--md1", FlagValue::Text("md1def...".into())),
+    ]);
     let vis = run_conditional("inspect", &state);
-    assert_eq!(vis_of(&vis, "--ms1"), Visibility::Disabled);
-    assert_eq!(vis_of(&vis, "--mk1"), Visibility::Disabled);
+    assert_eq!(vis_of(&vis, "--ms1"), Visibility::Visible);
+    assert_eq!(vis_of(&vis, "--mk1"), Visibility::Visible);
     assert_eq!(vis_of(&vis, "--md1"), Visibility::Visible);
+}
+
+#[test]
+fn inspect_all_three_cards_set_all_visible() {
+    // ms1 + mk1 + md1 set — toolkit accepts triple-HRP runs (D35).
+    let state = FormState::from_pairs(vec![
+        ("--ms1", FlagValue::Text("ms1xyz...".into())),
+        ("--mk1", FlagValue::Text("mk1abc...".into())),
+        ("--md1", FlagValue::Text("md1def...".into())),
+    ]);
+    let vis = run_conditional("inspect", &state);
+    assert_eq!(vis_of(&vis, "--ms1"), Visibility::Visible);
+    assert_eq!(vis_of(&vis, "--mk1"), Visibility::Visible);
+    assert_eq!(vis_of(&vis, "--md1"), Visibility::Visible);
+}
+
+// ─── v0.10.0 B.4: convert subcommand 6-gap conditional rules ─────────────
+//
+// 6 gap rules added to `conditional::convert` to mirror toolkit-side
+// runtime refusals (cmd/convert.rs) for value-dependent flag consumption.
+// None of these are clap-derive conflicts, so they don't appear in the
+// toolkit's gui-schema `conditional_rules` projection (drift gate is
+// unaffected); the rules live exclusively in the GUI fn. Each cell pairs
+// the trigger state with the inverse (no-trigger) state to lock the
+// predicate boundary.
+
+// Helper: construct a convert FormState with one or more --to dropdown
+// values plus an optional --from composite. Repeating --to entries are
+// stored as multiple `(--to, FlagValue::Dropdown(_))` rows in
+// state.values, matching `form/invocation.rs:175-178`'s consume pattern.
+fn convert_state(from_node: Option<&str>, to_values: &[&str]) -> FormState {
+    let mut pairs: Vec<(&'static str, FlagValue)> = Vec::new();
+    if let Some(node) = from_node {
+        pairs.push((
+            "--from",
+            FlagValue::NodeValueComposite {
+                node: node.to_string(),
+                value: "x".into(),
+            },
+        ));
+    }
+    for v in to_values {
+        pairs.push(("--to", FlagValue::Dropdown((*v).to_string())));
+    }
+    FormState::from_pairs(pairs)
+}
+
+// Gap 1: --electrum-version Disabled when neither side touches electrum-phrase.
+#[test]
+fn cell_v0_10_convert_electrum_version_disabled_when_no_electrum_side() {
+    // Trigger: --from xprv, --to xpub — neither side is electrum-phrase.
+    let state = convert_state(Some("xprv"), &["xpub"]);
+    let vis = run_conditional("convert", &state);
+    assert_eq!(vis_of(&vis, "--electrum-version"), Visibility::Disabled);
+}
+
+#[test]
+fn cell_v0_10_convert_electrum_version_visible_when_from_electrum() {
+    // No-trigger: --from electrum-phrase → rule does NOT fire.
+    let state = convert_state(Some("electrum-phrase"), &["entropy"]);
+    let vis = run_conditional("convert", &state);
+    assert_eq!(vis_of(&vis, "--electrum-version"), Visibility::Visible);
+}
+
+#[test]
+fn cell_v0_10_convert_electrum_version_visible_when_to_electrum() {
+    // No-trigger: --to electrum-phrase → rule does NOT fire.
+    let state = convert_state(Some("entropy"), &["electrum-phrase"]);
+    let vis = run_conditional("convert", &state);
+    assert_eq!(vis_of(&vis, "--electrum-version"), Visibility::Visible);
+}
+
+// Gap 2: --electrum-language Disabled when neither side touches electrum-phrase.
+#[test]
+fn cell_v0_10_convert_electrum_language_disabled_when_no_electrum_side() {
+    let state = convert_state(Some("phrase"), &["entropy", "xpub"]);
+    let vis = run_conditional("convert", &state);
+    assert_eq!(vis_of(&vis, "--electrum-language"), Visibility::Disabled);
+}
+
+#[test]
+fn cell_v0_10_convert_electrum_language_visible_when_to_electrum() {
+    let state = convert_state(Some("entropy"), &["electrum-phrase"]);
+    let vis = run_conditional("convert", &state);
+    assert_eq!(vis_of(&vis, "--electrum-language"), Visibility::Visible);
+}
+
+// Gap 3: --script-type rules.
+//   - Required when --to contains "address" AND no --template.
+//   - Disabled when --to NOT contains "address".
+//   - Visible (no override) when --to contains "address" AND --template set.
+#[test]
+fn cell_v0_10_convert_script_type_required_when_to_address_and_no_template() {
+    let state = convert_state(Some("xpub"), &["address"]);
+    let vis = run_conditional("convert", &state);
+    assert_eq!(vis_of(&vis, "--script-type"), Visibility::Required);
+}
+
+#[test]
+fn cell_v0_10_convert_script_type_visible_when_to_address_and_template_set() {
+    // --template supplies script-type via inference, so --script-type is
+    // no longer Required. Not Disabled either (--to=address keeps it
+    // relevant). Falls through to Visible.
+    let state = FormState::from_pairs(vec![
+        ("--to", FlagValue::Dropdown("address".into())),
+        ("--template", FlagValue::Dropdown("bip84".into())),
+    ]);
+    let vis = run_conditional("convert", &state);
+    assert_eq!(vis_of(&vis, "--script-type"), Visibility::Visible);
+}
+
+#[test]
+fn cell_v0_10_convert_script_type_disabled_when_to_not_address() {
+    let state = convert_state(Some("phrase"), &["xpub", "xprv"]);
+    let vis = run_conditional("convert", &state);
+    assert_eq!(vis_of(&vis, "--script-type"), Visibility::Disabled);
+}
+
+// Gap 4: --template Disabled when --to has none of {address, xpub, xprv,
+// fingerprint}. (Toolkit consumes --template for phrase|entropy→{xpub,
+// xprv, fingerprint} derivation AND for *→address script-type inference;
+// we widen the recon's "address-only" predicate to match.)
+#[test]
+fn cell_v0_10_convert_template_disabled_when_to_unrelated() {
+    let state = convert_state(Some("phrase"), &["entropy", "wif"]);
+    let vis = run_conditional("convert", &state);
+    assert_eq!(vis_of(&vis, "--template"), Visibility::Disabled);
+}
+
+#[test]
+fn cell_v0_10_convert_template_visible_when_to_address() {
+    let state = convert_state(Some("phrase"), &["address"]);
+    let vis = run_conditional("convert", &state);
+    assert_eq!(vis_of(&vis, "--template"), Visibility::Visible);
+}
+
+#[test]
+fn cell_v0_10_convert_template_visible_when_to_xpub() {
+    // Toolkit-ground: phrase→xpub uses --template for BIP-32 derivation
+    // (convert.rs:1053). Recon's narrower "address-only" rule was wrong;
+    // this cell locks the widened predicate.
+    let state = convert_state(Some("phrase"), &["xpub"]);
+    let vis = run_conditional("convert", &state);
+    assert_eq!(vis_of(&vis, "--template"), Visibility::Visible);
+}
+
+// Gap 5: --path rules.
+//   - Required when --to contains any of {wif, bip38, address}.
+//   - Disabled when --to has NONE of {wif, bip38, address}.
+#[test]
+fn cell_v0_10_convert_path_required_when_to_wif() {
+    let state = convert_state(Some("phrase"), &["wif"]);
+    let vis = run_conditional("convert", &state);
+    assert_eq!(vis_of(&vis, "--path"), Visibility::Required);
+}
+
+#[test]
+fn cell_v0_10_convert_path_required_when_to_address() {
+    // Toolkit-ground: --path is required for any →address edge regardless
+    // of --template (template feeds script-type, not path inference).
+    let state = FormState::from_pairs(vec![
+        ("--to", FlagValue::Dropdown("address".into())),
+        ("--template", FlagValue::Dropdown("bip84".into())),
+    ]);
+    let vis = run_conditional("convert", &state);
+    assert_eq!(vis_of(&vis, "--path"), Visibility::Required);
+}
+
+#[test]
+fn cell_v0_10_convert_path_required_when_to_bip38() {
+    // phrase→bip38 composite uses --path via refusal_phrase_entropy_to_wif_no_path
+    // (convert.rs:1120).
+    let state = convert_state(Some("phrase"), &["bip38"]);
+    let vis = run_conditional("convert", &state);
+    assert_eq!(vis_of(&vis, "--path"), Visibility::Required);
+}
+
+#[test]
+fn cell_v0_10_convert_path_disabled_when_to_unrelated() {
+    let state = convert_state(Some("phrase"), &["entropy", "xpub"]);
+    let vis = run_conditional("convert", &state);
+    assert_eq!(vis_of(&vis, "--path"), Visibility::Disabled);
+}
+
+// Gap 6: --xpub-prefix Disabled when --to NOT contains "xpub".
+#[test]
+fn cell_v0_10_convert_xpub_prefix_disabled_when_to_not_xpub() {
+    let state = convert_state(Some("phrase"), &["entropy", "wif"]);
+    let vis = run_conditional("convert", &state);
+    assert_eq!(vis_of(&vis, "--xpub-prefix"), Visibility::Disabled);
+}
+
+#[test]
+fn cell_v0_10_convert_xpub_prefix_visible_when_to_xpub() {
+    let state = convert_state(Some("phrase"), &["xpub"]);
+    let vis = run_conditional("convert", &state);
+    assert_eq!(vis_of(&vis, "--xpub-prefix"), Visibility::Visible);
 }

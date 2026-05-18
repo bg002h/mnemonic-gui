@@ -76,7 +76,37 @@ pub struct FlagSchema {
     /// True if the flag is in the never-persist / paste-warn class
     /// (SPEC §9, §10). Phase 1 hand-codes; Phase 7 cross-checks against
     /// upstream `NodeType::is_secret_bearing()` via the source-level audit.
+    /// v0.10.0 B.3 (D31): mirrored from the toolkit v5 schema's per-flag
+    /// `secret` boolean. Hand-coded values reconciled with toolkit v5 ground
+    /// truth (toolkit's `flag_is_secret` is the union of NodeType +
+    /// SlotSubkey + hand-listed flag names).
     pub secret: bool,
+    /// v0.10.0 B.3 (D31): clap-derive declared default-value, mirrored from
+    /// the toolkit v5 schema's per-flag `default_value` field. Stored as a
+    /// string-form representation that maps onto the argv emission token
+    /// per-`FlagKind`:
+    ///
+    /// - Number: decimal integer (e.g. `"0"`, `"25"`).
+    /// - Dropdown / Text / Path: literal string (e.g. `"mainnet"`, `"-"`).
+    /// - Range: `<u32>,<u32>` form (e.g. `"0,999"`).
+    /// - Timestamp: `"now"` for the Now sentinel; Epoch values never have
+    ///   a meaningful schema default.
+    /// - Boolean: ignored (Boolean defaults are always-false; presence-only
+    ///   emission already trivially suppresses absent / `false` values).
+    /// - NodeValueComposite / TaggedOrIndexed: no toolkit default emission.
+    ///
+    /// Consumed by `form/invocation::is_at_default` per D33's compare-predicate
+    /// table for argv emission suppression. `None` means the flag has no
+    /// clap-declared default (most flags); in that case `is_at_default` always
+    /// returns false and the value emits if Set.
+    pub default_value: Option<&'static str>,
+    /// v0.10.0 B.3 (D31): mirrored from the toolkit v5 schema's per-flag
+    /// `global` boolean. True for clap-global flags like `--no-auto-repair`
+    /// that propagate across every subcommand. The argv assembler emits
+    /// global flags the same way as non-global; this field is consumed by
+    /// future GUI-side projection (e.g. action-bar promotion) and the
+    /// drift gate.
+    pub global: bool,
 }
 
 /// Widget shape + argv emission rule. See SPEC §6.7 for byte-exact emission

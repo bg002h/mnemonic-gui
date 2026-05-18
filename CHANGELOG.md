@@ -3,6 +3,113 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## [0.10.0] — 2026-05-17
+
+v0.24.x cycle lockstep with `mnemonic-toolkit-v0.24.0`. Consumes
+toolkit's gui-schema v5 envelope (default_value + global + secret
+fields), retires the v0.9.0 R7 action-bar `--no-auto-repair`
+fallback, fills 6 missing convert-subcommand conditional rules, and
+migrates the v0.9.0 three-way card mutex to a softer
+at-least-one-required policy (D36 lockstep with toolkit D35).
+
+### Added
+
+- **Schema v5 consumer (Tranche B.3 / D31 / D33):** `FlagSchema` struct
+  gains `default_value: Option<&'static str>` + `global: bool` fields;
+  every entry in `schema/{mnemonic,md,mk,ms}.rs` rebuilt against the
+  toolkit v5 ground truth. `--no-auto-repair` declared
+  `global: true` per-subcommand (drops the v0.9.0 action-bar
+  affordance).
+- **`is_at_default` argv-suppression (D33):** new predicate in
+  `form/invocation.rs` per the 9-FlagKind table — argv assembler now
+  suppresses flags whose user-set value matches the toolkit-declared
+  `default_value`. 12 new D33 cells in `tests/argv_assembler.rs`; 5
+  existing cells adjusted for the new default-suppression behavior.
+- **Disabled-suppression regression matrix (Tranche B.2):** new file
+  `tests/argv_assembler_disabled_suppression.rs` with 9 per-FlagKind
+  cells (Boolean / Text / Number / Dropdown / NodeValueComposite /
+  Range / Timestamp / Path + negative control). Locks the existing
+  `assemble_argv::96-98` suppression mechanism against silent
+  regression.
+- **R7 removal regression file (Tranche B.3):** `tests/r7_no_auto_repair_removal.rs`
+  (7 cells) covering the action-bar checkbox + runner helper deletion
+  at the 5 sites in `src/main.rs` + `src/runner.rs`.
+- **Secret-drift gate (Tranche B.3):** `tests/schema_mirror_secret_drift.rs`
+  (1 cell) — cross-checks GUI `FlagSchema.secret` field against
+  toolkit v5's `flag_is_secret` ground truth via `gui-schema` JSON
+  output. `--reveal-secret` reconciled to `secret: false`.
+- **6 missing convert-subcommand conditional rules (Tranche B.4):**
+  `form/conditional.rs::convert` gains visibility rules for
+  `--electrum-version`, `--electrum-language`, `--script-type`,
+  `--template`, `--path`, `--xpub-prefix`. New `to_contains` helper
+  at `:441-450` supports multi-value `--to` predicate. 17 new cells
+  in `tests/conditional_visibility.rs`.
+- **`three_way_card_at_least_one` helper (Tranche C.2 / D36):**
+  renames v0.9.0's `three_way_card_mutex` to reflect the softer
+  policy — at least one card must be supplied (lockstep with
+  toolkit D35 cross-HRP mutex drop). Callers
+  `conditional::repair` + `conditional::inspect` updated. 8 v0.22.x
+  A.2 cells rewritten + 4 new cells (12 total in the at-least-one
+  block).
+- **Toolkit clippy --all-targets CI job (Tranche A.3):** new
+  `clippy-all-targets` job in `.github/workflows/build.yml` running
+  `cargo clippy --workspace --all-targets -- -D warnings` against
+  HEAD. Catches test-target lints that the prior `--lib --bins` gate
+  missed.
+
+### Changed
+
+- **Toolkit pin (3 sites):** `mnemonic-toolkit-v0.22.1` → `v0.24.0` in
+  `Cargo.toml:42` git-dep tag, `pinned-upstream.toml:22`
+  `[mnemonic] tag`, `src/schema/mnemonic.rs::SCHEMA.pinned_version`
+  monospace label.
+- **`schema/mnemonic.rs` prose (Tranche C.2):** 6 `help`-string
+  updates + 2 module-level prose updates across `repair` / `inspect`
+  flags (Mutually-exclusive → Combinable-with-X).
+- **5 pre-existing clippy lints fixed in test files (Tranche A.3):**
+  3× `doc_overindented_list_items` in `tests/manual_anchor_coverage.rs`;
+  1× `field_reassign_with_default` in `tests/slot_editor_contiguity.rs`;
+  1× `len_zero` in `tests/conditional_visibility.rs`. All caught by
+  the new --all-targets CI job.
+
+### Removed
+
+- **R7 action-bar `--no-auto-repair` checkbox** at 5 sites:
+  `src/main.rs:99` / `:260` / `:322-326` / `:788` + `src/runner.rs:48`
+  + 3 unit cells. With toolkit v5 emitting `global: true` for the
+  flag, the GUI mirrors it natively per-subcommand and no longer
+  needs the load-bearing top-level fallback. `runner::prepend_no_auto_repair`
+  retired.
+
+### Resolved (FOLLOWUPS)
+
+- `clippy-test-target-cleanup` — GUI-only; closed via the 5 lint
+  fixes + the --all-targets CI job.
+- `gui-schema-global-flag-emission` — companion close lockstep with
+  toolkit v0.24.0 (Tranche B primary).
+- `toolkit-mnemonic-force-tty-promote-from-test-only` — companion
+  close lockstep with toolkit v0.24.0 (Tranche A primary).
+- `md-codec-decode-with-correction-supports-non-chunked-md1` —
+  companion close lockstep with md-codec v0.35.0 (Tranche D primary).
+- `verify-bundle-watch-only-xpub-path-internal-consistency` —
+  GUI-side observer companion to the toolkit primary at v0.24.0
+  (GUI surfaces the new stderr WARNING through its existing stderr
+  pane; no GUI code change required beyond the toolkit pin bump).
+
+### Tests
+
+- 240 → ~300+ (final count via `cargo test --workspace`): +9
+  Disabled-suppression cells, +12 D33 argv-suppression cells,
+  +17 conditional-visibility cells (B.4 convert rules), +12
+  at-least-one cells (Tranche C.2), +7 R7-removal cells, +1
+  secret-drift cell.
+
+### Companion
+
+`mnemonic-toolkit v0.24.0` (Tranche A + B + C primary).
+`mk-cli v0.4.1` (independent patch, no GUI scope).
+`md-codec v0.35.0` (Tranche D primary).
+
 ## [0.9.0] — 2026-05-17
 
 Catchup release wiring the v0.22.0 + v0.22.1 toolkit BCH

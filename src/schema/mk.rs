@@ -17,6 +17,8 @@ const INSPECT_FLAGS: &[FlagSchema] = &[FlagSchema {
     repeating: false,
     help: "Emit structured JSON instead of multi-line text.",
     secret: false,
+    default_value: None,
+    global: false,
 }];
 
 const INSPECT_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
@@ -45,6 +47,8 @@ const ENCODE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Extended public key to encode.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--origin-fingerprint",
@@ -53,6 +57,8 @@ const ENCODE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Master fingerprint (8 hex chars). Conflicts with --privacy-preserving.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--origin-path",
@@ -61,6 +67,8 @@ const ENCODE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "BIP-32 derivation path from master to the supplied xpub.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--policy-id-stub",
@@ -69,6 +77,8 @@ const ENCODE_FLAGS: &[FlagSchema] = &[
         repeating: true,
         help: "Policy-id stub binding the mk1 to a policy. Repeating (order-sensitive).",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--from-md1",
@@ -77,6 +87,8 @@ const ENCODE_FLAGS: &[FlagSchema] = &[
         repeating: true,
         help: "Derive --policy-id-stub from the supplied md1. Repeating.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--privacy-preserving",
@@ -85,6 +97,8 @@ const ENCODE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Omit master fingerprint from the mk1. Conflicts with --origin-fingerprint.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--force-chunked",
@@ -93,6 +107,8 @@ const ENCODE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Force chunked encoding for testing.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--force-long-code",
@@ -101,6 +117,8 @@ const ENCODE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Force long-code encoding for testing.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--json",
@@ -109,6 +127,8 @@ const ENCODE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Emit JSON instead of text output.",
         secret: false,
+        default_value: None,
+        global: false,
     },
 ];
 
@@ -124,6 +144,8 @@ const DECODE_FLAGS: &[FlagSchema] = &[FlagSchema {
     repeating: false,
     help: "Emit JSON instead of text output.",
     secret: false,
+    default_value: None,
+    global: false,
 }];
 
 const DECODE_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
@@ -147,6 +169,8 @@ const VERIFY_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Expected extended public key.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--origin-fingerprint",
@@ -155,6 +179,8 @@ const VERIFY_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Expected master fingerprint (8 hex chars).",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--origin-path",
@@ -163,6 +189,8 @@ const VERIFY_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Expected BIP-32 derivation path.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--policy-id-stub",
@@ -171,6 +199,8 @@ const VERIFY_FLAGS: &[FlagSchema] = &[
         repeating: true,
         help: "Expected policy-id stub(s). Order-sensitive.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--from-md1",
@@ -179,6 +209,8 @@ const VERIFY_FLAGS: &[FlagSchema] = &[
         repeating: true,
         help: "Derive expected --policy-id-stub from the supplied md1. Repeating.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--json",
@@ -187,6 +219,8 @@ const VERIFY_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Emit JSON instead of text output.",
         secret: false,
+        default_value: None,
+        global: false,
     },
 ];
 
@@ -209,6 +243,8 @@ const VECTORS_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Pretty-print JSON output. Silently ignored when --out is set.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--out",
@@ -219,6 +255,8 @@ const VECTORS_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Write vectors to PATH instead of stdout.",
         secret: false,
+        default_value: None,
+        global: false,
     },
 ];
 

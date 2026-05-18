@@ -22,9 +22,9 @@
 //!   if either side drifts, the cross-repo anchor namespace breaks.
 //!
 //! - The anchor formula:
-//!     subcommand: `<tab>-<kebab(name)>`
-//!     flag:       `<sub>-<flag-without-leading-dashes>`
-//!     variant:    `<flag>-<kebab(value)>`
+//!   subcommand: `<tab>-<kebab(name)>`
+//!   flag:       `<sub>-<flag-without-leading-dashes>`
+//!   variant:    `<flag>-<kebab(value)>`
 //!   where `kebab(s)` = lowercase, non-alphanumeric → `-`, collapse
 //!   consecutive `-`, strip leading/trailing `-`.
 //!

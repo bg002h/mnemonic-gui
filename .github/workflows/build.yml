@@ -8,6 +8,27 @@ on:
     branches: [master]
 
 jobs:
+  clippy:
+    # v0.10.0 cycle (FOLLOWUP `clippy-test-target-cleanup`): dedicated
+    # clippy gate covering the full target set (lib + bins + tests +
+    # examples + benches). `--all-targets` catches lints in the test
+    # tree that `--lib --bins` would silently skip.
+    name: clippy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: install-rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+
+      - name: cargo-cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: cargo clippy --all-targets -- -D warnings
+        run: cargo clippy --all-targets -- -D warnings
+
   build:
     name: ${{ matrix.target }}
     runs-on: ${{ matrix.runner }}

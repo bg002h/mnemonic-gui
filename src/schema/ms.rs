@@ -35,6 +35,8 @@ const INSPECT_FLAGS: &[FlagSchema] = &[FlagSchema {
     repeating: false,
     help: "Emit JSON instead of text verdict + fields.",
     secret: false,
+    default_value: None,
+    global: false,
 }];
 
 const INSPECT_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
@@ -60,6 +62,8 @@ const ENCODE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "BIP-39 mnemonic phrase. XOR with --hex.",
         secret: true,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--hex",
@@ -68,6 +72,8 @@ const ENCODE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Raw entropy as hex. XOR with --phrase. --language is ignored.",
         secret: true,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--language",
@@ -76,6 +82,8 @@ const ENCODE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "BIP-39 wordlist (default english). Ignored when --hex is set.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--no-engraving-card",
@@ -84,6 +92,8 @@ const ENCODE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Suppress the human-readable engraving-card panel.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--json",
@@ -92,6 +102,8 @@ const ENCODE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Emit JSON instead of text output.",
         secret: false,
+        default_value: None,
+        global: false,
     },
 ];
 
@@ -108,6 +120,8 @@ const DECODE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "BIP-39 wordlist (default english) used to render the phrase.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--json",
@@ -116,6 +130,8 @@ const DECODE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Emit JSON instead of text output.",
         secret: false,
+        default_value: None,
+        global: false,
     },
 ];
 
@@ -139,6 +155,8 @@ const VERIFY_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "BIP-39 mnemonic phrase to round-trip against the ms1.",
         secret: true,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--language",
@@ -147,6 +165,8 @@ const VERIFY_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "BIP-39 wordlist (default english).",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--json",
@@ -155,6 +175,8 @@ const VERIFY_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Emit JSON instead of text output.",
         secret: false,
+        default_value: None,
+        global: false,
     },
 ];
 
@@ -175,6 +197,8 @@ const VECTORS_FLAGS: &[FlagSchema] = &[FlagSchema {
     repeating: false,
     help: "Pretty-print JSON output.",
     secret: false,
+    default_value: None,
+    global: false,
 }];
 
 const VECTORS_POSITIONALS: &[PositionalArgSchema] = &[];

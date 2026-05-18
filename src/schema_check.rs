@@ -65,8 +65,15 @@ fn load_pinned_upstream() -> Option<PinnedRoot> {
 }
 
 /// SPEC §7 / §6.10 JSON shape for `<cli> gui-schema` output. The struct
-/// describes both v1 and v2 docs (v2 adds `conditional_rules` per subcommand;
-/// older fields unchanged). Version gating is done in the parse fns.
+/// describes v1..v5 docs (additive evolution; older readers ignore newer
+/// fields). Version gating is done in the parse fns.
+///
+/// v0.10.0 B.3 (D31): toolkit v5 schema is additive over v4 — adds the
+/// per-flag `default_value`, `global`, `secret` fields. The flag-name
+/// extractor (`parse_gui_schema_json`) is unaffected (still consumes only
+/// `name`). The conditional-rules extractor (`parse_gui_schema_conditional_rules`)
+/// is unaffected. Future feature-aware extractors may consume the v5
+/// fields directly.
 #[derive(Debug, Deserialize)]
 struct GuiSchemaRoot {
     version: u32,

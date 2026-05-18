@@ -80,23 +80,6 @@ struct MnemonicGuiApp {
     show_cmdline: bool,
     show_stdout: bool,
     show_stderr: bool,
-    /// v0.9.0 R7 (load-bearing per Phase A.1 finding) — global action-bar
-    /// `--no-auto-repair` opt-out. Toolkit v0.22.1 auto-fires BCH repair on
-    /// `convert`/`inspect`/`verify-bundle` when stdout is a TTY (which the
-    /// GUI forces via `MNEMONIC_FORCE_TTY=1` per D23 in `runner::run`).
-    /// When this field is `true`, the runner splices `--no-auto-repair`
-    /// between the binary name and the subcommand before spawn, disabling
-    /// the auto-fire short-circuit for that invocation.
-    ///
-    /// Persists across subcommand-tab switches (single top-level field;
-    /// no per-(cli, subcommand) keying). Default `false` (auto-fire ON).
-    ///
-    /// Necessary because `mnemonic gui-schema` v4 JSON does NOT emit global
-    /// flags per-subcommand; we cannot wire `--no-auto-repair` via the
-    /// existing schema-driven form pipeline. FOLLOWUP
-    /// `gui-schema-global-flag-emission` tracks fixing this gap toolkit-side
-    /// (and dropping this action-bar checkbox when it lands).
-    pub no_auto_repair: bool,
     /// Run-confirm modal state. None = no modal; Some(argv) = pending.
     pending_confirm_argv: Option<Vec<String>>,
     /// v0.6.0 P4 — last-observed `--template` value per form key, used by
@@ -257,7 +240,6 @@ impl MnemonicGuiApp {
             show_cmdline: true,
             show_stdout: true,
             show_stderr: true,
-            no_auto_repair: false,
             pending_confirm_argv: None,
             last_template: BTreeMap::new(),
         }
@@ -317,15 +299,14 @@ impl eframe::App for MnemonicGuiApp {
                 ui.checkbox(&mut self.show_cmdline, "show command-line");
                 ui.checkbox(&mut self.show_stdout, "show stdout");
                 ui.checkbox(&mut self.show_stderr, "show stderr");
-                // v0.9.0 R7 action-bar checkbox — load-bearing fallback for
-                // the Phase A.1 schema-mirror finding. See the
-                // `no_auto_repair` field doc on `MnemonicGuiApp` and the
-                // `runner::prepend_no_auto_repair` doc-comment for the full
-                // rationale.
-                ui.checkbox(
-                    &mut self.no_auto_repair,
-                    "No auto-repair (--no-auto-repair)",
-                );
+                // v0.10.0 B.3 (D33): the v0.9.0 R7 action-bar
+                // `--no-auto-repair` checkbox has been DROPPED in lockstep
+                // with toolkit v5 schema emission. `--no-auto-repair` is
+                // now a first-class per-subcommand FlagSchema entry
+                // (`global: true`) declared in `src/schema/mnemonic.rs`;
+                // users wire it via the standard form widget per
+                // subcommand. See `runner::prepend_no_auto_repair` (also
+                // deleted) and the related v0.10.0 cycle close.
             });
             if let Some(ref err) = self.last_run_error {
                 ui.colored_label(egui::Color32::from_rgb(220, 60, 60), format!("subprocess error: {}", err));
@@ -783,9 +764,10 @@ fn spawn_and_capture(app: &mut MnemonicGuiApp, argv: Vec<String>) {
         ));
         return;
     }
-    // v0.9.0 R7 — splice the action-bar `--no-auto-repair` checkbox into
-    // argv BEFORE the runner spawn. No-op when the checkbox is unchecked.
-    let argv = runner::prepend_no_auto_repair(argv, app.no_auto_repair);
+    // v0.10.0 B.3 (D33): `--no-auto-repair` is now a first-class
+    // FlagSchema entry per subcommand (toolkit v5 `global: true`); the
+    // form's argv assembly handles it like any other Boolean flag. The
+    // prior `runner::prepend_no_auto_repair` helper has been deleted.
     match runner::run(argv) {
         Ok(result) => {
             app.last_run = Some(result);

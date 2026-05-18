@@ -31,6 +31,8 @@ const INSPECT_FLAGS: &[FlagSchema] = &[FlagSchema {
     repeating: false,
     help: "Emit structured JSON instead of pretty-printed text.",
     secret: false,
+    default_value: None,
+    global: false,
 }];
 
 const INSPECT_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
@@ -62,6 +64,8 @@ const ENCODE_FLAGS: &[FlagSchema] = &[
         help: "Compile a sub-Miniscript-Policy expression into a template (cli-compiler). \
                Mutually exclusive with the [TEMPLATE] positional.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--context",
@@ -70,6 +74,8 @@ const ENCODE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Script context for --from-policy. Conditionally required when --from-policy is set.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--unspendable-key",
@@ -79,6 +85,8 @@ const ENCODE_FLAGS: &[FlagSchema] = &[
         help: "Tap-context only: fallback unspendable internal key for `compile_tr`. \
                Defaults to BIP-341 NUMS H-point when omitted. Rejected when --context segwitv0.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--path",
@@ -88,6 +96,8 @@ const ENCODE_FLAGS: &[FlagSchema] = &[
         help: "Override the inferred origin path with a single shared path. Accepts named \
                (bip44|48|49|84|86), hex (0xNN), or literal (m/...) forms.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--key",
@@ -96,6 +106,8 @@ const ENCODE_FLAGS: &[FlagSchema] = &[
         repeating: true,
         help: "Concrete xpub for placeholder `@i` (e.g. @0=xpub...). Repeatable.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--fingerprint",
@@ -104,6 +116,8 @@ const ENCODE_FLAGS: &[FlagSchema] = &[
         repeating: true,
         help: "Master-key fingerprint for placeholder `@i` (e.g. @0=DEADBEEF). Repeatable.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--network",
@@ -112,6 +126,8 @@ const ENCODE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Network for xpub validation (and JSON output labeling). Default mainnet.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--force-chunked",
@@ -120,6 +136,8 @@ const ENCODE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Force chunked encoding even for short policies.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--force-long-code",
@@ -128,6 +146,8 @@ const ENCODE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Force the long BCH code even when the regular code suffices.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--policy-id-fingerprint",
@@ -136,6 +156,8 @@ const ENCODE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Print the freshly-computed PolicyId fingerprint after the phrase.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--json",
@@ -144,6 +166,8 @@ const ENCODE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Emit JSON output.",
         secret: false,
+        default_value: None,
+        global: false,
     },
 ];
 
@@ -165,6 +189,8 @@ const DECODE_FLAGS: &[FlagSchema] = &[FlagSchema {
     repeating: false,
     help: "Emit JSON output.",
     secret: false,
+    default_value: None,
+    global: false,
 }];
 
 const DECODE_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
@@ -188,6 +214,8 @@ const VERIFY_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "BIP 388 template to verify the strings against.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--key",
@@ -196,6 +224,8 @@ const VERIFY_FLAGS: &[FlagSchema] = &[
         repeating: true,
         help: "Concrete xpub for placeholder `@i` (e.g. @0=xpub...). Repeatable.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--fingerprint",
@@ -204,6 +234,8 @@ const VERIFY_FLAGS: &[FlagSchema] = &[
         repeating: true,
         help: "Master-key fingerprint for placeholder `@i` (e.g. @0=DEADBEEF). Repeatable.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--network",
@@ -212,6 +244,8 @@ const VERIFY_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Network for xpub validation. Default mainnet.",
         secret: false,
+        default_value: None,
+        global: false,
     },
 ];
 
@@ -232,6 +266,8 @@ const BYTECODE_FLAGS: &[FlagSchema] = &[FlagSchema {
     repeating: false,
     help: "Emit JSON output.",
     secret: false,
+    default_value: None,
+    global: false,
 }];
 
 const BYTECODE_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
@@ -253,6 +289,8 @@ const VECTORS_FLAGS: &[FlagSchema] = &[FlagSchema {
     repeating: false,
     help: "Output directory for regenerated test-vector corpus.",
     secret: false,
+    default_value: None,
+    global: false,
 }];
 
 const VECTORS_POSITIONALS: &[PositionalArgSchema] = &[];
@@ -272,6 +310,8 @@ const COMPILE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Script context for compilation.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--unspendable-key",
@@ -281,6 +321,8 @@ const COMPILE_FLAGS: &[FlagSchema] = &[
         help: "Tap-context only: fallback unspendable internal key for `compile_tr`. \
                Defaults to BIP-341 NUMS H-point. Rejected when --context segwitv0.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--json",
@@ -289,6 +331,8 @@ const COMPILE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Emit JSON output.",
         secret: false,
+        default_value: None,
+        global: false,
     },
 ];
 
@@ -319,6 +363,8 @@ const ADDRESS_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "BIP 388 template. Requires at least one --key. Mutually exclusive with phrases.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--key",
@@ -327,6 +373,8 @@ const ADDRESS_FLAGS: &[FlagSchema] = &[
         repeating: true,
         help: "Concrete xpub for placeholder `@i`. Repeatable. Requires --template.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--fingerprint",
@@ -335,6 +383,8 @@ const ADDRESS_FLAGS: &[FlagSchema] = &[
         repeating: true,
         help: "Master-key fingerprint for placeholder `@i`. Repeatable. Requires --template.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--network",
@@ -343,6 +393,8 @@ const ADDRESS_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Network for xpub validation and address rendering. Default mainnet.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--chain",
@@ -351,6 +403,8 @@ const ADDRESS_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Multipath alternative selector (0 = receive, 1 = change for canonical <0;1>/*).",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--change",
@@ -359,6 +413,8 @@ const ADDRESS_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Sugar for --chain 1.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--index",
@@ -370,6 +426,8 @@ const ADDRESS_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Starting index along the wildcard. Default 0.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--count",
@@ -378,6 +436,8 @@ const ADDRESS_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Number of consecutive addresses to derive starting at --index. Default 1.",
         secret: false,
+        default_value: None,
+        global: false,
     },
     FlagSchema {
         name: "--json",
@@ -386,6 +446,8 @@ const ADDRESS_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Emit JSON output.",
         secret: false,
+        default_value: None,
+        global: false,
     },
 ];
 
