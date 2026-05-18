@@ -37,6 +37,16 @@ mirrors it.
 - **Tier:** `v0.10+`
 - **Companion:** None — gui-only.
 
+### `md-codec-decode-with-correction-supports-non-chunked-md1` — GUI-side consumer: `mnemonic repair --md1` rejects non-chunked-form md1 post-toolkit-v0.23.0
+
+- **Surfaced:** 2026-05-17, v0.22.x follow-ups cycle Phase B.8 (release-boundary docs). GUI-side companion to the descriptor-mnemonic primary entry (filed after Phase B.6 + B.7 surfaced the gap).
+- **Where:** GUI invokes the toolkit's `mnemonic repair --md1` via `src/runner.rs::run` (spawned subprocess + `MNEMONIC_FORCE_TTY=1` env per D23). Post-toolkit-v0.23.0 (Phase B.7 D29 migration), the `--md1` branch delegates to `md_codec::decode_with_correction` (md-codec v0.34.0 — Phase B.2), which integrates via `chunk::split` + `chunk::reassemble` and only accepts chunked-form md1 input (those bearing a chunk header, as emitted by `md encode --force-chunked` or by automatic chunking when the payload exceeds 320 bits). Non-chunked single-string md1 (the form emitted by plain `md encode` for small payloads) is rejected with a wire-format error. GUI users attempting to repair a non-chunked md1 through the toolkit-spawn pathway will see the wire-format-mismatch error surface in the stderr pane, with no corrected output on stdout.
+- **What:** GUI-side consumer tracker for the md-codec primary. No GUI code change in this cycle — the GUI is a passive consumer of whatever the toolkit's `mnemonic repair --md1` accepts. When the primary lands its non-chunked-form coverage (md-codec patch release) and the toolkit consumes the updated codec API, the GUI's repair surface inherits the broader input acceptance automatically (no GUI work required). For UX clarity in the meantime, consider documenting the constraint in the GUI's repair-form help text or tooltips so users understand why some md1 inputs are rejected.
+- **Why deferred:** Constraint lives in the codec; GUI scope is unaffected beyond the documentation suggestion. Tracked for cross-repo visibility so the GUI cycle that picks up the toolkit's eventual non-chunked-form support can coordinate with the consumer migration.
+- **Status:** open
+- **Tier:** `cross-repo`
+- **Companion:** `bg002h/descriptor-mnemonic` `design/FOLLOWUPS.md` `md-codec-decode-with-correction-supports-non-chunked-md1` (primary); `bg002h/mnemonic-toolkit` `design/FOLLOWUPS.md` `md-codec-decode-with-correction-supports-non-chunked-md1` (toolkit-side consumer); `bg002h/mnemonic-secret` `design/FOLLOWUPS.md` `md-codec-decode-with-correction-supports-non-chunked-md1` (sibling-codec mirror).
+
 ### gui-conditional-applicability-drift-fix
 
 - **Surfaced:** 2026-05-16, GUI conditional-applicability v1 cycle. Motivating bug: GUI bundle form default state (template = `bip84`, single-sig) emitted `--threshold 1 --multisig-path-family bip48` which the CLI rejected with SPEC §6.6 byte-exact errors (`crates/mnemonic-toolkit/src/cmd/bundle.rs:120, 207-220`).
