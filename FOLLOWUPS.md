@@ -451,6 +451,22 @@ shipped partially.
 - **Companion:** `mnemonic-toolkit/docs/manual-gui/src/40-mnemonic/42-bundle.md` worked-example step 3 documents the workaround and cites this FOLLOWUP; superseded by the v1 cycle.
 - **Successor:** `gui-conditional-applicability-drift-fix` (this file, above) is the mechanism + drift-gate generalization of which this entry is the originating specific case.
 
+### `gui-import-wallet-env-var-secret-channel` — auto-rewrite literal seeds in repeating `--ms1` widgets to `@env:MNEMONIC_MS1_<i>` sentinels + spawn-time env-var injection
+
+- **Surfaced:** 2026-05-18, Phase 6 R0 architect review C1 (mnemonic-toolkit v0.26.0 wallet-import cycle).
+- **Where:**
+  - `src/runner.rs:74-114` — current spawn flow injects only `MNEMONIC_FORCE_TTY`; no per-cosigner secret env-var bag.
+  - `src/form/invocation.rs:236-251` — repeating-secret branch routes values verbatim through `state.values`.
+  - `src/main.rs:683-688` — run-confirm modal renders argv verbatim (per `[[feedback-run-confirm-modal-renders-argv-verbatim]]`).
+  - `tests/kittest_import_wallet_form.rs:44-46,154-213` — module-doc cites this FOLLOWUP; cell `cell_import_wallet_repeating_ms1_argv` pins the literal-pass-through contract until this FOLLOWUP lands.
+  - `mnemonic-toolkit/design/SPEC_wallet_import_v0_26_0.md` §9.3 — describes the aspirational behavior (toolkit-side accepts `@env:VAR` sentinels at parse time, but GUI does NOT pre-rewrite in v0.11.0).
+  - `mnemonic-toolkit/docs/manual-gui/src/40-mnemonic/4c-import-wallet.md` (post-Phase-6-R0-fold) — documents the v0.11.0 user-must-type-explicitly fallback.
+- **What:** v0.12.0+: on subprocess spawn, collect per-cosigner-index secret values from `--ms1` repeating-widget state into a per-spawn env-var bag (`MNEMONIC_MS1_<i>=<value>`), rewrite `args[--ms1+1]` to `@env:MNEMONIC_MS1_<i>` sentinels, render the sentinel-bearing argv in the run-confirm modal (so the raw seed never appears), drop the env-vars on subprocess exit. Same pattern for `--passphrase`, `--share` (slip39-combine, seed-xor-combine), and other secret-bearing repeating flags. Toolkit-side already accepts the sentinel at parse-time per the cross-cutting Phase 1 `resolve_env_var_sentinel` helper.
+- **Why deferred:** v0.26.0 scope was wallet-import-side parse + watch-only invariant + round-trip discipline; the env-var-channel rewrite is GUI-side runner work that affects ALL repeating-secret surfaces, not just `--ms1`. Pre-existing `gui-run-confirm-modal-secret-redaction` covers the modal-redaction direction; this FOLLOWUP covers the argv-rewrite direction. Both need to land together in v0.12.0.
+- **Status:** open
+- **Tier:** `v0.12.0`
+- **Companion:** `mnemonic-toolkit/design/FOLLOWUPS.md::gui-import-wallet-env-var-secret-channel` (cross-citing companion). v0.11.0 manual prose at `mnemonic-toolkit/docs/manual-gui/src/40-mnemonic/4c-import-wallet.md` documents the user-must-type-explicitly fallback.
+
 ### `gui-run-confirm-modal-secret-redaction` — run-confirm modal renders secret-bearing argv tokens in plaintext (security-relevant gap)
 
 - **Surfaced:** 2026-05-15, manual-gui v1.0 cycle M-P2.4 batch 4 R0 source-grep. The `mnemonic-toolkit/docs/manual-gui/src/10-foundations/14-secret-handling.md` Defense-2 prose (LOCKed in M-P2.4 batch 2) claims the run-confirm modal "shows the assembled argv with secret values replaced by `***`". `src/main.rs:512-535` shows the modal renders each argv token verbatim in monospace via `ui.monospace(format!("  {}", tok))`; no redaction step exists anywhere in the source tree (`grep -rn "redact" src/` returns only `persistence.rs` on-disk-save paths).
