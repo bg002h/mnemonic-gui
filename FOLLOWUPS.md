@@ -7,6 +7,46 @@ mirrors it.
 
 ## Active
 
+### `xpub-search-gui-bespoke-hub-pane` — discoverable umbrella hub UI for `xpub-search` modes
+
+- **Surfaced:** 2026-05-18, v0.11.0 plan-vs-codebase recon. Plan §7.2 (in toolkit `/home/bcg/.claude/plans/woolly-spinning-honey.md`) enumerated a "hub" navigation pane with nav cards linking to the 4 mode panes. The GUI has no pane abstraction — every subcommand is a flat row in the subcommand-name ComboBox.
+- **Where:** `src/main.rs:346-602` (central panel renderer; net-new per-pane dispatch branch); `src/schema/mnemonic.rs` (a new SubcommandSchema entry for the hub itself, or a sibling navigation manifest).
+- **What:** Introduce a "hub" pseudo-pane visible when the user picks the umbrella `xpub-search` from a dropdown above the subcommand selector. Hub renders 4 cards (one per mode) with mode-name + 1-line description + click-through. v0.12.0 UI polish; not a v0.11.0 blocker.
+- **Why deferred:** v0.11.0 plan-vs-codebase recon revealed plan §7.2's "pane" architecture was overspecified; v0.11.0 ships the 4 modes via the generic flag-renderer + the existing subcommand-name ComboBox.
+- **Status:** open
+- **Tier:** `cross-repo`
+- **Companion:** `bg002h/mnemonic-toolkit` `design/FOLLOWUPS.md` entry `xpub-search-gui-bespoke-hub-pane`.
+
+### `xpub-search-gui-bespoke-widgets` — per-mode composite widgets (TargetXpubField / DescriptorIntakeField / TargetAddressField / etc.)
+
+- **Surfaced:** 2026-05-18, v0.11.0 plan-vs-codebase recon. Plan §7.3 enumerated `SeedIntakeWidget`, `TargetXpubField`, `DescriptorIntakeField`, `TargetAddressField`, `AddPathRepeater`, `XpubSearchResultRenderer` as net-new widgets. GUI codebase has NO `PhraseField` / `PassphraseField` / `Ms1Field` named types; the plan's "widget reuse" framing was wrong.
+- **Where:** `src/form/` (new modules).
+- **What:** Per-mode composite widgets with affordances beyond the generic `widget::render` dispatch: TargetXpubField with prefix-detect badge; AddressTypeField that auto-suggests from xpub prefix; DescriptorIntakeField with multi-line textarea + shape-detect badge; AddPathRepeater with +/− buttons. v0.12.0 polish.
+- **Why deferred:** v0.11.0 ships via the generic FlagKind dispatcher; the bespoke widgets are UX polish, not functional blockers.
+- **Status:** open
+- **Tier:** `cross-repo`
+- **Companion:** `bg002h/mnemonic-toolkit` `design/FOLLOWUPS.md` entry `xpub-search-gui-bespoke-widgets`.
+
+### `xpub-search-gui-positional-intake` — positional ms1 (HRP-autodetect) routing in mnemonic-gui
+
+- **Surfaced:** 2026-05-18, v0.11.0. The toolkit accepts a positional ms1 (HRP-autodetect) on P1/P2/P4; the GUI's argv assembler does not surface this affordance — the GUI forces users into `--ms1` explicitly.
+- **Where:** `src/form/invocation.rs::assemble_argv`; `src/schema/mnemonic.rs` `positional_args: NO_POSITIONALS` on the 4 xpub-search entries.
+- **What:** Add a "drop any card" textarea/file-drop affordance that auto-routes via HRP detection (`ms1` → positional, `mk1`/`md1` → future modes' surfaces). v0.12.0 polish.
+- **Why deferred:** v0.11.0 keeps GUI argv assembly simple; positional intake is a polish item.
+- **Status:** open
+- **Tier:** `cross-repo`
+- **Companion:** `bg002h/mnemonic-toolkit` `design/FOLLOWUPS.md` entry `xpub-search-gui-positional-intake`.
+
+### `xpub-search-gui-flag-mutex-visibility` — cross-flag conditional visibility for `xpub-search` mutex groups
+
+- **Surfaced:** 2026-05-18, v0.11.0. The 4 xpub-search SubcommandSchema entries set `conditional: None` for v0.11.0; cross-flag mutex visibility (e.g., greying `--ms1` when `--phrase` is filled in) is open.
+- **Where:** `src/form/conditional.rs` (new per-subcommand functions following the existing pattern at `slip39_split` / `slip39_combine` / `repair` / `inspect` / `derive_child` / etc.).
+- **What:** Per-subcommand `fn(&FormState) -> FlagVisibility` functions that grey/hide flags based on cross-flag state. For xpub-search modes: enforce the seed-intake mutex visually (only one of `--phrase` / `--phrase-stdin` / `--ms1` / `--ms1-stdin` interactive at a time); surface the P4 mandatory-passphrase requirement before run-confirm; flag the multi-`--target-address` repeating affordance in P3. v0.12.0 polish.
+- **Why deferred:** v0.11.0 ships with `conditional: None`; the user sees all flags simultaneously and clap-side handles the mutex at exec. The GUI's run-confirm modal will surface clap errors verbatim — functional but not ideal UX.
+- **Status:** open
+- **Tier:** `cross-repo`
+- **Companion:** `bg002h/mnemonic-toolkit` `design/FOLLOWUPS.md` entry `xpub-search-gui-flag-mutex-visibility`.
+
 ### `gui-schema-global-flag-emission` — toolkit-side: surface global flags in `mnemonic gui-schema` JSON per-subcommand
 
 - **Surfaced:** 2026-05-17, v0.22.x follow-ups cycle Phase A.1 execution (v0.9.0 catchup). Plan §5 R7 realized: Phase A.1 attempted to add `--no-auto-repair` to the 10 existing `*_FLAGS` arrays in `src/schema/mnemonic.rs` and the schema-mirror drift gate hard-failed. The toolkit's `mnemonic gui-schema` v4 JSON output (which the gate consumes as source-of-truth) does NOT emit global flags for any subcommand — only clap's per-subcommand `--help` TEXT propagates them. Phase A.0 reconnaissance only checked help-text propagation, missing the JSON gap.

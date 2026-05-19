@@ -8,10 +8,11 @@ All notable changes to `mnemonic-gui` are recorded here. Follows
 v0.26.x cycle lockstep with `mnemonic-toolkit-v0.26.0`. Adds the
 `mnemonic import-wallet` SubcommandSchema entry + 8 kittest cells
 pinning argv-emission contracts for the new BSMS Round-2 / Bitcoin
-Core `listdescriptors` ingest surface. Schema stays at v5 — no
-version bump on the schema envelope itself; only the `name`-keyed
-`SUBCOMMANDS` array grows by one + four xpub-search modes via the
-parallel companion PR.
+Core `listdescriptors` ingest surface, plus four matching
+`SubcommandSchema` entries for the toolkit's new `xpub-search`
+umbrella (4 modes). Schema stays at v5 — no version bump on the
+schema envelope itself; only the `name`-keyed `SUBCOMMANDS` array
+grows by 5 (1 import-wallet + 4 xpub-search-*).
 
 ### Added
 
@@ -36,14 +37,47 @@ parallel companion PR.
   `cell_import_wallet_slot_phrase_argv`,
   `cell_import_wallet_env_sentinel_literal_emission`.
 
+- **Four `xpub-search` `SubcommandSchema` entries (toolkit v0.26.0
+  lockstep):**
+  - `xpub-search-path-of-xpub` — locate a target xpub's derivation path
+    by iterating account-index candidates against a master seed.
+    Toolkit commit `d28b170` (C1, P1 + umbrella scaffolding).
+  - `xpub-search-account-of-descriptor` — locate the descriptor's
+    account index across 4 descriptor shapes (single-sig + 3 multisig
+    via SLIP-0132 prefixes). Toolkit commit `196cc8a` (C2, P2).
+  - `xpub-search-address-of-xpub` — locate which BIP-44 address-class
+    chain + index under a parent xpub produces a target address.
+    Toolkit commits `a5bfbaf` (C3, P3) + `365c0d1` (P2PKH gap-fix fold).
+  - `xpub-search-passphrase-of-xpub` — locate a BIP-39 passphrase
+    candidate by iterating wordlist tokens against a target xpub.
+    Toolkit commit `bc2a76a` (C4, P4).
+- **New `XPUB_SEARCH_ADDRESS_TYPES` dropdown const**
+  (`schema/mnemonic.rs`) — kebab-case mirrors of the toolkit's
+  `ScriptType` JSON tag enumeration: `p2pkh / p2sh-p2wpkh / p2wpkh /
+  p2tr`. Backs the `xpub-search-address-of-xpub --address-type`
+  Dropdown widget.
+- **Dedicated `tests/xpub_search_schema_mirror.rs`** asserting (a) all
+  4 umbrella subcommand entries are present in `SCHEMA.subcommands`,
+  (b) the GUI's flag-name set matches the toolkit's `gui-schema` JSON
+  per-subcommand (skipped if `MNEMONIC_BIN` unset + bare `mnemonic`
+  not on PATH), and (c) per-mode required-flag invariants (e.g.
+  `--target-xpub`, `--xpub` + `--target-address`).
+- **Lightweight kittest + argv-assembler cells** in
+  `tests/xpub_search_widgets.rs` — one kittest cell per new
+  subcommand confirming generic-renderer no-panic instantiation, plus
+  argv-assembler cells per subcommand confirming the form-state →
+  argv emission carries the expected flag list.
+
 ### Changed
 
 - **Toolkit pin bumped** from `mnemonic-toolkit-v0.24.0` to
-  `mnemonic-toolkit-v0.26.0` across `Cargo.toml:42` + `pinned-upstream.toml:22`.
+  `mnemonic-toolkit-v0.26.0` across `Cargo.toml::[dependencies]
+  mnemonic-toolkit` + `pinned-upstream.toml::[mnemonic].tag` +
+  `src/schema/mnemonic.rs::SCHEMA.pinned_version` monospace label.
   The v0.26.0 toolkit ships the new `mnemonic import-wallet` subcommand
   + 4 modes of `mnemonic xpub-search` + cross-cutting `@env:<VAR>`
   value-source sentinel; the GUI schema-mirror drift gate auto-greens
-  once both pins point at v0.26.0.
+  once all three pins point at v0.26.0.
 
 ### Security
 
