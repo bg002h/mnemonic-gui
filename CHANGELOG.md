@@ -3,6 +3,18 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## mnemonic-gui [0.11.1] — 2026-05-19
+
+### Changed
+
+- **CI workflow triggers extended to release branches.** `build.yml` and `schema-mirror.yml` now run on PRs targeting `master` AND `release/**` (previously only `master`). Eliminates the silent-skip pattern v0.11.0 cycle worked around via `--admin` merges.
+- **mnemonic-toolkit pin bump v0.26.0 → v0.27.2.** Catches up to v0.27.0 cross-format wallet conversion (envelope wire-shape replacement) + v0.27.1 PR-#26 fold + v0.27.2 cleanup. GUI envelope-consumer smoke cells added in `tests/cli_envelope_smoke.rs` for shape stability.
+- **Schema mirror catch-up for v0.27.x surface additions.** `mnemonic bundle` gains `--import-json` + `--import-json-index`; `mnemonic export-wallet` gains `--bsms-form` + `--from-import-json` + `--from-import-json-index` + `bsms` format option; `mnemonic import-wallet` gains `--bsms-round1` + `--bsms-verify-strict`.
+
+### Closed FOLLOWUPS
+
+- `gui-workflow-trigger-include-release-branches`
+
 ## [0.11.0] — 2026-05-18
 
 v0.26.0 cycle lockstep with `mnemonic-toolkit-v0.26.0`. Three-feature
