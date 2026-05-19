@@ -3,6 +3,78 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## [0.11.0] — 2026-05-18
+
+v0.26.x cycle lockstep with `mnemonic-toolkit-v0.26.0`. Adds the
+`mnemonic import-wallet` SubcommandSchema entry + 8 kittest cells
+pinning argv-emission contracts for the new BSMS Round-2 / Bitcoin
+Core `listdescriptors` ingest surface. Schema stays at v5 — no
+version bump on the schema envelope itself; only the `name`-keyed
+`SUBCOMMANDS` array grows by one + four xpub-search modes via the
+parallel companion PR.
+
+### Added
+
+- **`SubcommandSchema` entry for `mnemonic import-wallet`** in
+  `src/schema/mnemonic.rs`. 7 flags: `--blob` (`Path { stdio_sentinel: true }`,
+  required), `--format` (`Dropdown(["bsms", "bitcoin-core"])`),
+  `--select-descriptor` (`Text`, free-form to accommodate the
+  `N | active-receive | active-change | all` union), `--ms1` (`Text`,
+  `secret: true`, `repeating: true`), `--slot` (`Text`, `repeating: true`),
+  `--json` (`Boolean`), plus the global `--no-auto-repair` flag. New
+  `IMPORT_WALLET_FORMATS` const carries the `--format` dropdown values
+  for symmetric clap-derive ↔ schema mirror.
+
+- **8 kittest cells** in `tests/kittest_import_wallet_form.rs`
+  pinning the argv-emission contracts for the new subcommand:
+  `cell_import_wallet_in_subcommands_set`,
+  `cell_import_wallet_blob_path_argv`,
+  `cell_import_wallet_blob_stdio_sentinel_argv`,
+  `cell_import_wallet_repeating_ms1_argv`,
+  `cell_import_wallet_select_descriptor_default_suppressed`,
+  `cell_import_wallet_format_dropdown_argv`,
+  `cell_import_wallet_slot_phrase_argv`,
+  `cell_import_wallet_env_sentinel_literal_emission`.
+
+### Changed
+
+- **Toolkit pin bumped** from `mnemonic-toolkit-v0.24.0` to
+  `mnemonic-toolkit-v0.26.0` across `Cargo.toml:42` + `pinned-upstream.toml:22`.
+  The v0.26.0 toolkit ships the new `mnemonic import-wallet` subcommand
+  + 4 modes of `mnemonic xpub-search` + cross-cutting `@env:<VAR>`
+  value-source sentinel; the GUI schema-mirror drift gate auto-greens
+  once both pins point at v0.26.0.
+
+### Security
+
+- v0.11.0 GUI emits user-typed values for repeating `--ms1` (and other
+  secret-bearing) flags VERBATIM on argv. The toolkit-side resolves
+  `@env:<VAR>` sentinels at parse time, so GUI users who want argv-leak
+  protection MUST type `@env:MY_VAR` themselves with `MY_VAR` exported
+  in the calling shell. Auto-rewriting literal repeating-secret values
+  to per-cosigner `@env:MNEMONIC_MS1_<i>` sentinels (the SPEC §9.3
+  aspirational behavior) is tracked at FOLLOWUP
+  `gui-import-wallet-env-var-secret-channel` (v0.12.0+). Pairs with the
+  pre-existing `gui-run-confirm-modal-secret-redaction` FOLLOWUP
+  (modal-redaction direction).
+
+### Audit notes for v0.24.0 → v0.26.0 pin drift
+
+The 8 kittest cells were authored against the v0.24.0 toolkit binary.
+Two behavior changes landed in toolkit v0.25.x that COULD impact
+GUI-side cells; per coordinator merge-plan §G1.5 audit:
+
+- **v0.25.0 TTY-gate extension to `mnemonic convert` + `mnemonic inspect`**
+  (`[[project-v0-9-0-mnemonic-gui-shipped]]` precedent): not
+  applicable. None of the 8 cells spawn `mnemonic` as a subprocess
+  (kittest exercises in-process argv assembly via the GUI invocation
+  builder); none target `convert`/`inspect`.
+- **v0.25.1 empty-`ms1` watch-only stderr NOTICE** in multi-cosigner
+  `verify-bundle`/`repair`: not applicable. The 8 cells do not target
+  `verify-bundle`/`repair` and do not assert on stderr at all.
+
+No cell updates needed.
+
 ## [0.10.0] — 2026-05-17
 
 v0.24.x cycle lockstep with `mnemonic-toolkit-v0.24.0`. Consumes
