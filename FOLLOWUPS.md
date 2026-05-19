@@ -666,3 +666,15 @@ functionality.
 **Files changed in v0.1.1:** `Cargo.toml` (eframe feature flags +
 signal-hook), `src/main.rs` (signal-hook handler, keepalive thread,
 on_exit signature for wgpu renderer, tracing filter for wgpu warnings).
+
+### `gui-workflow-trigger-include-release-branches` — CI gates silently skip PRs targeting release branches
+
+- **Surfaced:** 2026-05-19, v0.11.0 cycle — discovered mid-G2/G3 when no CI workflows queued for 14+ min after force-pushes on PR #6 + PR #5 against base `release/v0.11.0`.
+- **Where:**
+  - `.github/workflows/build.yml` — `on: pull_request: branches: [master]`
+  - `.github/workflows/schema-mirror.yml` — `on: pull_request: branches: [master]`
+- **What:** Both workflow files currently filter `pull_request: branches: [master]`, which means **no CI fires for PRs targeting `release/v0.11.0`** (or any future integration branch). v0.11.0 cycle worked around this via local pre-merge vetting (`cargo build` + `cargo clippy --all-targets -- -D warnings` + `cargo test` with `MNEMONIC_BIN` pointing at the v0.26.0 toolkit binary) plus `--admin` merges against the integration branch. The integration PR (`release/v0.11.0 → master`) DID trigger workflows normally (base=master), so the load-bearing schema-mirror gate worked. Fix: extend trigger filter to `branches: [master, release/*]` so per-PR CI runs on integration branches too. Reduces reliance on out-of-band local vetting in future multi-instance cycles.
+- **Why deferred:** Cycle workaround was sound and architecturally consistent (per merge-plan §G3.5.2, the integration PR is the load-bearing gate); the per-PR gate failures during G1/G2/G3 were already known to be structurally red. Trigger-filter fix is a future-cycle ergonomics improvement.
+- **Status:** open
+- **Tier:** `v0.12` (next GUI cycle).
+- **Companion:** `mnemonic-toolkit/design/FOLLOWUPS.md::gui-workflow-trigger-include-release-branches`.
