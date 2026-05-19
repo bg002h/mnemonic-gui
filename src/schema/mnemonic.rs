@@ -1204,6 +1204,77 @@ const SEED_XOR_COMBINE_FLAGS: &[FlagSchema] = &[
     NO_AUTO_REPAIR_FLAG,
 ];
 
+// ─── compare-cost ────────────────────────────────────────────────────────
+//
+// v0.11.0 (toolkit v0.26.0): wsh-vs-tr per-spending-condition cost
+// comparison subcommand. Mutex `--miniscript` vs `--descriptor` is encoded
+// via `crate::form::conditional::compare_cost`. `--feerate` is a Text
+// widget rather than `FlagKind::Number` because the toolkit accepts decimal
+// values (`f64` clap parser with bounds [0.0, 10000.0]); the GUI's Number
+// kind is i64-only today and surfacing a Text widget with permissive parse
+// avoids a v0.11.0-only schema-grammar extension. Validation is toolkit-
+// side: bad feerate → exit 64.
+
+const COMPARE_COST_FLAGS: &[FlagSchema] = &[
+    FlagSchema {
+        name: "--miniscript",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "Bare miniscript with abstract labels (`pk(A), or_b(...)`) or concrete hex keys. \
+               Mutually exclusive with `--descriptor`.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--descriptor",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "Full descriptor — `wsh(M)` or `sh(wsh(M))`. The wrapper is stripped to recover M, \
+               then wsh(M) is compared against tr(NUMS, {M}). tr() input deferred to v0.27 FOLLOWUP.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--feerate",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "Sats per virtual byte (decimal, default 1.0; max 10000.0).",
+        secret: false,
+        default_value: Some("1.0"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--max-conditions",
+        kind: FlagKind::Number {
+            min: 1,
+            max: crate::schema::NumberMax::Static(1_000_000),
+        },
+        required: false,
+        repeating: false,
+        help: "Hard cap on raw enumeration size n_abs × n_rel × 2^(|signers|+|preimages|). \
+               Default 4096.",
+        secret: false,
+        default_value: Some("4096"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--json",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Emit JSON envelope on stdout instead of the plaintext table.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    NO_AUTO_REPAIR_FLAG,
+];
+
 // ─── final-word ──────────────────────────────────────────────────────────
 
 const FINAL_WORD_FLAGS: &[FlagSchema] = &[
@@ -2277,6 +2348,19 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
         positional_args: NO_POSITIONALS,
         allows_slots: false,
         conditional: None,
+    },
+    // v0.11.0 (toolkit v0.26.0): wsh-vs-tr per-spending-condition cost
+    // comparison. `--miniscript` and `--descriptor` are mutually exclusive
+    // exactly-one-of inputs (toolkit Phase 1+2). When neither is given the
+    // toolkit Phase 3 dispatcher falls back to stdin — not surfaced as a
+    // GUI input slot since the GUI always passes one of the two flags.
+    SubcommandSchema {
+        name: "compare-cost",
+        human_name: "Compare Cost (wsh vs tr per spending condition)",
+        flags: COMPARE_COST_FLAGS,
+        positional_args: NO_POSITIONALS,
+        allows_slots: false,
+        conditional: Some(crate::form::conditional::compare_cost),
     },
 ];
 
