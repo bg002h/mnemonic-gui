@@ -5,14 +5,16 @@ All notable changes to `mnemonic-gui` are recorded here. Follows
 
 ## [0.11.0] — 2026-05-18
 
-v0.26.x cycle lockstep with `mnemonic-toolkit-v0.26.0`. Adds the
-`mnemonic import-wallet` SubcommandSchema entry + 8 kittest cells
-pinning argv-emission contracts for the new BSMS Round-2 / Bitcoin
-Core `listdescriptors` ingest surface, plus four matching
-`SubcommandSchema` entries for the toolkit's new `xpub-search`
-umbrella (4 modes). Schema stays at v5 — no version bump on the
-schema envelope itself; only the `name`-keyed `SUBCOMMANDS` array
-grows by 5 (1 import-wallet + 4 xpub-search-*).
+v0.26.0 cycle lockstep with `mnemonic-toolkit-v0.26.0`. Three-feature
+release: adds the `mnemonic import-wallet` SubcommandSchema entry + 8
+kittest cells pinning argv-emission contracts for the new BSMS Round-2 /
+Bitcoin Core `listdescriptors` ingest surface; four matching
+`SubcommandSchema` entries for the toolkit's new `xpub-search` umbrella
+(4 modes); and a `compare-cost` SubcommandSchema + mutex helper for the
+new wsh-vs-tr per-spending-condition cost comparison subcommand. Schema
+stays at v5 — no version bump on the schema envelope itself; only the
+`name`-keyed `SUBCOMMANDS` array grows by 6 (1 import-wallet + 4
+xpub-search-* + 1 compare-cost).
 
 ### Added
 
@@ -67,6 +69,19 @@ grows by 5 (1 import-wallet + 4 xpub-search-*).
   subcommand confirming generic-renderer no-panic instantiation, plus
   argv-assembler cells per subcommand confirming the form-state →
   argv emission carries the expected flag list.
+
+- **`compare-cost` subcommand:** new `SubcommandSchema` entry with
+  `COMPARE_COST_FLAGS` (5 flags: `--miniscript`/`--descriptor` as
+  `FlagKind::Text`, `--feerate` as `Text` for `f64` decimal support,
+  `--max-conditions` as `Number`, `--json` as `Boolean`) and the mutex
+  `form::conditional::compare_cost` helper that toggles
+  `--miniscript`/`--descriptor` Disabled state based on the other's
+  fill (mirrors clap's `conflicts_with`). Stdin fallback (toolkit
+  Phase 3) is not surfaced as a GUI input slot — the GUI always passes
+  one of the two flags. `--feerate` uses `FlagKind::Text` rather than
+  `Number` because the toolkit's `f64` clap parser accepts decimals
+  (`0.0..=10000.0`); the GUI's Number kind is `i64`-only. Decimal
+  validation is toolkit-side (exit 64 on bad input).
 
 ### Changed
 
