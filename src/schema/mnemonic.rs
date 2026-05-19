@@ -1387,6 +1387,103 @@ const INSPECT_FLAGS: &[FlagSchema] = &[
     NO_AUTO_REPAIR_FLAG,
 ];
 
+// ─── import-wallet (v0.11.0 / toolkit v0.26.0) ───────────────────────────
+//
+// Lockstep with mnemonic-toolkit v0.26.0 `mnemonic import-wallet`. Source
+// of truth: `crates/mnemonic-toolkit/src/cmd/import_wallet.rs:43-108` at
+// toolkit HEAD `72575e2`.
+//
+// Subcommand intake: a third-party wallet blob (BSMS or Bitcoin Core
+// listdescriptors JSON), with optional seed-overlay via repeating `--ms1`
+// and/or `--slot @<N>.phrase=<phrase>`. The toolkit resolves `@env:<VAR>`
+// sentinels on `--ms1` + secret-bearing slot subkeys per SPEC §3 (the GUI
+// emits literal values today; env-var-channel injection is a FOLLOWUP —
+// see `gui-import-wallet-env-var-secret-channel`).
+const IMPORT_WALLET_FLAGS: &[FlagSchema] = &[
+    FlagSchema {
+        name: "--blob",
+        // Toolkit accepts `-` as a stdin sentinel. The GUI emits the path
+        // (or `-`) verbatim; the kittest cells exercise both forms.
+        kind: FlagKind::Path { stdio_sentinel: true },
+        required: true,
+        repeating: false,
+        help: "Path to the third-party wallet blob (BSMS or Bitcoin Core \
+               listdescriptors JSON). `-` reads from stdin.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--format",
+        kind: FlagKind::Dropdown(IMPORT_WALLET_FORMATS),
+        required: false,
+        repeating: false,
+        help: "Format override. If absent, the blob is auto-detected via \
+               sniff (SPEC §6).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        // Toolkit accepts an integer `N`, `active-receive`, `active-change`,
+        // or `all`. Schema-side: free-form Text (the union of a discrete
+        // dropdown and an integer escape doesn't fit FlagKind::Dropdown).
+        // CLI rejection catches values outside the union; GUI surfaces the
+        // raw error in the output pane.
+        name: "--select-descriptor",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "Multi-descriptor selector for Bitcoin Core blobs. Accepts \
+               an integer (`0`, `1`, ...), `active-receive`, \
+               `active-change`, or `all` (default).",
+        secret: false,
+        default_value: Some("all"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--ms1",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: true,
+        help: "Seed overlay (SPEC §8.3). Repeatable; positional cosigner- \
+               index (i-th `--ms1` applies to cosigner i). Empty-string \
+               preserves the v0.25.1 watch-only sentinel semantics.",
+        secret: true,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--slot",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: true,
+        help: "Per-slot seed overlay via `--slot @<N>.phrase=<phrase>`. \
+               v0.26.0 only accepts the `phrase` subkey on import-wallet. \
+               Handled by SlotEditor.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--json",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Emit a JSON envelope array on stdout (SPEC §7.4) instead of \
+               the human-readable summary.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    NO_AUTO_REPAIR_FLAG,
+];
+
+// Two-element option list for `--format` on import-wallet. Distinct from
+// `EXPORT_FORMATS` (the inbound parser supports only BSMS + Bitcoin Core
+// in v0.26.0; outbound emitter supports 8 formats).
+const IMPORT_WALLET_FORMATS: &[&str] = &["bsms", "bitcoin-core"];
+
 // ─── SCHEMA constant ─────────────────────────────────────────────────────
 
 // Phase 5: wire the conditional-visibility fn pointers per subcommand.
@@ -1491,6 +1588,19 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
         positional_args: NO_POSITIONALS,
         allows_slots: false,
         conditional: Some(crate::form::conditional::inspect),
+    },
+    // v0.11.0 (toolkit v0.26.0): import a third-party wallet blob and
+    // optionally overlay seed material to re-attach cosigner secrets.
+    SubcommandSchema {
+        name: "import-wallet",
+        human_name: "Import Wallet (third-party BSMS / Bitcoin Core)",
+        flags: IMPORT_WALLET_FLAGS,
+        positional_args: NO_POSITIONALS,
+        allows_slots: true,
+        // v0.26.0 has no cross-flag conditional rules on import-wallet;
+        // the v3 PinValue / v4 DisableOptions effects could be wired in a
+        // future cycle (e.g. force --select-descriptor=all when --format=bsms).
+        conditional: None,
     },
 ];
 
