@@ -1204,6 +1204,77 @@ const SEED_XOR_COMBINE_FLAGS: &[FlagSchema] = &[
     NO_AUTO_REPAIR_FLAG,
 ];
 
+// ─── compare-cost ────────────────────────────────────────────────────────
+//
+// v0.11.0 (toolkit v0.26.0): wsh-vs-tr per-spending-condition cost
+// comparison subcommand. Mutex `--miniscript` vs `--descriptor` is encoded
+// via `crate::form::conditional::compare_cost`. `--feerate` is a Text
+// widget rather than `FlagKind::Number` because the toolkit accepts decimal
+// values (`f64` clap parser with bounds [0.0, 10000.0]); the GUI's Number
+// kind is i64-only today and surfacing a Text widget with permissive parse
+// avoids a v0.11.0-only schema-grammar extension. Validation is toolkit-
+// side: bad feerate → exit 64.
+
+const COMPARE_COST_FLAGS: &[FlagSchema] = &[
+    FlagSchema {
+        name: "--miniscript",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "Bare miniscript with abstract labels (`pk(A), or_b(...)`) or concrete hex keys. \
+               Mutually exclusive with `--descriptor`.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--descriptor",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "Full descriptor — `wsh(M)` or `sh(wsh(M))`. The wrapper is stripped to recover M, \
+               then wsh(M) is compared against tr(NUMS, {M}). tr() input deferred to v0.27 FOLLOWUP.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--feerate",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "Sats per virtual byte (decimal, default 1.0; max 10000.0).",
+        secret: false,
+        default_value: Some("1.0"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--max-conditions",
+        kind: FlagKind::Number {
+            min: 1,
+            max: crate::schema::NumberMax::Static(1_000_000),
+        },
+        required: false,
+        repeating: false,
+        help: "Hard cap on raw enumeration size n_abs × n_rel × 2^(|signers|+|preimages|). \
+               Default 4096.",
+        secret: false,
+        default_value: Some("4096"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--json",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Emit JSON envelope on stdout instead of the plaintext table.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    NO_AUTO_REPAIR_FLAG,
+];
+
 // ─── final-word ──────────────────────────────────────────────────────────
 
 const FINAL_WORD_FLAGS: &[FlagSchema] = &[
@@ -1387,6 +1458,741 @@ const INSPECT_FLAGS: &[FlagSchema] = &[
     NO_AUTO_REPAIR_FLAG,
 ];
 
+// ─── import-wallet (v0.11.0 / toolkit v0.26.0) ───────────────────────────
+//
+// Lockstep with mnemonic-toolkit v0.26.0 `mnemonic import-wallet`. Source
+// of truth: `crates/mnemonic-toolkit/src/cmd/import_wallet.rs:43-108` at
+// toolkit HEAD `72575e2`.
+//
+// Subcommand intake: a third-party wallet blob (BSMS or Bitcoin Core
+// listdescriptors JSON), with optional seed-overlay via repeating `--ms1`
+// and/or `--slot @<N>.phrase=<phrase>`. The toolkit resolves `@env:<VAR>`
+// sentinels on `--ms1` + secret-bearing slot subkeys per SPEC §3 (the GUI
+// emits literal values today; env-var-channel injection is a FOLLOWUP —
+// see `gui-import-wallet-env-var-secret-channel`).
+const IMPORT_WALLET_FLAGS: &[FlagSchema] = &[
+    FlagSchema {
+        name: "--blob",
+        // Toolkit accepts `-` as a stdin sentinel. The GUI emits the path
+        // (or `-`) verbatim; the kittest cells exercise both forms.
+        kind: FlagKind::Path { stdio_sentinel: true },
+        required: true,
+        repeating: false,
+        help: "Path to the third-party wallet blob (BSMS or Bitcoin Core \
+               listdescriptors JSON). `-` reads from stdin.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--format",
+        kind: FlagKind::Dropdown(IMPORT_WALLET_FORMATS),
+        required: false,
+        repeating: false,
+        help: "Format override. If absent, the blob is auto-detected via \
+               sniff (SPEC §6).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        // Toolkit accepts an integer `N`, `active-receive`, `active-change`,
+        // or `all`. Schema-side: free-form Text (the union of a discrete
+        // dropdown and an integer escape doesn't fit FlagKind::Dropdown).
+        // CLI rejection catches values outside the union; GUI surfaces the
+        // raw error in the output pane.
+        name: "--select-descriptor",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "Multi-descriptor selector for Bitcoin Core blobs. Accepts \
+               an integer (`0`, `1`, ...), `active-receive`, \
+               `active-change`, or `all` (default).",
+        secret: false,
+        default_value: Some("all"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--ms1",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: true,
+        help: "Seed overlay (SPEC §8.3). Repeatable; positional cosigner- \
+               index (i-th `--ms1` applies to cosigner i). Empty-string \
+               preserves the v0.25.1 watch-only sentinel semantics.",
+        secret: true,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--slot",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: true,
+        help: "Per-slot seed overlay via `--slot @<N>.phrase=<phrase>`. \
+               v0.26.0 only accepts the `phrase` subkey on import-wallet. \
+               Handled by SlotEditor.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--json",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Emit a JSON envelope array on stdout (SPEC §7.4) instead of \
+               the human-readable summary.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    NO_AUTO_REPAIR_FLAG,
+];
+
+// Two-element option list for `--format` on import-wallet. Distinct from
+// `EXPORT_FORMATS` (the inbound parser supports only BSMS + Bitcoin Core
+// in v0.26.0; outbound emitter supports 8 formats).
+const IMPORT_WALLET_FORMATS: &[&str] = &["bsms", "bitcoin-core"];
+
+
+// ─── xpub-search umbrella (v0.11.0; toolkit v0.26.0) ─────────────────────
+//
+// The toolkit v0.26.0 cycle introduces four `xpub-search` umbrella
+// subcommands surfaced through clap-flatten so they appear at the top
+// level as `xpub-search-<mode>`:
+//
+//   - xpub-search-path-of-xpub          (C1; toolkit `d28b170`)
+//   - xpub-search-account-of-descriptor (C2; toolkit `196cc8a`)
+//   - xpub-search-address-of-xpub       (C3; toolkit `a5bfbaf` + `365c0d1`)
+//   - xpub-search-passphrase-of-xpub    (C4; toolkit `bc2a76a`)
+//
+// **v0.11.0 scope discipline (MVP, no bespoke widgets):** the toolkit
+// gui-schema JSON is mirrored declaratively; the existing generic form
+// renderer (`main.rs:346-602`) handles every flag via the FlagKind
+// dispatcher. No pane abstraction / hub UI / bespoke composite widgets —
+// the user reaches each mode through the standard subcommand-name
+// ComboBox at `main.rs:359-371`. Polish items are queued as v0.12.0
+// FOLLOWUPs (`xpub-search-gui-bespoke-hub-pane`,
+// `xpub-search-gui-bespoke-widgets`, `xpub-search-gui-positional-intake`,
+// `xpub-search-gui-flag-mutex-visibility`).
+//
+// **Positional-arg policy:** toolkit gui-schema emits a `positional`
+// entry on P1/P2/P4 (HRP-autodetect ms1 intake). The GUI's argv
+// assembler routes seed input via `--ms1` after autodetect, so all four
+// SubcommandSchema entries declare `positional_args: NO_POSITIONALS`.
+// CLI-direct positional usage still works for power-users; surfacing it
+// in the GUI's form is a v0.12.0 polish item.
+//
+// **secret bool reconciliation:** toolkit v5 JSON marks `--ms1`,
+// `--passphrase`, and `--passphrase-stdin` as `secret: true`. The GUI
+// mirrors those bytes. `--phrase` and `--phrase-stdin` are NOT toolkit-
+// declared as secret (consistent with other mnemonic subcommands), but
+// they ARE phrase inputs — the GUI's hand-maintained `SECRET_FLAG_NAMES`
+// list in `src/secrets.rs` is the GUI-side override. We do NOT mark
+// these `secret: true` here because the schema_mirror_secret_drift gate
+// would then flag a divergence. `--phrase` paste-warning routes through
+// the GUI's secrets layer regardless.
+
+/// SLIP-0132 + mk1 acceptable address-type tokens for
+/// `xpub-search-address-of-xpub --address-type`. Mirrors the toolkit's
+/// `address_of_xpub.rs:55-58` clap-derive doc-comment + the kebab-case
+/// `ScriptType` JSON tag enumeration at `address_of_xpub.rs:104-114`.
+const XPUB_SEARCH_ADDRESS_TYPES: &[&str] = &["p2pkh", "p2sh-p2wpkh", "p2wpkh", "p2tr"];
+
+const XPUB_SEARCH_PATH_OF_XPUB_FLAGS: &[FlagSchema] = &[
+    FlagSchema {
+        name: "--phrase",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "Master BIP-39 phrase (inline). Emits an argv-leakage advisory; \
+               prefer --phrase-stdin for sensitive input.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--phrase-stdin",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Read master BIP-39 phrase from stdin.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--ms1",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "ms1 card carrying BIP-39 entropy (inline). Emits an \
+               argv-leakage advisory; prefer --ms1-stdin for sensitive input.",
+        secret: true,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--ms1-stdin",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Read ms1 card from stdin (single chunk).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--passphrase",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "BIP-39 passphrase (inline). Emits an argv-leakage advisory.",
+        secret: true,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--passphrase-stdin",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Read BIP-39 passphrase from stdin (NULL-byte-preserving; \
+               single trailing newline stripped).",
+        secret: true,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--target-xpub",
+        kind: FlagKind::Text,
+        required: true,
+        repeating: false,
+        help: "Target xpub. Accepts any SLIP-0132 prefix (xpub/tpub/ypub/Ypub/\
+               zpub/Zpub/upub/Upub/vpub/Vpub) or an mk1 bech32 card carrying \
+               an xpub.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--language",
+        kind: FlagKind::Dropdown(LANGUAGES),
+        required: false,
+        repeating: false,
+        help: "BIP-39 wordlist language. Defaults to english.",
+        secret: false,
+        default_value: Some("english"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--network",
+        kind: FlagKind::Dropdown(NETWORKS),
+        required: false,
+        repeating: false,
+        help: "Network selector. Defaults to mainnet.",
+        secret: false,
+        default_value: Some("mainnet"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--min-account",
+        kind: FlagKind::Number {
+            min: 0,
+            max: NumberMax::Static(2_147_483_647),
+        },
+        required: false,
+        repeating: false,
+        help: "Lower bound of account-index iteration (inclusive). Default 0.",
+        secret: false,
+        default_value: Some("0"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--number-of-accounts",
+        kind: FlagKind::Number {
+            min: 0,
+            max: NumberMax::Static(2_147_483_647),
+        },
+        required: false,
+        repeating: false,
+        help: "Window size starting at --min-account (default 20).",
+        secret: false,
+        default_value: Some("20"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--max-account",
+        kind: FlagKind::Number {
+            min: 0,
+            max: NumberMax::Static(2_147_483_647),
+        },
+        required: false,
+        repeating: false,
+        help: "Optional upper bound. Effective end is \
+               max(min_account + number_of_accounts, max_account + 1).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--add-path",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: true,
+        help: "Additional derivation-path template. Repeatable. The literal \
+               token `account'` (or `account`) is substituted with each \
+               iterated account index. Templates without an `account` token \
+               are searched once at the literal path.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--json",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Emit a JSON envelope on stdout instead of the text-form report.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    NO_AUTO_REPAIR_FLAG,
+];
+
+const XPUB_SEARCH_ACCOUNT_OF_DESCRIPTOR_FLAGS: &[FlagSchema] = &[
+    FlagSchema {
+        name: "--phrase",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "Master BIP-39 phrase (inline). Emits an argv-leakage advisory; \
+               prefer --phrase-stdin for sensitive input.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--phrase-stdin",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Read master BIP-39 phrase from stdin.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--ms1",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "ms1 card carrying BIP-39 entropy (inline). Emits an \
+               argv-leakage advisory; prefer --ms1-stdin for sensitive input.",
+        secret: true,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--ms1-stdin",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Read ms1 card from stdin (single chunk).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--passphrase",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "BIP-39 passphrase (inline). Emits an argv-leakage advisory.",
+        secret: true,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--passphrase-stdin",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Read BIP-39 passphrase from stdin (NULL-byte-preserving; \
+               single trailing newline stripped).",
+        secret: true,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--descriptor",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "BIP-388 descriptor (inline). Must contain at least one xpub-\
+               class key origin with parent fingerprint + derivation path; \
+               XOR with --descriptor-from.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--descriptor-from",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "Assemble descriptor from <node>=<value> input (e.g. \
+               md1=<chunks>). XOR with --descriptor.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--language",
+        kind: FlagKind::Dropdown(LANGUAGES),
+        required: false,
+        repeating: false,
+        help: "BIP-39 wordlist language. Defaults to english.",
+        secret: false,
+        default_value: Some("english"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--network",
+        kind: FlagKind::Dropdown(NETWORKS),
+        required: false,
+        repeating: false,
+        help: "Network selector. Defaults to mainnet.",
+        secret: false,
+        default_value: Some("mainnet"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--min-account",
+        kind: FlagKind::Number {
+            min: 0,
+            max: NumberMax::Static(2_147_483_647),
+        },
+        required: false,
+        repeating: false,
+        help: "Lower bound of account-index iteration (inclusive). Default 0.",
+        secret: false,
+        default_value: Some("0"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--number-of-accounts",
+        kind: FlagKind::Number {
+            min: 0,
+            max: NumberMax::Static(2_147_483_647),
+        },
+        required: false,
+        repeating: false,
+        help: "Window size starting at --min-account (default 20).",
+        secret: false,
+        default_value: Some("20"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--max-account",
+        kind: FlagKind::Number {
+            min: 0,
+            max: NumberMax::Static(2_147_483_647),
+        },
+        required: false,
+        repeating: false,
+        help: "Optional upper bound. Effective end is \
+               max(min_account + number_of_accounts, max_account + 1).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--add-path",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: true,
+        help: "Additional derivation-path template. Repeatable. The literal \
+               token `account'` (or `account`) is substituted with each \
+               iterated account index.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--json",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Emit a JSON envelope on stdout instead of the text-form report.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    NO_AUTO_REPAIR_FLAG,
+];
+
+const XPUB_SEARCH_ADDRESS_OF_XPUB_FLAGS: &[FlagSchema] = &[
+    FlagSchema {
+        name: "--xpub",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "Parent xpub. Accepts any SLIP-0132 single-sig prefix \
+               (xpub/tpub/ypub/upub/zpub/vpub) or an mk1 bech32 card \
+               carrying an xpub. Multisig SLIP-0132 prefixes (Ypub/Zpub/\
+               Upub/Vpub) are refused — use account-of-descriptor instead.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--xpub-stdin",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Read parent xpub from stdin (single line, trailing newline \
+               stripped).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--target-address",
+        kind: FlagKind::Text,
+        required: true,
+        repeating: true,
+        help: "Target address. Repeatable; at least one required.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--gap-limit",
+        kind: FlagKind::Number {
+            min: 0,
+            max: NumberMax::Static(1_000),
+        },
+        required: false,
+        repeating: false,
+        help: "Per-chain BIP-44 gap-limit window. Scan covers 0..gap_limit \
+               indices on each chain. Default 20.",
+        secret: false,
+        default_value: Some("20"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--external-only",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Restrict the scan to the external (receive) chain only; skip \
+               internal (change) chain. Default: scan both chains.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--address-type",
+        kind: FlagKind::Dropdown(XPUB_SEARCH_ADDRESS_TYPES),
+        required: false,
+        repeating: false,
+        help: "Explicit script-type for address rendering. Required when the \
+               parent xpub uses a neutral SLIP-0132 prefix (xpub/tpub) or \
+               when overriding the prefix-inferred type. Accepts p2pkh / \
+               p2sh-p2wpkh / p2wpkh / p2tr.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--network",
+        kind: FlagKind::Dropdown(NETWORKS),
+        required: false,
+        repeating: false,
+        help: "Network selector. Defaults to network inferred from the xpub \
+               version byte; --network signet / regtest overrides for \
+               disambiguation.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--json",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Emit a JSON envelope on stdout instead of text-form report.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    NO_AUTO_REPAIR_FLAG,
+];
+
+const XPUB_SEARCH_PASSPHRASE_OF_XPUB_FLAGS: &[FlagSchema] = &[
+    FlagSchema {
+        name: "--phrase",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "Master BIP-39 phrase (inline). Emits an argv-leakage advisory; \
+               prefer --phrase-stdin for sensitive input.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--phrase-stdin",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Read master BIP-39 phrase from stdin.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--ms1",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "ms1 card carrying BIP-39 entropy (inline). Emits an \
+               argv-leakage advisory; prefer --ms1-stdin for sensitive input.",
+        secret: true,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--ms1-stdin",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Read ms1 card from stdin (single chunk).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--passphrase",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "BIP-39 passphrase candidate (inline). Repeatable via wordlist; \
+               this flag carries a single candidate. Emits argv-leakage \
+               advisory.",
+        secret: true,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--passphrase-stdin",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Read BIP-39 passphrase candidate from stdin.",
+        secret: true,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--target-xpub",
+        kind: FlagKind::Text,
+        required: true,
+        repeating: false,
+        help: "Target xpub. Accepts any SLIP-0132 prefix or an mk1 bech32 \
+               card carrying an xpub.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--language",
+        kind: FlagKind::Dropdown(LANGUAGES),
+        required: false,
+        repeating: false,
+        help: "BIP-39 wordlist language. Defaults to english.",
+        secret: false,
+        default_value: Some("english"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--network",
+        kind: FlagKind::Dropdown(NETWORKS),
+        required: false,
+        repeating: false,
+        help: "Network selector. Defaults to mainnet.",
+        secret: false,
+        default_value: Some("mainnet"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--min-account",
+        kind: FlagKind::Number {
+            min: 0,
+            max: NumberMax::Static(2_147_483_647),
+        },
+        required: false,
+        repeating: false,
+        help: "Lower bound of account-index iteration (inclusive). Default 0.",
+        secret: false,
+        default_value: Some("0"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--number-of-accounts",
+        kind: FlagKind::Number {
+            min: 0,
+            max: NumberMax::Static(2_147_483_647),
+        },
+        required: false,
+        repeating: false,
+        help: "Window size starting at --min-account (default 20).",
+        secret: false,
+        default_value: Some("20"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--max-account",
+        kind: FlagKind::Number {
+            min: 0,
+            max: NumberMax::Static(2_147_483_647),
+        },
+        required: false,
+        repeating: false,
+        help: "Optional upper bound. Effective end is \
+               max(min_account + number_of_accounts, max_account + 1).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--add-path",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: true,
+        help: "Additional derivation-path template. Repeatable. The literal \
+               token `account'` (or `account`) is substituted with each \
+               iterated account index.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--json",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Emit a JSON envelope on stdout instead of the text-form report.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    NO_AUTO_REPAIR_FLAG,
+];
+
 // ─── SCHEMA constant ─────────────────────────────────────────────────────
 
 // Phase 5: wire the conditional-visibility fn pointers per subcommand.
@@ -1492,6 +2298,70 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
         allows_slots: false,
         conditional: Some(crate::form::conditional::inspect),
     },
+    // v0.11.0 (toolkit v0.26.0): import a third-party wallet blob and
+    // optionally overlay seed material to re-attach cosigner secrets.
+    SubcommandSchema {
+        name: "import-wallet",
+        human_name: "Import Wallet (third-party BSMS / Bitcoin Core)",
+        flags: IMPORT_WALLET_FLAGS,
+        positional_args: NO_POSITIONALS,
+        allows_slots: true,
+        // v0.26.0 has no cross-flag conditional rules on import-wallet;
+        // the v3 PinValue / v4 DisableOptions effects could be wired in a
+        // future cycle (e.g. force --select-descriptor=all when --format=bsms).
+        conditional: None,
+    },
+    // v0.11.0 (toolkit v0.26.0): xpub-search umbrella, 4 modes.
+    // `conditional: None` for v0.11.0; cross-flag mutex visibility (e.g.
+    // --phrase vs --phrase-stdin vs --ms1) is a v0.12.0 polish item
+    // tracked by the `xpub-search-gui-flag-mutex-visibility` FOLLOWUP.
+    // The toolkit clap-derive enforces mutual exclusion + at-least-one
+    // rules at run-time; the GUI's run-confirm modal surfaces stderr.
+    SubcommandSchema {
+        name: "xpub-search-path-of-xpub",
+        human_name: "xpub-search: Path of xpub (locate target xpub's path)",
+        flags: XPUB_SEARCH_PATH_OF_XPUB_FLAGS,
+        positional_args: NO_POSITIONALS,
+        allows_slots: false,
+        conditional: None,
+    },
+    SubcommandSchema {
+        name: "xpub-search-account-of-descriptor",
+        human_name: "xpub-search: Account of descriptor (locate descriptor's account)",
+        flags: XPUB_SEARCH_ACCOUNT_OF_DESCRIPTOR_FLAGS,
+        positional_args: NO_POSITIONALS,
+        allows_slots: false,
+        conditional: None,
+    },
+    SubcommandSchema {
+        name: "xpub-search-address-of-xpub",
+        human_name: "xpub-search: Address of xpub (locate addresses under xpub)",
+        flags: XPUB_SEARCH_ADDRESS_OF_XPUB_FLAGS,
+        positional_args: NO_POSITIONALS,
+        allows_slots: false,
+        conditional: None,
+    },
+    SubcommandSchema {
+        name: "xpub-search-passphrase-of-xpub",
+        human_name: "xpub-search: Passphrase of xpub (locate passphrase from candidates)",
+        flags: XPUB_SEARCH_PASSPHRASE_OF_XPUB_FLAGS,
+        positional_args: NO_POSITIONALS,
+        allows_slots: false,
+        conditional: None,
+    },
+    // v0.11.0 (toolkit v0.26.0): wsh-vs-tr per-spending-condition cost
+    // comparison. `--miniscript` and `--descriptor` are mutually exclusive
+    // exactly-one-of inputs (toolkit Phase 1+2). When neither is given the
+    // toolkit Phase 3 dispatcher falls back to stdin — not surfaced as a
+    // GUI input slot since the GUI always passes one of the two flags.
+    SubcommandSchema {
+        name: "compare-cost",
+        human_name: "Compare Cost (wsh vs tr per spending condition)",
+        flags: COMPARE_COST_FLAGS,
+        positional_args: NO_POSITIONALS,
+        allows_slots: false,
+        conditional: Some(crate::form::conditional::compare_cost),
+    },
 ];
 
 // `pinned_version` is rendered as a monospace label in the action-bar
@@ -1502,6 +2372,6 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
 // drift here is a cosmetic banner mismatch, not a functional error.
 pub const SCHEMA: Schema = Schema {
     cli_name: "mnemonic",
-    pinned_version: "mnemonic 0.24.0",
+    pinned_version: "mnemonic 0.26.0",
     subcommands: SUBCOMMANDS,
 };

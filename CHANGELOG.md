@@ -3,6 +3,127 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## [0.11.0] — 2026-05-18
+
+v0.26.0 cycle lockstep with `mnemonic-toolkit-v0.26.0`. Three-feature
+release: adds the `mnemonic import-wallet` SubcommandSchema entry + 8
+kittest cells pinning argv-emission contracts for the new BSMS Round-2 /
+Bitcoin Core `listdescriptors` ingest surface; four matching
+`SubcommandSchema` entries for the toolkit's new `xpub-search` umbrella
+(4 modes); and a `compare-cost` SubcommandSchema + mutex helper for the
+new wsh-vs-tr per-spending-condition cost comparison subcommand. Schema
+stays at v5 — no version bump on the schema envelope itself; only the
+`name`-keyed `SUBCOMMANDS` array grows by 6 (1 import-wallet + 4
+xpub-search-* + 1 compare-cost).
+
+### Added
+
+- **`SubcommandSchema` entry for `mnemonic import-wallet`** in
+  `src/schema/mnemonic.rs`. 7 flags: `--blob` (`Path { stdio_sentinel: true }`,
+  required), `--format` (`Dropdown(["bsms", "bitcoin-core"])`),
+  `--select-descriptor` (`Text`, free-form to accommodate the
+  `N | active-receive | active-change | all` union), `--ms1` (`Text`,
+  `secret: true`, `repeating: true`), `--slot` (`Text`, `repeating: true`),
+  `--json` (`Boolean`), plus the global `--no-auto-repair` flag. New
+  `IMPORT_WALLET_FORMATS` const carries the `--format` dropdown values
+  for symmetric clap-derive ↔ schema mirror.
+
+- **8 kittest cells** in `tests/kittest_import_wallet_form.rs`
+  pinning the argv-emission contracts for the new subcommand:
+  `cell_import_wallet_in_subcommands_set`,
+  `cell_import_wallet_blob_path_argv`,
+  `cell_import_wallet_blob_stdio_sentinel_argv`,
+  `cell_import_wallet_repeating_ms1_argv`,
+  `cell_import_wallet_select_descriptor_default_suppressed`,
+  `cell_import_wallet_format_dropdown_argv`,
+  `cell_import_wallet_slot_phrase_argv`,
+  `cell_import_wallet_env_sentinel_literal_emission`.
+
+- **Four `xpub-search` `SubcommandSchema` entries (toolkit v0.26.0
+  lockstep):**
+  - `xpub-search-path-of-xpub` — locate a target xpub's derivation path
+    by iterating account-index candidates against a master seed.
+    Toolkit commit `d28b170` (C1, P1 + umbrella scaffolding).
+  - `xpub-search-account-of-descriptor` — locate the descriptor's
+    account index across 4 descriptor shapes (single-sig + 3 multisig
+    via SLIP-0132 prefixes). Toolkit commit `196cc8a` (C2, P2).
+  - `xpub-search-address-of-xpub` — locate which BIP-44 address-class
+    chain + index under a parent xpub produces a target address.
+    Toolkit commits `a5bfbaf` (C3, P3) + `365c0d1` (P2PKH gap-fix fold).
+  - `xpub-search-passphrase-of-xpub` — locate a BIP-39 passphrase
+    candidate by iterating wordlist tokens against a target xpub.
+    Toolkit commit `bc2a76a` (C4, P4).
+- **New `XPUB_SEARCH_ADDRESS_TYPES` dropdown const**
+  (`schema/mnemonic.rs`) — kebab-case mirrors of the toolkit's
+  `ScriptType` JSON tag enumeration: `p2pkh / p2sh-p2wpkh / p2wpkh /
+  p2tr`. Backs the `xpub-search-address-of-xpub --address-type`
+  Dropdown widget.
+- **Dedicated `tests/xpub_search_schema_mirror.rs`** asserting (a) all
+  4 umbrella subcommand entries are present in `SCHEMA.subcommands`,
+  (b) the GUI's flag-name set matches the toolkit's `gui-schema` JSON
+  per-subcommand (skipped if `MNEMONIC_BIN` unset + bare `mnemonic`
+  not on PATH), and (c) per-mode required-flag invariants (e.g.
+  `--target-xpub`, `--xpub` + `--target-address`).
+- **Lightweight kittest + argv-assembler cells** in
+  `tests/xpub_search_widgets.rs` — one kittest cell per new
+  subcommand confirming generic-renderer no-panic instantiation, plus
+  argv-assembler cells per subcommand confirming the form-state →
+  argv emission carries the expected flag list.
+
+- **`compare-cost` subcommand:** new `SubcommandSchema` entry with
+  `COMPARE_COST_FLAGS` (5 flags: `--miniscript`/`--descriptor` as
+  `FlagKind::Text`, `--feerate` as `Text` for `f64` decimal support,
+  `--max-conditions` as `Number`, `--json` as `Boolean`) and the mutex
+  `form::conditional::compare_cost` helper that toggles
+  `--miniscript`/`--descriptor` Disabled state based on the other's
+  fill (mirrors clap's `conflicts_with`). Stdin fallback (toolkit
+  Phase 3) is not surfaced as a GUI input slot — the GUI always passes
+  one of the two flags. `--feerate` uses `FlagKind::Text` rather than
+  `Number` because the toolkit's `f64` clap parser accepts decimals
+  (`0.0..=10000.0`); the GUI's Number kind is `i64`-only. Decimal
+  validation is toolkit-side (exit 64 on bad input).
+
+### Changed
+
+- **Toolkit pin bumped** from `mnemonic-toolkit-v0.24.0` to
+  `mnemonic-toolkit-v0.26.0` across `Cargo.toml::[dependencies]
+  mnemonic-toolkit` + `pinned-upstream.toml::[mnemonic].tag` +
+  `src/schema/mnemonic.rs::SCHEMA.pinned_version` monospace label.
+  The v0.26.0 toolkit ships the new `mnemonic import-wallet` subcommand
+  + 4 modes of `mnemonic xpub-search` + cross-cutting `@env:<VAR>`
+  value-source sentinel; the GUI schema-mirror drift gate auto-greens
+  once all three pins point at v0.26.0.
+
+### Security
+
+- v0.11.0 GUI emits user-typed values for repeating `--ms1` (and other
+  secret-bearing) flags VERBATIM on argv. The toolkit-side resolves
+  `@env:<VAR>` sentinels at parse time, so GUI users who want argv-leak
+  protection MUST type `@env:MY_VAR` themselves with `MY_VAR` exported
+  in the calling shell. Auto-rewriting literal repeating-secret values
+  to per-cosigner `@env:MNEMONIC_MS1_<i>` sentinels (the SPEC §9.3
+  aspirational behavior) is tracked at FOLLOWUP
+  `gui-import-wallet-env-var-secret-channel` (v0.12.0+). Pairs with the
+  pre-existing `gui-run-confirm-modal-secret-redaction` FOLLOWUP
+  (modal-redaction direction).
+
+### Audit notes for v0.24.0 → v0.26.0 pin drift
+
+The 8 kittest cells were authored against the v0.24.0 toolkit binary.
+Two behavior changes landed in toolkit v0.25.x that COULD impact
+GUI-side cells; per coordinator merge-plan §G1.5 audit:
+
+- **v0.25.0 TTY-gate extension to `mnemonic convert` + `mnemonic inspect`**
+  (`[[project-v0-9-0-mnemonic-gui-shipped]]` precedent): not
+  applicable. None of the 8 cells spawn `mnemonic` as a subprocess
+  (kittest exercises in-process argv assembly via the GUI invocation
+  builder); none target `convert`/`inspect`.
+- **v0.25.1 empty-`ms1` watch-only stderr NOTICE** in multi-cosigner
+  `verify-bundle`/`repair`: not applicable. The 8 cells do not target
+  `verify-bundle`/`repair` and do not assert on stderr at all.
+
+No cell updates needed.
+
 ## [0.10.0] — 2026-05-17
 
 v0.24.x cycle lockstep with `mnemonic-toolkit-v0.24.0`. Consumes

@@ -2200,7 +2200,7 @@ dependencies = [
 
 [[package]]
 name = "mnemonic-gui"
-version = "0.10.0"
+version = "0.11.0"
 dependencies = [
  "clap",
  "ctrlc",
@@ -2230,8 +2230,8 @@ dependencies = [
 
 [[package]]
 name = "mnemonic-toolkit"
-version = "0.24.0"
-source = "git+https://github.com/bg002h/mnemonic-toolkit?tag=mnemonic-toolkit-v0.24.0#e2ebd556d351d83466726f921be5df9da197de89"
+version = "0.26.0"
+source = "git+https://github.com/bg002h/mnemonic-toolkit?tag=mnemonic-toolkit-v0.26.0#66c8a56679d25e946ff6c3b5baf087bb8862d08e"
 dependencies = [
  "bip38",
  "bip39",
@@ -2252,6 +2252,7 @@ dependencies = [
  "serde_json",
  "sha2",
  "sha3",
+ "similar",
  "unicode-normalization",
  "zeroize",
 ]
@@ -3369,6 +3370,12 @@ name = "simdutf8"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e3a9fe34e3e7a50316060351f37187a3f546bce95496156754b601a5fa71b76e"
+
+[[package]]
+name = "similar"
+version = "2.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bbbb5d9659141646ae647b42fe094daf6c6192d1620870b449d9557f748b2daa"
 
 [[package]]
 name = "slab"

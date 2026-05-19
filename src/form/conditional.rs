@@ -883,7 +883,32 @@ pub fn repair(state: &FormState) -> FlagVisibility {
 ///
 /// Same 3-way at-least-one rule as `repair`. `--reveal-secret` and
 /// `--json` are orthogonal (always Visible; never Required; never
-/// Disabled). Same upstream D35 history as `repair`.
+/// Disabled). Same upstream D35 while history as `repair`.
 pub fn inspect(state: &FormState) -> FlagVisibility {
     three_way_card_at_least_one(state)
+}
+
+/// `compare-cost` subcommand conditionals (v0.11.0 / toolkit v0.26.0).
+///
+/// `--miniscript` and `--descriptor` are mutually exclusive (exactly-one-of):
+/// when one is filled, the other is Disabled. When neither is filled, both
+/// are Visible and the user can choose. Clap-side `conflicts_with` is the
+/// authoritative gate; the GUI surface mirrors the same UX for the user.
+pub fn compare_cost(state: &FormState) -> FlagVisibility {
+    let mut vis: FlagVisibility = Vec::new();
+    let has_miniscript = state
+        .text_value("--miniscript")
+        .map(|v| !v.is_empty())
+        .unwrap_or(false);
+    let has_descriptor = state
+        .text_value("--descriptor")
+        .map(|v| !v.is_empty())
+        .unwrap_or(false);
+    if has_miniscript {
+        vis.push(("--descriptor", Visibility::Disabled));
+    }
+    if has_descriptor {
+        vis.push(("--miniscript", Visibility::Disabled));
+    }
+    vis
 }

@@ -7,6 +7,46 @@ mirrors it.
 
 ## Active
 
+### `xpub-search-gui-bespoke-hub-pane` — discoverable umbrella hub UI for `xpub-search` modes
+
+- **Surfaced:** 2026-05-18, v0.11.0 plan-vs-codebase recon. Plan §7.2 (in toolkit `/home/bcg/.claude/plans/woolly-spinning-honey.md`) enumerated a "hub" navigation pane with nav cards linking to the 4 mode panes. The GUI has no pane abstraction — every subcommand is a flat row in the subcommand-name ComboBox.
+- **Where:** `src/main.rs:346-602` (central panel renderer; net-new per-pane dispatch branch); `src/schema/mnemonic.rs` (a new SubcommandSchema entry for the hub itself, or a sibling navigation manifest).
+- **What:** Introduce a "hub" pseudo-pane visible when the user picks the umbrella `xpub-search` from a dropdown above the subcommand selector. Hub renders 4 cards (one per mode) with mode-name + 1-line description + click-through. v0.12.0 UI polish; not a v0.11.0 blocker.
+- **Why deferred:** v0.11.0 plan-vs-codebase recon revealed plan §7.2's "pane" architecture was overspecified; v0.11.0 ships the 4 modes via the generic flag-renderer + the existing subcommand-name ComboBox.
+- **Status:** open
+- **Tier:** `cross-repo`
+- **Companion:** `bg002h/mnemonic-toolkit` `design/FOLLOWUPS.md` entry `xpub-search-gui-bespoke-hub-pane`.
+
+### `xpub-search-gui-bespoke-widgets` — per-mode composite widgets (TargetXpubField / DescriptorIntakeField / TargetAddressField / etc.)
+
+- **Surfaced:** 2026-05-18, v0.11.0 plan-vs-codebase recon. Plan §7.3 enumerated `SeedIntakeWidget`, `TargetXpubField`, `DescriptorIntakeField`, `TargetAddressField`, `AddPathRepeater`, `XpubSearchResultRenderer` as net-new widgets. GUI codebase has NO `PhraseField` / `PassphraseField` / `Ms1Field` named types; the plan's "widget reuse" framing was wrong.
+- **Where:** `src/form/` (new modules).
+- **What:** Per-mode composite widgets with affordances beyond the generic `widget::render` dispatch: TargetXpubField with prefix-detect badge; AddressTypeField that auto-suggests from xpub prefix; DescriptorIntakeField with multi-line textarea + shape-detect badge; AddPathRepeater with +/− buttons. v0.12.0 polish.
+- **Why deferred:** v0.11.0 ships via the generic FlagKind dispatcher; the bespoke widgets are UX polish, not functional blockers.
+- **Status:** open
+- **Tier:** `cross-repo`
+- **Companion:** `bg002h/mnemonic-toolkit` `design/FOLLOWUPS.md` entry `xpub-search-gui-bespoke-widgets`.
+
+### `xpub-search-gui-positional-intake` — positional ms1 (HRP-autodetect) routing in mnemonic-gui
+
+- **Surfaced:** 2026-05-18, v0.11.0. The toolkit accepts a positional ms1 (HRP-autodetect) on P1/P2/P4; the GUI's argv assembler does not surface this affordance — the GUI forces users into `--ms1` explicitly.
+- **Where:** `src/form/invocation.rs::assemble_argv`; `src/schema/mnemonic.rs` `positional_args: NO_POSITIONALS` on the 4 xpub-search entries.
+- **What:** Add a "drop any card" textarea/file-drop affordance that auto-routes via HRP detection (`ms1` → positional, `mk1`/`md1` → future modes' surfaces). v0.12.0 polish.
+- **Why deferred:** v0.11.0 keeps GUI argv assembly simple; positional intake is a polish item.
+- **Status:** open
+- **Tier:** `cross-repo`
+- **Companion:** `bg002h/mnemonic-toolkit` `design/FOLLOWUPS.md` entry `xpub-search-gui-positional-intake`.
+
+### `xpub-search-gui-flag-mutex-visibility` — cross-flag conditional visibility for `xpub-search` mutex groups
+
+- **Surfaced:** 2026-05-18, v0.11.0. The 4 xpub-search SubcommandSchema entries set `conditional: None` for v0.11.0; cross-flag mutex visibility (e.g., greying `--ms1` when `--phrase` is filled in) is open.
+- **Where:** `src/form/conditional.rs` (new per-subcommand functions following the existing pattern at `slip39_split` / `slip39_combine` / `repair` / `inspect` / `derive_child` / etc.).
+- **What:** Per-subcommand `fn(&FormState) -> FlagVisibility` functions that grey/hide flags based on cross-flag state. For xpub-search modes: enforce the seed-intake mutex visually (only one of `--phrase` / `--phrase-stdin` / `--ms1` / `--ms1-stdin` interactive at a time); surface the P4 mandatory-passphrase requirement before run-confirm; flag the multi-`--target-address` repeating affordance in P3. v0.12.0 polish.
+- **Why deferred:** v0.11.0 ships with `conditional: None`; the user sees all flags simultaneously and clap-side handles the mutex at exec. The GUI's run-confirm modal will surface clap errors verbatim — functional but not ideal UX.
+- **Status:** open
+- **Tier:** `cross-repo`
+- **Companion:** `bg002h/mnemonic-toolkit` `design/FOLLOWUPS.md` entry `xpub-search-gui-flag-mutex-visibility`.
+
 ### `gui-schema-global-flag-emission` — toolkit-side: surface global flags in `mnemonic gui-schema` JSON per-subcommand
 
 - **Surfaced:** 2026-05-17, v0.22.x follow-ups cycle Phase A.1 execution (v0.9.0 catchup). Plan §5 R7 realized: Phase A.1 attempted to add `--no-auto-repair` to the 10 existing `*_FLAGS` arrays in `src/schema/mnemonic.rs` and the schema-mirror drift gate hard-failed. The toolkit's `mnemonic gui-schema` v4 JSON output (which the gate consumes as source-of-truth) does NOT emit global flags for any subcommand — only clap's per-subcommand `--help` TEXT propagates them. Phase A.0 reconnaissance only checked help-text propagation, missing the JSON gap.
@@ -450,6 +490,22 @@ shipped partially.
 - **Tier:** `v0.4`
 - **Companion:** `mnemonic-toolkit/docs/manual-gui/src/40-mnemonic/42-bundle.md` worked-example step 3 documents the workaround and cites this FOLLOWUP; superseded by the v1 cycle.
 - **Successor:** `gui-conditional-applicability-drift-fix` (this file, above) is the mechanism + drift-gate generalization of which this entry is the originating specific case.
+
+### `gui-import-wallet-env-var-secret-channel` — auto-rewrite literal seeds in repeating `--ms1` widgets to `@env:MNEMONIC_MS1_<i>` sentinels + spawn-time env-var injection
+
+- **Surfaced:** 2026-05-18, Phase 6 R0 architect review C1 (mnemonic-toolkit v0.26.0 wallet-import cycle).
+- **Where:**
+  - `src/runner.rs:74-114` — current spawn flow injects only `MNEMONIC_FORCE_TTY`; no per-cosigner secret env-var bag.
+  - `src/form/invocation.rs:236-251` — repeating-secret branch routes values verbatim through `state.values`.
+  - `src/main.rs:683-688` — run-confirm modal renders argv verbatim (per `[[feedback-run-confirm-modal-renders-argv-verbatim]]`).
+  - `tests/kittest_import_wallet_form.rs:44-46,154-213` — module-doc cites this FOLLOWUP; cell `cell_import_wallet_repeating_ms1_argv` pins the literal-pass-through contract until this FOLLOWUP lands.
+  - `mnemonic-toolkit/design/SPEC_wallet_import_v0_26_0.md` §9.3 — describes the aspirational behavior (toolkit-side accepts `@env:VAR` sentinels at parse time, but GUI does NOT pre-rewrite in v0.11.0).
+  - `mnemonic-toolkit/docs/manual-gui/src/40-mnemonic/4c-import-wallet.md` (post-Phase-6-R0-fold) — documents the v0.11.0 user-must-type-explicitly fallback.
+- **What:** v0.12.0+: on subprocess spawn, collect per-cosigner-index secret values from `--ms1` repeating-widget state into a per-spawn env-var bag (`MNEMONIC_MS1_<i>=<value>`), rewrite `args[--ms1+1]` to `@env:MNEMONIC_MS1_<i>` sentinels, render the sentinel-bearing argv in the run-confirm modal (so the raw seed never appears), drop the env-vars on subprocess exit. Same pattern for `--passphrase`, `--share` (slip39-combine, seed-xor-combine), and other secret-bearing repeating flags. Toolkit-side already accepts the sentinel at parse-time per the cross-cutting Phase 1 `resolve_env_var_sentinel` helper.
+- **Why deferred:** v0.26.0 scope was wallet-import-side parse + watch-only invariant + round-trip discipline; the env-var-channel rewrite is GUI-side runner work that affects ALL repeating-secret surfaces, not just `--ms1`. Pre-existing `gui-run-confirm-modal-secret-redaction` covers the modal-redaction direction; this FOLLOWUP covers the argv-rewrite direction. Both need to land together in v0.12.0.
+- **Status:** open
+- **Tier:** `v0.12.0`
+- **Companion:** `mnemonic-toolkit/design/FOLLOWUPS.md::gui-import-wallet-env-var-secret-channel` (cross-citing companion). v0.11.0 manual prose at `mnemonic-toolkit/docs/manual-gui/src/40-mnemonic/4c-import-wallet.md` documents the user-must-type-explicitly fallback.
 
 ### `gui-run-confirm-modal-secret-redaction` — run-confirm modal renders secret-bearing argv tokens in plaintext (security-relevant gap)
 
