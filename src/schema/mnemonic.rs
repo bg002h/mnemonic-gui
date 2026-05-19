@@ -65,7 +65,10 @@ const EXPORT_FORMATS: &[&str] = &[
     "specter",
     "electrum",
     "green",
+    "bsms",
 ];
+
+const BSMS_FORMS: &[&str] = &["2-line", "4-line"];
 
 // R1 C-2 fold: NODE_TYPES exactly mirrors upstream
 // `NodeType::as_str()` ordering in
@@ -184,6 +187,34 @@ const BUNDLE_FLAGS: &[FlagSchema] = &[
         required: false,
         repeating: false,
         help: "Path to a single-line UTF-8 descriptor file.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--import-json",
+        kind: FlagKind::Path {
+            stdio_sentinel: true,
+        },
+        required: false,
+        repeating: false,
+        help: "v0.27.0 — synthesize a bundle from an import-wallet --json \
+               envelope. Accepts a file path or - for stdin. Mutually \
+               exclusive with --template / --descriptor / --descriptor-file.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--import-json-index",
+        kind: FlagKind::Number {
+            min: 0,
+            max: NumberMax::Static(65535),
+        },
+        required: false,
+        repeating: false,
+        help: "v0.27.0 — pick a specific entry from a multi-entry envelope \
+               array. Required when the envelope has > 1 entry.",
         secret: false,
         default_value: None,
         global: false,
@@ -834,6 +865,45 @@ const EXPORT_WALLET_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Wallet label. Required for Sparrow / Specter / Electrum / \
                Green formats.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--bsms-form",
+        kind: FlagKind::Dropdown(BSMS_FORMS),
+        required: false,
+        repeating: false,
+        help: "v0.27.0 — BSMS Round-2 emit shape. `4-line` (BIP-129-canonical) \
+               is the default; `2-line` is the lenient excerpt. Ignored by \
+               every other format.",
+        secret: false,
+        default_value: Some("4-line"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--from-import-json",
+        kind: FlagKind::Path {
+            stdio_sentinel: true,
+        },
+        required: false,
+        repeating: false,
+        help: "v0.27.0 — emit wallet config from an import-wallet --json \
+               envelope. Mutually exclusive with --template / --descriptor.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--from-import-json-index",
+        kind: FlagKind::Number {
+            min: 0,
+            max: NumberMax::Static(65535),
+        },
+        required: false,
+        repeating: false,
+        help: "v0.27.0 — pick a specific entry from a multi-entry envelope \
+               array. Required when the envelope has > 1 entry.",
         secret: false,
         default_value: None,
         global: false,
@@ -1543,6 +1613,29 @@ const IMPORT_WALLET_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Emit a JSON envelope array on stdout (SPEC §7.4) instead of \
                the human-readable summary.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--bsms-round1",
+        kind: FlagKind::Path { stdio_sentinel: false },
+        required: false,
+        repeating: true,
+        help: "v0.27.0 — BIP-129 Round-1 key record file for BIP-322 ECDSA \
+               signature verification. Repeating — one per record. Verify \
+               state propagates to --json envelope.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--bsms-verify-strict",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "v0.27.0 — make BIP-129 Round-1 SIG verification failures fatal \
+               (exit 2). Without this flag, mismatches emit a stderr NOTICE.",
         secret: false,
         default_value: None,
         global: false,

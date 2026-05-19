@@ -506,6 +506,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "base64"
+version = "0.21.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9d297deb1925b89f2ccc13d7635fa0714f12c87adce1c75356b39ca9b7178567"
+
+[[package]]
 name = "bech32"
 version = "0.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -560,6 +566,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9cf93e61f2dbc3e3c41234ca26a65e2c0b0975c52e0f069ab9893ebbede584d3"
 dependencies = [
  "base58ck",
+ "base64",
  "bech32",
  "bitcoin-internals",
  "bitcoin-io",
@@ -2200,7 +2207,7 @@ dependencies = [
 
 [[package]]
 name = "mnemonic-gui"
-version = "0.11.0"
+version = "0.11.1"
 dependencies = [
  "clap",
  "ctrlc",
@@ -2230,8 +2237,8 @@ dependencies = [
 
 [[package]]
 name = "mnemonic-toolkit"
-version = "0.26.0"
-source = "git+https://github.com/bg002h/mnemonic-toolkit?tag=mnemonic-toolkit-v0.26.0#66c8a56679d25e946ff6c3b5baf087bb8862d08e"
+version = "0.27.2"
+source = "git+https://github.com/bg002h/mnemonic-toolkit?tag=mnemonic-toolkit-v0.27.2#ec04a00929f62c1c7f026e65aaeb710fc8a787cf"
 dependencies = [
  "bip38",
  "bip39",
