@@ -1643,10 +1643,23 @@ const IMPORT_WALLET_FLAGS: &[FlagSchema] = &[
     NO_AUTO_REPAIR_FLAG,
 ];
 
-// Two-element option list for `--format` on import-wallet. Distinct from
-// `EXPORT_FORMATS` (the inbound parser supports only BSMS + Bitcoin Core
-// in v0.26.0; outbound emitter supports 8 formats).
-const IMPORT_WALLET_FORMATS: &[&str] = &["bsms", "bitcoin-core"];
+// Eight-element option list for `--format` on import-wallet. Aligned with
+// `EXPORT_FORMATS` after the toolkit v0.28.0 cycle wired 6 new inbound
+// parsers (sparrow, specter, coldcard, coldcard-multisig, electrum, jade)
+// in lockstep with the existing emitters. Alphabetical order matches
+// the toolkit's `cmd/import_wallet.rs::PossibleValuesParser` literal at
+// line ~107-121 (re-verify against pinned toolkit tag at schema_mirror
+// gate fire-time).
+const IMPORT_WALLET_FORMATS: &[&str] = &[
+    "bitcoin-core",
+    "bsms",
+    "coldcard",
+    "coldcard-multisig",
+    "electrum",
+    "jade",
+    "sparrow",
+    "specter",
+];
 
 
 // ─── xpub-search umbrella (v0.11.0; toolkit v0.26.0) ─────────────────────
