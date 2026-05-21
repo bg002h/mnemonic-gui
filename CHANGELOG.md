@@ -3,6 +3,32 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## mnemonic-gui [0.17.0] — 2026-05-21
+
+**SemVer-MINOR release.** MANDATORY schema-mirror lockstep for `mnemonic-toolkit-v0.32.0` (CompactSeedQR variant). Closes `gui-seedqr-variant-flag-mirror` FOLLOWUP. `--variant` is a NET-NEW flag NAME on BOTH `mnemonic seedqr encode` AND `mnemonic seedqr decode` — trips the flag-NAME-parity gate on both subcommand schemas.
+
+### Lockstep
+
+- Toolkit pin: `mnemonic-toolkit-v0.31.6 → mnemonic-toolkit-v0.32.0`.
+
+### Added
+
+- `--variant` Dropdown (`["standard", "compact"]`, default `standard`) added to both `SEEDQR_ENCODE_FLAGS` and `SEEDQR_DECODE_FLAGS`. New `SEEDQR_VARIANTS` const.
+
+### Note
+
+No `SECRET_NODE_TYPES` change this cycle (CompactSeedQR added no new NodeType — it reuses the existing `seedqr` slot/node surfaces), so the supply-chain drift gate stayed quiet.
+
+### Test totals
+
+- 353 cells passing; 1 ignored. Clippy clean. schema_mirror green with the new `--variant` on both seedqr subcommands.
+
+### Cycle topology
+
+Cycle 14b — GUI lockstep for Cycle 14 / toolkit v0.32.0 (CompactSeedQR; close of the SeedQR-completion arc).
+
+---
+
 ## mnemonic-gui [0.16.2] — 2026-05-21
 
 **SemVer-PATCH release.** MANDATORY schema-mirror lockstep for `mnemonic-toolkit-v0.31.6` (SeedQR `--from` unification). Closes `gui-seedqr-decode-from-flag-mirror` FOLLOWUP. Unlike Cycles 10/12 (value-content additions the schema_mirror gate ignores), v0.31.6 adds a NET-NEW flag NAME (`--from`) to `mnemonic seedqr decode` — this trips the flag-NAME-parity gate.

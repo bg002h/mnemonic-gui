@@ -1281,6 +1281,10 @@ const SEED_XOR_COMBINE_FLAGS: &[FlagSchema] = &[
 // BIP-39 English phrase via `--from phrase=<VALUE|->`, emit the SeedQR
 // numeric digit string on stdout (or `--json-out` envelope).
 
+// v0.17.0 (toolkit v0.32.0): SeedQR variant selector. `standard` = decimal
+// digit string; `compact` = CompactSeedQR entropy bytes as hex (12/24 only).
+const SEEDQR_VARIANTS: &[&str] = &["standard", "compact"];
+
 const SEEDQR_ENCODE_FLAGS: &[FlagSchema] = &[
     FlagSchema {
         name: "--from",
@@ -1290,6 +1294,17 @@ const SEEDQR_ENCODE_FLAGS: &[FlagSchema] = &[
         help: "BIP-39 phrase. `phrase=<value>` (inline) OR `phrase=-` (stdin).",
         secret: false, // value-dependent
         default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--variant",
+        kind: FlagKind::Dropdown(SEEDQR_VARIANTS),
+        required: false,
+        repeating: false,
+        help: "SeedQR variant (v0.32.0+): standard (decimal digits, default) \
+               or compact (CompactSeedQR entropy bytes as hex; 12/24 only).",
+        secret: false,
+        default_value: Some("standard"),
         global: false,
     },
     FlagSchema {
@@ -1332,6 +1347,18 @@ const SEEDQR_DECODE_FLAGS: &[FlagSchema] = &[
                type is accepted.",
         secret: false, // value-dependent; per-row paste-warn fires
         default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--variant",
+        kind: FlagKind::Dropdown(SEEDQR_VARIANTS),
+        required: false,
+        repeating: false,
+        help: "SeedQR variant (v0.32.0+): standard (decimal digits, default) \
+               or compact (CompactSeedQR entropy bytes as hex; 12/24 only). \
+               Determines how the --from seedqr= value is interpreted.",
+        secret: false,
+        default_value: Some("standard"),
         global: false,
     },
     FlagSchema {
