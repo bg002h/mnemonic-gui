@@ -3,6 +3,20 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## mnemonic-gui [0.13.0] — 2026-05-20
+
+Minor release: paired companion to `mnemonic-toolkit-v0.28.4`. Adds the `coldcard-multisig` value to the `export-wallet --format` dropdown via `EXPORT_FORMATS` schema-mirror constant. Closes the asymmetry where `--format coldcard-multisig` was accepted on the import side (already in `IMPORT_WALLET_FORMATS`) but rejected on the export side. The toolkit's new `CliExportFormat::ColdcardMultisig` variant refuses singlesig templates with a pointer to `--format coldcard`; the GUI dropdown shows the value but downstream refusal is the toolkit's responsibility.
+
+### Changed
+
+- `src/schema/mnemonic.rs:60-72` `EXPORT_FORMATS` constant — added `"coldcard-multisig"` between `"coldcard"` and `"jade"`. Total dropdown values: 9 → 10.
+- `Cargo.toml` mnemonic-toolkit dep tag: `mnemonic-toolkit-v0.28.0` → `mnemonic-toolkit-v0.28.4` (catches up through v0.28.1/v0.28.2/v0.28.3 — all toolkit-only patches with no GUI lockstep).
+- `pinned-upstream.toml` `[mnemonic].tag` documentary mirror: same bump v0.28.0 → v0.28.4.
+
+### Cycle context
+
+Cycle 3 of the A/B/C FOLLOWUP release plan tracked in mnemonic-toolkit's `design/BRAINSTORM_followups_abc_release_plan.md`. Wave 2 first ship; paired with toolkit `mnemonic-toolkit-v0.28.4`.
+
 ## mnemonic-gui [0.11.1] — 2026-05-19
 
 ### Changed

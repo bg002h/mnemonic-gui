@@ -60,6 +60,7 @@ const EXPORT_FORMATS: &[&str] = &[
     "bitcoin-core",
     "bip388",
     "coldcard",
+    "coldcard-multisig",
     "jade",
     "sparrow",
     "specter",
