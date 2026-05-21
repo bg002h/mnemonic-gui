@@ -26,6 +26,13 @@ use eframe::egui;
 )]
 pub enum SlotSubkey {
     Phrase,
+    /// v0.16.1 — mirrors `mnemonic-toolkit::slot_input::SlotSubkey::Seedqr`
+    /// (added in toolkit v0.31.3). Secret-bearing (decodes to a BIP-39
+    /// phrase at slot-emit time via `seedqr::decode`). Position-critical:
+    /// declared at index 1 (after Phrase, before Entropy) to mirror the
+    /// upstream enum-order so derived `Ord` produces ascending-sorted
+    /// legal-set patterns that match the toolkit's `is_legal_set`.
+    Seedqr,
     Entropy,
     Xpub,
     MasterXpub,
@@ -38,6 +45,7 @@ pub enum SlotSubkey {
 impl SlotSubkey {
     pub const ALL: &'static [SlotSubkey] = &[
         SlotSubkey::Phrase,
+        SlotSubkey::Seedqr,
         SlotSubkey::Entropy,
         SlotSubkey::Xpub,
         SlotSubkey::MasterXpub,
@@ -50,6 +58,7 @@ impl SlotSubkey {
     pub fn as_str(self) -> &'static str {
         match self {
             SlotSubkey::Phrase => "phrase",
+            SlotSubkey::Seedqr => "seedqr",
             SlotSubkey::Entropy => "entropy",
             SlotSubkey::Xpub => "xpub",
             SlotSubkey::MasterXpub => "master_xpub",
@@ -64,6 +73,7 @@ impl SlotSubkey {
         matches!(
             self,
             SlotSubkey::Phrase
+                | SlotSubkey::Seedqr
                 | SlotSubkey::Entropy
                 | SlotSubkey::Wif
                 | SlotSubkey::Xprv

@@ -1,6 +1,6 @@
 [package]
 name = "mnemonic-gui"
-version = "0.16.0"
+version = "0.16.1"
 edition = "2021"
 rust-version = "1.85"
 license = "MIT"
@@ -39,7 +39,7 @@ regex = "1"
 # sandboxes → BIP-39 phrases leaked to state.json). See toolkit
 # `secret-taxonomy-public-api-promotion` FOLLOWUP for the full
 # architectural rationale.
-mnemonic-toolkit = { git = "https://github.com/bg002h/mnemonic-toolkit", tag = "mnemonic-toolkit-v0.31.0" }
+mnemonic-toolkit = { git = "https://github.com/bg002h/mnemonic-toolkit", tag = "mnemonic-toolkit-v0.31.3" }
 
 [target.'cfg(unix)'.dependencies]
 signal-hook = "0.3"

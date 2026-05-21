@@ -3,6 +3,30 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## mnemonic-gui [0.16.1] — 2026-05-21
+
+**SemVer-PATCH release.** Optional follow-on companion to `mnemonic-toolkit-v0.31.3` (SeedQR slot input). Closes `gui-seedqr-slot-subkey-help-mirror` FOLLOWUP filed at toolkit Cycle 10 close. The toolkit schema_mirror gate compares clap flag-NAME parity NOT value-content, so this bump is non-blocking — but desirable for `seedqr` slot subkey discoverability in the GUI SlotEditor dropdown.
+
+### Lockstep
+
+- Toolkit pin: `mnemonic-toolkit-v0.31.0 → mnemonic-toolkit-v0.31.3`. Cumulative catch-up across v0.31.1 (sparrow taproot multisig descriptor-passthrough; no GUI surface change), v0.31.2 (sparrow taproot singlesig template-mode; no GUI surface change), and v0.31.3 (SeedQR slot input).
+
+### Changed
+
+- `src/form/slot_editor.rs::SlotSubkey` — added `Seedqr` variant at enum position 1 (after Phrase, before Entropy) to mirror the toolkit's enum-position correctness. `ALL` constant + `as_str` + `is_secret_bearing` extended.
+- `src/secrets.rs::v0_3_canonical_fallback::SECRET_SLOT_SUBKEYS` — supply-chain drift snapshot updated to `["phrase", "seedqr", "entropy", "xprv", "wif"]` (the compile-time drift gate fired as designed on the toolkit pin bump; acknowledged by snapshot update). Snapshot history docstring extended.
+- `tests/secrets.rs::secret_slot_subkeys_set_pinned` — expected-set updated to include `"seedqr"`.
+
+### Test totals
+
+- 353 cells passing; 1 ignored. +1 net assertion (the existing slot_subkey_set_pinned test continues to enforce the explicit set membership).
+
+### Cycle topology
+
+Cycle 10b — GUI mirror for Cycle 10 / toolkit v0.31.3. Both Cycle 10a (toolkit) and 10b (GUI) close their respective FOLLOWUPs in lockstep on 2026-05-21.
+
+---
+
 ## mnemonic-gui [0.16.0] — 2026-05-21
 
 **SemVer-MINOR release.** Paired companion to `mnemonic-toolkit-v0.31.0`'s new `--bsms-encryption-token` flag on `mnemonic import-wallet` (BIP-129 encryption envelope decrypt). Skips toolkit `v0.30.1` (PATCH; no clap-surface change).

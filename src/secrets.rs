@@ -49,8 +49,14 @@ mod v0_3_canonical_fallback {
         "electrum-phrase",
     ];
 
-    /// Snapshot of `SECRET_SLOT_SUBKEYS` from v0.3.3.
-    pub const SECRET_SLOT_SUBKEYS: &[&str] = &["phrase", "entropy", "xprv", "wif"];
+    /// Snapshot of `SECRET_SLOT_SUBKEYS`. Maintained in lockstep with
+    /// toolkit pin bumps that change the secret-class set.
+    /// History:
+    /// - v0.3.3 baseline: `["phrase", "entropy", "xprv", "wif"]`
+    /// - v0.16.1 (toolkit v0.31.3): `seedqr` added (new SlotSubkey
+    ///   variant; secret-bearing because it decodes to a BIP-39 phrase).
+    pub const SECRET_SLOT_SUBKEYS: &[&str] =
+        &["phrase", "seedqr", "entropy", "xprv", "wif"];
 }
 
 // Compile-time supply-chain guard: the v0.3.3 snapshot must equal the
