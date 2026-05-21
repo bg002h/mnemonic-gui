@@ -3,6 +3,22 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## mnemonic-gui [0.15.0] — 2026-05-21
+
+**SemVer-MINOR release.** Paired companion to `mnemonic-toolkit-v0.30.0`'s new top-level `mnemonic seedqr` encode/decode subcommand.
+
+### Lockstep
+
+- Toolkit pin bumped `mnemonic-toolkit-v0.29.0` → `mnemonic-toolkit-v0.30.0`.
+- `pinned-upstream.toml` `[mnemonic].tag` documentary mirror updated.
+- `src/schema/mnemonic.rs`: **two new entries.** `SubcommandSchema { name: "seedqr-encode", ... }` + `SubcommandSchema { name: "seedqr-decode", ... }` placed between `seed-xor-combine` and `slip39-split` per verb-ordering convention (create-side `encode` before recover-side `decode`, matching the seed-xor/slip39 split-before-combine precedent).
+  - `seedqr-encode` flags: `--from phrase=<VALUE|->` (NodeValueComposite, required) + `--json-out <PATH>` + `NO_AUTO_REPAIR_FLAG`.
+  - `seedqr-decode` flags: `--digits <VALUE|->` (Text, required, secret=true) + `--json-out <PATH>` + `NO_AUTO_REPAIR_FLAG`.
+
+### Cycle context
+
+Cycle 5 of the v0.28+ residual FOLLOWUP release plan. Architectural pivot: original FOLLOWUP slug `wallet-import-jade-seedqr` superseded by vendor-neutral `seedqr-encode-decode-subcommand` (SeedQR is an open SeedSigner spec, not Jade-proprietary). Tracked in toolkit `design/BRAINSTORM_v0_30_0_seedqr.md` + `design/PLAN_mnemonic_toolkit_v0_30_0.md`. Toolkit-first ordering: toolkit `mnemonic-toolkit-v0.30.0` tag landed first (`56dd2b6`, install-pin-check CI green); GUI tag lands second; closure-verification confirms GUI CI's `schema_mirror` gate passes against the new pin.
+
 ## mnemonic-gui [0.14.0] — 2026-05-21
 
 **SemVer-MINOR release.** Paired companion to `mnemonic-toolkit-v0.29.0`'s SemVer-minor cliff (xpub-search result tagged-enum conversion + `ImportProvenance::Bsms(Option<_>)` 2-variant split + `error.rs` retroactive alphabetical sort).

@@ -1275,6 +1275,68 @@ const SEED_XOR_COMBINE_FLAGS: &[FlagSchema] = &[
     NO_AUTO_REPAIR_FLAG,
 ];
 
+// ─── seedqr-encode ───────────────────────────────────────────────────────
+//
+// v0.15.0 (toolkit v0.30.0): SeedQR encode subsubcommand. Read a 12/24-word
+// BIP-39 English phrase via `--from phrase=<VALUE|->`, emit the SeedQR
+// numeric digit string on stdout (or `--json-out` envelope).
+
+const SEEDQR_ENCODE_FLAGS: &[FlagSchema] = &[
+    FlagSchema {
+        name: "--from",
+        kind: FlagKind::NodeValueComposite(PHRASE_ONLY),
+        required: true,
+        repeating: false,
+        help: "BIP-39 phrase. `phrase=<value>` (inline) OR `phrase=-` (stdin).",
+        secret: false, // value-dependent
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--json-out",
+        kind: FlagKind::Path { stdio_sentinel: false },
+        required: false,
+        repeating: false,
+        help: "Side-effect: write versioned JSON envelope to PATH.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    NO_AUTO_REPAIR_FLAG,
+];
+
+// ─── seedqr-decode ───────────────────────────────────────────────────────
+//
+// v0.15.0 (toolkit v0.30.0): SeedQR decode subsubcommand. Read a 48 or 96
+// ASCII-digit SeedQR string via `--digits <VALUE|->`, emit the BIP-39
+// English phrase on stdout (or `--json-out` envelope). `--digits` carries
+// secret material (BIP-39 entropy) and is classified as unconditionally
+// secret per the toolkit's `secrets.rs::flag_is_secret` (v0.30.0).
+
+const SEEDQR_DECODE_FLAGS: &[FlagSchema] = &[
+    FlagSchema {
+        name: "--digits",
+        kind: FlagKind::Text,
+        required: true,
+        repeating: false,
+        help: "SeedQR numeric digit string (48 or 96 ASCII digits). `-` reads from stdin.",
+        secret: true,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--json-out",
+        kind: FlagKind::Path { stdio_sentinel: false },
+        required: false,
+        repeating: false,
+        help: "Side-effect: write versioned JSON envelope to PATH.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    NO_AUTO_REPAIR_FLAG,
+];
+
 // ─── compare-cost ────────────────────────────────────────────────────────
 //
 // v0.11.0 (toolkit v0.26.0): wsh-vs-tr per-spending-condition cost
@@ -2367,6 +2429,22 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
         name: "seed-xor-combine",
         human_name: "Seed XOR Combine (reconstruct from XOR shares)",
         flags: SEED_XOR_COMBINE_FLAGS,
+        positional_args: NO_POSITIONALS,
+        allows_slots: false,
+        conditional: None,
+    },
+    SubcommandSchema {
+        name: "seedqr-encode",
+        human_name: "SeedQR Encode (BIP-39 phrase → SeedQR numeric string)",
+        flags: SEEDQR_ENCODE_FLAGS,
+        positional_args: NO_POSITIONALS,
+        allows_slots: false,
+        conditional: None,
+    },
+    SubcommandSchema {
+        name: "seedqr-decode",
+        human_name: "SeedQR Decode (SeedQR numeric string → BIP-39 phrase)",
+        flags: SEEDQR_DECODE_FLAGS,
         positional_args: NO_POSITIONALS,
         allows_slots: false,
         conditional: None,
