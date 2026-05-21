@@ -1681,6 +1681,19 @@ const IMPORT_WALLET_FLAGS: &[FlagSchema] = &[
         global: false,
     },
     FlagSchema {
+        name: "--bsms-encryption-token",
+        kind: FlagKind::Path { stdio_sentinel: true },
+        required: false,
+        repeating: false,
+        help: "v0.31.0 — BIP-129 encryption-envelope Round-2 decrypt; \
+               reads session TOKEN from PATH (or `-` for stdin). \
+               16-hex STANDARD or 32-hex EXTENDED width. Combine with \
+               --format bsms. MAC verify failure → exit 2 (typed BsmsMacMismatch).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
         name: "--bsms-round1",
         kind: FlagKind::Path { stdio_sentinel: false },
         required: false,

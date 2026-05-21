@@ -3,6 +3,20 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## mnemonic-gui [0.16.0] — 2026-05-21
+
+**SemVer-MINOR release.** Paired companion to `mnemonic-toolkit-v0.31.0`'s new `--bsms-encryption-token` flag on `mnemonic import-wallet` (BIP-129 encryption envelope decrypt). Skips toolkit `v0.30.1` (PATCH; no clap-surface change).
+
+### Lockstep
+
+- Toolkit pin bumped `mnemonic-toolkit-v0.30.0` → `mnemonic-toolkit-v0.31.0` (skips v0.30.1 since that was no-clap-surface-change PATCH; schema-mirror gate enforces equivalence).
+- `pinned-upstream.toml` `[mnemonic].tag` documentary mirror updated.
+- `src/schema/mnemonic.rs`: new `FlagSchema` entry for `--bsms-encryption-token` on import-wallet (`FlagKind::Path { stdio_sentinel: true }`; not-required; not-repeating; non-secret-flag-level). Inserted alphabetically BEFORE `--bsms-round1`.
+
+### Cycle context
+
+Cycle 7 of v0.28+ residual FOLLOWUP release plan, executed as 7a (library `bsms_crypto.rs` + recon + opus R0) + 7b (CLI flag + parser integration + opus R0 plan-doc + ship). Both R0 cycles caught critical design issues pre-implementation. Library cross-validated byte-exact against BIP-129 §Test Vectors TV-3 + Coinkite Python ref. Toolkit `mnemonic-toolkit-v0.31.0` (`e2e62ce`) tag landed first; install-pin-check CI green. GUI tag lands second; closure-verification confirms GUI CI's `schema_mirror` gate passes against the new pin.
+
 ## mnemonic-gui [0.15.0] — 2026-05-21
 
 **SemVer-MINOR release.** Paired companion to `mnemonic-toolkit-v0.30.0`'s new top-level `mnemonic seedqr` encode/decode subcommand.
