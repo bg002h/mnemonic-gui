@@ -1307,19 +1307,41 @@ const SEEDQR_ENCODE_FLAGS: &[FlagSchema] = &[
 
 // ─── seedqr-decode ───────────────────────────────────────────────────────
 //
-// v0.15.0 (toolkit v0.30.0): SeedQR decode subsubcommand. Read a 48 or 96
-// ASCII-digit SeedQR string via `--digits <VALUE|->`, emit the BIP-39
-// English phrase on stdout (or `--json-out` envelope). `--digits` carries
-// secret material (BIP-39 entropy) and is classified as unconditionally
-// secret per the toolkit's `secrets.rs::flag_is_secret` (v0.30.0).
+// v0.15.0 (toolkit v0.30.0): SeedQR decode subsubcommand. Read an
+// ASCII-digit SeedQR string, emit the BIP-39 English phrase on stdout
+// (or `--json-out` envelope).
+//
+// v0.16.2 (toolkit v0.31.6): the input was unified into the shared
+// `--from <node>=<value>` grammar. The canonical form is now
+// `--from seedqr=<VALUE|->` (only the `seedqr` node type is accepted).
+// The original `--digits` flag is preserved as a DEPRECATED alias
+// (toolkit emits a stderr notice; mutually exclusive with `--from` via
+// clap `conflicts_with`, exit 64). Both carry secret material (BIP-39
+// entropy). See toolkit FOLLOWUP `seedqr-digits-from-input-unification`.
+
+const SEEDQR_DECODE_FROM_NODES: &[&str] = &["seedqr"];
 
 const SEEDQR_DECODE_FLAGS: &[FlagSchema] = &[
     FlagSchema {
+        name: "--from",
+        kind: FlagKind::NodeValueComposite(SEEDQR_DECODE_FROM_NODES),
+        required: false,
+        repeating: false,
+        help: "Canonical input (v0.31.6+): seedqr=<VALUE|->. SeedQR digit \
+               string (48/60/72/84/96 ASCII digits). Only the `seedqr` node \
+               type is accepted.",
+        secret: false, // value-dependent; per-row paste-warn fires
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
         name: "--digits",
         kind: FlagKind::Text,
-        required: true,
+        required: false,
         repeating: false,
-        help: "SeedQR numeric digit string (48 or 96 ASCII digits). `-` reads from stdin.",
+        help: "DEPRECATED (v0.31.6): use --from seedqr=<VALUE|-> instead. \
+               SeedQR numeric digit string (48/60/72/84/96 ASCII digits). \
+               `-` reads from stdin. Mutually exclusive with --from.",
         secret: true,
         default_value: None,
         global: false,

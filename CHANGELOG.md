@@ -3,6 +3,34 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## mnemonic-gui [0.16.2] — 2026-05-21
+
+**SemVer-PATCH release.** MANDATORY schema-mirror lockstep for `mnemonic-toolkit-v0.31.6` (SeedQR `--from` unification). Closes `gui-seedqr-decode-from-flag-mirror` FOLLOWUP. Unlike Cycles 10/12 (value-content additions the schema_mirror gate ignores), v0.31.6 adds a NET-NEW flag NAME (`--from`) to `mnemonic seedqr decode` — this trips the flag-NAME-parity gate.
+
+### Lockstep
+
+- Toolkit pin: `mnemonic-toolkit-v0.31.3 → mnemonic-toolkit-v0.31.6` (cumulative catch-up across v0.31.4 sparrow-regex-hardening + v0.31.5 SeedQR 15/18/21 word-counts + v0.31.6 SeedQR `--from` unification; only v0.31.6 has a GUI-surface change).
+
+### Changed
+
+- `src/schema/mnemonic.rs::SEEDQR_DECODE_FLAGS`: added `--from` flag (`NodeValueComposite(["seedqr"])`, canonical input) + made `--digits` `required: false` (deprecated alias). New `SEEDQR_DECODE_FROM_NODES` const.
+- `src/secrets.rs::v0_3_canonical_fallback::SECRET_NODE_TYPES`: snapshot updated to include `"seedqr"` (the toolkit v0.31.6 added it to `SECRET_NODE_TYPES`; the compile-time supply-chain drift gate fired on the pin bump and was acknowledged via snapshot update).
+- `tests/secrets.rs::secret_node_types_set_pinned`: expected-set updated to include `"seedqr"`.
+
+### Known gap (deferred)
+
+The `mnemonic convert` GUI form's `--from`/`--to` dropdowns share a single `NODE_TYPES` const; `seedqr` is input-only (valid for `--from`, rejected for `--to`). Adding it to the shared const would wrongly offer `--to seedqr`. Splitting into FROM/TO node lists is deferred (the `convert --from seedqr=` path is reachable via the toolkit CLI directly; the schema_mirror gate is flag-NAME-parity and is NOT affected). No FOLLOWUP filed — revisit if GUI convert-form seedqr-input demand surfaces.
+
+### Test totals
+
+- 353 cells passing; 1 ignored. Clippy clean.
+
+### Cycle topology
+
+Cycle 13b — GUI lockstep for Cycle 13 / toolkit v0.31.6.
+
+---
+
 ## mnemonic-gui [0.16.1] — 2026-05-21
 
 **SemVer-PATCH release.** Optional follow-on companion to `mnemonic-toolkit-v0.31.3` (SeedQR slot input). Closes `gui-seedqr-slot-subkey-help-mirror` FOLLOWUP filed at toolkit Cycle 10 close. The toolkit schema_mirror gate compares clap flag-NAME parity NOT value-content, so this bump is non-blocking — but desirable for `seedqr` slot subkey discoverability in the GUI SlotEditor dropdown.

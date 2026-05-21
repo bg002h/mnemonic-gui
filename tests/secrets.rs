@@ -261,6 +261,8 @@ fn secret_node_types_set_pinned() {
         "ms1",
         "bip38",
         "electrum-phrase",
+        // v0.16.2 (toolkit v0.31.6): seedqr NodeType added (secret-bearing).
+        "seedqr",
     ]
     .into_iter()
     .collect();

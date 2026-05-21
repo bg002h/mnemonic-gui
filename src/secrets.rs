@@ -47,6 +47,10 @@ mod v0_3_canonical_fallback {
         "ms1",
         "bip38",
         "electrum-phrase",
+        // v0.16.2 (toolkit v0.31.6): `seedqr` added as a NodeType (decodes
+        // to a BIP-39 phrase; secret-bearing). Closes the supply-chain
+        // drift fired by the toolkit pin bump v0.31.3 → v0.31.6.
+        "seedqr",
     ];
 
     /// Snapshot of `SECRET_SLOT_SUBKEYS`. Maintained in lockstep with
