@@ -3,6 +3,26 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## mnemonic-gui [0.14.0] — 2026-05-21
+
+**SemVer-MINOR release.** Paired companion to `mnemonic-toolkit-v0.29.0`'s SemVer-minor cliff (xpub-search result tagged-enum conversion + `ImportProvenance::Bsms(Option<_>)` 2-variant split + `error.rs` retroactive alphabetical sort).
+
+### Lockstep
+
+- Toolkit pin bumped `mnemonic-toolkit-v0.28.4` → `mnemonic-toolkit-v0.29.0` (4 toolkit releases captured: v0.28.5 docs + v0.28.6 test-hygiene + v0.28.7 hardening + v0.29.0 SemVer-minor cliff).
+- `pinned-upstream.toml` `[mnemonic].tag` documentary mirror updated.
+- `src/schema/mnemonic.rs`: **no edit needed.** The clap flag-name surface is byte-identical across all 4 captured toolkit releases (the wire-shape break is serde-output-only). Cycle 4 P0 recon dossier + Phase 6 verification confirmed `gui-schema` JSON byte-identical between v0.28.7 and v0.29.0.
+
+### Downstream wire-shape break (informational; not gated by `schema_mirror`)
+
+The toolkit v0.29.0 xpub-search result types switch from struct → `#[serde(tag = "result", rename_all = "snake_case")]` tagged enums. Consumers of `mnemonic xpub-search --json` output checking `.path === null` (or similar null-on-no-match patterns) break — the `path` / `template` / `account` keys are absent on `no_match` rather than null. The discriminator field name is preserved as `"result"` (`"match"` / `"no_match"`).
+
+**GUI's runtime consumers of xpub-search JSON output have NO automated drift gate** — the `schema_mirror` integration test enforces clap flag-name parity only, not JSON wire-shape. Tracked at toolkit FOLLOWUP `schema-mirror-flag-name-vs-wire-shape-conceptual-clarification` (filed v0.29.0).
+
+### Cycle context
+
+Cycle 4 of the v0.28+ residual FOLLOWUP release plan (Wave 3 SemVer-minor cliff + paired GUI). Tracked in toolkit `design/BRAINSTORM_v0_28_plus_residual_followups.md`. Toolkit-first ordering: toolkit `mnemonic-toolkit-v0.29.0` tag landed first; GUI tag lands second; closure-verification confirms GUI CI's `schema_mirror` gate passes against the new pin.
+
 ## mnemonic-gui [0.13.0] — 2026-05-20
 
 Minor release: paired companion to `mnemonic-toolkit-v0.28.4`. Adds the `coldcard-multisig` value to the `export-wallet --format` dropdown via `EXPORT_FORMATS` schema-mirror constant. Closes the asymmetry where `--format coldcard-multisig` was accepted on the import side (already in `IMPORT_WALLET_FORMATS`) but rejected on the export side. The toolkit's new `CliExportFormat::ColdcardMultisig` variant refuses singlesig templates with a pointer to `--format coldcard`; the GUI dropdown shows the value but downstream refusal is the toolkit's responsibility.
