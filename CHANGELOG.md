@@ -3,6 +3,32 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## mnemonic-gui [0.18.1] — 2026-05-21
+
+**SemVer-PATCH — schema-mirror lockstep** for `mnemonic-toolkit-v0.33.2`'s new `import-wallet --decrypt-password*` flags (Electrum BIE1 storage-encrypted wallet import, Cycle 19 Phase B). Net-new flag NAMEs on an existing subcommand trip the `schema_mirror` flag-NAME-parity gate. Closes `gui-import-wallet-decrypt-password-mirror`.
+
+### Lockstep
+
+- Toolkit pin: `mnemonic-toolkit-v0.33.1 → mnemonic-toolkit-v0.33.2`.
+
+### Added
+
+- Three flags on the `import-wallet` SubcommandSchema: `--decrypt-password` (Text, **secret**), `--decrypt-password-file` (Path), `--decrypt-password-stdin` (Boolean, **secret**).
+
+### Secret-handling
+
+- `--decrypt-password` + `--decrypt-password-stdin` carry `secret: true` (GUI masking + paste-warn/run-confirm + exit-time zeroize). This mirrors the toolkit's `flag_is_secret`, which has classified these flag names as secret since v0.33.1 — so the `schema_mirror_secret_drift` gate (the v0.3.0–v0.3.2 BIP-39 persistence-leak class) stays green for the new `import-wallet` projection. `--decrypt-password-file` is non-secret (its value is a filesystem path).
+
+### Test totals
+
+- 353 cells passing; 1 ignored. Clippy clean. `schema_mirror` (flag-name parity, now incl. the three import-wallet flags) + `schema_mirror_secret_drift` both green against the pinned v0.33.2 binary.
+
+### Cycle topology
+
+Cycle 19b — GUI lockstep for toolkit v0.33.2 (Electrum BIE1 storage import; completes the Electrum-encryption arc).
+
+---
+
 ## mnemonic-gui [0.18.0] — 2026-05-21
 
 **SemVer-MINOR release.** MANDATORY schema-mirror lockstep for `mnemonic-toolkit-v0.33.0`'s NEW `electrum-decrypt` subcommand (decrypt an Electrum field-encrypted secret → plaintext). A new subcommand is a hard `schema_mirror` trip. Closes `gui-electrum-decrypt-subcommand-mirror` FOLLOWUP.

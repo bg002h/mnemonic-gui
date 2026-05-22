@@ -1765,6 +1765,46 @@ const IMPORT_WALLET_FLAGS: &[FlagSchema] = &[
         default_value: None,
         global: false,
     },
+    // v0.33.2 (toolkit Cycle 19 Phase B) — Electrum BIE1 (user-password)
+    // storage-encrypted wallet decryption. Optional, mutually-exclusive group;
+    // only consumed when `--blob` is a BIE1 storage blob. `--decrypt-password`
+    // + `--decrypt-password-stdin` are secret (mirrors toolkit
+    // `flag_is_secret`, classified since v0.33.1); `--decrypt-password-file`
+    // holds a PATH (non-secret).
+    FlagSchema {
+        name: "--decrypt-password",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "Password for an Electrum BIE1 storage-encrypted wallet (inline). \
+               Emits an argv-leakage advisory; prefer --decrypt-password-file \
+               or --decrypt-password-stdin.",
+        secret: true,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--decrypt-password-file",
+        kind: FlagKind::Path { stdio_sentinel: false },
+        required: false,
+        repeating: false,
+        help: "Read the BIE1 decryption password from a file (trailing newline \
+               stripped).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--decrypt-password-stdin",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Read the BIE1 decryption password from stdin. Cannot co-exist \
+               with --blob=- or --bsms-encryption-token=-.",
+        secret: true,
+        default_value: None,
+        global: false,
+    },
     NO_AUTO_REPAIR_FLAG,
 ];
 
