@@ -3,6 +3,32 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## mnemonic-gui [0.19.0] — 2026-05-22
+
+**SemVer-MINOR release — schema-mirror lockstep** for `mnemonic-toolkit-v0.34.0`'s new `mnemonic nostr` subcommand (Nostr key derivation from BIP-39 seed / secret). A net-new subcommand trips the `schema_mirror` flag-NAME-parity gate. Closes `gui-nostr-schema-mirror`.
+
+### Lockstep
+
+- Toolkit pin: `mnemonic-toolkit-v0.33.2 → mnemonic-toolkit-v0.34.0`.
+
+### Added
+
+- `NOSTR_FLAGS` SubcommandSchema + `nostr` registration. Flags: `--all-script-types` (Boolean), `--json` (Boolean), `--network` (Dropdown mainnet/testnet/signet/regtest, default mainnet), `--no-auto-repair` (global), `--pubkey` (Text), `--script-type` (Text — custom value_parser, NOT a dropdown), `--secret` (Text, **secret**), `--secret-file` (Path), `--secret-stdin` (Boolean, **secret**).
+
+### Secret-handling
+
+- `--secret` + `--secret-stdin` carry `secret: true` (GUI masking + paste-warn/run-confirm + exit-time zeroize). This mirrors the toolkit's `flag_is_secret` classification for `nostr --secret` and `--secret-stdin` (Cycle 20 C1). `--secret-file` is non-secret (its value is a filesystem path); `--pubkey` is non-secret (public key).
+
+### Test totals
+
+- All tests passing; 1 ignored. Clippy clean. `schema_mirror` (flag-name parity, now including `nostr`) + `schema_mirror_secret_drift` (the two new secret flags) both green against the pinned v0.34.0 binary.
+
+### Cycle topology
+
+Cycle 20 C5 — GUI lockstep for toolkit v0.34.0 (`mnemonic nostr` subcommand).
+
+---
+
 ## mnemonic-gui [0.18.1] — 2026-05-21
 
 **SemVer-PATCH — schema-mirror lockstep** for `mnemonic-toolkit-v0.33.2`'s new `import-wallet --decrypt-password*` flags (Electrum BIE1 storage-encrypted wallet import, Cycle 19 Phase B). Net-new flag NAMEs on an existing subcommand trip the `schema_mirror` flag-NAME-parity gate. Closes `gui-import-wallet-decrypt-password-mirror`.

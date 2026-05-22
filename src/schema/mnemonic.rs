@@ -2533,6 +2533,101 @@ const ELECTRUM_DECRYPT_FLAGS: &[FlagSchema] = &[
     NO_AUTO_REPAIR_FLAG,
 ];
 
+// ─── nostr ───────────────────────────────────────────────────────────────
+// toolkit v0.34.0: derive Nostr keys (nsec/npub NIP-19) from a BIP-39
+// seed. Accepts either a `--secret` (seed phrase / ms1 / BIP-38 / WIF /
+// xprv, any secret NodeType) or a `--pubkey` (nsec/npub, for address/
+// descriptor derivation only). `--network` drives address encoding.
+// `--script-type` is a plain TEXT flag (custom value_parser in the toolkit,
+// NOT a ValueEnum/dropdown). `--secret` + `--secret-stdin` are secret-class
+// (zeroize, paste-warn, run-confirm). `--no-auto-repair` is the global flag.
+const NOSTR_FLAGS: &[FlagSchema] = &[
+    FlagSchema {
+        name: "--all-script-types",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Emit addresses + descriptors for all script types.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--json",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Emit JSON envelope instead of human-readable output.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--network",
+        kind: FlagKind::Dropdown(NETWORKS),
+        required: false,
+        repeating: false,
+        help: "Bitcoin network for address encoding (default mainnet).",
+        secret: false,
+        default_value: Some("mainnet"),
+        global: false,
+    },
+    NO_AUTO_REPAIR_FLAG,
+    FlagSchema {
+        name: "--pubkey",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "Nostr public key (nsec or npub NIP-19). For address/descriptor \
+               derivation; mutually exclusive with --secret.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--script-type",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "Script type for address / descriptor derivation \
+               (e.g. p2wpkh, p2sh-p2wpkh, p2tr).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--secret",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "Secret input (BIP-39 phrase, ms1, xprv, WIF, BIP-38, etc.). \
+               Mutually exclusive with --pubkey.",
+        secret: true,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--secret-file",
+        kind: FlagKind::Path { stdio_sentinel: false },
+        required: false,
+        repeating: false,
+        help: "Read secret input from a file.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--secret-stdin",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Read secret input from stdin.",
+        secret: true,
+        default_value: None,
+        global: false,
+    },
+];
+
 // ─── SCHEMA constant ─────────────────────────────────────────────────────
 
 // Phase 5: wire the conditional-visibility fn pointers per subcommand.
@@ -2585,6 +2680,15 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
         name: "electrum-decrypt",
         human_name: "Electrum Decrypt (field-encrypted secret → plaintext)",
         flags: ELECTRUM_DECRYPT_FLAGS,
+        positional_args: NO_POSITIONALS,
+        allows_slots: false,
+        conditional: None,
+    },
+    // toolkit v0.34.0: Nostr key derivation from a BIP-39 seed / secret.
+    SubcommandSchema {
+        name: "nostr",
+        human_name: "Nostr (derive Nostr nsec/npub from seed)",
+        flags: NOSTR_FLAGS,
         positional_args: NO_POSITIONALS,
         allows_slots: false,
         conditional: None,
@@ -2737,6 +2841,6 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
 // drift here is a cosmetic banner mismatch, not a functional error.
 pub const SCHEMA: Schema = Schema {
     cli_name: "mnemonic",
-    pinned_version: "mnemonic 0.26.0",
+    pinned_version: "mnemonic 0.34.0",
     subcommands: SUBCOMMANDS,
 };
