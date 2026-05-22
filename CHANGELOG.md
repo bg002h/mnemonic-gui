@@ -3,6 +3,32 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## mnemonic-gui [0.18.0] — 2026-05-21
+
+**SemVer-MINOR release.** MANDATORY schema-mirror lockstep for `mnemonic-toolkit-v0.33.0`'s NEW `electrum-decrypt` subcommand (decrypt an Electrum field-encrypted secret → plaintext). A new subcommand is a hard `schema_mirror` trip. Closes `gui-electrum-decrypt-subcommand-mirror` FOLLOWUP.
+
+### Lockstep
+
+- Toolkit pin: `mnemonic-toolkit-v0.32.0 → mnemonic-toolkit-v0.33.1`. (The v0.32.1/.2/.3 patches between were test-only / behavior-expansion / `repeating`-cardinality — no flag-NAME or subcommand change — so they required no GUI bump; the schema_mirror gate confirmed zero accumulated flag-name drift across the jump beyond `electrum-decrypt`.)
+
+### Added
+
+- `ELECTRUM_DECRYPT_FLAGS` SubcommandSchema + `electrum-decrypt` registration. Flags: `--ciphertext` (Text, required), `--decrypt-password` (Text, **secret**), `--decrypt-password-file` (Path), `--decrypt-password-stdin` (Boolean, **secret**), `--json-out` (Path), `--no-auto-repair` (global).
+
+### Secret-handling
+
+- `--decrypt-password` + `--decrypt-password-stdin` carry `secret: true` so the GUI masks the password field, fires the paste-warn / run-confirm modals, and zeroize-sweeps the value at exit. This mirrors `mnemonic-toolkit-v0.33.1`'s `flag_is_secret` fix (the v0.33.0 emission omitted them — caught by this lockstep's `schema_mirror_secret_drift` gate, which is exactly the v0.3.0–v0.3.2 BIP-39 persistence-leak class). `--decrypt-password-file` is non-secret (its value is a filesystem path); `--ciphertext` is non-secret (encrypted material, not plaintext).
+
+### Test totals
+
+- 353 cells passing; 1 ignored. Clippy clean. `schema_mirror` (flag-name parity, now including `electrum-decrypt`) + `schema_mirror_secret_drift` (the two new secret password flags) both green against the pinned v0.33.1 binary.
+
+### Cycle topology
+
+Cycle 18b — GUI lockstep for Cycle 18 / toolkit v0.33.0+v0.33.1 (first of the final v0.32+ Electrum pair).
+
+---
+
 ## mnemonic-gui [0.17.0] — 2026-05-21
 
 **SemVer-MINOR release.** MANDATORY schema-mirror lockstep for `mnemonic-toolkit-v0.32.0` (CompactSeedQR variant). Closes `gui-seedqr-variant-flag-mirror` FOLLOWUP. `--variant` is a NET-NEW flag NAME on BOTH `mnemonic seedqr encode` AND `mnemonic seedqr decode` — trips the flag-NAME-parity gate on both subcommand schemas.

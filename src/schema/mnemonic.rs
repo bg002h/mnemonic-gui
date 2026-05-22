@@ -2424,6 +2424,75 @@ const XPUB_SEARCH_PASSPHRASE_OF_XPUB_FLAGS: &[FlagSchema] = &[
     NO_AUTO_REPAIR_FLAG,
 ];
 
+// ─── electrum-decrypt ──────────────────────────────────────────────────────
+// toolkit v0.33.0: decrypt an Electrum field-encrypted secret
+// (base64(iv ‖ aes-256-cbc(plaintext + PKCS7)), key = sha256d(password)) →
+// recovered plaintext (Electrum-native seed phrase or BIP-32 xprv). The
+// password is supplied via exactly one of an exclusive struct-level clap
+// arg-group (--decrypt-password / -file / -stdin); the GUI presents all
+// three but the CLI rejects 0 or >1. secret:true on the two inline-value
+// password forms mirrors toolkit v0.33.1 `flag_is_secret`
+// (--decrypt-password-file holds a PATH, not the secret; --ciphertext is
+// encrypted material, not plaintext) — keeps `schema_mirror_secret_drift`
+// green.
+const ELECTRUM_DECRYPT_FLAGS: &[FlagSchema] = &[
+    FlagSchema {
+        name: "--ciphertext",
+        kind: FlagKind::Text,
+        required: true,
+        repeating: false,
+        help: "The base64 Electrum field-encrypted value to decrypt. \
+               `-` reads the ciphertext from stdin.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--decrypt-password",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "Decryption password (inline). Leaks via argv/process table; \
+               prefer --decrypt-password-file or --decrypt-password-stdin.",
+        secret: true,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--decrypt-password-file",
+        kind: FlagKind::Path { stdio_sentinel: false },
+        required: false,
+        repeating: false,
+        help: "Read the decryption password from a file (one trailing \
+               newline stripped).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--decrypt-password-stdin",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Read the decryption password from stdin.",
+        secret: true,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--json-out",
+        kind: FlagKind::Path { stdio_sentinel: false },
+        required: false,
+        repeating: false,
+        help: "Write a JSON envelope {schema_version, operation, plaintext} \
+               to PATH instead of emitting plaintext on stdout.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    NO_AUTO_REPAIR_FLAG,
+];
+
 // ─── SCHEMA constant ─────────────────────────────────────────────────────
 
 // Phase 5: wire the conditional-visibility fn pointers per subcommand.
@@ -2470,6 +2539,15 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
         positional_args: NO_POSITIONALS,
         allows_slots: false,
         conditional: Some(crate::form::conditional::derive_child),
+    },
+    // toolkit v0.33.0: Electrum field-encrypted-secret decryption.
+    SubcommandSchema {
+        name: "electrum-decrypt",
+        human_name: "Electrum Decrypt (field-encrypted secret → plaintext)",
+        flags: ELECTRUM_DECRYPT_FLAGS,
+        positional_args: NO_POSITIONALS,
+        allows_slots: false,
+        conditional: None,
     },
     SubcommandSchema {
         name: "final-word",
