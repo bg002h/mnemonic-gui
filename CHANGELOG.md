@@ -3,6 +3,32 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## mnemonic-gui [0.19.1] — 2026-05-22
+
+**SemVer-PATCH release — schema-mirror lockstep** for `mnemonic-toolkit-v0.34.2`'s two new `mnemonic nostr` flags (`--import`, `--timestamp`). Net-new flag NAMEs trip the `schema_mirror` flag-NAME-parity gate.
+
+### Lockstep
+
+- Toolkit pin: `mnemonic-toolkit-v0.34.0 → mnemonic-toolkit-v0.34.2` (`pinned-upstream.toml` + `Cargo.toml` git-dep tag, in lockstep). v0.34.1 was internal-only (no CLI surface change → no GUI lockstep).
+
+### Added
+
+- `NOSTR_FLAGS`: `--import` (Text — value-valued `readonly`; emits a read-only Bitcoin Core `importdescriptors` recipe; `spending`/`both` are reserved/refused) and `--timestamp` (Text — `importdescriptors` rescan anchor `now`|unix, default `0`). Both non-secret, plain TEXT (toolkit value_parsers, NOT dropdowns).
+
+### Secret-handling
+
+- Neither new flag is secret-bearing: `--import` is a mode selector, `--timestamp` is a rescan anchor. `schema_mirror_secret_drift` confirms parity (toolkit's `flag_is_secret` does not classify either).
+
+### Test totals
+
+- All tests passing. Clippy clean. `schema_mirror` (flag-name parity, now including `nostr --import`/`--timestamp`) + `schema_mirror_secret_drift` both green against the pinned v0.34.2 binary.
+
+### Cycle topology
+
+Cycle 21 — GUI lockstep for toolkit v0.34.2 (`mnemonic nostr --import` read-only importdescriptors).
+
+---
+
 ## mnemonic-gui [0.19.0] — 2026-05-22
 
 **SemVer-MINOR release — schema-mirror lockstep** for `mnemonic-toolkit-v0.34.0`'s new `mnemonic nostr` subcommand (Nostr key derivation from BIP-39 seed / secret). A net-new subcommand trips the `schema_mirror` flag-NAME-parity gate. Closes `gui-nostr-schema-mirror`.

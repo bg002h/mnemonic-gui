@@ -2541,6 +2541,9 @@ const ELECTRUM_DECRYPT_FLAGS: &[FlagSchema] = &[
 // `--script-type` is a plain TEXT flag (custom value_parser in the toolkit,
 // NOT a ValueEnum/dropdown). `--secret` + `--secret-stdin` are secret-class
 // (zeroize, paste-warn, run-confirm). `--no-auto-repair` is the global flag.
+// toolkit v0.34.2: `--import <readonly>` emits a read-only Bitcoin Core
+// importdescriptors recipe; `--timestamp <now|unix>` (default `0`) is its
+// rescan anchor. Both plain TEXT, non-secret (value_parsers in the toolkit).
 const NOSTR_FLAGS: &[FlagSchema] = &[
     FlagSchema {
         name: "--all-script-types",
@@ -2548,6 +2551,19 @@ const NOSTR_FLAGS: &[FlagSchema] = &[
         required: false,
         repeating: false,
         help: "Emit addresses + descriptors for all script types.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    // toolkit v0.34.2: read-only Bitcoin Core importdescriptors recipe.
+    // Value-valued (`readonly`); `spending`/`both` are reserved (refused).
+    FlagSchema {
+        name: "--import",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "Emit a ready-to-paste Bitcoin Core importdescriptors recipe \
+               for the derived address(es). `readonly` = watch-only.",
         secret: false,
         default_value: None,
         global: false,
@@ -2624,6 +2640,19 @@ const NOSTR_FLAGS: &[FlagSchema] = &[
         help: "Read secret input from stdin.",
         secret: true,
         default_value: None,
+        global: false,
+    },
+    // toolkit v0.34.2: importdescriptors rescan anchor (only used with
+    // --import). `now` or unix seconds; default `0` = rescan from genesis.
+    FlagSchema {
+        name: "--timestamp",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "Bitcoin Core importdescriptors rescan anchor: `now` or unix \
+               seconds. Default `0` (rescan from genesis). Used with --import.",
+        secret: false,
+        default_value: Some("0"),
         global: false,
     },
 ];
