@@ -1805,6 +1805,20 @@ const IMPORT_WALLET_FLAGS: &[FlagSchema] = &[
         default_value: None,
         global: false,
     },
+    // toolkit v0.34.6: signet/regtest disambiguation override. Reuses the
+    // NETWORKS dropdown; honored only within the parsed coin-type class.
+    FlagSchema {
+        name: "--network",
+        kind: FlagKind::Dropdown(NETWORKS),
+        required: false,
+        repeating: false,
+        help: "Re-bind the imported network to disambiguate signet/regtest from \
+               the coin-type-1→testnet collapse; honored only within the parsed \
+               coin-type class (testnet ↔ testnet/signet/regtest; mainnet ↔ mainnet).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
     NO_AUTO_REPAIR_FLAG,
 ];
 

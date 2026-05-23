@@ -3,6 +3,28 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## mnemonic-gui [0.19.2] — 2026-05-22
+
+**SemVer-PATCH release — schema-mirror lockstep** for `mnemonic-toolkit-v0.34.6`'s new `import-wallet --network` flag. A net-new clap flag NAME trips the `schema_mirror` flag-NAME-parity gate.
+
+### Lockstep
+
+- Toolkit pin: `mnemonic-toolkit-v0.34.2 → mnemonic-toolkit-v0.34.6` (`pinned-upstream.toml` + `Cargo.toml` git-dep, in lockstep). v0.34.3/v0.34.4/v0.34.5 were toolkit-only (no CLI surface change → no GUI lockstep), so the only schema-mirror delta is `--network` on `import-wallet`.
+
+### Added
+
+- `IMPORT_WALLET_FLAGS`: `--network` (Dropdown `NETWORKS` = mainnet/testnet/signet/regtest) — the toolkit's signet/regtest disambiguation override (re-binds the imported network within the parsed coin-type class). Non-secret.
+
+### Test totals
+
+- All tests passing. Clippy clean. `schema_mirror` (flag-name parity, now incl. `import-wallet --network`) + `schema_mirror_secret_drift` green against the pinned v0.34.6 binary.
+
+### Cycle topology
+
+Cycle 25 — GUI lockstep for toolkit v0.34.6 (`import-wallet --network` signet/regtest override).
+
+---
+
 ## mnemonic-gui [0.19.1] — 2026-05-22
 
 **SemVer-PATCH release — schema-mirror lockstep** for `mnemonic-toolkit-v0.34.2`'s two new `mnemonic nostr` flags (`--import`, `--timestamp`). Net-new flag NAMEs trip the `schema_mirror` flag-NAME-parity gate.
