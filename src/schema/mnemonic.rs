@@ -2671,6 +2671,101 @@ const NOSTR_FLAGS: &[FlagSchema] = &[
     },
 ];
 
+// ─── silent-payment ──────────────────────────────────────────────────────
+// toolkit v0.35.0: derive a BIP-352 Silent Payments **receiver** static
+// address from a seed-bearing secret. Scan key `m/352'/coin'/account'/1'/0`
+// + spend key `.../0'/0` → the base `sp1…`/`tsp1…` address (`B_scan‖B_spend`),
+// plus labeled addresses via `--label <m>` (m≥1; `--label 0` is refused —
+// the reserved change label must never be published). `--secret` +
+// `--secret-stdin` are secret-class (zeroize, paste-warn, run-confirm);
+// `--secret-file` is a plain path. Single-key WIF/minikey is refused (cannot
+// derive `m/352'`). `--network` drives the HRP (`sp` mainnet / `tsp` else)
+// + coin-type (0 mainnet / 1 testnet|signet|regtest). `--no-auto-repair` is
+// the global flag. `--account` matches the BIP-32 hardened-index ceiling
+// (2^31-1); `--label` is a repeating u32 (m≥1).
+const SILENT_PAYMENT_FLAGS: &[FlagSchema] = &[
+    FlagSchema {
+        name: "--account",
+        kind: FlagKind::Number {
+            min: 0,
+            max: NumberMax::Static(2_147_483_647),
+        },
+        required: false,
+        repeating: false,
+        help: "BIP-32 account index (hardened; default 0).",
+        secret: false,
+        default_value: Some("0"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--json",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Emit JSON envelope instead of human-readable output.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--label",
+        kind: FlagKind::Number {
+            min: 1,
+            max: NumberMax::Static(4_294_967_295),
+        },
+        required: false,
+        repeating: true,
+        help: "Emit a labeled address for label index m (≥1; repeatable). \
+               m=0 is reserved for change and is refused.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--network",
+        kind: FlagKind::Dropdown(NETWORKS),
+        required: false,
+        repeating: false,
+        help: "Bitcoin network: drives the HRP (sp mainnet / tsp else) and \
+               coin-type (default mainnet).",
+        secret: false,
+        default_value: Some("mainnet"),
+        global: false,
+    },
+    NO_AUTO_REPAIR_FLAG,
+    FlagSchema {
+        name: "--secret",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "Seed-bearing secret (BIP-39 phrase, ms1, entropy-hex, or \
+               master xprv). Single-key WIF/minikey is refused.",
+        secret: true,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--secret-file",
+        kind: FlagKind::Path { stdio_sentinel: false },
+        required: false,
+        repeating: false,
+        help: "Read the seed-bearing secret from a file.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--secret-stdin",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Read the seed-bearing secret from stdin.",
+        secret: true,
+        default_value: None,
+        global: false,
+    },
+];
+
 // ─── SCHEMA constant ─────────────────────────────────────────────────────
 
 // Phase 5: wire the conditional-visibility fn pointers per subcommand.
@@ -2732,6 +2827,15 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
         name: "nostr",
         human_name: "Nostr (derive Nostr nsec/npub from seed)",
         flags: NOSTR_FLAGS,
+        positional_args: NO_POSITIONALS,
+        allows_slots: false,
+        conditional: None,
+    },
+    // toolkit v0.35.0: BIP-352 Silent Payments receiver static address.
+    SubcommandSchema {
+        name: "silent-payment",
+        human_name: "Silent Payment (BIP-352 receiver sp1… address from seed)",
+        flags: SILENT_PAYMENT_FLAGS,
         positional_args: NO_POSITIONALS,
         allows_slots: false,
         conditional: None,
@@ -2884,6 +2988,6 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
 // drift here is a cosmetic banner mismatch, not a functional error.
 pub const SCHEMA: Schema = Schema {
     cli_name: "mnemonic",
-    pinned_version: "mnemonic 0.34.0",
+    pinned_version: "mnemonic 0.35.0",
     subcommands: SUBCOMMANDS,
 };
