@@ -3,6 +3,10 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## mnemonic-gui [0.19.3] — 2026-05-23
+
+**SemVer-PATCH — upstream pin bumps for the m-format argv-hardening rollout.** Bumps the pinned upstreams for the cross-repo `PR_SET_DUMPABLE` argv-hardening cycle: `mnemonic-toolkit-v0.34.6 → v0.34.7`, `descriptor-mnemonic-md-cli-v0.6.0 → v0.6.1`, `ms-cli-v0.4.0 → v0.4.1`, `mk-cli-v0.4.0 → v0.4.2` (the mk pin was a version behind — catch-up to v0.4.2). No schema change: the argv-hardening is process-internal (`prctl`), with no CLI flag/subcommand surface, so the `schema_mirror` gate is unaffected. `pinned-upstream.toml` + `Cargo.toml` git-dep, in lockstep.
+
 ## mnemonic-gui [0.19.2] — 2026-05-22
 
 **SemVer-PATCH release — schema-mirror lockstep** for `mnemonic-toolkit-v0.34.6`'s new `import-wallet --network` flag. A net-new clap flag NAME trips the `schema_mirror` flag-NAME-parity gate.

@@ -19,7 +19,7 @@
 url = "https://github.com/bg002h/mnemonic-toolkit"
 # Cross-cite with Cargo.toml's [dependencies] mnemonic-toolkit tag.
 # Both should bump in lockstep when the toolkit is upgraded.
-tag = "mnemonic-toolkit-v0.34.6"
+tag = "mnemonic-toolkit-v0.34.7"
 bin = "mnemonic"
 workspace-member-path = "crates/mnemonic-toolkit"
 # v0.2 Phase C.1: GUI consults `<cli> gui-schema` JSON path when true;
@@ -35,21 +35,21 @@ gui-schema-capable = true
 # can't fire a false-positive banner. R1 reviewer may flag if a
 # different tag is preferable.
 url = "https://github.com/bg002h/descriptor-mnemonic"
-tag = "descriptor-mnemonic-md-cli-v0.6.0"
+tag = "descriptor-mnemonic-md-cli-v0.6.1"
 bin = "md"
 workspace-member-path = "crates/md-cli"
 gui-schema-capable = true
 
 [ms]
 url = "https://github.com/bg002h/mnemonic-secret"
-tag = "ms-cli-v0.4.0"
+tag = "ms-cli-v0.4.1"
 bin = "ms"
 workspace-member-path = "crates/ms-cli"
 gui-schema-capable = true
 
 [mk]
 url = "https://github.com/bg002h/mnemonic-key"
-tag = "mk-cli-v0.4.0"
+tag = "mk-cli-v0.4.2"
 bin = "mk"
 workspace-member-path = "crates/mk-cli"
 gui-schema-capable = true

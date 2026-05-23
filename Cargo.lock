@@ -2251,7 +2251,7 @@ dependencies = [
 
 [[package]]
 name = "mnemonic-gui"
-version = "0.19.2"
+version = "0.19.3"
 dependencies = [
  "clap",
  "ctrlc",
@@ -2281,8 +2281,8 @@ dependencies = [
 
 [[package]]
 name = "mnemonic-toolkit"
-version = "0.34.6"
-source = "git+https://github.com/bg002h/mnemonic-toolkit?tag=mnemonic-toolkit-v0.34.6#6e718ad89596f2d7d04c055e9f84782303720365"
+version = "0.34.7"
+source = "git+https://github.com/bg002h/mnemonic-toolkit?tag=mnemonic-toolkit-v0.34.7#127f9ed2aaaec3833679ee3bb0d0c0d7797321b7"
 dependencies = [
  "aes",
  "base64 0.22.1",
