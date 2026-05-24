@@ -3,6 +3,15 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## mnemonic-gui [0.21.0] — 2026-05-23
+
+**SemVer-MINOR — schema-mirror lockstep for `mnemonic-toolkit-v0.36.0`'s two new subcommands `decode-address` + `verify-message`.** Adds both `SubcommandSchema`s to `src/schema/mnemonic.rs`:
+
+- `decode-address`: positional `<address>` + `--json` + global `--no-auto-repair` (the first GUI schema entry with a non-empty `positional_args`).
+- `verify-message`: `--address` (text, required), `--format` (dropdown `auto`/`legacy`/`bip322`, default `auto`), `--message`, `--message-file` (path), `--message-stdin`, `--signature` (text, required), `--json`, global `--no-auto-repair`.
+
+Both are public-data operations — **no secret flags**, so no secret-projection delta (`flag_is_secret` unchanged). Net-new subcommands trip the `schema_mirror` flag-NAME gate → MINOR (nostr/silent-payment precedent). Toolkit pin `mnemonic-toolkit-v0.35.0 → v0.36.0` (`pinned-upstream.toml` + `Cargo.toml` git-dep + `Cargo.lock`, in lockstep).
+
 ## mnemonic-gui [0.20.0] — 2026-05-23
 
 **SemVer-MINOR — schema-mirror lockstep for `mnemonic-toolkit-v0.35.0`'s new `mnemonic silent-payment` subcommand (BIP-352 receiver address).** Adds the `silent-payment` `SubcommandSchema` to `src/schema/mnemonic.rs`: `--account` (number, hardened ≤ 2³¹−1, default 0), `--json` (bool), `--label` (repeating number, m≥1; m=0 refused), `--network` (dropdown `NETWORKS`, default mainnet), `--no-auto-repair` (global), `--secret` (text, **secret**), `--secret-file` (path), `--secret-stdin` (bool, **secret**). The net-new subcommand trips the `schema_mirror` flag-NAME-parity gate, hence the MINOR bump (matching the nostr/seedqr new-subcommand precedent). Secret projection (`--secret`/`--secret-stdin` masked + zeroized; `--secret-file` plain) inherits from the toolkit's `flag_is_secret`. Toolkit pin `mnemonic-toolkit-v0.34.7 → v0.35.0` (`pinned-upstream.toml` + `Cargo.toml` git-dep, in lockstep).

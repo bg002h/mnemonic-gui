@@ -27,6 +27,8 @@ const NO_POSITIONALS: &[PositionalArgSchema] = &[];
 // ─── Shared dropdown option lists ───────────────────────────────────────
 
 const NETWORKS: &[&str] = &["mainnet", "testnet", "signet", "regtest"];
+// toolkit v0.36.0: `verify-message --format` value-enum.
+const VERIFY_FORMATS: &[&str] = &["auto", "legacy", "bip322"];
 
 const TEMPLATES: &[&str] = &[
     "bip44",
@@ -2766,6 +2768,109 @@ const SILENT_PAYMENT_FLAGS: &[FlagSchema] = &[
     },
 ];
 
+// ─── decode-address ──────────────────────────────────────────────────────
+// toolkit v0.36.0: decode a Bitcoin address → network(s) / script type /
+// witness version / scriptPubKey. Public-data; no secrets. Takes a required
+// positional <address>; `--json` + the global `--no-auto-repair`.
+const DECODE_ADDRESS_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
+    name: "address",
+    required: true,
+    repeating: false,
+    help: "The Bitcoin address to decode (P2PKH / P2SH / P2WPKH / P2WSH / P2TR, any network).",
+}];
+const DECODE_ADDRESS_FLAGS: &[FlagSchema] = &[
+    FlagSchema {
+        name: "--json",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Emit a JSON envelope instead of the human-readable block.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    NO_AUTO_REPAIR_FLAG,
+];
+
+// ─── verify-message ──────────────────────────────────────────────────────
+// toolkit v0.36.0: VERIFY-ONLY (no signing) Bitcoin message-signature
+// verification — legacy "Bitcoin Signed Message" (P2PKH) + BIP-322 simple
+// (P2WPKH/P2SH-P2WPKH/P2TR). Public operation; no secrets. Exactly one of
+// --message / --message-file / --message-stdin is required (clap ArgGroup).
+const VERIFY_MESSAGE_FLAGS: &[FlagSchema] = &[
+    FlagSchema {
+        name: "--address",
+        kind: FlagKind::Text,
+        required: true,
+        repeating: false,
+        help: "The address the message was signed by.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--format",
+        kind: FlagKind::Dropdown(VERIFY_FORMATS),
+        required: false,
+        repeating: false,
+        help: "Signature format: auto (default; legacy for P2PKH, BIP-322 otherwise), legacy, or bip322.",
+        secret: false,
+        default_value: Some("auto"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--json",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Emit a JSON envelope instead of the human-readable line.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--message",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "The signed message, inline (exact bytes).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--message-file",
+        kind: FlagKind::Path { stdio_sentinel: false },
+        required: false,
+        repeating: false,
+        help: "Read the message from a file (a single trailing newline is stripped).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--message-stdin",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Read the message from stdin (a single trailing newline is stripped).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    NO_AUTO_REPAIR_FLAG,
+    FlagSchema {
+        name: "--signature",
+        kind: FlagKind::Text,
+        required: true,
+        repeating: false,
+        help: "The signature (base64): a 65-byte recoverable sig (legacy) or a BIP-322 witness encoding.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+];
+
 // ─── SCHEMA constant ─────────────────────────────────────────────────────
 
 // Phase 5: wire the conditional-visibility fn pointers per subcommand.
@@ -2836,6 +2941,24 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
         name: "silent-payment",
         human_name: "Silent Payment (BIP-352 receiver sp1… address from seed)",
         flags: SILENT_PAYMENT_FLAGS,
+        positional_args: NO_POSITIONALS,
+        allows_slots: false,
+        conditional: None,
+    },
+    // toolkit v0.36.0: decode a Bitcoin address (public-data; positional <address>).
+    SubcommandSchema {
+        name: "decode-address",
+        human_name: "Decode Address (address → network / type / scriptPubKey)",
+        flags: DECODE_ADDRESS_FLAGS,
+        positional_args: DECODE_ADDRESS_POSITIONALS,
+        allows_slots: false,
+        conditional: None,
+    },
+    // toolkit v0.36.0: verify a Bitcoin message signature (legacy + BIP-322).
+    SubcommandSchema {
+        name: "verify-message",
+        human_name: "Verify Message (legacy signmessage + BIP-322)",
+        flags: VERIFY_MESSAGE_FLAGS,
         positional_args: NO_POSITIONALS,
         allows_slots: false,
         conditional: None,
@@ -2988,6 +3111,6 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
 // drift here is a cosmetic banner mismatch, not a functional error.
 pub const SCHEMA: Schema = Schema {
     cli_name: "mnemonic",
-    pinned_version: "mnemonic 0.35.0",
+    pinned_version: "mnemonic 0.36.0",
     subcommands: SUBCOMMANDS,
 };
