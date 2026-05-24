@@ -1557,6 +1557,23 @@ const REPAIR_FLAGS: &[FlagSchema] = &[
         default_value: None,
         global: false,
     },
+    // toolkit v0.37.1: indel (insert/delete) recovery budget for transcription
+    // errors that changed the length of a chunk. Integer 0..=4; 0 = disabled
+    // (default). Applies to ms1/mk1 only (md1 has no indel recovery path).
+    FlagSchema {
+        name: "--max-indel",
+        kind: FlagKind::Number {
+            min: 0,
+            max: NumberMax::Static(4),
+        },
+        required: false,
+        repeating: false,
+        help: "Maximum insert/delete (indel) distance for length-mismatch \
+               recovery. 0 disables (default). ms1/mk1 only.",
+        secret: false,
+        default_value: Some("0"),
+        global: false,
+    },
     NO_AUTO_REPAIR_FLAG,
 ];
 
@@ -3148,6 +3165,6 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
 // drift here is a cosmetic banner mismatch, not a functional error.
 pub const SCHEMA: Schema = Schema {
     cli_name: "mnemonic",
-    pinned_version: "mnemonic 0.36.1",
+    pinned_version: "mnemonic 0.37.1",
     subcommands: SUBCOMMANDS,
 };
