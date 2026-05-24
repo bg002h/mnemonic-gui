@@ -3,6 +3,10 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## mnemonic-gui [0.21.1] — 2026-05-24
+
+**SemVer-PATCH — schema-mirror lockstep for `mnemonic-toolkit-v0.36.1`'s three new `silent-payment` flags.** Adds to `SILENT_PAYMENT_FLAGS` in `src/schema/mnemonic.rs`: `--change-address` (Boolean, non-secret), `--passphrase` (Text, **secret**), `--passphrase-stdin` (Boolean, **secret**). The two passphrase flags inherit secret-projection from the toolkit's `flag_is_secret` (mask/zeroize/paste-warn). Net-new flag NAMES on an existing subcommand → `schema_mirror` lockstep (PATCH, per the v0.19.2 `import-wallet --network` precedent). Toolkit pin `mnemonic-toolkit-v0.36.0 → v0.36.1` (`pinned-upstream.toml` + `Cargo.toml` git-dep + `Cargo.lock`, in lockstep).
+
 ## mnemonic-gui [0.21.0] — 2026-05-23
 
 **SemVer-MINOR — schema-mirror lockstep for `mnemonic-toolkit-v0.36.0`'s two new subcommands `decode-address` + `verify-message`.** Adds both `SubcommandSchema`s to `src/schema/mnemonic.rs`:

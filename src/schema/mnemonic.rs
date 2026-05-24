@@ -2699,6 +2699,19 @@ const SILENT_PAYMENT_FLAGS: &[FlagSchema] = &[
         default_value: Some("0"),
         global: false,
     },
+    // toolkit v0.36.1: also emit the BIP-352 m=0 CHANGE address (internal change
+    // detection only — never hand out). Non-secret (public address).
+    FlagSchema {
+        name: "--change-address",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Also emit the BIP-352 m=0 change address (internal change \
+               detection ONLY; never hand out as a receiving address).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
     FlagSchema {
         name: "--json",
         kind: FlagKind::Boolean,
@@ -2735,6 +2748,30 @@ const SILENT_PAYMENT_FLAGS: &[FlagSchema] = &[
         global: false,
     },
     NO_AUTO_REPAIR_FLAG,
+    // toolkit v0.36.1: BIP-39 passphrase ("25th word"). SECRET (zeroize/mask/
+    // paste-warn) — already covered by the toolkit's flag_is_secret.
+    FlagSchema {
+        name: "--passphrase",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "BIP-39 mnemonic-extension passphrase. Applies to phrase/ms1/\
+               entropy inputs; ignored (with a warning) for an xprv input.",
+        secret: true,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--passphrase-stdin",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Read the BIP-39 passphrase from stdin (whitespace-preserving). \
+               Mutually exclusive with --passphrase and --secret-stdin.",
+        secret: true,
+        default_value: None,
+        global: false,
+    },
     FlagSchema {
         name: "--secret",
         kind: FlagKind::Text,
@@ -3111,6 +3148,6 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
 // drift here is a cosmetic banner mismatch, not a functional error.
 pub const SCHEMA: Schema = Schema {
     cli_name: "mnemonic",
-    pinned_version: "mnemonic 0.36.0",
+    pinned_version: "mnemonic 0.36.1",
     subcommands: SUBCOMMANDS,
 };
