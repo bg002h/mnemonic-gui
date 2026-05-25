@@ -3,6 +3,10 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## mnemonic-gui [0.21.3] — 2026-05-24
+
+**SemVer-PATCH — schema-mirror lockstep for `mnemonic-toolkit-v0.37.3`'s new `repair --max-subst` flag.** Adds `--max-subst` (Number 0..=4, default 0, non-secret) to `REPAIR_FLAGS` in `src/schema/mnemonic.rs`. The flag lets indel recovery also tolerate up to E substitution (wrong-but-in-place) errors alongside the length-changing indels; a substitution-bearing recovery is surfaced as a VERIFY-ME candidate (toolkit exit 4), not a confident correction. Net-new flag NAME on an existing subcommand → `schema_mirror` lockstep (PATCH, per the v0.21.2 `--max-indel` precedent). Also de-stales the mirrored `--max-indel` help/comment from "ms1/mk1 only" to "ms1/mk1/md1" (toolkit v0.37.2 added md1 indel; help text is not gated, this is a correctness fix). Toolkit pin `mnemonic-toolkit-v0.37.1 → v0.37.3` (`pinned-upstream.toml` + `Cargo.toml` git-dep + `Cargo.lock`, in lockstep). `pinned_version` banner bumped to `mnemonic 0.37.3`. `schema_mirror` + `schema_mirror_secret_drift` green; full suite green; clippy clean. No cumulative drift — the v0.37.1 → v0.37.3 pin gap was a single flag addition (`--max-subst`); v0.37.2's md1 indel added no flag.
+
 ## mnemonic-gui [0.21.2] — 2026-05-24
 
 **SemVer-PATCH — schema-mirror lockstep for `mnemonic-toolkit-v0.37.1`'s new `repair --max-indel` flag.** Adds `--max-indel` (Number 0..=4, default 0, non-secret) to `REPAIR_FLAGS` in `src/schema/mnemonic.rs`. The flag enables indel (insert/delete) recovery for transcription errors that changed the length of an ms1/mk1 chunk. Net-new flag NAME on an existing subcommand → `schema_mirror` lockstep (PATCH, per the v0.19.2 `import-wallet --network` precedent). Toolkit pin `mnemonic-toolkit-v0.36.1 → v0.37.1` (`pinned-upstream.toml` + `Cargo.toml` git-dep + `Cargo.lock`, in lockstep). `pinned_version` banner bumped to `mnemonic 0.37.1`. `schema_mirror` + `schema_mirror_secret_drift` green; full suite green; clippy clean. No cumulative drift — the v0.36.1 → v0.37.1 pin gap was a single flag addition.
