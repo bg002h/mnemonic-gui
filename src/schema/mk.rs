@@ -1,9 +1,11 @@
-//! Pinned schema for the `mk` CLI (mk-cli-v0.3.1).
+//! Pinned schema for the `mk` CLI (mk-cli-v0.6.0).
 //!
-//! v0.2 scope: `inspect` (from v0.1) plus `encode`, `decode`, `verify`,
-//! `vectors`. See Phase D.1 audit report at
-//! `design/agent-reports/v0_2-phase-D1-help-audit-r1.md` for per-flag
-//! provenance.
+//! Scope: `inspect` (from v0.1) plus `encode`, `decode`, `verify`, `vectors`;
+//! `repair` (backfilled into the mirror at v0.6 — it shipped in v0.4 but was
+//! never mirrored); and the v0.6 read-only derivation pair `address` + `derive`.
+//! See Phase D.1 audit report at
+//! `design/agent-reports/v0_2-phase-D1-help-audit-r1.md` for the original
+//! per-flag provenance.
 
 use super::{FlagKind, FlagSchema, PositionalArgSchema, Schema, SubcommandSchema};
 
@@ -262,6 +264,144 @@ const VECTORS_FLAGS: &[FlagSchema] = &[
 
 const VECTORS_POSITIONALS: &[PositionalArgSchema] = &[];
 
+// ─── repair (v0.4; backfilled into the mirror at v0.6) ───────────────────
+
+// `mk repair [MK1_STRINGS]... [--json]`
+const REPAIR_FLAGS: &[FlagSchema] = &[FlagSchema {
+    name: "--json",
+    kind: FlagKind::Boolean,
+    required: false,
+    repeating: false,
+    help: "Emit JSON instead of text output.",
+    secret: false,
+    default_value: None,
+    global: false,
+}];
+
+const REPAIR_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
+    name: "mk1-strings",
+    required: false,
+    repeating: true,
+    help: "One or more mk1 strings to repair via BCH error correction. Use `-` for stdin.",
+}];
+
+// ─── address (v0.6) ──────────────────────────────────────────────────────
+
+// `mk address [MK1_STRINGS]... [--address-type] [--count] [--range]
+//             [--chain] [--network] [--json]`
+const ADDRESS_FLAGS: &[FlagSchema] = &[
+    FlagSchema {
+        name: "--address-type",
+        kind: FlagKind::Dropdown(&["p2pkh", "p2sh-p2wpkh", "p2wpkh", "p2tr"]),
+        required: false,
+        repeating: false,
+        help: "Address type; defaults to the account-depth origin-path heuristic.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--count",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "Number of addresses per chain, from index 0 (default 10). Conflicts with --range.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--range",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "Inclusive index range A,B. Conflicts with --count.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--chain",
+        kind: FlagKind::Dropdown(&["receive", "change", "both"]),
+        required: false,
+        repeating: false,
+        help: "Which chain(s) to render: receive (default), change, or both.",
+        secret: false,
+        default_value: Some("receive"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--network",
+        kind: FlagKind::Dropdown(&["mainnet", "testnet", "signet", "regtest"]),
+        required: false,
+        repeating: false,
+        help: "Network override; must agree with the xpub's network kind.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--json",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Emit JSON instead of text output.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+];
+
+const ADDRESS_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
+    name: "mk1-strings",
+    required: false,
+    repeating: true,
+    help: "One or more mk1 strings whose xpub controls the addresses. Use `-` for stdin.",
+}];
+
+// ─── derive (v0.6) ───────────────────────────────────────────────────────
+
+// `mk derive [MK1_STRINGS]... (--path | --index) [--json]`
+const DERIVE_FLAGS: &[FlagSchema] = &[
+    FlagSchema {
+        name: "--path",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "Relative derivation path, unhardened only (e.g. m/0/5).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--index",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "Single external-chain index: sugar for --path m/0/<N>.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--json",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Emit JSON instead of text output.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+];
+
+const DERIVE_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
+    name: "mk1-strings",
+    required: false,
+    repeating: true,
+    help: "One or more mk1 strings to derive a child xpub from. Use `-` for stdin.",
+}];
+
 // ─── SCHEMA constant ─────────────────────────────────────────────────────
 
 const SUBCOMMANDS: &[SubcommandSchema] = &[
@@ -305,10 +445,34 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
         allows_slots: false,
         conditional: None,
     },
+    SubcommandSchema {
+        name: "repair",
+        human_name: "Repair (BCH error correction)",
+        flags: REPAIR_FLAGS,
+        positional_args: REPAIR_POSITIONALS,
+        allows_slots: false,
+        conditional: None,
+    },
+    SubcommandSchema {
+        name: "address",
+        human_name: "Address (xpub -> receive/change addresses)",
+        flags: ADDRESS_FLAGS,
+        positional_args: ADDRESS_POSITIONALS,
+        allows_slots: false,
+        conditional: None,
+    },
+    SubcommandSchema {
+        name: "derive",
+        human_name: "Derive (xpub -> child xpub)",
+        flags: DERIVE_FLAGS,
+        positional_args: DERIVE_POSITIONALS,
+        allows_slots: false,
+        conditional: None,
+    },
 ];
 
 pub const SCHEMA: Schema = Schema {
     cli_name: "mk",
-    pinned_version: "mk 0.3.1",
+    pinned_version: "mk 0.6.0",
     subcommands: SUBCOMMANDS,
 };

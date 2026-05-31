@@ -49,7 +49,7 @@ gui-schema-capable = true
 
 [mk]
 url = "https://github.com/bg002h/mnemonic-key"
-tag = "mk-cli-v0.4.2"
+tag = "mk-cli-v0.6.0"
 bin = "mk"
 workspace-member-path = "crates/mk-cli"
 gui-schema-capable = true
