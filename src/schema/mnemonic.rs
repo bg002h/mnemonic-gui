@@ -2946,11 +2946,137 @@ const VERIFY_MESSAGE_FLAGS: &[FlagSchema] = &[
 
 // ─── SCHEMA constant ─────────────────────────────────────────────────────
 
+// toolkit v0.38.0: `mnemonic addresses` — batch watch-only address derivation.
+// `--address-type` reflects as Text (custom value_parser, not a ValueEnum, so
+// gui-schema cannot enumerate its 4 values). `--passphrase{,-stdin}` are secret.
+// `--no-auto-repair` is the global flag (appended, not listed here).
+const ADDRESSES_FLAGS: &[FlagSchema] = &[
+    FlagSchema {
+        name: "--from",
+        kind: FlagKind::Text,
+        required: true,
+        repeating: false,
+        help: "Source: xpub=<v> | phrase=<v> | entropy=<hex> | seedqr=<digits>. @env:VAR / - (stdin) for secret values.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--address-type",
+        kind: FlagKind::Text,
+        required: true,
+        repeating: false,
+        help: "p2pkh | p2sh-p2wpkh | p2wpkh | p2tr. Selects the account path for seed sources and the render type.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--account",
+        kind: FlagKind::Number { min: 0, max: NumberMax::Static(2147483647) },
+        required: false,
+        repeating: false,
+        help: "Account index for seed sources (default 0; not applicable to xpub=).",
+        secret: false,
+        default_value: Some("0"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--count",
+        kind: FlagKind::Number { min: 0, max: NumberMax::Static(2147483648) },
+        required: false,
+        repeating: false,
+        help: "Number of addresses per chain, from index 0 (default 10). Conflicts with --range.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--range",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "Inclusive index range A,B. Conflicts with --count.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--chain",
+        kind: FlagKind::Dropdown(&["receive", "change", "both"]),
+        required: false,
+        repeating: false,
+        help: "Which chain(s) to render: receive (default), change, or both.",
+        secret: false,
+        default_value: Some("receive"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--network",
+        kind: FlagKind::Dropdown(NETWORKS),
+        required: false,
+        repeating: false,
+        help: "Network override; must agree with an xpub's network kind.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--passphrase",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "BIP-39 passphrase (seed sources). @env:VAR supported.",
+        secret: true,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--passphrase-stdin",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Read the BIP-39 passphrase from stdin (conflicts with --passphrase).",
+        secret: true,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--language",
+        kind: FlagKind::Dropdown(LANGUAGES),
+        required: false,
+        repeating: false,
+        help: "BIP-39 wordlist language for phrase=/seedqr= (default english).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--json",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Emit a JSON envelope instead of text rows.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    NO_AUTO_REPAIR_FLAG,
+];
+
 // Phase 5: wire the conditional-visibility fn pointers per subcommand.
 // v0.3: `derive-child` gained `--passphrase-stdin conflicts_with passphrase`
 // at toolkit v0.13.0; conditional flipped from `None` to
 // `Some(crate::form::conditional::derive_child)`.
 const SUBCOMMANDS: &[SubcommandSchema] = &[
+    SubcommandSchema {
+        name: "addresses",
+        human_name: "Addresses (batch watch-only address listing)",
+        flags: ADDRESSES_FLAGS,
+        positional_args: NO_POSITIONALS,
+        allows_slots: false,
+        conditional: None,
+    },
     SubcommandSchema {
         name: "bundle",
         human_name: "Bundle (emit 3-card)",
@@ -3184,6 +3310,6 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
 // drift here is a cosmetic banner mismatch, not a functional error.
 pub const SCHEMA: Schema = Schema {
     cli_name: "mnemonic",
-    pinned_version: "mnemonic 0.37.3",
+    pinned_version: "mnemonic 0.38.0",
     subcommands: SUBCOMMANDS,
 };
