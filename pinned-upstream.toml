@@ -42,7 +42,7 @@ gui-schema-capable = true
 
 [ms]
 url = "https://github.com/bg002h/mnemonic-secret"
-tag = "ms-cli-v0.4.1"
+tag = "ms-cli-v0.5.0"
 bin = "ms"
 workspace-member-path = "crates/ms-cli"
 gui-schema-capable = true

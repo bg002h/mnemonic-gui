@@ -1,9 +1,10 @@
-//! Pinned schema for the `ms` CLI (ms-cli-v0.2.1).
+//! Pinned schema for the `ms` CLI (ms-cli-v0.5.0).
 //!
-//! v0.2 scope: `inspect` (from v0.1) plus `encode`, `decode`, `verify`,
-//! `vectors`. See Phase D.1 audit report at
-//! `design/agent-reports/v0_2-phase-D1-help-audit-r1.md` for per-flag
-//! provenance.
+//! Scope: `inspect`/`encode`/`decode`/`verify`/`vectors` plus `repair`
+//! (backfilled into the mirror at v0.5 — it shipped in v0.4 but was never
+//! mirrored) and the v0.5 read-only `derive` (master fingerprint + account
+//! xpub). See `design/agent-reports/v0_2-phase-D1-help-audit-r1.md` for the
+//! original per-flag provenance.
 
 use super::{FlagKind, FlagSchema, PositionalArgSchema, Schema, SubcommandSchema};
 
@@ -203,6 +204,137 @@ const VECTORS_FLAGS: &[FlagSchema] = &[FlagSchema {
 
 const VECTORS_POSITIONALS: &[PositionalArgSchema] = &[];
 
+// ─── derive (v0.5) ───────────────────────────────────────────────────────
+// `ms derive [ms1] [--hex|--phrase] [--template] [--account] [--network]
+//            [--passphrase|--passphrase-stdin] [--language] [--json]`.
+// `--template`/`--network`/`--language` reflect as ValueEnum dropdowns;
+// `--account` reflects as text (ms-cli gui-schema classifies u32 as text).
+const DERIVE_FLAGS: &[FlagSchema] = &[
+    FlagSchema {
+        name: "--hex",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "Raw entropy hex (alternative to the ms1).",
+        secret: true,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--phrase",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "BIP-39 phrase (alternative to the ms1).",
+        secret: true,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--template",
+        kind: FlagKind::Dropdown(&["bip44", "bip49", "bip84", "bip86"]),
+        required: false,
+        repeating: false,
+        help: "Account-path template; emits an account xpub.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--account",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "Account index for --template (default 0).",
+        secret: false,
+        default_value: Some("0"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--network",
+        kind: FlagKind::Dropdown(&["mainnet", "testnet"]),
+        required: false,
+        repeating: false,
+        help: "Network for the account xpub serialization + coin-type.",
+        secret: false,
+        default_value: Some("mainnet"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--passphrase",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "BIP-39 passphrase.",
+        secret: true,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--passphrase-stdin",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Read the BIP-39 passphrase from stdin.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--language",
+        kind: FlagKind::Dropdown(LANG_MS),
+        required: false,
+        repeating: false,
+        help: "BIP-39 wordlist (load-bearing; default english).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--json",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Emit JSON instead of text output.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+];
+
+const DERIVE_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
+    name: "ms1",
+    required: false,
+    repeating: false,
+    help: "ms1 string. Use `-` or omit to read from stdin.",
+}];
+
+// ─── repair (v0.4; backfilled into the mirror at v0.5) ───────────────────
+const REPAIR_FLAGS: &[FlagSchema] = &[
+    FlagSchema {
+        name: "--ms1",
+        kind: FlagKind::Text,
+        required: true,
+        repeating: false,
+        help: "ms1 string to repair via BCH error correction. `-` reads stdin.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--json",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Emit JSON instead of text output.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+];
+
+const REPAIR_POSITIONALS: &[PositionalArgSchema] = &[];
+
 // ─── SCHEMA constant ─────────────────────────────────────────────────────
 
 const SUBCOMMANDS: &[SubcommandSchema] = &[
@@ -246,10 +378,26 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
         allows_slots: false,
         conditional: None,
     },
+    SubcommandSchema {
+        name: "derive",
+        human_name: "Derive (master fingerprint + account xpub)",
+        flags: DERIVE_FLAGS,
+        positional_args: DERIVE_POSITIONALS,
+        allows_slots: false,
+        conditional: None,
+    },
+    SubcommandSchema {
+        name: "repair",
+        human_name: "Repair (BCH error correction)",
+        flags: REPAIR_FLAGS,
+        positional_args: REPAIR_POSITIONALS,
+        allows_slots: false,
+        conditional: None,
+    },
 ];
 
 pub const SCHEMA: Schema = Schema {
     cli_name: "ms",
-    pinned_version: "ms 0.2.1",
+    pinned_version: "ms 0.5.0",
     subcommands: SUBCOMMANDS,
 };
