@@ -2,8 +2,8 @@
 //! repeating grammar (SPEC §B.4).
 //!
 //! `SlotSubkey` mirrors `mnemonic-toolkit::slot_input::SlotSubkey` exactly —
-//! 8 variants, 4 secret-bearing (Phrase / Entropy / Wif / Xprv), 4
-//! watch-only (Xpub / MasterXpub / Fingerprint / Path). Phase 7 source-audit
+//! 10 variants, 6 secret-bearing (Phrase / Seedqr / Entropy / Ms1 / Wif /
+//! Xprv), 4 watch-only (Xpub / MasterXpub / Fingerprint / Path). Phase 7 source-audit
 //! verifies this set against the upstream `is_secret_bearing()` true-arm
 //! match. Phase 1 R1 fold pinned the pattern of mirroring upstream sets
 //! source-side.
@@ -34,6 +34,14 @@ pub enum SlotSubkey {
     /// legal-set patterns that match the toolkit's `is_legal_set`.
     Seedqr,
     Entropy,
+    /// v0.41.0 (toolkit v0.41.0) — mirrors
+    /// `mnemonic-toolkit::slot_input::SlotSubkey::Ms1`. Secret-bearing
+    /// (a raw BIP-93 codex32 secret decoded inline to entropy at
+    /// slot-emit time; language-preserving). Position-critical: declared
+    /// at index 3 (after Entropy, before Xpub) to mirror the upstream
+    /// enum-order so derived `Ord` produces ascending-sorted legal-set
+    /// patterns that match the toolkit's `is_legal_set`.
+    Ms1,
     Xpub,
     MasterXpub,
     Fingerprint,
@@ -47,6 +55,7 @@ impl SlotSubkey {
         SlotSubkey::Phrase,
         SlotSubkey::Seedqr,
         SlotSubkey::Entropy,
+        SlotSubkey::Ms1,
         SlotSubkey::Xpub,
         SlotSubkey::MasterXpub,
         SlotSubkey::Fingerprint,
@@ -60,6 +69,7 @@ impl SlotSubkey {
             SlotSubkey::Phrase => "phrase",
             SlotSubkey::Seedqr => "seedqr",
             SlotSubkey::Entropy => "entropy",
+            SlotSubkey::Ms1 => "ms1",
             SlotSubkey::Xpub => "xpub",
             SlotSubkey::MasterXpub => "master_xpub",
             SlotSubkey::Fingerprint => "fingerprint",
@@ -75,6 +85,7 @@ impl SlotSubkey {
             SlotSubkey::Phrase
                 | SlotSubkey::Seedqr
                 | SlotSubkey::Entropy
+                | SlotSubkey::Ms1
                 | SlotSubkey::Wif
                 | SlotSubkey::Xprv
         )
