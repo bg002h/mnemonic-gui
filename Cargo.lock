@@ -2179,9 +2179,9 @@ dependencies = [
 
 [[package]]
 name = "md-codec"
-version = "0.34.0"
+version = "0.35.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4628f6255efcb3cbb171d36ed4cf1432ac61503e545282c47f69c08ba1abe373"
+checksum = "6f198f40364cb02403b23b6f7ab75437baa47c21d1a5b37bd5e6383a7d7b2d81"
 dependencies = [
  "bip39",
  "bitcoin",
@@ -2251,9 +2251,9 @@ dependencies = [
 
 [[package]]
 name = "mk-codec"
-version = "0.3.1"
+version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8aecce77cabd36a030baf524e60fef3f989ae28e6ae59c5ef1ca1e3df118e6d4"
+checksum = "1247d41a895c0fe1019aed8158610f57845521709ff8349f266e46c1c335f679"
 dependencies = [
  "bech32",
  "bitcoin",
@@ -2293,8 +2293,8 @@ dependencies = [
 
 [[package]]
 name = "mnemonic-toolkit"
-version = "0.37.3"
-source = "git+https://github.com/bg002h/mnemonic-toolkit?tag=mnemonic-toolkit-v0.37.3#d7da7321c10dbe16a01878342f5636d92fe0e4b9"
+version = "0.41.0"
+source = "git+https://github.com/bg002h/mnemonic-toolkit?tag=mnemonic-toolkit-v0.41.0#d8d017010310ff52ac2eb71683ace85d097e3733"
 dependencies = [
  "aes",
  "base64 0.22.1",
@@ -2304,6 +2304,7 @@ dependencies = [
  "bitcoin",
  "cbc",
  "clap",
+ "codex32",
  "crypto-bigint",
  "ctr",
  "flate2",
@@ -2339,11 +2340,12 @@ dependencies = [
 
 [[package]]
 name = "ms-codec"
-version = "0.2.0"
+version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "292ffbe328d72654d186147d169903d745141936cf88121bedebbe47560321ec"
+checksum = "f6bab070cfdb19e09145a44cc131f7a4da32035a26b861b8d9aeac94eaf906b6"
 dependencies = [
  "codex32",
+ "getrandom 0.3.4",
  "zeroize",
 ]
 
