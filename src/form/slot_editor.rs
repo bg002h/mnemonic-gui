@@ -34,7 +34,7 @@ pub enum SlotSubkey {
     /// legal-set patterns that match the toolkit's `is_legal_set`.
     Seedqr,
     Entropy,
-    /// v0.41.0 (toolkit v0.41.0) — mirrors
+    /// v0.22.0 (toolkit v0.41.0) — mirrors
     /// `mnemonic-toolkit::slot_input::SlotSubkey::Ms1`. Secret-bearing
     /// (a raw BIP-93 codex32 secret decoded inline to entropy at
     /// slot-emit time; language-preserving). Position-critical: declared
