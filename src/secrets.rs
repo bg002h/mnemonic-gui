@@ -59,7 +59,7 @@ mod v0_3_canonical_fallback {
     /// - v0.3.3 baseline: `["phrase", "entropy", "xprv", "wif"]`
     /// - v0.16.1 (toolkit v0.31.3): `seedqr` added (new SlotSubkey
     ///   variant; secret-bearing because it decodes to a BIP-39 phrase).
-    /// - v0.41.0 (toolkit v0.41.0): `ms1` added (new SlotSubkey variant;
+    /// - v0.22.0 (toolkit v0.41.0): `ms1` added (new SlotSubkey variant;
     ///   secret-bearing — a raw BIP-93 codex32 secret decoded inline to
     ///   entropy). Lockstep with toolkit `--slot @N.ms1=`. The
     ///   compile-time drift guard below stays consistent only once the

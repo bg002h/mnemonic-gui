@@ -1,4 +1,4 @@
-//! Pinned schema for the `md` CLI (descriptor-mnemonic-md-cli-v0.5.0).
+//! Pinned schema for the `md` CLI (descriptor-mnemonic-md-cli-v0.6.2).
 //!
 //! v0.2 scope: `inspect` (from v0.1) plus `encode`, `decode`, `verify`,
 //! `bytecode`, `vectors`, `compile`, `address`. See Phase D.1 audit report
@@ -562,6 +562,6 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
 
 pub const SCHEMA: Schema = Schema {
     cli_name: "md",
-    pinned_version: "md 0.5.0",
+    pinned_version: "md 0.6.2",
     subcommands: SUBCOMMANDS,
 };

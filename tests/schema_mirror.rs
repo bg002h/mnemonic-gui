@@ -399,7 +399,7 @@ fn schema_check_json_returns_none_for_missing_subcommand() {
 fn schema_check_json_invokes_gui_schema_on_capable_cli() {
     // Phase C.3 v0.2: all four CLIs are now `gui-schema-capable = true`
     // in pinned-upstream.toml, in lockstep with the bumped tags
-    // (mnemonic-toolkit-v0.13.0 / md-v0.5.0 / ms-v0.2.1 / mk-v0.3.1).
+    // (mnemonic-toolkit-v0.41.0 / md-v0.6.2 / ms-v0.7.0 / mk-v0.7.0).
     // `json_flag_names` should exec the installed binary's
     // `gui-schema` subcommand and return `Some(...)` for an existing
     // subcommand.
