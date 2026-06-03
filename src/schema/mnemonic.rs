@@ -1173,6 +1173,125 @@ const SLIP39_COMBINE_FLAGS: &[FlagSchema] = &[
     NO_AUTO_REPAIR_FLAG,
 ];
 
+// ─── ms-shares-split ─────────────────────────────────────────────────────
+//
+// toolkit v0.40.0: `mnemonic ms-shares split` — BIP-93 codex32 K-of-N
+// share splitter of an ms1 secret. Mirrors `mnemonic ms-shares split
+// --help` (flattened reflective name `ms-shares-split` in gui-schema v5).
+// Flag-name + dropdown-value parity per CLAUDE.md (the `--json` wire-shape
+// is NOT gated — FOLLOWUP `ms-kofn-json-wire-shape-ungated`).
+
+const MS_SHARES_FROM_NODES: &[&str] = &["phrase", "entropy"];
+
+const MS_SHARES_SPLIT_FLAGS: &[FlagSchema] = &[
+    FlagSchema {
+        name: "--from",
+        kind: FlagKind::NodeValueComposite(MS_SHARES_FROM_NODES),
+        required: true,
+        repeating: false,
+        help: "Secret. `phrase=<value-or->` (BIP-39) OR `entropy=<hex-or->`. `=-` reads from stdin.",
+        secret: false, // value-dependent
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--threshold",
+        kind: FlagKind::Number { min: 2, max: NumberMax::Static(9) },
+        required: true,
+        repeating: false,
+        help: "Threshold K — minimum shares needed to recombine (2..=9).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--shares",
+        kind: FlagKind::Number { min: 2, max: NumberMax::Static(31) },
+        required: true,
+        repeating: false,
+        help: "Total shares N to emit (K <= N <= 31).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--language",
+        kind: FlagKind::Dropdown(LANGUAGES),
+        required: false,
+        repeating: false,
+        help: "BIP-39 wordlist for the input phrase; ignored for entropy= input. \
+               A non-English language produces a `mnem` share-set so the wordlist survives.",
+        secret: false,
+        default_value: Some("english"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--json",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Emit a JSON object on stdout (`{\"shares\": [...]}`) instead of one-share-per-line text.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    NO_AUTO_REPAIR_FLAG,
+];
+
+// ─── ms-shares-combine ───────────────────────────────────────────────────
+//
+// toolkit v0.40.0: `mnemonic ms-shares combine` — recombine >=K codex32
+// shares into the recovered secret. `--share` is secret (the share SET is
+// secret-equivalent — mirrored in the v5 `secret` projection / secret-drift
+// gate). The `--to` dropdown is `phrase|entropy|ms1`.
+
+const MS_SHARES_TO_SHAPES: &[&str] = &["phrase", "entropy", "ms1"];
+
+const MS_SHARES_COMBINE_FLAGS: &[FlagSchema] = &[
+    FlagSchema {
+        name: "--share",
+        kind: FlagKind::Text,
+        required: true,
+        repeating: true,
+        help: "A codex32 K-of-N share string. Repeating; supply at least K. At most ONE may be `-` (stdin).",
+        secret: true,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--to",
+        kind: FlagKind::Dropdown(MS_SHARES_TO_SHAPES),
+        required: false,
+        repeating: false,
+        help: "Output shape (default phrase): phrase (BIP-39 mnemonic), entropy (hex), or ms1 (single string).",
+        secret: false,
+        default_value: Some("phrase"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--language",
+        kind: FlagKind::Dropdown(LANGUAGES),
+        required: false,
+        repeating: false,
+        help: "BIP-39 wordlist for --to phrase when the recovered secret is a plain entr payload; \
+               ignored for mnem payloads and for --to entropy/ms1.",
+        secret: false,
+        default_value: Some("english"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--json",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Emit a JSON object on stdout instead of the plain secret line.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    NO_AUTO_REPAIR_FLAG,
+];
+
 // ─── seed-xor-split ──────────────────────────────────────────────────────
 
 const PHRASE_ONLY: &[&str] = &["phrase"];
@@ -3217,6 +3336,26 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
         positional_args: NO_POSITIONALS,
         allows_slots: false,
         conditional: Some(crate::form::conditional::slip39_combine),
+    },
+    // toolkit v0.40.0: BIP-93 codex32 K-of-N share split / combine of an
+    // ms1 secret. Flattened reflective names `ms-shares-split` /
+    // `ms-shares-combine` in gui-schema v5. No conditional rules
+    // (`conditional_rules: []` in gui-schema) → conditional: None.
+    SubcommandSchema {
+        name: "ms-shares-split",
+        human_name: "ms-shares Split (BIP-93 codex32 K-of-N share splitter)",
+        flags: MS_SHARES_SPLIT_FLAGS,
+        positional_args: NO_POSITIONALS,
+        allows_slots: false,
+        conditional: None,
+    },
+    SubcommandSchema {
+        name: "ms-shares-combine",
+        human_name: "ms-shares Combine (recombine >=K codex32 shares)",
+        flags: MS_SHARES_COMBINE_FLAGS,
+        positional_args: NO_POSITIONALS,
+        allows_slots: false,
+        conditional: None,
     },
     // v0.9.0 (toolkit v0.22.0): standalone BCH error-correction subcommand.
     SubcommandSchema {

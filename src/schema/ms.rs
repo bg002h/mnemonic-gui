@@ -1,10 +1,11 @@
-//! Pinned schema for the `ms` CLI (ms-cli-v0.5.0).
+//! Pinned schema for the `ms` CLI (ms-cli-v0.7.0).
 //!
 //! Scope: `inspect`/`encode`/`decode`/`verify`/`vectors` plus `repair`
 //! (backfilled into the mirror at v0.5 — it shipped in v0.4 but was never
-//! mirrored) and the v0.5 read-only `derive` (master fingerprint + account
-//! xpub). See `design/agent-reports/v0_2-phase-D1-help-audit-r1.md` for the
-//! original per-flag provenance.
+//! mirrored), the v0.5 read-only `derive` (master fingerprint + account
+//! xpub), and the v0.7.0 BIP-93 codex32 K-of-N `split`/`combine` pair. See
+//! `design/agent-reports/v0_2-phase-D1-help-audit-r1.md` for the original
+//! per-flag provenance.
 
 use super::{FlagKind, FlagSchema, PositionalArgSchema, Schema, SubcommandSchema};
 
@@ -335,6 +336,116 @@ const REPAIR_FLAGS: &[FlagSchema] = &[
 
 const REPAIR_POSITIONALS: &[PositionalArgSchema] = &[];
 
+// ─── split (v0.7.0) ──────────────────────────────────────────────────────
+//
+// `ms split (--phrase|--hex) --threshold K --shares N [--language] [--json]`
+// BIP-93 codex32 K-of-N share splitter. `--phrase` / `--hex` are both
+// secret-bearing (BIP-39 mnemonic / raw entropy). schema_mirror gates the
+// flag-NAME set; the `--json` wire-shape is NOT gated (FOLLOWUP
+// `ms-kofn-json-wire-shape-ungated`).
+const SPLIT_FLAGS: &[FlagSchema] = &[
+    FlagSchema {
+        name: "--phrase",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "BIP-39 mnemonic to split. `-` reads stdin. XOR with --hex.",
+        secret: true,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--hex",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "Hex-encoded entropy to split (16/20/24/28/32 B). XOR with --phrase.",
+        secret: true,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--threshold",
+        kind: FlagKind::Number { min: 2, max: super::NumberMax::Static(9) },
+        required: true,
+        repeating: false,
+        help: "Threshold K — minimum shares needed to recombine (2..=9).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--shares",
+        kind: FlagKind::Number { min: 2, max: super::NumberMax::Static(31) },
+        required: true,
+        repeating: false,
+        help: "Total shares N to produce (K <= N <= 31).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--language",
+        kind: FlagKind::Dropdown(LANG_MS),
+        required: false,
+        repeating: false,
+        help: "BIP-39 wordlist for the input phrase; ignored under --hex. \
+               A non-English wordlist produces a `mnem` share-set (default english).",
+        secret: false,
+        default_value: Some("english"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--json",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Emit a single JSON object on stdout instead of multi-line text.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+];
+
+const SPLIT_POSITIONALS: &[PositionalArgSchema] = &[];
+
+// ─── combine (v0.7.0) ────────────────────────────────────────────────────
+//
+// `ms combine <SHARES>... [--to phrase|entropy|ms1] [--json]`
+// The shares are POSITIONAL (secret-equivalent — flagged on the positional).
+const COMBINE_FLAGS: &[FlagSchema] = &[
+    FlagSchema {
+        name: "--to",
+        kind: FlagKind::Dropdown(COMBINE_TO_SHAPES),
+        required: false,
+        repeating: false,
+        help: "Output form (default phrase): phrase (mnem -> wire language, entr -> english), \
+               entropy (hex), or ms1 (single unshared string).",
+        secret: false,
+        default_value: Some("phrase"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--json",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Emit a single JSON object on stdout instead of text.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+];
+
+const COMBINE_TO_SHAPES: &[&str] = &["phrase", "entropy", "ms1"];
+
+const COMBINE_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
+    name: "shares",
+    required: true,
+    repeating: true,
+    help: "Distributed share strings to recombine (K or more, distinct indices). Secret-equivalent.",
+}];
+
 // ─── SCHEMA constant ─────────────────────────────────────────────────────
 
 const SUBCOMMANDS: &[SubcommandSchema] = &[
@@ -394,10 +505,27 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
         allows_slots: false,
         conditional: None,
     },
+    // v0.7.0: BIP-93 codex32 K-of-N share split / combine.
+    SubcommandSchema {
+        name: "split",
+        human_name: "Split (BIP-93 codex32 K-of-N share splitter)",
+        flags: SPLIT_FLAGS,
+        positional_args: SPLIT_POSITIONALS,
+        allows_slots: false,
+        conditional: None,
+    },
+    SubcommandSchema {
+        name: "combine",
+        human_name: "Combine (recombine >=K codex32 shares)",
+        flags: COMBINE_FLAGS,
+        positional_args: COMBINE_POSITIONALS,
+        allows_slots: false,
+        conditional: None,
+    },
 ];
 
 pub const SCHEMA: Schema = Schema {
     cli_name: "ms",
-    pinned_version: "ms 0.5.0",
+    pinned_version: "ms 0.7.0",
     subcommands: SUBCOMMANDS,
 };
