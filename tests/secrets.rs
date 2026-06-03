@@ -274,8 +274,12 @@ fn secret_node_types_set_pinned() {
 fn secret_slot_subkeys_set_pinned() {
     // v0.16.1: added `seedqr` per toolkit v0.31.3 (new SlotSubkey
     // variant; secret-bearing because it decodes to a BIP-39 phrase).
+    // v0.22.0 (toolkit v0.41.0): added `ms1` (new SlotSubkey variant;
+    // secret-bearing — a raw BIP-93 codex32 secret decoded inline to
+    // entropy). Lockstep with the `SECRET_SLOT_SUBKEYS` snapshot bump in
+    // src/secrets.rs.
     let expected: std::collections::BTreeSet<&str> =
-        ["phrase", "seedqr", "entropy", "xprv", "wif"]
+        ["phrase", "seedqr", "entropy", "ms1", "xprv", "wif"]
             .into_iter()
             .collect();
     let actual: std::collections::BTreeSet<&str> = SECRET_SLOT_SUBKEYS.iter().copied().collect();
