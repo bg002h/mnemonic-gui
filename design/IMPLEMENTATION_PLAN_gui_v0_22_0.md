@@ -18,7 +18,7 @@
 
 - [ ] **Confirm the toolkit tag is on the remote** (the Cargo git-dep resolves against GitHub, R0-M4): `git ls-remote --tags https://github.com/bg002h/mnemonic-toolkit mnemonic-toolkit-v0.41.0` → must print a ref. (It was pushed when toolkit v0.41.0 shipped.) Also confirm `ms-cli-v0.7.0` / `descriptor-mnemonic-md-cli-v0.6.2` / `mk-cli-v0.7.0` exist on their remotes (for CI installs).
 - [ ] **Build the 4 current binaries** (for the gate): mnemonic (`cargo build -p mnemonic-toolkit --bin mnemonic` in toolkit master → `target/debug/mnemonic`, v0.41.0); ms (`--manifest-path .../mnemonic-secret/Cargo.toml -p ms-cli` → ms 0.7.0); md (`--manifest-path .../descriptor-mnemonic/Cargo.toml -p md-cli --features cli-compiler` → md 0.6.2); mk (`--manifest-path .../mnemonic-key/Cargo.toml -p mk-cli` → mk 0.7.0). Record abs paths + confirm `--version`.
-- [ ] **Sizing re-confirm** (SPEC §7): with the 4 `*_BIN` set, `cargo +1.94.0 test --test schema_mirror` from GUI master — confirm the ONLY failure mode vs current binaries is the `md` cell on `md repair` (and that `mnemonic`/`ms`/`mk` cells pass). This empirically re-confirms the SPEC's measured delta before editing.
+- [ ] **Sizing re-confirm** (SPEC §7, R0-m2): with the 4 `*_BIN` set, `cargo +1.94.0 test --test schema_mirror` from GUI master — confirm **zero flag-NAME drift on every schema-declared cell** (all per-CLI cells PASS). NOTE: `md repair`'s absence is real-but-**ungated** — `schema_mirror` (schema_mirror.rs:91-121) iterates only schema-declared subcommands, so a binary-only subcommand is invisible; it is closed declaratively in Task 1.3, not surfaced as a red cell here. This run empirically re-confirms the SPEC's "schemas already current; redness is purely stale pins" finding.
 
 ---
 
@@ -72,7 +72,7 @@ fn cargo_toolkit_pin_matches_pinned_upstream_mnemonic_tag() {
 ### Task 1.3 — add the `md repair` schema entry
 
 - [ ] **Step 1: Write the SubcommandSchema** in `src/schema/md.rs` per SPEC §5 (field-accurate vs `src/schema/mod.rs` defs — re-grep `inspect`/`decode` to match idiom): add `REPAIR_FLAGS` (single `--json` Boolean, non-secret) + `REPAIR_POSITIONALS` (`md1-strings`, required+repeating) + a `SubcommandSchema { name: "repair", human_name: "Repair (BCH error-correction)", flags: REPAIR_FLAGS, positional_args: REPAIR_POSITIONALS, allows_slots: false, conditional: None }` appended to `SUBCOMMANDS` (after `address`).
-- [ ] **Step 2: Run — `test_md` schema_mirror GREEN.** With `MD_BIN`=md 0.6.2: `MNEMONIC_BIN=… MD_BIN=… MS_BIN=… MK_BIN=… cargo +1.94.0 test --test schema_mirror 2>&1 | tail`. Expected: all per-CLI cells PASS (the `md` cell's `md repair` gap is closed; mnemonic/ms/mk were already current).
+- [ ] **Step 2: Run — schema_mirror still GREEN.** With `MD_BIN`=md 0.6.2: `MNEMONIC_BIN=… MD_BIN=… MS_BIN=… MK_BIN=… cargo +1.94.0 test --test schema_mirror 2>&1 | tail`. Expected: still GREEN (R0-m1) — the `md` cell was ALREADY green (`md repair`'s absence is ungated; schema_mirror iterates only schema-declared subcommands). Adding the `repair` entry CLOSES the schema/binary subcommand-coverage gap that no automated gate catches, and the new `repair` cell now verifies `--json` matches the md 0.6.2 binary. This is a coverage-gap closure, NOT a previously-red cell flipping.
 - [ ] **Step 3: Commit** — `git add src/schema/md.rs && git commit -m "schema(md): add md repair SubcommandSchema (P1.3)"`.
 
 ### Phase 1 gate
