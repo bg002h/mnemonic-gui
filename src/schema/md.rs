@@ -458,6 +458,31 @@ const ADDRESS_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
     help: "One or more md1 phrases. Mutually exclusive with --template.",
 }];
 
+// ─── repair ────────────────────────────────────────────────────────────────
+
+// `md repair [--json] <MD1_STRINGS>...` (md-cli v0.6.2). BCH error-correction
+// for chunked-form md1 strings. v0.22.0: closes the schema/binary subcommand-
+// coverage gap (9 binary subcommands vs 8 schema; schema_mirror iterates only
+// schema-declared subcommands, so a binary-only subcommand was invisible).
+const REPAIR_FLAGS: &[FlagSchema] = &[FlagSchema {
+    name: "--json",
+    kind: FlagKind::Boolean,
+    required: false,
+    repeating: false,
+    help: "Emit a single JSON envelope on stdout instead of the text-form report.",
+    secret: false,
+    default_value: None,
+    global: false,
+}];
+
+const REPAIR_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
+    name: "md1-strings",
+    required: true,
+    repeating: true,
+    help: "One or more md1 strings to repair (BCH error-correction). `-` reads one per line \
+           from stdin. Chunked-form md1 only.",
+}];
+
 // ─── SCHEMA constant ─────────────────────────────────────────────────────
 
 const SUBCOMMANDS: &[SubcommandSchema] = &[
@@ -524,6 +549,14 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
         positional_args: ADDRESS_POSITIONALS,
         allows_slots: false,
         conditional: Some(crate::form::conditional::md_address),
+    },
+    SubcommandSchema {
+        name: "repair",
+        human_name: "Repair (BCH error-correction)",
+        flags: REPAIR_FLAGS,
+        positional_args: REPAIR_POSITIONALS,
+        allows_slots: false,
+        conditional: None,
     },
 ];
 
