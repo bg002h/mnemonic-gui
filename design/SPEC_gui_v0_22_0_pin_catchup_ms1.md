@@ -9,7 +9,7 @@
 
 ## §1. Problem (measured, not assumed)
 
-`mnemonic-gui` last shipped **v0.21.3** pinning `mnemonic-toolkit-v0.37.3`. The GUI's per-cycle discipline (visible across the entire CHANGELOG) is to bump `pinned-upstream.toml` + `Cargo.toml` git-dep + `Cargo.lock` **in lockstep** with each toolkit feature. That discipline broke after v0.21.3: schema edits for toolkit features v0.38.0–v0.41.0 (`addresses`, `ms-shares-split/combine`, the ms `split`/`combine`, mk `--xpub`, etc.) were committed to `src/schema/*.rs` on master **without** any version / pin / CHANGELOG bump (the K-of-N v0.40.0 GUI commit `ec9f00b` is the clearest instance — it touched ONLY `src/schema/{mnemonic,ms}.rs`).
+`mnemonic-gui` last shipped **v0.21.3** pinning `mnemonic-toolkit-v0.37.3`. The GUI's per-cycle discipline (visible across the entire CHANGELOG) is to bump `pinned-upstream.toml` + `Cargo.toml` git-dep + `Cargo.lock` **in lockstep** with each toolkit feature. That discipline broke after v0.21.3: schema edits for toolkit features v0.38.0–v0.41.0 (`addresses`, `ms-shares-split/combine`, the ms `split`/`combine`, mk `--xpub`, etc.) were committed to `src/schema/*.rs` (and the `pinned_version` banners — `mnemonic.rs:3452` now reads `"mnemonic 0.38.0"`, `ms.rs:529` `"ms 0.7.0"`) on master **without** the accompanying Cargo-pin / `pinned-upstream.toml` / version / CHANGELOG bump (R0-M1). The K-of-N v0.40.0 GUI commit `ec9f00b` is the clearest instance.
 
 **Consequence:** `schema_mirror` (set-equality, `tests/schema_mirror.rs:5`) is **RED in CI**, because CI installs the binaries at the STALE `pinned-upstream.toml` tags (mnemonic v0.38.0 / ms v0.5.0 / mk v0.6.0 / md v0.6.1) while the schemas are already ahead. Separately, the prepared ms1 draft (`bundle-slot-ms1-gui`: slot-editor `Ms1` picker + `SECRET_SLOT_SUBKEYS` snapshot += `"ms1"`) cannot compile until the Cargo lib pin reaches v0.41.0 (the `src/secrets.rs` const-assert).
 
@@ -43,7 +43,7 @@ So the draft's `SECRET_SLOT_SUBKEYS`-only snapshot bump (already on the branch, 
 
 **User-facing completeness (architect I-1/I-2 — else this cycle re-stales artifacts):**
 7. `README.md` (~`:42,50-53`) — bump the manual-install `cargo install --tag` block (currently wildly stale: mnemonic-toolkit v0.13.0 / md-cli v0.5.0 / ms-cli v0.2.1 / mk-cli v0.3.1 / gui v0.3.0) to the current set: mnemonic-gui v0.22.0, mnemonic-toolkit v0.41.0, md-cli v0.6.2, ms-cli v0.7.0, mk-cli v0.7.0 — so README:47's "match pinned-upstream.toml" claim is true again. (No `scripts/install.sh` exists in this repo.)
-8. `pinned_version` banner strings: `src/schema/mnemonic.rs` ~`:3452` "mnemonic 0.38.0" → "mnemonic 0.41.0"; `src/schema/md.rs` ~`:532` "md 0.5.0" → "md 0.6.2"; `src/schema/mk.rs` ~`:476` "mk 0.6.0" → "mk 0.7.0". (`src/schema/ms.rs` ~`:529` "ms 0.7.0" already current — leave.)
+8. `pinned_version` banner strings: `src/schema/mnemonic.rs` ~`:3452` "mnemonic 0.38.0" → "mnemonic 0.41.0"; `src/schema/md.rs` ~`:532` "md 0.5.0" → "md 0.6.2"; `src/schema/mk.rs` ~`:476` "mk 0.6.0" → "mk 0.7.0". (`src/schema/ms.rs` ~`:529` "ms 0.7.0" already current — leave.) **(R0-M3, cosmetic but keeps the "don't re-stale" rationale consistent)** also bump the stale module-doc headers: `src/schema/mnemonic.rs:1` ("…mnemonic-toolkit-v0.13.0") → v0.41.0; `src/schema/md.rs:1` (v0.5.0) → v0.6.2; `src/schema/mk.rs:1` (v0.6.0) → v0.7.0; + the `tests/schema_mirror.rs:402` inline pin-set comment.
 
 **Recurrence guard (user decision: include):**
 9. NEW `tests/pin_coherence.rs` (§6) — pure-logic assert that `Cargo.toml`'s toolkit git-dep `tag` == `pinned-upstream.toml [mnemonic].tag`. ~20 LOC, no binary/network.
@@ -106,7 +106,7 @@ fn cargo_toolkit_pin_matches_pinned_upstream_mnemonic_tag() {
          bump both in lockstep (CHANGELOG v0.22.0 bug class)");
 }
 ```
-Implement the two small parsers inline (string-scan the `mnemonic-toolkit` dep line + the `[mnemonic]` table's `tag`). Keep it dependency-free (no `toml` crate needed; if `toml` is already a dev-dep, use it). Scope note: this guards only the two TOOLKIT pins agree — the three sibling pins rely on the standing paired-PR discipline + the live schema_mirror gate (acceptable).
+**(R0-M2) Prefer the `toml` crate** — it is ALREADY both a runtime dep (`Cargo.toml:26`) and a dev-dep (`:73`), so use a typed parse anchored on `Cargo.toml [dependencies].mnemonic-toolkit.tag` and `pinned-upstream.toml [mnemonic].tag`. A naive `tag = "..."` string-scan is brittle: `pinned-upstream.toml` has FOUR `tag =` lines (`:22/:38/:45/:52`) and would match the first. If string-scanning is kept anyway, anchor on the `mnemonic-toolkit` substring (Cargo) and the `[mnemonic]` table-start (pinned-upstream). Scope note: this guards only that the two TOOLKIT pins agree — the three sibling pins rely on the standing paired-PR discipline + the live schema_mirror gate (acceptable).
 
 ## §7. Verification gate (cycle-final)
 
@@ -114,7 +114,7 @@ Build all four current binaries (mnemonic v0.41.0 from `mnemonic-toolkit` master
 - `cargo +1.94.0 test --workspace` GREEN — incl. `schema_mirror` (all per-CLI cells, now that pins == current binaries + `md repair` added), `schema_mirror_secret_drift`, `gui_schema_conditional_drift`, `xpub_search_schema_mirror`, the template-groups parity cells, `secret_taxonomy_pin`, and the NEW `pin_coherence`.
 - The two `const _: () = assert!` supply-chain guards (`src/secrets.rs:78-99`) COMPILE at the v0.41.0 pin (the load-bearing proof the draft + §3 are correct).
 - `cargo +1.94.0 clippy --all-targets -- -D warnings` clean. GUI builds (the toolkit pins 1.85 but the GUI needs ≥1.88 → use `+1.94.0`/`+stable`; the GUI's own CI uses `@stable`).
-- **FIRST execution action (pre-impl sizing confirm):** re-run `schema_mirror` against the freshly-built current binaries to empirically re-confirm `md repair` is the sole flag-NAME delta before editing.
+- **FIRST execution action (pre-impl sizing confirm):** (a) **(R0-M4)** confirm the Cargo git-dep tag resolves on the REMOTE — `git ls-remote --tags https://github.com/bg002h/mnemonic-toolkit mnemonic-toolkit-v0.41.0` (the git-dep resolves against GitHub, not the local worktree; the sibling tags ms-cli-v0.7.0/mk-cli-v0.7.0/descriptor-mnemonic-md-cli-v0.6.2 are only needed for the LOCAL binary builds, but confirm they're pushed too for CI); (b) re-run `schema_mirror` against the freshly-built current binaries to empirically re-confirm `md repair` is the sole flag-NAME delta before editing.
 
 ## §8. Phasing (mandatory opus R0 on SPEC + each phase + end-of-cycle; 0C/0I before code; re-dispatch after every fold; persist to `design/agent-reports/`)
 
