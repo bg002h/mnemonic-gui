@@ -1,4 +1,4 @@
-//! Pinned schema for the `mnemonic` CLI from mnemonic-toolkit-v0.42.0.
+//! Pinned schema for the `mnemonic` CLI from mnemonic-toolkit-v0.43.0.
 //!
 //! Five subcommands covered in v0.1 (Section A coverage table):
 //!   - bundle
@@ -334,6 +334,175 @@ const BUNDLE_FLAGS: &[FlagSchema] = &[
         help: "v0.4 unified slot input. Repeating flag -- one occurrence per \
                (slot, subkey) tuple. Grammar: @N.<subkey>=<value>. Handled \
                by SlotEditor composite widget (SPEC §4).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    NO_AUTO_REPAIR_FLAG,
+];
+
+// ─── restore (toolkit v0.43.0) ─────────────────────────────────────────────
+//
+// `restore` re-derives a wallet export (its inverse-ish sibling of
+// `export-wallet`) from a third-party source given via `--from` (required).
+// It shares export-wallet's `--format` (EXPORT_FORMATS, 11 values),
+// `--template` (TEMPLATES), `--language` (LANGUAGES), `--network`
+// (NETWORKS) dropdowns plus `--account` / `--output` defaults. The two
+// passphrase flags are the only secret-bearing flags (mirrored from the
+// toolkit v5 schema's per-flag `secret` field; see
+// schema_mirror_secret_drift gate). `--no-auto-repair` is listed as the
+// shared global FlagSchema, matching every other subcommand.
+const RESTORE_FLAGS: &[FlagSchema] = &[
+    FlagSchema {
+        name: "--from",
+        kind: FlagKind::Text,
+        required: true,
+        repeating: false,
+        help: "Source wallet export to restore from. @env:VAR / - (stdin) \
+               for secret values.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--format",
+        kind: FlagKind::Dropdown(EXPORT_FORMATS),
+        required: false,
+        repeating: false,
+        help: "Source export format (bitcoin-core, bip388, coldcard, …).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--template",
+        kind: FlagKind::Dropdown(TEMPLATES),
+        required: false,
+        repeating: false,
+        help: "Pre-built descriptor template for the restored wallet.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--network",
+        kind: FlagKind::Dropdown(NETWORKS),
+        required: false,
+        repeating: false,
+        help: "Network (default mainnet).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--language",
+        kind: FlagKind::Dropdown(LANGUAGES),
+        required: false,
+        repeating: false,
+        help: "BIP-39 wordlist language for phrase / seedqr sources \
+               (default english).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--account",
+        kind: FlagKind::Number {
+            min: 0,
+            max: NumberMax::Static(2_147_483_647),
+        },
+        required: false,
+        repeating: false,
+        help: "BIP-32 account index (default 0).",
+        secret: false,
+        default_value: Some("0"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--count",
+        kind: FlagKind::Number {
+            min: 0,
+            max: NumberMax::Static(2_147_483_647),
+        },
+        required: false,
+        repeating: false,
+        help: "Number of accounts / entries to restore (default 1).",
+        secret: false,
+        default_value: Some("1"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--expect-fingerprint",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "Assert the restored wallet's master fingerprint matches \
+               this value (refuse on mismatch unless --allow-mismatch).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--expect-xpub",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "Assert the restored wallet's account xpub matches this \
+               value (refuse on mismatch unless --allow-mismatch).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--allow-mismatch",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Downgrade --expect-fingerprint / --expect-xpub mismatch \
+               from a refusal to a stderr advisory.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--passphrase",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "BIP-39 passphrase (seed sources). @env:VAR supported.",
+        secret: true,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--passphrase-stdin",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Read the BIP-39 passphrase from stdin (conflicts with \
+               --passphrase).",
+        secret: true,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--output",
+        kind: FlagKind::Path {
+            stdio_sentinel: true,
+        },
+        required: false,
+        repeating: false,
+        help: "Output path. `-` (default) -> stdout.",
+        secret: false,
+        default_value: Some("-"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--json",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Emit a JSON envelope instead of the text export.",
         secret: false,
         default_value: None,
         global: false,
@@ -3229,6 +3398,18 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
         allows_slots: true,
         conditional: Some(crate::form::conditional::export_wallet),
     },
+    // toolkit v0.43.0: re-derive a wallet export from a third-party source
+    // (`--from`, required) — the inverse-ish sibling of export-wallet.
+    // Input is via `--from`, not `--slot` (allows_slots: false). gui-schema
+    // emits `conditional_rules: []` for restore → conditional: None.
+    SubcommandSchema {
+        name: "restore",
+        human_name: "Restore (re-derive a wallet export from a source)",
+        flags: RESTORE_FLAGS,
+        positional_args: NO_POSITIONALS,
+        allows_slots: false,
+        conditional: None,
+    },
     SubcommandSchema {
         name: "derive-child",
         human_name: "Derive Child (BIP-85)",
@@ -3450,6 +3631,6 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
 // drift here is a cosmetic banner mismatch, not a functional error.
 pub const SCHEMA: Schema = Schema {
     cli_name: "mnemonic",
-    pinned_version: "mnemonic 0.42.0",
+    pinned_version: "mnemonic 0.43.0",
     subcommands: SUBCOMMANDS,
 };
