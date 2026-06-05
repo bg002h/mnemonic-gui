@@ -356,7 +356,11 @@ const RESTORE_FLAGS: &[FlagSchema] = &[
     FlagSchema {
         name: "--from",
         kind: FlagKind::Text,
-        required: true,
+        // toolkit v0.44.0: `required_unless_present = "md1"` — required for
+        // single-sig restore, optional own-cosigner cross-check in multisig
+        // (--md1) mode. The `conditional::restore` fn marks it Required
+        // while --md1 is empty; the base schema requiredness is false.
+        required: false,
         repeating: false,
         help: "Source wallet export to restore from. @env:VAR / - (stdin) \
                for secret values.",
@@ -503,6 +507,36 @@ const RESTORE_FLAGS: &[FlagSchema] = &[
         required: false,
         repeating: false,
         help: "Emit a JSON envelope instead of the text export.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    // toolkit v0.44.0 multisig-cosigner restore: the shared wallet-policy
+    // md1 card chunk(s) + per-position cross-check assertions. Both
+    // repeating + non-secret (watch-only). `--from` is required_unless
+    // `--md1` is present (see `conditional::restore`).
+    FlagSchema {
+        name: "--md1",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: true,
+        help: "Multisig-cosigner restore: the shared wallet-policy `md1` \
+               card chunk(s). Reconstructs the watch-only multisig \
+               descriptor from the md1 alone; wsh / sh(wsh) only. Repeat \
+               for chunked cards.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--cosigner",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: true,
+        help: "Cross-check assertion (multisig mode): `@N=<mk1-chunk|xpub>` \
+               — cosigner at position N is this public key. A mismatch is a \
+               hard error (exit 4) unless --allow-mismatch. Watch-only \
+               (non-secret).",
         secret: false,
         default_value: None,
         global: false,
@@ -3399,16 +3433,20 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
         conditional: Some(crate::form::conditional::export_wallet),
     },
     // toolkit v0.43.0: re-derive a wallet export from a third-party source
-    // (`--from`, required) — the inverse-ish sibling of export-wallet.
-    // Input is via `--from`, not `--slot` (allows_slots: false). gui-schema
-    // emits `conditional_rules: []` for restore → conditional: None.
+    // (`--from`) — the inverse-ish sibling of export-wallet. Input is via
+    // `--from`, not `--slot` (allows_slots: false). v0.44.0 added the
+    // multisig-cosigner half (`--md1`/`--cosigner`); `--from` is now
+    // `required_unless_present="md1"`. The toolkit gui-schema still emits
+    // `conditional_rules: []` for restore (hand-encoded allowlist has no
+    // restore arm), so the at-least-one rule is GUI-authored in
+    // `conditional::restore` (not drift-gated, like repair/inspect).
     SubcommandSchema {
         name: "restore",
         human_name: "Restore (re-derive a wallet export from a source)",
         flags: RESTORE_FLAGS,
         positional_args: NO_POSITIONALS,
         allows_slots: false,
-        conditional: None,
+        conditional: Some(crate::form::conditional::restore),
     },
     SubcommandSchema {
         name: "derive-child",

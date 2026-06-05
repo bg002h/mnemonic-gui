@@ -319,12 +319,15 @@ fn coverage_all_constrained_subcommands_have_conditional_fn() {
     // conflicts_with passphrase at toolkit v0.13.0). slip39-split /
     // slip39-combine added in v0.3. final-word + seed-xor-{split,combine}
     // have no clap conflicts → stay None.
+    // v0.25.0: restore gained `--from required_unless_present="md1"` (toolkit
+    // v0.44.0 multisig-cosigner restore) → flipped None → Some(restore).
     for name in [
         "bundle",
         "verify-bundle",
         "convert",
         "export-wallet",
         "derive-child",
+        "restore",
         "slip39-split",
         "slip39-combine",
     ] {
@@ -1063,6 +1066,35 @@ fn inspect_all_three_cards_set_all_visible() {
     assert_eq!(vis_of(&vis, "--ms1"), Visibility::Visible);
     assert_eq!(vis_of(&vis, "--mk1"), Visibility::Visible);
     assert_eq!(vis_of(&vis, "--md1"), Visibility::Visible);
+}
+
+// ─── v0.25.0: restore --from required_unless_present=md1 ─────────────────
+//
+// Mirrors toolkit `RestoreArgs.from` `required_unless_present = "md1"`
+// (multisig-cosigner restore): --from is required for single-sig restore,
+// optional (own-cosigner cross-check) when --md1 is supplied. GUI-authored
+// rule — the toolkit gui-schema `conditional_rules` projection is a
+// hand-encoded allowlist with no restore arm (gui_schema.rs:336-345), so
+// this is not drift-gated (same posture as repair/inspect). See
+// `conditional::restore`.
+
+#[test]
+fn restore_no_md1_marks_from_required() {
+    let empty = FormState::default();
+    let vis = run_conditional("restore", &empty);
+    assert_eq!(vis_of(&vis, "--from"), Visibility::Required);
+    // --md1 / --cosigner are orthogonal: no override (stay Visible).
+    assert_eq!(vis_of(&vis, "--md1"), Visibility::Visible);
+    assert_eq!(vis_of(&vis, "--cosigner"), Visibility::Visible);
+}
+
+#[test]
+fn restore_md1_set_clears_from_required() {
+    // --md1 present (multisig mode) → --from is an OPTIONAL own-cosigner
+    // cross-check; no Required override (falls through to Visible).
+    let state = FormState::from_pairs(vec![("--md1", FlagValue::Text("md1def...".into()))]);
+    let vis = run_conditional("restore", &state);
+    assert_eq!(vis_of(&vis, "--from"), Visibility::Visible);
 }
 
 // ─── v0.10.0 B.4: convert subcommand 6-gap conditional rules ─────────────

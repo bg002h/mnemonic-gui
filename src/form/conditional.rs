@@ -912,3 +912,30 @@ pub fn compare_cost(state: &FormState) -> FlagVisibility {
     }
     vis
 }
+
+/// `restore` subcommand conditionals (v0.25.0 / toolkit v0.44.0).
+///
+/// Mirrors `RestoreArgs.from` `required_unless_present = "md1"`
+/// (`crates/mnemonic-toolkit/src/cmd/restore.rs`): `--from` is required for
+/// single-sig restore, but OPTIONAL (an own-cosigner cross-check) once
+/// `--md1` is supplied (multisig-cosigner restore reconstructs the
+/// descriptor from the md1 alone). When neither is present the toolkit
+/// errors at run time; the GUI surfaces the requirement up-front by marking
+/// `--from` Required while `--md1` is empty.
+///
+/// GUI-authored rule: the toolkit `gui-schema` `conditional_rules`
+/// projection is a hand-encoded allowlist (`build_subcommand_conditional_rules`,
+/// `cmd/gui_schema.rs:336-345`) with no `restore` arm, so restore emits
+/// `conditional_rules: []` despite carrying the clap attribute — this rule
+/// is therefore not covered by `gui_schema_conditional_drift` (which skips
+/// empty-rule subcommands), same posture as the GUI-authored `repair` /
+/// `inspect` at-least-one rules. The mirrored-shape precedent is
+/// `verify_bundle`'s `required_unless_present` modeling above. Promotion to
+/// a toolkit-emitted + drift-gated rule is tracked as a toolkit FOLLOWUP.
+pub fn restore(state: &FormState) -> FlagVisibility {
+    let mut vis = Vec::new();
+    if !state.has_value("--md1") {
+        vis.push(("--from", Visibility::Required));
+    }
+    vis
+}
