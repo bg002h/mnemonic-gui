@@ -2,7 +2,7 @@
 
 **Status:** R0 gate (pre-implementation). MUST converge to 0 Critical / 0 Important before any code.
 **Resolves:** `mnemonic-toolkit` FOLLOWUP `gui-restore-multisig-flags-pending-pin-bump`.
-**Toolkit source SHA cited:** `mnemonic-toolkit` `4d0523a` (tag `mnemonic-toolkit-v0.44.0`); GUI base `48a3a0f` (tag `mnemonic-gui-v0.24.0`).
+**Toolkit source SHA cited:** the pinned tag `mnemonic-toolkit-v0.44.0` resolves to commit `aa0f1e0` (what `Cargo.lock` pins); `4d0523a` was the toolkit master tip at SPEC-write time (the post-tag manual anchor-dangler fix, which does not touch `restore.rs`/`gui_schema.rs`, so the verified `restore` surface is identical). GUI base `48a3a0f` (tag `mnemonic-gui-v0.24.0`).
 **SemVer:** MINOR (additive `schema_mirror` flag-name parity delta → `0.24.0 → 0.25.0`; mirrors the v0.22/v0.23/v0.24 catch-up precedent).
 
 ---
