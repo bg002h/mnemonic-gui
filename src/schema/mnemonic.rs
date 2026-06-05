@@ -1,4 +1,4 @@
-//! Pinned schema for the `mnemonic` CLI from mnemonic-toolkit-v0.43.0.
+//! Pinned schema for the `mnemonic` CLI from mnemonic-toolkit-v0.44.0.
 //!
 //! Five subcommands covered in v0.1 (Section A coverage table):
 //!   - bundle
@@ -341,7 +341,7 @@ const BUNDLE_FLAGS: &[FlagSchema] = &[
     NO_AUTO_REPAIR_FLAG,
 ];
 
-// ─── restore (toolkit v0.43.0) ─────────────────────────────────────────────
+// ─── restore (toolkit v0.43.0; +v0.44.0 multisig --md1/--cosigner) ──────────
 //
 // `restore` re-derives a wallet export (its inverse-ish sibling of
 // `export-wallet`) from a third-party source given via `--from` (required).
@@ -3669,6 +3669,6 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
 // drift here is a cosmetic banner mismatch, not a functional error.
 pub const SCHEMA: Schema = Schema {
     cli_name: "mnemonic",
-    pinned_version: "mnemonic 0.43.0",
+    pinned_version: "mnemonic 0.44.0",
     subcommands: SUBCOMMANDS,
 };
