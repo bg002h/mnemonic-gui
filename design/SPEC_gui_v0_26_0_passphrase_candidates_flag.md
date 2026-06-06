@@ -46,11 +46,13 @@ Placement: alongside the other passphrase-source flags (`--passphrase`/`--passph
 - `pinned-upstream.toml` `[mnemonic].tag`: `v0.44.0` → `v0.46.0` (`:22`). `pin_coherence` asserts the two agree.
 - `Cargo.lock`: regenerated to `mnemonic-toolkit v0.46.0` (stage it). The lib re-export const-assert (`SECRET_NODE_TYPES`/`SECRET_SLOT_SUBKEYS`) is unchanged v0.44.0→v0.46.0 (the new flag is non-secret; no new NodeType/SlotSubkey) → still compiles.
 - `Cargo.toml` `version`: `0.25.0` → `0.26.0` (`:3`).
-- `src/schema/mnemonic.rs` module-doc (`:1`) + `pinned_version` (`:3672`): `0.44.0`/`v0.44.0` → `0.46.0`/`v0.46.0`.
+- `src/schema/mnemonic.rs`: bump ONLY the module-doc (`:1`) + `pinned_version` (`:3672`) `0.44.0`/`v0.44.0` → `0.46.0`/`v0.46.0`. **(R0 M3) NOT a blind `s/v0.44.0/v0.46.0/`** — the historical-provenance comments at `:344` (`+v0.44.0 multisig --md1/--cosigner`), `:359`, `:514` legitimately carry `v0.44.0` and MUST stay.
+- **(R0 M2) `README.md` install-command pins:** `:42` `mnemonic-gui-v0.25.0` → `v0.26.0`; `:50` `mnemonic-toolkit-v0.44.0` → `v0.46.0` (ungated but established per-cycle practice — the v0.25.0 cycle bumped them; sibling md/ms/mk README pins already current).
 - `CHANGELOG.md`: new `## mnemonic-gui [0.26.0]` entry.
 
 ## 5. Tests
 - `schema_mirror` GREEN vs the v0.46.0 binary once §3 lands (run with all four pinned `*_BIN`: mnemonic 0.46.0 / md 0.6.2 / ms 0.7.0 / mk 0.7.0).
+- **(R0 M1)** `tests/xpub_search_schema_mirror.rs::umbrella_flag_names_match_toolkit_gui_schema_json` — the dedicated set-equality gate over the four `xpub-search-*` subcommands. Satisfied by the same §3 flag-add; run it with the pinned `MNEMONIC_BIN` so it doesn't skip.
 - `schema_mirror_secret_drift`: unaffected (new flag is `secret:false` → not in the secret set; `SECRET_NODE_TYPES`/`SECRET_SLOT_SUBKEYS` unchanged).
 - `gui_schema_conditional_drift`: unaffected (`xpub-search-passphrase-of-xpub` emits 0 rules; still skipped).
 - `pin_coherence`: GREEN after §4 (both pins v0.46.0).
