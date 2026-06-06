@@ -1,4 +1,4 @@
-//! Pinned schema for the `mnemonic` CLI from mnemonic-toolkit-v0.44.0.
+//! Pinned schema for the `mnemonic` CLI from mnemonic-toolkit-v0.46.0.
 //!
 //! Five subcommands covered in v0.1 (Section A coverage table):
 //!   - bundle
@@ -3684,6 +3684,6 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
 // drift here is a cosmetic banner mismatch, not a functional error.
 pub const SCHEMA: Schema = Schema {
     cli_name: "mnemonic",
-    pinned_version: "mnemonic 0.44.0",
+    pinned_version: "mnemonic 0.46.0",
     subcommands: SUBCOMMANDS,
 };
