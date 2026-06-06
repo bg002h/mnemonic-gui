@@ -3451,10 +3451,11 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
     // (`--from`) — the inverse-ish sibling of export-wallet. Input is via
     // `--from`, not `--slot` (allows_slots: false). v0.44.0 added the
     // multisig-cosigner half (`--md1`/`--cosigner`); `--from` is now
-    // `required_unless_present="md1"`. The toolkit gui-schema still emits
-    // `conditional_rules: []` for restore (hand-encoded allowlist has no
-    // restore arm), so the at-least-one rule is GUI-authored in
-    // `conditional::restore` (not drift-gated, like repair/inspect).
+    // `required_unless_present="md1"`. Since toolkit v0.46.2 the gui-schema
+    // projects this rule (`build_subcommand_conditional_rules` restore arm →
+    // `not(flag_present "--md1") → {--from, required}`), so the at-least-one
+    // rule in `conditional::restore` IS drift-gated by
+    // `gui_schema_conditional_drift` (`("restore", 1)` in `SUBCOMMAND_FLOORS`).
     SubcommandSchema {
         name: "restore",
         human_name: "Restore (re-derive a wallet export from a source)",

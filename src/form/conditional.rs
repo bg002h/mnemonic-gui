@@ -923,15 +923,15 @@ pub fn compare_cost(state: &FormState) -> FlagVisibility {
 /// errors at run time; the GUI surfaces the requirement up-front by marking
 /// `--from` Required while `--md1` is empty.
 ///
-/// GUI-authored rule: the toolkit `gui-schema` `conditional_rules`
-/// projection is a hand-encoded allowlist (`build_subcommand_conditional_rules`,
-/// `cmd/gui_schema.rs:336-345`) with no `restore` arm, so restore emits
-/// `conditional_rules: []` despite carrying the clap attribute — this rule
-/// is therefore not covered by `gui_schema_conditional_drift` (which skips
-/// empty-rule subcommands), same posture as the GUI-authored `repair` /
-/// `inspect` at-least-one rules. The mirrored-shape precedent is
-/// `verify_bundle`'s `required_unless_present` modeling above. Promotion to
-/// a toolkit-emitted + drift-gated rule is tracked as a toolkit FOLLOWUP.
+/// Toolkit-projected + drift-gated rule (since `mnemonic-toolkit-v0.46.2`):
+/// the `gui-schema` `conditional_rules` projection
+/// (`build_subcommand_conditional_rules`, `cmd/gui_schema.rs`) now carries a
+/// `restore` arm (`restore_conditional_rules()`) emitting
+/// `not(flag_present "--md1") → {--from, required}` — exactly the shape this
+/// fn produces. So this rule IS covered by `gui_schema_conditional_drift`
+/// (with `("restore", 1)` in `SUBCOMMAND_FLOORS`), and this fn MUST keep
+/// matching the toolkit projection. The mirrored-shape precedent is
+/// `verify_bundle`'s `required_unless_present` modeling above.
 pub fn restore(state: &FormState) -> FlagVisibility {
     let mut vis = Vec::new();
     if !state.has_value("--md1") {

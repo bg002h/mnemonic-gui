@@ -297,12 +297,18 @@ fn gui_schema_conditional_rules_match_hand_coded_conditionals() {
     // slot_count mismatch UX migrated to a GUI-internal warning banner
     // (Option A pattern, mirrors v0.7.1 row-8 contiguity check).
     // Total floor: 36 -> 34 in lockstep.
+    // v0.27.0 cycle: restore += 1. toolkit v0.46.2 projects restore's
+    // `--from required_unless_present="md1"` as a conditional rule
+    // (`not(flag_present "--md1") → {--from, required}`), so the GUI's
+    // `conditional::restore` is now toolkit-projected + drift-gated. Total
+    // floor: 34 -> 35.
     const SUBCOMMAND_FLOORS: &[(&str, usize)] = &[
         ("bundle", 11),
         ("verify-bundle", 10),
         ("export-wallet", 6),
         ("convert", 4),
         ("derive-child", 3),
+        ("restore", 1),
     ];
     for (name, floor) in SUBCOMMAND_FLOORS {
         let actual = per_subcommand_rules.get(*name).copied().unwrap_or(0);
@@ -315,11 +321,11 @@ fn gui_schema_conditional_rules_match_hand_coded_conditionals() {
              SUBCOMMAND_FLOORS. (skipped_no_conditional: {skipped_no_conditional})"
         );
     }
-    // Total-count sanity check derived from the floors (sum = 34).
+    // Total-count sanity check derived from the floors (sum = 35).
     let total_rules: usize = per_subcommand_rules.values().sum();
     assert!(
-        total_rules >= 34,
-        "drift gate total: expected >= 34 rules across all subcommands, got \
+        total_rules >= 35,
+        "drift gate total: expected >= 35 rules across all subcommands, got \
          {total_rules}. Per-subcommand breakdown: {per_subcommand_rules:?}"
     );
 }

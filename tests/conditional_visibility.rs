@@ -1072,11 +1072,10 @@ fn inspect_all_three_cards_set_all_visible() {
 //
 // Mirrors toolkit `RestoreArgs.from` `required_unless_present = "md1"`
 // (multisig-cosigner restore): --from is required for single-sig restore,
-// optional (own-cosigner cross-check) when --md1 is supplied. GUI-authored
-// rule — the toolkit gui-schema `conditional_rules` projection is a
-// hand-encoded allowlist with no restore arm (gui_schema.rs:336-345), so
-// this is not drift-gated (same posture as repair/inspect). See
-// `conditional::restore`.
+// optional (own-cosigner cross-check) when --md1 is supplied. Since toolkit
+// v0.46.2 the gui-schema projects this rule (restore arm in
+// build_subcommand_conditional_rules), so it is now toolkit-projected +
+// drift-gated by `gui_schema_conditional_drift`. See `conditional::restore`.
 
 #[test]
 fn restore_no_md1_marks_from_required() {
