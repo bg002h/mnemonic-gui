@@ -2743,6 +2743,21 @@ const XPUB_SEARCH_PASSPHRASE_OF_XPUB_FLAGS: &[FlagSchema] = &[
         default_value: None,
         global: false,
     },
+    // toolkit v0.46.0: scan a file of candidate passphrases (one per line);
+    // first match against --target-xpub wins. A PATH (non-secret) — the file
+    // itself holds secret candidates. Mirrors the --decrypt-password-file shape.
+    FlagSchema {
+        name: "--passphrase-candidates-file",
+        kind: FlagKind::Path { stdio_sentinel: false },
+        required: false,
+        repeating: false,
+        help: "Scan a file of candidate BIP-39 passphrases (one per line); \
+               first match against --target-xpub wins. A PATH (non-secret); \
+               the file itself holds secret candidates.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
     FlagSchema {
         name: "--target-xpub",
         kind: FlagKind::Text,
