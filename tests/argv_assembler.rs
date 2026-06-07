@@ -512,9 +512,12 @@ mod d33_default_suppression {
     }
 
     #[test]
-    fn d33_timestamp_epoch_never_matches_now_default() {
-        // D33: "Timestamp(Epoch(n)) never matches `now` default; epoch
-        // values always emit."
+    fn d33_timestamp_epoch_always_emits() {
+        // D33: the `is_at_default` Timestamp `Unix(_)` arm is unconditionally
+        // `false`, so an explicit Epoch value always emits — independent of the
+        // schema default (which is `"0"` since v0.28.0 / toolkit v0.47.3). The
+        // default form never produces an Epoch (it seeds Unset), so a present
+        // `Unix(n)` is always a deliberate user choice.
         let state = FormState::from_pairs(vec![(
             "--timestamp",
             FlagValue::Timestamp(TimestampValue::Unix(0)),
@@ -526,7 +529,7 @@ mod d33_default_suppression {
         );
         assert!(
             argv.iter().any(|a| a == "--timestamp"),
-            "Epoch Timestamp(0) must emit (D33: epoch never matches `now`); got {argv:?}"
+            "explicit Epoch Timestamp(0) must always emit; got {argv:?}"
         );
         assert!(
             argv.iter().any(|a| a == "0"),
