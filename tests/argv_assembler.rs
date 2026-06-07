@@ -126,9 +126,11 @@ fn cell_3_export_wallet_range_timestamp_argv() {
 fn cell_3b_export_wallet_timestamp_now_argv() {
     // Targeted: Timestamp::Now → literal "now" token.
     //
-    // v0.10.0 B.3 (D33): `--timestamp now` is the toolkit v5 default;
-    // default-suppression drops it from argv. The toolkit picks up `now`
-    // from its own clap-derive default at parse time, preserving semantics.
+    // v0.28.0 (toolkit v0.47.3): the export-wallet --timestamp schema default
+    // is now "0" (genesis rescan), so an EXPLICIT Timestamp::Now is no longer
+    // at-default and MUST emit `--timestamp now`. (Pre-v0.28.0 the schema
+    // default was "now" and D33 suppressed it — which silently discarded the
+    // user's explicit `now` once the toolkit default flipped to 0.)
     let state = FormState::from_pairs(vec![(
         "--timestamp",
         FlagValue::Timestamp(TimestampValue::Now),
@@ -138,7 +140,10 @@ fn cell_3b_export_wallet_timestamp_now_argv() {
         subcommand("export-wallet"),
         &state,
     );
-    assert_eq!(argv, vec!["mnemonic", "export-wallet"]);
+    assert_eq!(
+        argv,
+        vec!["mnemonic", "export-wallet", "--timestamp", "now"]
+    );
 }
 
 #[test]
@@ -483,9 +488,13 @@ mod d33_default_suppression {
     }
 
     #[test]
-    fn d33_timestamp_now_at_default_suppresses() {
-        // export-wallet --timestamp schema default is "now".
-        // Timestamp::Now → suppressed.
+    fn d33_timestamp_now_is_emitted_when_default_is_zero() {
+        // v0.28.0 (toolkit v0.47.3): export-wallet --timestamp schema default
+        // is "0", so an explicit Timestamp::Now is NOT at-default and MUST be
+        // emitted. Regression guard for the D33 default-value-drift fix
+        // (gui-timestamp-default-value-drift-v0.47.3): an explicit `now`
+        // selection must reach the toolkit, not be silently dropped to the
+        // toolkit's new `0` default.
         let state = FormState::from_pairs(vec![(
             "--timestamp",
             FlagValue::Timestamp(TimestampValue::Now),
@@ -496,8 +505,8 @@ mod d33_default_suppression {
             &state,
         );
         assert!(
-            !argv.iter().any(|a| a == "--timestamp"),
-            "--timestamp now (schema default) must be suppressed; got {argv:?}"
+            argv.windows(2).any(|w| w == ["--timestamp", "now"]),
+            "explicit --timestamp now must be EMITTED when the default is 0; got {argv:?}"
         );
     }
 
