@@ -72,8 +72,10 @@ pub fn is_at_default(flag: &FlagSchema, value: &FlagValue) -> bool {
         (FlagKind::Range, FlagValue::Range(a, b)) => {
             format!("{},{}", a, b) == default_str
         }
-        // Timestamp: Now matches "now"; Epoch(n) never matches "now"
-        // (epoch values always emit per D33).
+        // Timestamp: `Now` is at-default only when the schema default_str is
+        // literally "now" (export-wallet's default is "0" since toolkit
+        // v0.47.3, so an explicit `Now` emits `--timestamp now`); `Unix(n)`
+        // always emits per D33 (the default form seeds Unset, not a number).
         (FlagKind::Timestamp, FlagValue::Timestamp(t)) => match t {
             TimestampValue::Now => default_str == "now",
             TimestampValue::Unix(_) => false,

@@ -93,8 +93,9 @@ fn cell_3_export_wallet_range_timestamp_argv() {
     // v0.10.0 B.3 (D33): `--range 0,999` and `--format bitcoin-core` are
     // suppressed by the default-suppression predicate (toolkit v5 schema
     // declares those as the defaults). `--timestamp 1700000000` is an
-    // Epoch value, which D33 specifies "Epoch(n) never matches `now`" so
-    // it emits regardless of the `--timestamp now` schema default.
+    // Epoch value; the `is_at_default` Unix arm is always `false`, so it
+    // emits regardless of the schema default (which is `0` since v0.28.0 /
+    // toolkit v0.47.3).
     let state = FormState::from_pairs(vec![
         ("--template", FlagValue::Dropdown("bip84".into())),
         ("--range", FlagValue::Range(0, 999)),

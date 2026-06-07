@@ -1,4 +1,4 @@
-//! Pinned schema for the `mnemonic` CLI from mnemonic-toolkit-v0.46.2.
+//! Pinned schema for the `mnemonic` CLI from mnemonic-toolkit-v0.47.3.
 //!
 //! Five subcommands covered in v0.1 (Section A coverage table):
 //!   - bundle
@@ -1039,9 +1039,9 @@ const EXPORT_WALLET_FLAGS: &[FlagSchema] = &[
         kind: FlagKind::Timestamp,
         required: false,
         repeating: false,
-        help: "Bitcoin Core `timestamp` field. `now` or unix seconds.",
+        help: "Bitcoin Core `timestamp` field. `0` (default; rescan from genesis), `now`, or unix seconds.",
         secret: false,
-        default_value: Some("now"),
+        default_value: Some("0"),
         global: false,
     },
     FlagSchema {
@@ -3685,6 +3685,6 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
 // drift here is a cosmetic banner mismatch, not a functional error.
 pub const SCHEMA: Schema = Schema {
     cli_name: "mnemonic",
-    pinned_version: "mnemonic 0.46.2",
+    pinned_version: "mnemonic 0.47.3",
     subcommands: SUBCOMMANDS,
 };

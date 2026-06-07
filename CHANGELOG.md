@@ -3,6 +3,14 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## mnemonic-gui [0.28.0] — 2026-06-06
+
+**SemVer-MINOR — bump the toolkit pin `v0.46.2` → `v0.47.3` and fix the `export-wallet --timestamp` default-value drift (resolves `gui-timestamp-default-value-drift-v0.47.3`).**
+
+- **Timestamp default-value fix (the pin-necessitated change).** toolkit `v0.47.3` flipped `export-wallet --timestamp`'s default from `now` → `0` (rescan from genesis). The GUI's hand-maintained schema still declared `default_value: Some("now")`, so the D33 default-suppression (`is_at_default`) would treat an **explicit** `Now` selection as at-default and **drop `--timestamp` from the generated argv** — the toolkit would then apply its new `0` default, silently discarding the user's explicit `now`. Fixed: `src/schema/mnemonic.rs` `--timestamp` `default_value` `"now"` → `"0"` (+ help string). No `is_at_default` change needed — the timestamp widget seeds **Unset** in the default form (`widget.rs`), so the default form emits no `--timestamp` and the toolkit applies `0`; an explicit `Now` now correctly emits `--timestamp now`. Regression guard: `argv_assembler` tests inverted (`d33_timestamp_now_is_emitted_when_default_is_zero`, `cell_3b`).
+- **Toolkit pin bump `v0.46.2` → `v0.47.3`** (`Cargo.toml` + `Cargo.lock` + `pinned-upstream.toml` `[mnemonic].tag` + `README.md` toolkit install pin + the `pinned_version` action-bar banner + the schema module-doc header — all in lockstep, `pin_coherence` + `readme_pin_coherence` gated). The toolkit releases `v0.46.3`–`v0.47.3` added **no** flag-NAME / dropdown value-enum / conditional-rule / secret-projection change (measured: `schema_mirror` + `gui_schema_conditional_drift` + `schema_mirror_secret_drift` + `xpub_search_schema_mirror` GREEN against the v0.47.3 binary), so the only schema change is the `default_value` (which `schema_mirror` does not gate). md/ms/mk pins unchanged (current).
+- **No GUI `schema_mirror` impact** — `default_value` is not a flag-NAME or value-enum. Version `v0.27.0` → `v0.28.0` + README self-install pin. Audit trail: `design/SPEC_gui_v0_28_0_pin_bump_v0_47_3.md` + `design/agent-reports/gui-v0_28_0-pin-bump-r0-round{1,2}-review.md`.
+
 ## mnemonic-gui [0.27.0] — 2026-06-06
 
 **SemVer-MINOR — consume `mnemonic-toolkit-v0.46.2`'s restore `conditional_rules` projection + add a README install-pin coherence guard.** Two follow-ons to the v0.25.0 cycle (both resolve toolkit FOLLOWUPs spawned there).
