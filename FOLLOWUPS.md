@@ -7,6 +7,14 @@ mirrors it.
 
 ## Active
 
+### `gui-build-descriptor-presets-pending-pin-bump` — bump toolkit pin → v0.51.0 + add the 11 preset flags to the `build-descriptor` SubcommandSchema
+
+- **Surfaced:** 2026-06-09, toolkit descriptor-builder Release B ship (`mnemonic-toolkit-v0.51.0`). `mnemonic build-descriptor` gained 11 clap flags → the `schema_mirror` flag-NAME lockstep applies; the schema cannot add them until the toolkit pin is bumped to v0.51.0 (chicken-and-egg, same arc as the v0.29.0 build-descriptor surfacing). Pin bump = the usual **6 lockstep sites** (Cargo.toml + Cargo.lock + `pinned-upstream.toml` `[mnemonic].tag` + README pin marker + `pinned_version` banner + module-doc), 4 gated by `pin_coherence`/`readme_pin_coherence`, 2 ungated.
+- **Where:** `src/schema/mnemonic.rs` — extend `BUILD_DESCRIPTOR_FLAGS` with: `--archetype` (**Dropdown** `["decaying-multisig","hashlock-gated","kofn-recovery","simple-timelocked-inheritance","tiered-recovery"]` — alphabetical, == the toolkit `CliArchetype` order), `--key` + `--recovery-key` (**Text, `repeating: true`** — xpub strings, NOT Path; argv order is load-bearing for quorum order), `--threshold` + `--recovery-threshold` + `--older` + `--recovery-older` + `--after` (**Number**), `--final-key` + `--hash` (**Text**), `--emit-spec` (**Boolean**). Measure drift with a local v0.51.0 binary via `MNEMONIC_BIN` BEFORE the add (`schema_mirror` is flag-NAME set-equality vs the pinned binary's `gui-schema`).
+- **Un-gated surfaces this entry is the channel for (toolkit presets SPEC §3.3/§8 — "never assumed"):** (1) `--json` wire-shape: `Diagnostic` gains optional `flag` (skip-serialized when absent; spec-mode output byte-unchanged), new kind `param`, `node_path: "params"` sentinel; (2) `--spec-schema` gains an `archetypes` section (`{flag, kind, required, repeatable, min}` per preset — the surface a future archetype-FORMS wizard consumes); (3) deliberately UN-projected clap rules (`SubcommandSchema.conditional` stays `None` unless this cycle decides otherwise): `--archetype`↔`--spec` mutex, 10 `requires = "archetype"` edges, `--emit-spec` `conflicts_with_all = [--format, --json]` — GUI forms could emit argv clap refuses; CLI is the gate, but make it a recorded decision (compare-cost mutexes ARE hand-projected; precedent both ways).
+- **Status:** open.
+- **Companion:** `mnemonic-toolkit/design/FOLLOWUPS.md::gui-build-descriptor-presets-pending-pin-bump`; relates to `manual-gui-build-descriptor-anchors-pending-pin-bump` (below — the anchor debt grows by the 11 new flags when the manual-gui pin eventually catches up).
+
 ### `manual-gui-build-descriptor-anchors-pending-pin-bump` — next `docs/manual-gui` pin bump must add `build-descriptor` anchors
 
 - **Surfaced:** 2026-06-09, GUI v0.29.0 (surfaced `build-descriptor` in the schema mirror; toolkit pin v0.47.3 → v0.50.0).
