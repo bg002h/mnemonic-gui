@@ -7,6 +7,14 @@ mirrors it.
 
 ## Active
 
+### `manual-gui-build-descriptor-anchors-pending-pin-bump` — next `docs/manual-gui` pin bump must add `build-descriptor` anchors
+
+- **Surfaced:** 2026-06-09, GUI v0.29.0 (surfaced `build-descriptor` in the schema mirror; toolkit pin v0.47.3 → v0.50.0).
+- **Where:** `docs/manual-gui/` lives in the **mnemonic-toolkit** repo, pinned `mnemonic-gui-v0.3.0` (`docs/manual-gui/pinned-upstream.toml:19`); the GUI gate `tests/manual_anchor_coverage.rs` (`#[ignore]`'d, no `MANUAL_GUI_HTML_PATH` in CI) + the toolkit `make lint` check `docs/manual-gui/tests/check_gui_schema_coverage.py`.
+- **What:** adding `build-descriptor` to the live GUI `SubcommandSchema` (v0.29.0) creates a latent obligation. When `docs/manual-gui`'s pin is next bumped to a GUI version that includes `build-descriptor`, the manual-gui HTML must carry the SPEC §2.2 kebab anchors: `mnemonic-build-descriptor` (subcommand) + `mnemonic-build-descriptor-{spec,spec-schema,format,network,json,no-auto-repair}` (per-flag) + `mnemonic-build-descriptor-format-{descriptor,bip388}` and `mnemonic-build-descriptor-network-{mainnet,testnet,signet,regtest}` (per-variant) — or `manual_anchor_coverage --ignored` + `check_gui_schema_coverage.py` fail then.
+- **Status:** open — NOT a v0.29.0 blocker (the gate is `#[ignore]`'d in CI; the toolkit lint is pinned to GUI v0.3.0, which predates build-descriptor). Discharge at the next `docs/manual-gui` pin bump.
+- **Companion:** `mnemonic-toolkit/design/FOLLOWUPS.md::gui-build-descriptor-schema-mirror-pending-pin-bump` (resolved by GUI v0.29.0).
+
 ### `xpub-search-gui-bespoke-hub-pane` — discoverable umbrella hub UI for `xpub-search` modes
 
 - **Surfaced:** 2026-05-18, v0.11.0 plan-vs-codebase recon. Plan §7.2 (in toolkit `/home/bcg/.claude/plans/woolly-spinning-honey.md`) enumerated a "hub" navigation pane with nav cards linking to the 4 mode panes. The GUI has no pane abstraction — every subcommand is a flat row in the subcommand-name ComboBox.

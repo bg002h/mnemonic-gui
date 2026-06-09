@@ -3,6 +3,14 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## mnemonic-gui [0.29.0] — 2026-06-09
+
+**SemVer-MINOR — bump the toolkit pin `v0.47.3` → `v0.50.0` and surface the new `build-descriptor` subcommand in the schema mirror.**
+
+- **`build-descriptor` surfaced (the capability addition).** toolkit `v0.50.0` shipped the descriptor-builder engine Release A (`mnemonic build-descriptor`: a JSON policy-tree spec → `wsh` descriptor + BIP-388 wallet policy + compare-cost preview + node-addressed diagnostics, with `--spec-schema`). Added `BUILD_FORMATS` + `BUILD_DESCRIPTOR_FLAGS` + the `SubcommandSchema` to `src/schema/mnemonic.rs` (flag-NAME set `{--format, --json, --network, --no-auto-repair, --spec, --spec-schema}`, matching `gui-schema`). `--spec` is modeled `FlagKind::Path { stdio_sentinel: true }` (the `--blob` precedent) — the toolkit `--spec` is a file path / `-` / stdin, **never inline JSON**, so the form must emit a valid path (a `Text` widget would emit raw JSON → ENOENT). The recursive node-tree wizard FORM is a later cycle; this entry yields a basic file-picker `--spec` form (render is sound by construction — Path/Boolean/Dropdown all render on existing forms). Characterization: `tests/build_descriptor_schema.rs` (presence + exact flag set + `--spec` is Path + argv no-panic).
+- **Toolkit pin bump `v0.47.3` → `v0.50.0`** (`Cargo.toml` + `Cargo.lock` + `pinned-upstream.toml` `[mnemonic].tag` + `README.md` toolkit install pin + the `pinned_version` action-bar banner + the schema module-doc header — all in lockstep, `pin_coherence` + `readme_pin_coherence` gated). The toolkit releases `v0.47.4`–`v0.50.0` added **no flag-NAME / dropdown value-enum / conditional-rule / secret-projection drift on existing subcommands** (measured: `schema_mirror` GREEN against the v0.50.0 binary *before* the build-descriptor add → zero accumulated drift), so the only schema-content change is the new `build-descriptor` entry. md/ms/mk pins unchanged.
+- **`schema_mirror` now validates `build-descriptor`** (6 flags vs the v0.50.0 `gui-schema`). Version `v0.28.0` → `v0.29.0` + README self-install pin. Resolves the toolkit FOLLOWUP `gui-build-descriptor-schema-mirror-pending-pin-bump`. Latent debt tracked in `FOLLOWUPS.md` (`manual-gui-build-descriptor-anchors-pending-pin-bump`): the next `docs/manual-gui` pin bump must add the `mnemonic-build-descriptor[-…]` anchors. Audit trail: `design/SPEC_gui_v0_29_0_build_descriptor.md` + `design/agent-reports/gui-v0_29_0-build-descriptor-r0-round1-review.md`.
+
 ## mnemonic-gui [0.28.0] — 2026-06-06
 
 **SemVer-MINOR — bump the toolkit pin `v0.46.2` → `v0.47.3` and fix the `export-wallet --timestamp` default-value drift (resolves `gui-timestamp-default-value-drift-v0.47.3`).**

@@ -1,4 +1,4 @@
-//! Pinned schema for the `mnemonic` CLI from mnemonic-toolkit-v0.47.3.
+//! Pinned schema for the `mnemonic` CLI from mnemonic-toolkit-v0.50.0.
 //!
 //! Five subcommands covered in v0.1 (Section A coverage table):
 //!   - bundle
@@ -29,6 +29,8 @@ const NO_POSITIONALS: &[PositionalArgSchema] = &[];
 const NETWORKS: &[&str] = &["mainnet", "testnet", "signet", "regtest"];
 // toolkit v0.36.0: `verify-message --format` value-enum.
 const VERIFY_FORMATS: &[&str] = &["auto", "legacy", "bip322"];
+// toolkit v0.50.0: `build-descriptor --format` value-enum (CliBuildFormat).
+const BUILD_FORMATS: &[&str] = &["descriptor", "bip388"];
 
 const TEMPLATES: &[&str] = &[
     "bip44",
@@ -3402,6 +3404,67 @@ const ADDRESSES_FLAGS: &[FlagSchema] = &[
     NO_AUTO_REPAIR_FLAG,
 ];
 
+// toolkit v0.50.0: `build-descriptor` (descriptor-builder engine Release A).
+// `--spec` is a FILE PATH (or `-` = stdin; omitted ⇒ stdin when not a TTY) —
+// NEVER inline JSON, so it is `Path { stdio_sentinel: true }` (the `--blob`
+// precedent), NOT `Text` (a Text widget would emit raw JSON → the toolkit
+// would treat it as a path → ENOENT). `schema_mirror` is flag-NAME-only, so
+// the Path-vs-Text kind (gui-schema reports "text") does not drift the gate.
+const BUILD_DESCRIPTOR_FLAGS: &[FlagSchema] = &[
+    FlagSchema {
+        name: "--spec",
+        kind: FlagKind::Path { stdio_sentinel: true },
+        required: false,
+        repeating: false,
+        help: "Path to the JSON policy-tree spec (`-` reads from stdin; omitted \
+               reads stdin when not a TTY).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--spec-schema",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Dump the versioned node-tree grammar JSON and exit (ignores other inputs).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--format",
+        kind: FlagKind::Dropdown(BUILD_FORMATS),
+        required: false,
+        repeating: false,
+        help: "Output payload format: `descriptor` (raw) or `bip388` (wallet policy JSON).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--network",
+        kind: FlagKind::Dropdown(NETWORKS),
+        required: false,
+        repeating: false,
+        help: "Network (default mainnet).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--json",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Emit the full envelope (descriptor + bip388 + cost + diagnostics) as JSON.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    NO_AUTO_REPAIR_FLAG,
+];
+
 // Phase 5: wire the conditional-visibility fn pointers per subcommand.
 // v0.3: `derive-child` gained `--passphrase-stdin conflicts_with passphrase`
 // at toolkit v0.13.0; conditional flipped from `None` to
@@ -3446,6 +3509,19 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
         positional_args: NO_POSITIONALS,
         allows_slots: true,
         conditional: Some(crate::form::conditional::export_wallet),
+    },
+    // toolkit v0.50.0: descriptor-builder engine Release A. A JSON policy-tree
+    // spec (`--spec`, file/stdin) → wsh descriptor + BIP-388 + cost preview +
+    // node-addressed diagnostics. Watch-only (no secret flags); the recursive
+    // node-tree wizard FORM is a later cycle — this entry yields a basic
+    // file-picker `--spec` form. `conditional: None` (no clap conflicts).
+    SubcommandSchema {
+        name: "build-descriptor",
+        human_name: "Build Descriptor (policy-tree spec → wsh descriptor + BIP-388)",
+        flags: BUILD_DESCRIPTOR_FLAGS,
+        positional_args: NO_POSITIONALS,
+        allows_slots: false,
+        conditional: None,
     },
     // toolkit v0.43.0: re-derive a wallet export from a third-party source
     // (`--from`) — the inverse-ish sibling of export-wallet. Input is via
@@ -3685,6 +3761,6 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
 // drift here is a cosmetic banner mismatch, not a functional error.
 pub const SCHEMA: Schema = Schema {
     cli_name: "mnemonic",
-    pinned_version: "mnemonic 0.47.3",
+    pinned_version: "mnemonic 0.50.0",
     subcommands: SUBCOMMANDS,
 };
