@@ -7,6 +7,27 @@ mirrors it.
 
 ## Active
 
+### `audit-2026-06-10-backlog` — verified findings from the first independent Fable constellation audit
+
+- **Surfaced:** 2026-06-10, the 23-agent read-only architecture audit (find → adversarial-verify → synthesize). 48 verified findings constellation-wide (0 critical); this repo's share below. **Full report + per-finding detail (claim/evidence/fix/disposition):** `../../mnemonic-toolkit/design/agent-reports/constellation-architecture-audit-2026-06-10.md` (committed in the toolkit repo). Promote any line to its own `### <id>` entry when worked; resolve here as fixed.
+- **This repo's verified findings (14):**
+  - **[IMPORTANT]** `gui-actions-v4-node20-deprecation` — Every JS action in both gui workflows is still on @v4 (checkout x3, upload-artifact, download-artifact) while the toolkit deliberately bumped all its JS-action sites @v4->@v5 for the GitHub Node-20 de (`.github/workflows/build.yml:19,56,112,125; .github/workflows/schema-mirror.yml:15`) [RESOLVED this session — audit I7/I8]
+  - **[IMPORTANT]** `gui-tag-skips-all-gates` — On a mnemonic-gui-v* tag push only build.yml fires (clippy + cargo build --release + artifact upload + GitHub release) — it runs NO cargo test. The whole test suite (schema_mirror, archetype_schema_mi (`.github/workflows/build.yml:3-8, .github/workflows/schema-mirror.yml:3-7`) [RESOLVED this session — audit I7/I8]
+  - **[IMPORTANT]** `positionals-never-redacted` — redact_for_persistence() copies positionals verbatim with no filter; the three redaction drop-classes (SECRET_FLAG_NAMES, schema_secret_flag_names, SECRET_NODE_TYPES, SECRET_SLOT_SUBKEYS) match no pos (`src/persistence.rs:115`)
+  - **[IMPORTANT]** `secret-false-flags-render-cleartext-no-confirm` — xpub-search --phrase is secret:false (mnemonic.rs:2286 + two sibling tables) and ms repair --ms1 is secret:false (ms.rs:321). flag_is_secret is false for them, so they route to a plain unmasked text_e (`src/schema/mnemonic.rs:2286, src/schema/ms.rs:321`)
+  - **[IMPORTANT]** `tree-wif-hex-privkey-in-key-fields-unredacted` — is_xprv_like matches only the extended-private prefix shape (prv at byte 1..4 after stripping [origin]). blank_xprv_keys blanks only those. The toolkit gate documents WIF/raw-hex secrets as not prefix (`src/form/tree_model.rs:650-669`)
+  - **[minor]** `conditional-drift-gate-stale-binary-doc-lie` — The module doc (:13) states the gate is 'Skipped (returns early) when MNEMONIC_BIN is unset', but mnemonic_bin() always returns Some (PATH fallback to "mnemonic"), so a stale/unpinned `mnemonic` on PA (`tests/gui_schema_conditional_drift.rs:13,28-33,194-210`)
+  - **[minor]** `paste-warn-live-wiring-untested` — widget_secret.rs asserts only the pure predicate should_warn_on_paste(flag,len) + SecretLineEdit buffer/zeroize transitions; its own doc (:18-24) defers the live check (paste into the rendered secret  (`tests/widget_secret.rs:18-24,42-71`)
+  - **[minor]** `paste-warn-modal-dead-code` — PASTE_WARN_MODAL_TEXT and should_warn_on_paste are never called anywhere in src/. SecretLineEdit does no paste detection. The paste-warning affordance described in module prose and SPEC does not exist (`src/secrets.rs:164-196`)
+  - **[minor]** `secret-drift-gate-version-skip-silent` — fetch_v5_schema() returns None (→ silent PASS) when the binary can't spawn, exits non-zero, JSON won't parse, OR version<5. The version<5 branch means a regressed/pre-v5 pinned binary would silently d (`tests/schema_mirror_secret_drift.rs:61-91`)
+  - **[minor]** `slot-secret-values-rendered-unmasked` — The slot value edit is always plain (no branch on row.subkey.is_secret_bearing()), so secret-bearing slots render in cleartext with no masking or paste-warn. Removing a slot row drops a plain String v (`src/form/slot_editor.rs:219-236`)
+  - **[obs]** `conditional-cells-lookup-not-live-form` — Every cell calls run_conditional(name,state) → the pure conditional fn → and asserts the returned (flag,Visibility) map; none drives the live form to confirm the rendered widget is actually hidden/dis (`tests/conditional_visibility.rs:36-73 (helper + all cells)`)
+  - **[obs]** `json-envelope-wire-shape-ungated-stale-fixtures` — The runtime --json envelopes (bundle, import-wallet, export-wallet, xpub-search) remain ungated for wire-shape (schema_mirror is flag-name only). The new spec-schema surface IS now wire-shape-gated (a (`tests/cli_envelope_smoke.rs:1-59`)
+  - **[obs]** `persistence-unwired-redaction-never-runs` — persistence::save, load, redact_persisted_state, default_state_path have no callers in src/ (only tests). MnemonicGuiApp::new(cc) ignores cc.storage, there is no save() override on eframe::App, run_na (`src/main.rs:76`)
+  - **[obs]** `run-confirm-and-preview-show-secrets-cleartext` — assemble_argv pushes secret values directly into argv. The main form unconditionally renders 'Preview: {preview}' where preview is render_copy_command(&argv), so every secret value is shown on the mai (`src/main.rs:804, src/main.rs:842-844`)
+- **Status:** open (backlog index; individual items dispositioned in the report).
+- **Tier:** audit-backlog.
+
 ### `runner-tracing-test-flaky-under-parallel-load` — cell_2_tracing_init_logs_subprocess_spawn intermittently misses the exit event
 
 - **Surfaced:** 2026-06-10, v0.31.1 impl review (observed once under full-suite load; passed 5/5 isolated + on rerun; the file was untouched by the cycle).
