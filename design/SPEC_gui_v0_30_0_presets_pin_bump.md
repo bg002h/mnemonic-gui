@@ -85,7 +85,7 @@ GUI CHANGELOG **is** maintained — add `[0.30.0]`. Bump `Cargo.toml` version 0.
 - `src/form/widget.rs` — secret branch (`flag_is_secret` + `FlagKind::Text` → `secret_widgets`); non-secret single-row `position()` lookup + write-back.
 - `src/form/invocation.rs` — `assemble_argv` repeating loops over `state.values` (secret AND non-secret); the v0.3-fold comment on repeating-secret routing.
 - `src/schema/mod.rs` — `FlagKind` (incl. `Number{min, max: NumberMax::{Static, FromSlotCount}}`), `FlagSchema.repeating`, `SubcommandSchema.conditional: Option<fn(&FormState) -> FlagVisibility>`.
-- `src/schema/mnemonic.rs` — `BUILD_DESCRIPTOR_FLAGS` (v0.29.0, 6 flags); module-doc `:1` "from mnemonic-toolkit-v0.50.0"; `pinned_version` banner `:3764`; `--to` = the live repeating-Dropdown precedent; repeating+secret census (R0-r1 M1): `--ms1` 2 sites / `--share` **3** Text sites secret:true.
+- `src/schema/mnemonic.rs` — `BUILD_DESCRIPTOR_FLAGS` (v0.29.0, 6 flags); module-doc `:1` "from mnemonic-toolkit-v0.50.0"; `pinned_version` banner `:3764`; `--to` = the live repeating-Dropdown precedent; repeating+secret census: `--ms1` 2 sites / `--share` **2** Text sites (impl-review I1: the R0-r1 M1 'correction' to 3 was itself wrong — `SEED_XOR_COMBINE_FLAGS` `--share` is NodeValueComposite, not Text, and is unaffected).
 - `src/secrets.rs` — `flag_is_secret` (`flag.secret || SECRET_FLAG_NAMES`).
 - Toolkit binary 0.52.0 `build-descriptor --help` — the 12-flag surface + value lists for `--archetype`/`--allow`.
 

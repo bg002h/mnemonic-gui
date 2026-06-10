@@ -19,7 +19,8 @@
 //!   export-wallet:
 //!    11. --template conflicts_with --descriptor
 //!   build-descriptor (v0.30.0):
-//!    12-15. --archetype conflicts_with --spec (incl. the "" UNSET-sentinel
+//!    16-19 (fn names cell_12..cell_15 — header renumbered, impl-review M1).
+//!    --archetype conflicts_with --spec (incl. the "" UNSET-sentinel
 //!           and "(none)" round-trip cells — see the cells at file end)
 
 use mnemonic_gui::schema::{self, FlagValue, FormState, Visibility};
