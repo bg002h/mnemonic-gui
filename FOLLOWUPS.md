@@ -7,6 +7,14 @@ mirrors it.
 
 ## Active
 
+### `runner-tracing-test-flaky-under-parallel-load` — cell_2_tracing_init_logs_subprocess_spawn intermittently misses the exit event
+
+- **Surfaced:** 2026-06-10, v0.31.1 impl review (observed once under full-suite load; passed 5/5 isolated + on rerun; the file was untouched by the cycle).
+- **Where:** `tests/runner_integration.rs:140-168` — thread-local `tracing::subscriber::set_default` under parallel test threads (callsite-interest race class); the captured output contained `subprocess spawn` but not `subprocess exit 0` (`runner.rs:108`).
+- **What:** serialize the cell (or use a dedicated subscriber guard) so CI can't intermittently red a green push.
+- **Status:** open.
+- **Tier:** test-hygiene.
+
 ### `repeating-secret-flags-never-reach-argv` — live bug: secret+repeating Text flags render into `secret_widgets` but `assemble_argv` reads them from `state.values`
 
 - **Surfaced:** 2026-06-09, GUI v0.30.0 cycle (SPEC §5; pre-existing — NOT introduced by the v0.30.0 repeating-row widget, whose dispatch deliberately leaves the secret branch first/unchanged).
@@ -14,12 +22,12 @@ mirrors it.
 - **What:** for every secret + repeating + Text flag — `--ms1` (2 repeating+secret sites in `src/schema/mnemonic.rs`: `VERIFY_BUNDLE_FLAGS` + `IMPORT_WALLET_FLAGS`) and `--share` (2 sites: `SLIP39_COMBINE_FLAGS`, `MS_SHARES_COMBINE_FLAGS` — impl-review I1 corrected the census: `SEED_XOR_COMBINE_FLAGS` `--share` is `NodeValueComposite`, NOT Text, so it bypasses the secret-widget branch, routes through `state.values`, and already emits correctly — it is the counter-example that works, and as of v0.30.0 it gains multi-row UI) — a LIVE form renders a single secret widget whose buffer lives in `secret_widgets`, while emission reads repeating secrets from `state.values` → **the live form emits NOTHING for these flags**. Masked by the kittest/unit cells, which synthesize `state.values` entries directly (e.g. `cell_import_wallet_repeating_ms1_argv`) and so exercise only the assembler half.
 - **Fix direction (the v0.3 fold comment's design):** per-row `SecretLineEdit` rendering routed through `state.values` — render N secret rows (one `SecretLineEdit` per row, keyed per-row), write each row's value into `state.values` so the existing assembler loop emits them; keep the paste-warn modal + zeroize-per-widget posture; accept (as the v0.3 fold already did) that the values-map String copies are plain heap allocations during emission.
 - **Why deferred:** out of A1 scope (consult ruling + SPEC §3 — the v0.30.0 repeating-row widget covers NON-secret flags only; the secret branch order is load-bearing and unchanged). Needs its own cycle: secret-row UX (per-row paste-warn, per-row remove) + the `secret_widgets`→`state.values` migration story for persisted sessions.
-- **Status:** open.
+- **Status:** **resolved** `mnemonic-gui-v0.31.1` (2026-06-10). **Fix direction INVERTED vs this entry** (R0 adjudicated): values-routing would have PERSISTED seed material (`redact_for_persistence` never dropped schema-secret Text names) — instead `secret_widgets` went per-row (`BTreeMap<String, Vec<SecretLineEdit>>`; type-level never-persist + per-row zeroize preserved) and the assembler secret branch is KIND-GATED mirroring the widget dispatch (Text→vec; NodeValueComposite falls through — seed-xor unaffected; Boolean no-emit preserved → `boolean-stdin-secret-toggles-never-emit`). Belt-and-suspenders: the redaction union (field-extracted schema-secret names) incidentally closed TWO pre-existing plaintext persistence leaks (`xpub-search-inline-phrase-not-secret-classified`, `ms-repair-ms1-not-secret-classified`) + filed the positional one. THE silent migration hazard was `FormState::has_value` (Vec::is_empty compiles with inverted meaning). SPEC `design/SPEC_gui_v0_31_1_repeating_secrets.md` (R0 4 rounds; impl review GREEN).
 - **Tier:** GUI-local (no sibling-repo flag surface change; the toolkit CLIs already accept the repeats).
 
-### `boolean-stdin-secret-toggles-never-emit` — the 5 Boolean `secret: true` `*-stdin` toggles emit NOTHING from the GUI form
+### `boolean-stdin-secret-toggles-never-emit` — the Boolean `*-stdin` toggles (18 sites) emit NOTHING from the GUI form
 
-- **Surfaced:** 2026-06-10, v0.31.1 cycle (SPEC §2 R0-r1 C1/I3 — the kind-gating of the assembler secret branch made the pre-existing suppression explicit).
+- **Surfaced:** 2026-06-10, v0.31.1 cycle (SPEC §2 R0-r1 C1/I3 — the kind-gating of the assembler secret branch made the pre-existing suppression explicit). **Impl-review amendment: 18 suppressed sites, not 17** — `ms.rs:275-281` carries an 18th `--passphrase-stdin` (`secret: false` but name-matched via `SECRET_FLAG_NAMES`, so the Boolean `continue` eats it identically).
 - **Where:** `src/form/invocation.rs::assemble_argv` secret-flag branch — the `else { continue }` arm (non-Text, non-NodeValueComposite secrets). Pre-v0.31.1 the kind-BLIND secret branch ate them the same way (`flag_is_secret` → repeating values-read finds nothing for a Boolean / scalar `secret_widgets.get` finds no widget for a checkbox flag → `continue`); v0.31.1 PRESERVES that no-emit byte-identically and records it.
 - **What:** the 5 Boolean `secret: true` toggle names — `--passphrase-stdin` (×12 sites), `--secret-stdin` (×2), `--decrypt-password-stdin` (×2), `--bip38-passphrase-stdin` (×1; all 17 sites `repeating: false`) — render as generic checkboxes (they fail the widget's Text gate) but their checked state NEVER reaches argv: the secret branch `continue`s before the generic Boolean emission. A user checking `--passphrase-stdin` in the GUI gets an argv without it (the GUI runner also provides no stdin channel for the value — the flag would hang or error if it DID emit, which is why the suppression has never been reported). Decide deliberately: either emit them (requires a stdin-feed story in `runner.rs`) or keep suppressing and grey them out in the form so the dead checkbox isn't a lie.
 - **Status:** open.
