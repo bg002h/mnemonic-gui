@@ -15,10 +15,12 @@ use mnemonic_gui::form::slot_editor::{SlotState, SlotSubkey};
 use mnemonic_gui::form::widget;
 use mnemonic_gui::help::url as help_url;
 use mnemonic_gui::path_detect::Detected;
+use mnemonic_gui::persistence::{self, PersistedState};
 use mnemonic_gui::runner;
 use mnemonic_gui::schema::{self, FlagValue, FormState};
 use mnemonic_gui::secrets;
 use std::collections::BTreeMap;
+use std::path::PathBuf;
 
 /// Cross-platform GUI overlay for the m-format constellation CLIs.
 #[derive(Parser, Debug)]
@@ -35,16 +37,34 @@ fn main() -> eframe::Result<()> {
     init_tracing(cli.debug);
     tracing::debug!(target: "mnemonic_gui::main", "tracing initialized");
 
+    // v0.35.0 Phase-8 wiring (SPEC Decision 1): resolve the state path
+    // ONCE here and load BEFORE run_native — window geometry can only be
+    // applied via the ViewportBuilder (post-hoc ViewportCommand resize
+    // flickers). The resolved path (not a re-resolution) travels into the
+    // app so load and save can never diverge; `None` → never persist.
+    let state_path = persistence::default_state_path();
+    let loaded_state = state_path.as_deref().and_then(persistence::load);
+    let window_size = loaded_state
+        .as_ref()
+        .and_then(|s| s.window_size)
+        .unwrap_or([920.0, 720.0]);
+    let mut viewport = egui::ViewportBuilder::default()
+        .with_inner_size(window_size)
+        .with_title("mnemonic-gui");
+    // Wayland: outer position is compositor-private, so persisted
+    // window_position stays None there and with_position is a no-op.
+    if let Some(pos) = loaded_state.as_ref().and_then(|s| s.window_position) {
+        viewport = viewport.with_position(pos);
+    }
+
     let native_options = eframe::NativeOptions {
-        viewport: egui::ViewportBuilder::default()
-            .with_inner_size([920.0, 720.0])
-            .with_title("mnemonic-gui"),
+        viewport,
         ..Default::default()
     };
     eframe::run_native(
         "mnemonic-gui",
         native_options,
-        Box::new(|cc| Ok(Box::new(MnemonicGuiApp::new(cc)))),
+        Box::new(move |cc| Ok(Box::new(MnemonicGuiApp::new(cc, loaded_state, state_path)))),
     )
 }
 
@@ -96,10 +116,27 @@ struct MnemonicGuiApp {
     /// discipline preserves user-typed values across template switches —
     /// no auto-clear, no destructive mutation, no undo affordance needed.
     last_template: BTreeMap<String, Option<String>>,
+    /// v0.35.0 Phase-8 wiring: the state.json path resolved ONCE in
+    /// `main()` (SPEC Decision 1 — `on_exit` saves to THIS stored path;
+    /// re-resolving could diverge if the env mutated mid-run). `None` →
+    /// never save.
+    state_path: Option<PathBuf>,
+    /// v0.35.0: last-known window geometry, snapshotted per frame in
+    /// `update()` (`on_exit` has no egui::Context). Some-GUARDED — while
+    /// minimized egui-winit reports both viewport rects as `None`, so the
+    /// snapshot only overwrites these on `Some`. Seeded from the loaded
+    /// state so a session that never yields a `Some` (e.g. position on
+    /// Wayland) re-persists the prior values instead of dropping them.
+    window_size: Option<[f32; 2]>,
+    window_position: Option<[f32; 2]>,
 }
 
 impl MnemonicGuiApp {
-    fn new(cc: &eframe::CreationContext<'_>) -> Self {
+    fn new(
+        cc: &eframe::CreationContext<'_>,
+        loaded: Option<PersistedState>,
+        state_path: Option<PathBuf>,
+    ) -> Self {
         // v0.2 Phase B.2: OS-snapshot occlusion. macOS:
         // NSWindowSharingType::None; Windows: WDA_EXCLUDEFROMCAPTURE;
         // Linux: no-op (no compositor API at v0.2 — documented at
@@ -199,14 +236,37 @@ impl MnemonicGuiApp {
             .expect("install ctrlc handler (Windows)");
         }
 
-        let mut active_subcommand = BTreeMap::new();
-        active_subcommand.insert(CliTab::Mnemonic, "bundle".to_string());
-        active_subcommand.insert(CliTab::Md, "inspect".to_string());
-        active_subcommand.insert(CliTab::Ms, "inspect".to_string());
-        active_subcommand.insert(CliTab::Mk, "inspect".to_string());
+        // v0.35.0 Phase-8 wiring (SPEC Decision 2): restore the persisted
+        // selections / form state / toggles / geometry. The default (no
+        // state file) path is unchanged: restore_selections on a default
+        // PersistedState reproduces exactly the pre-wiring hardcoded
+        // selections, and the demo seed below fires for the absent key.
+        let mut app_state = AppState::detect_all();
+        // The 3 output-pane toggles default to `true` on a fresh start;
+        // `PersistedState::default()` has them `false` (derive(Default) —
+        // the serde default_show_true only covers MISSING fields at
+        // deserialize), so they are taken from `loaded` BEFORE the
+        // unwrap_or_default below.
+        let (show_cmdline, show_stdout, show_stderr) = match &loaded {
+            Some(s) => (s.show_cmdline, s.show_stdout, s.show_stderr),
+            None => (true, true, true),
+        };
+        let loaded = loaded.unwrap_or_default();
+        let (active_tab, active_subcommand) =
+            persistence::restore_selections(&loaded, |t| app_state.tab_available(t));
+        app_state.active_tab = active_tab;
+        // Direct field move — FormState is not Clone; the loaded state is
+        // owned. Stale flag names in restored values stay INERT (render +
+        // argv are schema-driven; no prune-on-load).
+        let mut form_state = loaded.form_state_per_subcommand;
 
         // Seed the bundle form with reasonable defaults for the screenshot
         // demo (concrete enough to show realistic flag rendering).
+        //
+        // v0.35.0 demo-seed merge rule (SPEC R0-r1 M2): the restored map
+        // wins for keys it contains — the seed applies ONLY when the
+        // "mnemonic:bundle" key is absent (never re-seed over a
+        // user-emptied form).
         //
         // v0.16.0 P5: REMOVED the unconditional `--multisig-path-family =
         // bip87` seed. With the default `--template = bip84` (single-sig),
@@ -218,34 +278,38 @@ impl MnemonicGuiApp {
         // (`gui-default-form-state-template-aware-seed`) may re-introduce
         // a template-aware seed that only sets multisig defaults when the
         // user picks a multisig template.
-        let mut form_state = BTreeMap::new();
-        form_state.insert(
-            "mnemonic:bundle".into(),
-            FormState::from_pairs(vec![
-                ("--network", FlagValue::Dropdown("mainnet".into())),
-                ("--template", FlagValue::Dropdown("bip84".into())),
-                ("--account", FlagValue::Number(0)),
-            ])
-            .with_slots(SlotState {
-                rows: vec![mnemonic_gui::form::slot_editor::SlotRow {
-                    index: 0,
-                    subkey: SlotSubkey::Xpub,
-                    value: "".into(),
-                }],
-            }),
-        );
+        if !form_state.contains_key("mnemonic:bundle") {
+            form_state.insert(
+                "mnemonic:bundle".into(),
+                FormState::from_pairs(vec![
+                    ("--network", FlagValue::Dropdown("mainnet".into())),
+                    ("--template", FlagValue::Dropdown("bip84".into())),
+                    ("--account", FlagValue::Number(0)),
+                ])
+                .with_slots(SlotState {
+                    rows: vec![mnemonic_gui::form::slot_editor::SlotRow {
+                        index: 0,
+                        subkey: SlotSubkey::Xpub,
+                        value: "".into(),
+                    }],
+                }),
+            );
+        }
 
         Self {
-            app_state: AppState::detect_all(),
+            app_state,
             active_subcommand,
             form_state,
             last_run: None,
             last_run_error: None,
-            show_cmdline: true,
-            show_stdout: true,
-            show_stderr: true,
+            show_cmdline,
+            show_stdout,
+            show_stderr,
             pending_confirm_argv: None,
             last_template: BTreeMap::new(),
+            state_path,
+            window_size: loaded.window_size,
+            window_position: loaded.window_position,
         }
     }
 
@@ -265,6 +329,26 @@ impl MnemonicGuiApp {
 
 impl eframe::App for MnemonicGuiApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        // ── Per-frame geometry snapshot (v0.35.0 Phase-8 wiring) ────────
+        // on_exit has no egui::Context, so window geometry is snapshotted
+        // here every frame (cheap). Some-GUARDED (SPEC R0-r1 I3): while
+        // the window is MINIMIZED egui-winit sets both viewport rects to
+        // None, and the 1 Hz keepalive thread keeps frames firing — an
+        // unconditional snapshot would overwrite the last good geometry
+        // with None (minimize → quit would lose it). Only overwrite on
+        // Some. Wayland: outer position is compositor-private →
+        // outer_rect stays None there and window_position keeps its
+        // seeded/prior value.
+        ctx.input(|i| {
+            let viewport = i.viewport();
+            if let Some(inner) = viewport.inner_rect {
+                self.window_size = Some([inner.size().x, inner.size().y]);
+            }
+            if let Some(outer) = viewport.outer_rect {
+                self.window_position = Some([outer.min.x, outer.min.y]);
+            }
+        });
+
         // ── Top tab strip ────────────────────────────────────────────────
         egui::TopBottomPanel::top("tabs").show(ctx, |ui| {
             ui.horizontal(|ui| {
@@ -899,7 +983,45 @@ impl eframe::App for MnemonicGuiApp {
 
     fn on_exit(&mut self) {
         tracing::info!("on_exit() called — clean shutdown via wayland close event");
-        // SPEC §9: best-effort zeroize sweep on close.
+        // ── v0.35.0 Phase-8 wiring: save state.json ──────────────────────
+        // ORDER IS LOAD-BEARING (SPEC Decision 4 / R0-r1 I1): save FIRST,
+        // then the zeroize sweep below — `zeroize_form_state` blanks every
+        // STRING-BEARING value (Text/Dropdown/Path/composite + all slot
+        // rows + positionals; Number/Bool/Unset untouched), not just
+        // secrets, so sweeping first would persist a gutted form.
+        //
+        // Construction is BORROW-SIDE (R0-r1 I2 — do NOT mem::take):
+        // `redact_for_persistence` returns owned without Clone and
+        // `save()`'s internal re-redaction is idempotent, so
+        // `self.form_state` stays intact for the sweep. A mem::take would
+        // silently turn the sweep into a no-op (secrets never zeroized at
+        // exit).
+        if let Some(path) = &self.state_path {
+            let persisted = PersistedState {
+                schema_version: persistence::SCHEMA_VERSION,
+                last_cli_tab: self.app_state.active_tab.bin_name().to_string(),
+                last_subcommand_per_tab: self
+                    .active_subcommand
+                    .iter()
+                    .map(|(tab, sub)| (tab.bin_name().to_string(), sub.clone()))
+                    .collect(),
+                window_size: self.window_size,
+                window_position: self.window_position,
+                show_cmdline: self.show_cmdline,
+                show_stdout: self.show_stdout,
+                show_stderr: self.show_stderr,
+                form_state_per_subcommand: self
+                    .form_state
+                    .iter()
+                    .map(|(k, v)| (k.clone(), persistence::redact_for_persistence(v)))
+                    .collect(),
+            };
+            if let Err(e) = persistence::save(&persisted, path) {
+                tracing::warn!("failed to save state.json to {}: {e}", path.display());
+            }
+        }
+        // SPEC §9: best-effort zeroize sweep on close. Runs AFTER the save
+        // above — see the load-bearing order comment there.
         for state in self.form_state.values_mut() {
             secrets::zeroize_form_state(state);
         }

@@ -274,6 +274,8 @@ fn cell_5_missing_file_yields_none() {
     assert!(load(&path).is_none(), "missing file → None");
 }
 
+// v0.35.0: load() now ALSO renames a malformed file to .bak — the rename
+// leg is pinned by persistence_wiring_v0_35_0 T3; this cell pins only None.
 #[test]
 fn cell_6_malformed_json_yields_none() {
     let dir = tempfile::TempDir::new().unwrap();

@@ -3,6 +3,15 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## mnemonic-gui [0.35.0] — 2026-06-10
+
+**SemVer-MINOR — Phase-8 persistence WIRED: session restore via `state.json` (window geometry, tab/subcommand selections, output toggles, non-secret form values), saved on exit.**
+
+- The feature-complete persistence module (built Phase 8, hardened v0.31.1→v0.34.0, previously ZERO callers) is wired into the app lifecycle per the converged §10 design: `main()` loads `state.json` before `run_native` (restored geometry seeds the `ViewportBuilder`); `new()` restores tab (validated + availability-fallback via the new `CliTab::from_bin_name`), per-tab subcommand (schema-validated, fallback to defaults — the new lib `persistence::restore_selections` helper), the form-state map (direct move; the demo seed applies only when its key is absent), and the 3 output toggles; `update()` snapshots geometry per frame (`Some`-guarded — egui sets the rects `None` while minimized and the keepalive thread keeps frames firing); `on_exit()` saves FIRST then runs the zeroize sweep (order is LOAD-BEARING: the sweep blanks every string-bearing value, not just secrets) with the `PersistedState` built borrow-side via `redact_for_persistence` (NOT `mem::take`, which would silently no-op the sweep).
+- Robustness: a malformed `state.json` is now renamed `.json.bak` like a version mismatch (corrupt files preserved for diagnosis — also gracefully covers a signal-torn write); `MNEMONIC_GUI_STATE_PATH` overrides the path (documented; also the test seam — env-mutating cells isolated to a dedicated test binary); state path resolved ONCE and stored. Restored fresh-start toggles fixed against the `Default`-vs-serde-default trap (`unwrap_or_default` would have flipped them off).
+- Secrets: nothing changes — `secret_widgets` is `#[serde(skip)]` (cannot round-trip, by type), and the end-to-end cell re-pins it at the wiring layer. Stale flag names in restored values are inert (schema-driven render/argv); stale tab/subcommand fall back safely.
+- Tests: `tests/persistence_wiring_v0_35_0.rs` (10 cells: from_bin_name, restore validation ×5, `.bak`-on-malformed (RED-first ×1 + 2 symmetry/missing-file re-pins), end-to-end six-group round-trip + secret non-survival) + `tests/persistence_env_seam.rs` (the sole env-mutating cell). Resolves `persistence-unwired-redaction-never-runs`. SPEC + R0 ×2 + impl review: `design/SPEC_gui_v0_35_0_persistence_wiring.md`, `design/agent-reports/gui-v0-35-0-persistence-wiring-*.md`; recon `cycle-prep-recon-phase8-persistence-wiring.md`.
+
 ## mnemonic-gui [0.34.0] — 2026-06-10
 
 **SemVer-MINOR — persistence-redaction hardening (audit I5 + I6): secret POSITIONALS never persist (by type) and the tree persist walk flips to a positive extended-public allowlist.**

@@ -25,6 +25,7 @@ use std::path::Path;
 
 use serde::{Deserialize, Serialize};
 
+use crate::app::CliTab;
 use crate::form::slot_editor::SlotState;
 use crate::schema::{FlagValue, FormState};
 use crate::secrets::{SECRET_FLAG_NAMES, SECRET_NODE_TYPES, SECRET_SLOT_SUBKEYS};
@@ -165,6 +166,68 @@ pub fn redact_persisted_state(state: &PersistedState) -> PersistedState {
     }
 }
 
+/// Schema lookup by tab. Replicates the bin-private
+/// `MnemonicGuiApp::schema_for` (main.rs) so the restore-validation
+/// helper below is lib-side and reachable from `tests/` (v0.35.0 SPEC
+/// T2 / R0-r1 M3).
+fn schema_for(tab: CliTab) -> &'static crate::schema::Schema {
+    match tab {
+        CliTab::Mnemonic => &crate::schema::mnemonic::SCHEMA,
+        CliTab::Md => &crate::schema::md::SCHEMA,
+        CliTab::Ms => &crate::schema::ms::SCHEMA,
+        CliTab::Mk => &crate::schema::mk::SCHEMA,
+    }
+}
+
+/// Per-tab default subcommand — mirrors the hardcoded seed in
+/// `MnemonicGuiApp::new` (`bundle` for mnemonic, `inspect` for the three
+/// codec tabs).
+fn default_subcommand(tab: CliTab) -> &'static str {
+    match tab {
+        CliTab::Mnemonic => "bundle",
+        CliTab::Md | CliTab::Ms | CliTab::Mk => "inspect",
+    }
+}
+
+/// Validate + map the persisted tab/subcommand selections onto live app
+/// selections (v0.35.0 Phase-8 wiring, SPEC Decision 2).
+///
+/// - `last_cli_tab` parses via [`CliTab::from_bin_name`]; unknown names
+///   OR tabs whose binary is unavailable (`avail` returns `false` — the
+///   caller passes `AppState::tab_available`) fall back to
+///   [`CliTab::Mnemonic`].
+/// - Each `last_subcommand_per_tab` entry is validated against that
+///   tab's schema `subcommands`; invalid/missing entries fall back to the
+///   per-tab default (`bundle`/`inspect`). Every tab gets an entry, so a
+///   `PersistedState::default()` input reproduces exactly the pre-wiring
+///   hardcoded selections.
+pub fn restore_selections(
+    state: &PersistedState,
+    avail: impl Fn(CliTab) -> bool,
+) -> (CliTab, BTreeMap<CliTab, String>) {
+    let tab = CliTab::from_bin_name(&state.last_cli_tab)
+        .filter(|t| avail(*t))
+        .unwrap_or(CliTab::Mnemonic);
+    let subcommands = CliTab::ALL
+        .iter()
+        .map(|t| {
+            let restored = state
+                .last_subcommand_per_tab
+                .get(t.bin_name())
+                .filter(|s| {
+                    schema_for(*t)
+                        .subcommands
+                        .iter()
+                        .any(|sub| sub.name == s.as_str())
+                })
+                .cloned()
+                .unwrap_or_else(|| default_subcommand(*t).to_string());
+            (*t, restored)
+        })
+        .collect();
+    (tab, subcommands)
+}
+
 /// Serialize + write the redacted state to `path`. The on-disk JSON
 /// NEVER contains secret-class entries.
 ///
@@ -187,14 +250,23 @@ pub fn save(state: &PersistedState, path: &Path) -> std::io::Result<()> {
 }
 
 /// Read + parse `state.json` from `path`. Returns `Some(state)` on
-/// success. On schema-version mismatch, renames `<path>` to
-/// `<path>.bak` and returns `None` (caller writes a fresh default).
-/// On any other error (missing file, malformed JSON), returns `None`.
+/// success. On schema-version mismatch OR malformed JSON, renames
+/// `<path>` to `<path with .json.bak extension>` and returns `None`
+/// (caller writes a fresh default; the bad file is preserved for
+/// diagnosis instead of being silently overwritten at the next save —
+/// v0.35.0 SPEC Decision 5). A missing file returns plain `None`.
 pub fn load(path: &Path) -> Option<PersistedState> {
     let raw = fs::read_to_string(path).ok()?;
     let parsed: PersistedState = match serde_json::from_str(&raw) {
         Ok(p) => p,
-        Err(_) => return None,
+        Err(_) => {
+            // v0.35.0: symmetric with the version-mismatch leg below —
+            // preserve the corrupt file (e.g. a save torn by the signal
+            // handler's 3 s process::exit grace) as `.json.bak`.
+            let bak = path.with_extension("json.bak");
+            let _ = fs::rename(path, &bak);
+            return None;
+        }
     };
     if parsed.schema_version != SCHEMA_VERSION {
         let bak = path.with_extension("json.bak");
@@ -207,7 +279,19 @@ pub fn load(path: &Path) -> Option<PersistedState> {
 /// Convenience for the GUI's `directories::ProjectDirs`-based config-dir
 /// lookup. SPEC §10: `<config_dir>/state.json`. Returns `None` if no
 /// platform config dir is available (rare; treated as "don't persist").
+///
+/// v0.35.0 (Phase-8 wiring, SPEC Decision 6): when the
+/// `MNEMONIC_GUI_STATE_PATH` env var is set to a non-empty value, it
+/// overrides the platform config-dir resolution and is used verbatim as
+/// the state-file path. This is user-visible production behavior (point
+/// the GUI at an alternate state file / a throwaway path) and the test
+/// seam (integration tests never touch the real config dir).
 pub fn default_state_path() -> Option<std::path::PathBuf> {
+    if let Ok(overridden) = std::env::var("MNEMONIC_GUI_STATE_PATH") {
+        if !overridden.is_empty() {
+            return Some(std::path::PathBuf::from(overridden));
+        }
+    }
     let dirs = directories::ProjectDirs::from("org", "mnemonic-gui", "mnemonic-gui")?;
     Some(dirs.config_dir().join("state.json"))
 }

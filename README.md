@@ -39,7 +39,7 @@ for per-component flags.
 To install just the GUI from source at the pinned tag:
 
 ```sh
-cargo install --locked --git https://github.com/bg002h/mnemonic-gui --tag mnemonic-gui-v0.34.0 mnemonic-gui
+cargo install --locked --git https://github.com/bg002h/mnemonic-gui --tag mnemonic-gui-v0.35.0 mnemonic-gui
 ```
 
 The GUI subprocess-runs the four sibling CLIs. If you skip the
@@ -78,6 +78,24 @@ v0.1.0 binaries are not code-signed; first-launch instructions:
 
 Code-signing is deferred to v0.2 (see `FOLLOWUPS.md`
 `gui-code-signing-mac-developer-id` and `gui-code-signing-windows`).
+
+## Session restore (v0.35.0)
+
+The GUI persists window geometry, the selected CLI tab + per-tab subcommand,
+the output-pane toggles, and **non-secret** form values to
+`<config_dir>/mnemonic-gui/state.json` (e.g. `~/.config/mnemonic-gui/state.json`
+on Linux), written on exit. Secret material NEVER persists — secrets live in
+never-serialized widgets and the on-disk state passes a 4-class redaction
+(plus the positional drop-all belt and the tree extended-public allowlist).
+
+- **Reset:** delete `state.json` (a version-mismatched or corrupt file is
+  renamed `state.json.bak` automatically and a fresh default is written at the next exit).
+- **Override the path:** set `MNEMONIC_GUI_STATE_PATH=/path/to/state.json`.
+- Caveats: on Wayland the window *position* cannot be captured (compositor-
+  private) — size still restores; mixed-DPI multi-monitor setups may restore
+  with a small position offset; a maximized window restores unmaximized at
+  its maximized size; with two concurrent GUI instances the last to exit
+  wins the state file.
 
 ## Design
 

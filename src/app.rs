@@ -33,6 +33,19 @@ impl CliTab {
         }
     }
 
+    /// Inverse of [`CliTab::bin_name`] — parse a persisted `last_cli_tab`
+    /// string back to a tab. Unknown/stale names yield `None`; the caller
+    /// picks the fallback (v0.35.0 Phase-8 wiring: `Mnemonic`).
+    pub fn from_bin_name(name: &str) -> Option<CliTab> {
+        match name {
+            "mnemonic" => Some(CliTab::Mnemonic),
+            "md" => Some(CliTab::Md),
+            "ms" => Some(CliTab::Ms),
+            "mk" => Some(CliTab::Mk),
+            _ => None,
+        }
+    }
+
     /// `<CLI>_BIN` env-var override name (matches the schema-mirror and
     /// runner integration test convention).
     pub fn bin_env_var(self) -> &'static str {
