@@ -228,25 +228,84 @@ pub fn restore_selections(
     (tab, subcommands)
 }
 
-/// Serialize + write the redacted state to `path`. The on-disk JSON
-/// NEVER contains secret-class entries.
+/// Redact + stamp + serialize — the single serialization used by both
+/// `save` and `save_if_changed` (the content-compare debounce depends on
+/// it being deterministic: the PersistedState maps are BTreeMap — do NOT
+/// refactor them to HashMap, which would silently kill the skip).
 ///
 /// R1 I-1 fold: `schema_version` is stamped to `SCHEMA_VERSION`
-/// unconditionally regardless of the caller-supplied value. This makes
-/// `save()` self-contained — callers cannot accidentally write a stale
-/// or zero version (which would cause the next `load()` to rename the
-/// file to `.bak` and silently discard state on cold start).
-pub fn save(state: &PersistedState, path: &Path) -> std::io::Result<()> {
+/// unconditionally regardless of the caller-supplied value — callers
+/// cannot accidentally write a stale or zero version (which would cause
+/// the next `load()` to rename the file to `.bak` and silently discard
+/// state on cold start).
+fn serialize_redacted(state: &PersistedState) -> std::io::Result<String> {
+    let mut redacted = redact_persisted_state(state);
+    redacted.schema_version = SCHEMA_VERSION;
+    serde_json::to_string_pretty(&redacted)
+        .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidData, e))
+}
+
+/// v0.36.0 — ATOMIC write: a per-PID sibling temp (`<file>.<pid>.tmp`,
+/// file_name string append — NOT with_extension) then `fs::rename` over
+/// the destination. The PID suffix is LOAD-BEARING: a shared fixed-name
+/// temp lets two instances interleave writes and atomically install TORN
+/// content (the rename is atomic, the bytes aren't) — per-process names
+/// reduce two-instance contention to plain last-writer-wins.
+/// `fs::rename` replace-on-existing is the documented std contract on
+/// both Unix (rename(2)) and Windows (POSIX-semantics rename, Win10
+/// 1607+) — NO remove-then-rename fallback, ever (it would recreate a
+/// destination-absent window). A Windows sharing-violation failure
+/// surfaces as Err with the old file intact. Power loss before the
+/// rename leaves the old file intact; after, a non-ordered filesystem
+/// may expose partial bytes — load()'s malformed→.bak leg recovers.
+/// A crash between write and rename strands one inert `*.tmp` per
+/// crashed PID — accepted (tiny files; no glob-clean). fsync durability
+/// is a non-goal.
+fn write_atomic(path: &Path, body: &str) -> std::io::Result<()> {
     if let Some(parent) = path.parent() {
         if !parent.as_os_str().is_empty() {
             fs::create_dir_all(parent)?;
         }
     }
-    let mut redacted = redact_persisted_state(state);
-    redacted.schema_version = SCHEMA_VERSION;
-    let body = serde_json::to_string_pretty(&redacted)
-        .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidData, e))?;
-    fs::write(path, body)
+    let file_name = path
+        .file_name()
+        .ok_or_else(|| std::io::Error::new(std::io::ErrorKind::InvalidInput, "no file name"))?
+        .to_string_lossy()
+        .into_owned();
+    let tmp = path.with_file_name(format!("{file_name}.{}.tmp", std::process::id()));
+    fs::write(&tmp, body).inspect_err(|_| {
+        let _ = fs::remove_file(&tmp);
+    })?;
+    fs::rename(&tmp, path).inspect_err(|_| {
+        let _ = fs::remove_file(&tmp);
+    })
+}
+
+/// v0.36.0 — change-gated save for the autosave timer: serializes ONCE,
+/// skips when the bytes equal `*last_serialized` (returns `Ok(false)` —
+/// a skip touches nothing on disk), else writes atomically and returns
+/// `Ok(true)`. The cache updates ONLY after the write returns Ok — a
+/// failed write leaves it untouched so the next interval retries.
+pub fn save_if_changed(
+    state: &PersistedState,
+    path: &Path,
+    last_serialized: &mut Option<String>,
+) -> std::io::Result<bool> {
+    let body = serialize_redacted(state)?;
+    if last_serialized.as_deref() == Some(body.as_str()) {
+        return Ok(false);
+    }
+    write_atomic(path, &body)?;
+    *last_serialized = Some(body);
+    Ok(true)
+}
+
+/// Serialize + ATOMICALLY write the redacted state to `path` (v0.36.0:
+/// per-PID temp + rename — see `write_atomic`). The on-disk JSON NEVER
+/// contains secret-class entries.
+pub fn save(state: &PersistedState, path: &Path) -> std::io::Result<()> {
+    let body = serialize_redacted(state)?;
+    write_atomic(path, &body)
 }
 
 /// Read + parse `state.json` from `path`. Returns `Some(state)` on

@@ -3,6 +3,14 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## mnemonic-gui [0.36.0] — 2026-06-10
+
+**SemVer-MINOR — debounced autosave + atomic `state.json` writes (closes v0.35.0's two recorded gaps: crash session-loss + signal-torn writes).**
+
+- **Atomic `save()`:** writes a per-PID sibling temp (`state.json.<pid>.tmp`) then `fs::rename`s over the destination. The PID suffix is load-bearing — a shared fixed-name temp lets two instances interleave writes and atomically install TORN content (the rename is atomic, the bytes aren't), which the malformed→`.bak` recovery would then convert into silent session resets; per-process names reduce two-instance contention to plain last-writer-wins. `fs::rename` replace-on-existing is the documented std contract on both Unix and Windows — no remove-then-rename fallback (it would recreate a destination-absent window). Power loss before the rename leaves the old file intact; the `.bak` leg recovers a torn post-rename file.
+- **Change-gated autosave every ~30 s:** new `persistence::save_if_changed` serializes the redacted state once and skips byte-identical content (debounce-by-content, zero dirty-flag plumbing; correctness rides the `BTreeMap` fields' deterministic serialization — do not refactor them to `HashMap`); the cache updates only after a successful write so failures retry next interval. The timer rides `update()` after the geometry snapshot (the 1 Hz keepalive guarantees evaluation even when idle); the construction reuses the borrow-side `build_persisted_state()` extraction (never `mem::take` — the v0.35.0 invariants and their comments move verbatim); the final `on_exit` save stays unconditional with the load-bearing save-then-zeroize order untouched.
+- Tests: `tests/persistence_autosave_v0_36_0.rs` (4 cells, TDD red-first: PID-temp consumption + no-stray-siblings, rename-over-existing, write/skip/write-on-change with the deleted-file no-recreate pin, failed-write-does-not-poison-the-cache). Resolves `gui-persistence-autosave-debounce`. SPEC + R0 ×3 + impl review: `design/SPEC_gui_v0_36_0_autosave_atomic.md`, `design/agent-reports/gui-v0-36-0-autosave-*.md`.
+
 ## mnemonic-gui [0.35.0] — 2026-06-10
 
 **SemVer-MINOR — Phase-8 persistence WIRED: session restore via `state.json` (window geometry, tab/subcommand selections, output toggles, non-secret form values), saved on exit.**

@@ -39,7 +39,7 @@ for per-component flags.
 To install just the GUI from source at the pinned tag:
 
 ```sh
-cargo install --locked --git https://github.com/bg002h/mnemonic-gui --tag mnemonic-gui-v0.35.0 mnemonic-gui
+cargo install --locked --git https://github.com/bg002h/mnemonic-gui --tag mnemonic-gui-v0.36.0 mnemonic-gui
 ```
 
 The GUI subprocess-runs the four sibling CLIs. If you skip the
@@ -84,7 +84,8 @@ Code-signing is deferred to v0.2 (see `FOLLOWUPS.md`
 The GUI persists window geometry, the selected CLI tab + per-tab subcommand,
 the output-pane toggles, and **non-secret** form values to
 `<config_dir>/mnemonic-gui/state.json` (e.g. `~/.config/mnemonic-gui/state.json`
-on Linux), written on exit. Secret material NEVER persists — secrets live in
+on Linux), written on exit and autosaved every ~30 s (atomic per-process
+temp + rename — a crash loses at most the last interval). Secret material NEVER persists — secrets live in
 never-serialized widgets and the on-disk state passes a 4-class redaction
 (plus the positional drop-all belt and the tree extended-public allowlist).
 

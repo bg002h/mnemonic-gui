@@ -535,7 +535,7 @@ install-script users (`./scripts/install.sh mnemonic-gui --from-git
 
 - **Surfaced:** 2026-06-10, v0.35.0 persistence-wiring cycle (SPEC Decision 4: exit-only cadence accepted for the wiring cycle; the SIGINT/SIGTERM handlers DO route through `ViewportCommand::Close` → `on_exit` runs, so only hard kills lose state).
 - **What:** add a debounced autosave (e.g. dirty-flag + N-second timer in `update()`, reusing the borrow-side `redact_for_persistence` construction — NEVER `mem::take`, see the v0.35.0 LOAD-BEARING order comment at the `on_exit` call site). While here: make `save()` atomic (write temp + rename) — the current `fs::write` can be torn by the signal handler's 3s `process::exit` grace; the v0.35.0 `.bak`-on-malformed leg already handles the torn result gracefully, so this is hardening, not a bug fix.
-- **Status:** `open`
+- **Status:** **resolved** `mnemonic-gui-v0.36.0` (2026-06-10) — change-gated autosave every 30s (`save_if_changed`: content-compare debounce, zero dirty-flag plumbing; cache updates only after Ok) + atomic `save()` (PER-PID sibling temp + `fs::rename` — the PID suffix is load-bearing: a shared temp name can atomically install torn content under two instances; no remove-then-rename fallback ever, `fs::rename` replaces on both platforms by documented contract). `build_persisted_state()` extraction keeps the v0.35.0 borrow-side/order invariants verbatim. SPEC `design/SPEC_gui_v0_36_0_autosave_atomic.md` (R0 3 rounds — r2 caught the spec's own fold-induced T1/PID mismatch whose cheapest green would have reversed the load-bearing fix).
 - **Tier:** `GUI-local`
 
 ### `gui-flag-value-unset-serde-other-externally-tagged-dependency` — `#[serde(other)]` on externally-tagged FlagValue enum depends on undocumented serde behavior

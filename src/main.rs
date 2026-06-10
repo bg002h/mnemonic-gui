@@ -121,6 +121,12 @@ struct MnemonicGuiApp {
     /// re-resolving could diverge if the env mutated mid-run). `None` →
     /// never save.
     state_path: Option<PathBuf>,
+    /// v0.36.0 — autosave timer (seeded `now` at construction: first
+    /// autosave only after a full interval) + the content-compare cache
+    /// for `save_if_changed` (debounce-by-content; cache updates only
+    /// after a successful write).
+    last_autosave: std::time::Instant,
+    last_saved_snapshot: Option<String>,
     /// v0.35.0: last-known window geometry, snapshotted per frame in
     /// `update()` (`on_exit` has no egui::Context). Some-GUARDED — while
     /// minimized egui-winit reports both viewport rects as `None`, so the
@@ -308,6 +314,8 @@ impl MnemonicGuiApp {
             pending_confirm_argv: None,
             last_template: BTreeMap::new(),
             state_path,
+            last_autosave: std::time::Instant::now(),
+            last_saved_snapshot: None,
             window_size: loaded.window_size,
             window_position: loaded.window_position,
         }
@@ -322,10 +330,41 @@ impl MnemonicGuiApp {
         }
     }
 
+    /// v0.36.0 — the single save-side `PersistedState` construction, used
+    /// by BOTH the autosave timer and `on_exit`. BORROW-SIDE by signature
+    /// (v0.35.0 R0-r1 I2): never `mem::take` the form map — the exit
+    /// zeroize sweep iterates `self.form_state` after this runs.
+    fn build_persisted_state(&self) -> PersistedState {
+        PersistedState {
+            schema_version: persistence::SCHEMA_VERSION,
+            last_cli_tab: self.app_state.active_tab.bin_name().to_string(),
+            last_subcommand_per_tab: self
+                .active_subcommand
+                .iter()
+                .map(|(tab, sub)| (tab.bin_name().to_string(), sub.clone()))
+                .collect(),
+            window_size: self.window_size,
+            window_position: self.window_position,
+            show_cmdline: self.show_cmdline,
+            show_stdout: self.show_stdout,
+            show_stderr: self.show_stderr,
+            form_state_per_subcommand: self
+                .form_state
+                .iter()
+                .map(|(k, v)| (k.clone(), persistence::redact_for_persistence(v)))
+                .collect(),
+        }
+    }
+
     fn form_key(tab: CliTab, sub: &str) -> String {
         format!("{}:{}", tab.bin_name(), sub)
     }
 }
+
+/// v0.36.0 — autosave cadence (matches eframe's own auto_save default;
+/// the 1 Hz keepalive guarantees the timer is evaluated at least once
+/// per second even when idle).
+const AUTOSAVE_INTERVAL: std::time::Duration = std::time::Duration::from_secs(30);
 
 impl eframe::App for MnemonicGuiApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
@@ -348,6 +387,24 @@ impl eframe::App for MnemonicGuiApp {
                 self.window_position = Some([outer.min.x, outer.min.y]);
             }
         });
+
+        // ── v0.36.0 autosave (after the geometry snapshot so the write
+        // carries current-frame geometry). Change-gated: save_if_changed
+        // serializes once and skips when the redacted content is
+        // byte-identical to the last successful write. Timer resets
+        // REGARDLESS of write-vs-skip (bounds serialization to once per
+        // interval). The final save stays unconditional in on_exit.
+        if self.last_autosave.elapsed() >= AUTOSAVE_INTERVAL {
+            if let Some(path) = &self.state_path {
+                let persisted = self.build_persisted_state();
+                if let Err(e) =
+                    persistence::save_if_changed(&persisted, path, &mut self.last_saved_snapshot)
+                {
+                    tracing::warn!("autosave to {} failed: {e}", path.display());
+                }
+            }
+            self.last_autosave = std::time::Instant::now();
+        }
 
         // ── Top tab strip ────────────────────────────────────────────────
         egui::TopBottomPanel::top("tabs").show(ctx, |ui| {
@@ -997,25 +1054,7 @@ impl eframe::App for MnemonicGuiApp {
         // silently turn the sweep into a no-op (secrets never zeroized at
         // exit).
         if let Some(path) = &self.state_path {
-            let persisted = PersistedState {
-                schema_version: persistence::SCHEMA_VERSION,
-                last_cli_tab: self.app_state.active_tab.bin_name().to_string(),
-                last_subcommand_per_tab: self
-                    .active_subcommand
-                    .iter()
-                    .map(|(tab, sub)| (tab.bin_name().to_string(), sub.clone()))
-                    .collect(),
-                window_size: self.window_size,
-                window_position: self.window_position,
-                show_cmdline: self.show_cmdline,
-                show_stdout: self.show_stdout,
-                show_stderr: self.show_stderr,
-                form_state_per_subcommand: self
-                    .form_state
-                    .iter()
-                    .map(|(k, v)| (k.clone(), persistence::redact_for_persistence(v)))
-                    .collect(),
-            };
+            let persisted = self.build_persisted_state();
             if let Err(e) = persistence::save(&persisted, path) {
                 tracing::warn!("failed to save state.json to {}: {e}", path.display());
             }
