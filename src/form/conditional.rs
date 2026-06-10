@@ -637,6 +637,10 @@ pub fn export_wallet(state: &FormState) -> FlagVisibility {
 /// deliberately UN-projected — recorded decision (SPEC §4): the CLI is the
 /// gate, and the A2 archetype-forms wizard supersedes the generic form as
 /// the preset surface, so further projection investment is waste.
+///
+/// v0.31.0 adds archetype-mode awareness (archetype-forms SPEC §5): with a
+/// selected archetype, the param flags NOT declared by it are `Hidden`
+/// (argv-suppressed); declared params stay un-overridden (they must emit).
 pub fn build_descriptor(state: &FormState) -> FlagVisibility {
     let mut vis = Vec::new();
     if state.has_value("--archetype") {
@@ -644,6 +648,23 @@ pub fn build_descriptor(state: &FormState) -> FlagVisibility {
     }
     if state.has_value("--spec") {
         vis.push(("--archetype", Visibility::Disabled));
+    }
+    // v0.31.0 (archetype forms SPEC §5): when --archetype is a non-empty
+    // ARCHETYPE_SPECS id, each of the 9 param flags NOT declared by that
+    // archetype is Hidden — the toolkit refuses inapplicable params, and
+    // the assembler already suppresses Hidden flags, so stale rows carried
+    // over from another archetype never emit. DECLARED params get NO entry
+    // here (they must emit; the host loop's name-set `continue` handles
+    // their render suppression — NOT Hidden, see archetype_form). The
+    // `--spec` handling above is UNCHANGED (still Disabled — cell_13).
+    if let Some(id) = state.dropdown_value("--archetype") {
+        if let Some(spec) = crate::schema::archetypes::find(id) {
+            for &name in crate::schema::archetypes::ARCHETYPE_PARAM_FLAGS {
+                if !spec.params.iter().any(|p| p.flag == name) {
+                    vis.push((name, Visibility::Hidden));
+                }
+            }
+        }
     }
     vis
 }

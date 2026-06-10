@@ -93,7 +93,7 @@ pub fn render_with_dispatch(
     // bug for those is filed as FOLLOWUP
     // `repeating-secret-flags-never-reach-argv`, out of this cycle's scope.
     if flag.repeating {
-        render_repeating(ui, tab, subcommand, flag, state, disabled_options);
+        render_repeating(ui, tab, subcommand, flag, state, disabled_options, None);
         return;
     }
 
@@ -120,6 +120,20 @@ pub fn render_with_dispatch(
         Some(i) => state.values[i].1 = value,
         None => state.values.push((flag.name.to_string(), value)),
     }
+}
+
+/// v0.31.0 (archetype forms SPEC §4, R0-r1 M4 + R0-r2 m2) — named seam for
+/// the repeating-header annotation. Carries BOTH the display label (e.g.
+/// `"(min 2)"` for key-repeatable params, `"(exactly 1)"` for the C1
+/// non-repeatable-with-surplus-rows arm) AND the add-suppression bit — one
+/// seam serves both arms. `None` (every pre-v0.31.0 caller) renders the
+/// header byte-unchanged.
+pub(crate) struct RepeatAnnotation {
+    /// Header label rendered after the required marker (weak text).
+    pub label: String,
+    /// When true the "+ add" button is suppressed (the C1 arm: surplus
+    /// rows stay visible and removable, but no new rows can be added).
+    pub suppress_add: bool,
 }
 
 /// v0.30.0 SPEC §3 — generic multi-row widget for NON-secret repeating
@@ -152,22 +166,33 @@ pub fn render_with_dispatch(
 ///     `Text("")`; Dropdown rows seed `Dropdown("")` — NOT `opts[0]`
 ///     (R0-r1 I3: an added-but-untouched `--allow` row must emit NOTHING;
 ///     accidental emission of an allowance is a funds-safety opt-out).
-fn render_repeating(
+///
+/// v0.31.0: `pub(crate)` (was private) so `form/archetype_form.rs` can
+/// render key params through the SAME widget with a header annotation
+/// (R0-r2 m2); `annotation: None` keeps every v0.30.0 call site
+/// byte-unchanged.
+pub(crate) fn render_repeating(
     ui: &mut egui::Ui,
     tab: CliTab,
     subcommand: &str,
     flag: &FlagSchema,
     state: &mut FormState,
     disabled_options: &[String],
+    annotation: Option<RepeatAnnotation>,
 ) {
-    // Header row: label + `?` + required marker + "+ add".
+    // Header row: label + `?` + required marker + optional annotation +
+    // "+ add" (suppressible via the annotation — R0-r1 C1).
     ui.horizontal(|ui| {
         ui.label(flag.name).on_hover_text(flag.help);
         render_help_icon(ui, tab, subcommand, flag);
         if flag.required {
             ui.colored_label(egui::Color32::from_rgb(220, 60, 60), "*");
         }
-        if ui.button("+ add").clicked() {
+        if let Some(ann) = &annotation {
+            ui.weak(&ann.label);
+        }
+        let suppress_add = annotation.as_ref().is_some_and(|a| a.suppress_add);
+        if !suppress_add && ui.button("+ add").clicked() {
             state
                 .values
                 .push((flag.name.to_string(), add_row_value_for(&flag.kind)));

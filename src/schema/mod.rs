@@ -4,6 +4,7 @@
 //!
 //! See SPEC §B.3 for the normative type definitions.
 
+pub mod archetypes;
 pub mod md;
 pub mod mk;
 pub mod mnemonic;
@@ -61,6 +62,13 @@ pub struct PositionalArgSchema {
 }
 
 /// One flag (e.g. `--template`).
+///
+/// v0.31.0 (SPEC §4 / R0-r1 I3a): derives `Clone` so the archetype param
+/// form can synthesize per-mode variants of the static
+/// `BUILD_DESCRIPTOR_FLAGS` entries (e.g. swap `--threshold`'s `max` to
+/// `NumberMax::FromRowCount`, or render an archetype-non-repeatable key
+/// as a scalar row). The static entries themselves are never mutated.
+#[derive(Clone)]
 pub struct FlagSchema {
     /// Argv form (e.g. `"--template"`).
     pub name: &'static str,
@@ -111,6 +119,11 @@ pub struct FlagSchema {
 
 /// Widget shape + argv emission rule. See SPEC §6.7 for byte-exact emission
 /// rules per variant.
+///
+/// v0.31.0 (SPEC §4 / R0-r1 I3a): derives `Clone, Copy` (every field is a
+/// `&'static` slice / bool / `NumberMax`, all `Copy`) so the archetype param
+/// form can synthesize bespoke `FlagSchema` clones.
+#[derive(Clone, Copy)]
 pub enum FlagKind {
     /// Free-form text.
     Text,
@@ -168,6 +181,18 @@ pub enum NumberMax {
     /// Resolved at render time as `state.slot_count().max(1) as i64`.
     /// Used by `--threshold` only (SPEC §6.6 row 9).
     FromSlotCount,
+    /// v0.31.0 (archetype forms, SPEC §4): resolved at render time as the
+    /// `state.values` ROW COUNT for the named flag, floored `.max(1)` (the
+    /// `FromSlotCount` degenerate-range discipline — R0-r2 m1). ALL rows
+    /// count, including empty ones (R0-r1 I3b: an empty row emits nothing,
+    /// so the resolved max can exceed the emitted key count — acceptable;
+    /// the CLI gate validates). Used ONLY in the bespoke-synthesized
+    /// `FlagSchema` the archetype form constructs for threshold params
+    /// (`--threshold` max = `--key` row count, `--recovery-threshold` max =
+    /// `--recovery-key` row count); the static `BUILD_DESCRIPTOR_FLAGS`
+    /// entries keep `Static(20)` (generic-mode behavior unchanged —
+    /// R0-r1 I3a).
+    FromRowCount(&'static str),
 }
 
 impl NumberMax {
@@ -179,6 +204,16 @@ impl NumberMax {
         match self {
             NumberMax::Static(n) => n,
             NumberMax::FromSlotCount => state.slot_count().max(1) as i64,
+            // v0.31.0: row count for the named flag, ALL rows incl. empty
+            // (R0-r1 I3b), floored to 1 (R0-r2 m1 degenerate-range
+            // discipline — `min..=1` stays a valid range when no rows
+            // exist yet; the CLI catches the residual).
+            NumberMax::FromRowCount(flag_name) => state
+                .values
+                .iter()
+                .filter(|(k, _)| k == flag_name)
+                .count()
+                .max(1) as i64,
         }
     }
 }

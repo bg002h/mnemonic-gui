@@ -424,11 +424,32 @@ impl eframe::App for MnemonicGuiApp {
                     .unwrap_or(mnemonic_gui::schema::Visibility::Visible)
             };
 
+            // v0.31.0 (archetype forms SPEC §3): when build-descriptor's
+            // --archetype holds a non-empty ARCHETYPE_SPECS id, the 9 param
+            // flags + --spec are skipped in the generic loop by NAME-SET (a
+            // `continue` — NOT Visibility::Hidden, which suppresses argv;
+            // declared params must emit) and the schema-driven archetype
+            // param form renders directly under the --archetype dropdown
+            // (the SlotEditor bespoke-surface precedent below). The
+            // mode-independent flags keep their generic widgets.
+            let archetype_spec = if sub.name == "build-descriptor" {
+                mnemonic_gui::form::archetype_form::active_archetype(state)
+            } else {
+                None
+            };
+
             egui::ScrollArea::vertical().show(ui, |ui| {
                 // Flag widgets.
                 for flag in sub.flags {
                     if flag.name == "--slot" && sub.allows_slots {
                         continue; // SlotEditor handles below.
+                    }
+                    if archetype_spec.is_some()
+                        && mnemonic_gui::form::archetype_form::suppressed_in_archetype_mode(
+                            flag.name,
+                        )
+                    {
+                        continue; // archetype param form renders these.
                     }
                     let v = visibility_of(flag.name);
                     if matches!(v, mnemonic_gui::schema::Visibility::Hidden) {
@@ -469,6 +490,20 @@ impl eframe::App for MnemonicGuiApp {
                             );
                         },
                     );
+                    // v0.31.0: the archetype param form (summary line +
+                    // schema-ordered params) renders directly under the
+                    // --archetype dropdown's generic widget (SPEC §3).
+                    if flag.name == "--archetype" {
+                        if let Some(spec) = archetype_spec {
+                            mnemonic_gui::form::archetype_form::render(
+                                ui,
+                                active_tab,
+                                &active_sub_name,
+                                spec,
+                                state,
+                            );
+                        }
+                    }
                 }
                 // SlotEditor + per-`--slot` `?` help-icon (G-P2.2 /
                 // §2.4): `--slot` is a repeating-field flag that bypasses
