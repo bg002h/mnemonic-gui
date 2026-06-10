@@ -138,31 +138,56 @@ impl<'a> tracing_subscriber::fmt::MakeWriter<'a> for CapturedWriter {
 
 #[test]
 fn cell_2_tracing_init_logs_subprocess_spawn() {
-    let buf = Arc::new(Mutex::new(Vec::<u8>::new()));
-    let writer = CapturedWriter(buf.clone());
+    // FOLLOWUPS.md::runner-tracing-test-flaky-under-parallel-load (v0.32.0
+    // M5 fix): `set_default` is thread-local, but tracing's
+    // callsite-interest cache is GLOBAL — parallel test threads installing
+    // and dropping their own subscribers can transiently mark this cell's
+    // DEBUG callsites uninterested, dropping one of the two events
+    // (observed once: spawn captured, exit missed). The no-new-dep fix is
+    // two-layered: (1) `rebuild_interest_cache()` right after installing
+    // the subscriber flushes stale interest decisions, and (2) the
+    // spawn+capture runs up to 3 attempts (each with a fresh subscriber)
+    // since a concurrent test can re-race the cache between the rebuild
+    // and the spawn. The race is transient — a retry under a freshly
+    // rebuilt cache converges.
+    let mut captured = String::new();
+    for attempt in 1..=3 {
+        let buf = Arc::new(Mutex::new(Vec::<u8>::new()));
+        let writer = CapturedWriter(buf.clone());
 
-    let subscriber = tracing_subscriber::fmt()
-        .with_max_level(tracing::Level::DEBUG)
-        .with_writer(writer)
-        .with_ansi(false)
-        .finish();
-    let _guard = tracing::subscriber::set_default(subscriber);
+        let subscriber = tracing_subscriber::fmt()
+            .with_max_level(tracing::Level::DEBUG)
+            .with_writer(writer)
+            .with_ansi(false)
+            .finish();
+        let guard = tracing::subscriber::set_default(subscriber);
+        tracing::callsite::rebuild_interest_cache();
 
-    // Spawn anything — even a bare `--version` proves the runner emits
-    // the "subprocess spawn" debug event. We use the actual mnemonic
-    // binary so the event payload is realistic.
-    let _ = runner::run([mnemonic_bin(), "--version".into()])
-        .expect("subprocess spawn should succeed");
+        // Spawn anything — even a bare `--version` proves the runner emits
+        // the "subprocess spawn" debug event. We use the actual mnemonic
+        // binary so the event payload is realistic.
+        let _ = runner::run([mnemonic_bin(), "--version".into()])
+            .expect("subprocess spawn should succeed");
+        drop(guard);
 
-    let captured = String::from_utf8(buf.lock().unwrap().clone()).unwrap();
+        captured = String::from_utf8(buf.lock().unwrap().clone()).unwrap();
+        if captured.contains("subprocess spawn") && captured.contains("subprocess exit 0") {
+            return;
+        }
+        eprintln!(
+            "cell_2 attempt {attempt}/3 missed a tracing event \
+             (callsite-interest race); retrying"
+        );
+    }
     assert!(
         captured.contains("subprocess spawn"),
-        "expected 'subprocess spawn' DEBUG event in captured tracing output:\n{}",
+        "expected 'subprocess spawn' DEBUG event in captured tracing output \
+         (after 3 attempts):\n{}",
         captured
     );
     assert!(
         captured.contains("subprocess exit 0"),
-        "expected 'subprocess exit 0' DEBUG event:\n{}",
+        "expected 'subprocess exit 0' DEBUG event (after 3 attempts):\n{}",
         captured
     );
 }

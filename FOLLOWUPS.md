@@ -12,8 +12,24 @@ mirrors it.
 - **Surfaced:** 2026-06-10, v0.31.1 impl review (observed once under full-suite load; passed 5/5 isolated + on rerun; the file was untouched by the cycle).
 - **Where:** `tests/runner_integration.rs:140-168` — thread-local `tracing::subscriber::set_default` under parallel test threads (callsite-interest race class); the captured output contained `subprocess spawn` but not `subprocess exit 0` (`runner.rs:108`).
 - **What:** serialize the cell (or use a dedicated subscriber guard) so CI can't intermittently red a green push.
-- **Status:** open.
+- **Status:** **resolved** `mnemonic-gui-v0.32.0` (2026-06-10, impl-review M5 fold). No new dep (`serial_test` is not in the tree and one cell doesn't justify it). Two-layered no-dep fix in the cell itself: (1) `tracing::callsite::rebuild_interest_cache()` immediately after `set_default` flushes the stale GLOBAL interest decisions made under other tests' subscribers (the race mechanism: interest is cached per-callsite globally while `set_default` is thread-local, so a parallel thread's subscriber churn can transiently mark this cell's DEBUG callsites uninterested); (2) the spawn+capture loop retries up to 3 attempts, each with a fresh subscriber + rebuild, asserting only on the final capture — a transient race converges under retry. Verified 10/10 consecutive runs of the `runner_integration` binary green (its 3 cells on parallel threads) + one full-suite run green.
 - **Tier:** test-hygiene.
+
+### `edit-as-tree-overwrites-existing-tree` — `import_root` replaces a hand-built (disabled) tree unconditionally
+
+- **Surfaced:** 2026-06-10, v0.32.0 impl review (M2).
+- **Where:** `src/form/tree_form.rs::render_edit_as_tree` — the `--emit-spec` success arm calls `TreeState::import_root(root)` (`src/form/tree_model.rs`), which installs the lowered archetype AST over whatever `state.tree` held. A user who hand-built a tree, switched to archetype mode (the selector's never-destroys discipline deliberately PRESERVES the disabled tree's nodes), then clicks "Edit as tree…" gets the hand-built tree silently replaced.
+- **What:** decide the overwrite posture: confirm-on-overwrite (a modal when the existing disabled tree is non-trivial — e.g. any node with a non-empty kind) or a merge/keep-both affordance. The silent replacement is surprising precisely BECAUSE never-destroys taught the user that mode switches keep their work.
+- **Status:** open.
+- **Tier:** GUI-local (UX; no funds-safety or on-disk impact — the replaced tree was never emitted).
+
+### `tree-xprv-heuristic-only-covers-key-fields` — `hex`/`w` fields could carry pasted xprv-like content unredacted
+
+- **Surfaced:** 2026-06-10, v0.32.0 impl review (M4).
+- **Where:** `src/form/tree_model.rs::blank_xprv_keys` — the persistence-redaction walk sweeps `key` + `keys[i]` only (SPEC §1.3, deliberately: hashlock `hex` digests must survive). The `hex` (hashlock digest) and `w` (wrapper string) free-text widgets accept arbitrary paste, so a mis-pasted xprv in either persists to `state.json` verbatim.
+- **What:** extend the `is_xprv_like` sweep to `hex` + `w` — free belt-and-suspenders, since neither field is ever legitimately xprv-shaped (the heuristic can't false-positive on a 64-hex digest or a wrap-char string: `prv` at byte offset 1..4). Keep the keep-hex-digests posture; only xprv-MATCHING content blanks.
+- **Status:** open.
+- **Tier:** GUI-local (belt-and-suspenders; the redaction walk + its unit cells are the touchpoints).
 
 ### `repeating-secret-flags-never-reach-argv` — live bug: secret+repeating Text flags render into `secret_widgets` but `assemble_argv` reads them from `state.values`
 

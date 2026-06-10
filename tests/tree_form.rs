@@ -686,6 +686,35 @@ fn cell_kind_picker_combobox_drives_set_kind_with_arity_padding() {
 }
 
 #[test]
+fn cell_surplus_child_renders_amber_flag_in_arity_does_not() {
+    // v0.32.0 impl-review I1: preserve-and-flag's RENDER half — a child
+    // beyond the kind's in-arity prefix carries the amber
+    // "surplus — will not emit" label (tree_form.rs::render_node), and an
+    // in-arity tree renders NO such label. An and_v (in-arity 2) with a
+    // third child is the minimal surplus shape (or_d → and_v kind-switch
+    // keeps both or_d children + nothing trims; here built directly).
+    let surplus = parent("and_v", vec![pk(XPUB_A), uint("older", 144), pk(XPUB_B)]);
+    let mut harness =
+        tree_form_harness(form_with_tree(enabled_tree(surplus)), "mnemonic".into());
+    harness.run();
+    assert_eq!(
+        harness.query_all_by_label("surplus — will not emit").count(),
+        1,
+        "exactly the third and_v child (beyond in-arity 2) is flagged"
+    );
+
+    // In-arity control: the same tree minus the surplus child → no flag.
+    let in_arity = parent("and_v", vec![pk(XPUB_A), uint("older", 144)]);
+    let mut harness =
+        tree_form_harness(form_with_tree(enabled_tree(in_arity)), "mnemonic".into());
+    harness.run();
+    assert!(
+        harness.query_by_label("surplus — will not emit").is_none(),
+        "an in-arity tree must render no surplus flag"
+    );
+}
+
+#[test]
 fn cell_depth_cap_add_branch_refusal_lands_in_strip() {
     // The MAX_TREE_DEPTH refusal message (SPEC §1.2 render leg): a thresh
     // node AT the cap refuses "+ add branch" with the amber notice in the

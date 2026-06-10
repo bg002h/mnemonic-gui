@@ -206,10 +206,11 @@ fn tree_state_serde_persistence_round_trip() {
         descriptor: "wsh(...)".into(),
         cost: serde_json::json!({}),
     });
+    state.strip.push("error: transient strip notice".into());
 
     let raw = serde_json::to_string(&state).expect("serialize TreeState");
     assert!(
-        !raw.contains("diagnostics") && !raw.contains("validate_ok"),
+        !raw.contains("diagnostics") && !raw.contains("validate_ok") && !raw.contains("strip"),
         "transient fields must be #[serde(skip)] — absent from the wire"
     );
     let back: TreeState = serde_json::from_str(&raw).expect("deserialize TreeState");
@@ -218,6 +219,7 @@ fn tree_state_serde_persistence_round_trip() {
     assert_eq!(back.root, state.root, "the full wide tree (incl. surplus) persists");
     assert!(back.diagnostics.is_empty(), "diagnostics never persist");
     assert!(back.validate_ok.is_none(), "validate_ok never persists");
+    assert!(back.strip.is_empty(), "the error strip never persists");
 }
 
 // ===================================================== xprv redaction cells
