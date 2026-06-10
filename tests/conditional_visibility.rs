@@ -18,6 +18,9 @@
 //!    10. --passphrase-stdin conflicts_with --passphrase
 //!   export-wallet:
 //!    11. --template conflicts_with --descriptor
+//!   build-descriptor (v0.30.0):
+//!    12-15. --archetype conflicts_with --spec (incl. the "" UNSET-sentinel
+//!           and "(none)" round-trip cells — see the cells at file end)
 
 use mnemonic_gui::schema::{self, FlagValue, FormState, Visibility};
 
@@ -321,6 +324,8 @@ fn coverage_all_constrained_subcommands_have_conditional_fn() {
     // have no clap conflicts → stay None.
     // v0.25.0: restore gained `--from required_unless_present="md1"` (toolkit
     // v0.44.0 multisig-cosigner restore) → flipped None → Some(restore).
+    // v0.30.0: build-descriptor gained the archetype↔spec clap mutex
+    // (toolkit v0.51.0 presets) → flipped None → Some(build_descriptor).
     for name in [
         "bundle",
         "verify-bundle",
@@ -328,6 +333,7 @@ fn coverage_all_constrained_subcommands_have_conditional_fn() {
         "export-wallet",
         "derive-child",
         "restore",
+        "build-descriptor",
         "slip39-split",
         "slip39-combine",
     ] {
@@ -1277,4 +1283,113 @@ fn cell_v0_10_convert_xpub_prefix_visible_when_to_xpub() {
     let state = convert_state(Some("phrase"), &["xpub"]);
     let vis = run_conditional("convert", &state);
     assert_eq!(vis_of(&vis, "--xpub-prefix"), Visibility::Visible);
+}
+
+// ─── v0.30.0: build-descriptor archetype↔spec mutex (cells 12+) ──────────
+//
+// Upstream (toolkit v0.51.0/v0.52.0 presets): `--archetype` conflicts_with
+// `--spec`. The GUI projects ONLY this edge (`conditional::build_descriptor`);
+// the 10 `requires = "archetype"` parameter edges + `--emit-spec`
+// conflicts_with_all stay deliberately UN-projected (SPEC §4 recorded
+// decision: the CLI is the gate).
+
+/// Build-descriptor argv for `state` (round-trip assertions below).
+fn build_descriptor_argv(state: &FormState) -> Vec<String> {
+    mnemonic_gui::form::invocation::assemble_argv(
+        &schema::mnemonic::SCHEMA,
+        subcommand("build-descriptor"),
+        state,
+    )
+}
+
+#[test]
+fn cell_12_build_descriptor_unset_archetype_leaves_spec_enabled() {
+    // The "" UNSET sentinel (R0-r1 C1): the seeded default form carries
+    // `--archetype` = Dropdown("") — has_value is false, so NEITHER side
+    // of the mutex fires and no --archetype reaches argv.
+    let seeded = FormState::from_pairs(vec![(
+        "--archetype",
+        FlagValue::Dropdown(String::new()),
+    )]);
+    let vis = run_conditional("build-descriptor", &seeded);
+    assert_eq!(
+        vis_of(&vis, "--spec"),
+        Visibility::Visible,
+        "unset (\"\") archetype must leave --spec enabled"
+    );
+    assert_eq!(vis_of(&vis, "--archetype"), Visibility::Visible);
+    let argv = build_descriptor_argv(&seeded);
+    assert!(
+        !argv.contains(&"--archetype".to_string()),
+        "the \"\" sentinel must never reach argv: {argv:?}"
+    );
+}
+
+#[test]
+fn cell_13_build_descriptor_archetype_selected_disables_spec() {
+    let state = FormState::from_pairs(vec![(
+        "--archetype",
+        FlagValue::Dropdown("kofn-recovery".into()),
+    )]);
+    let vis = run_conditional("build-descriptor", &state);
+    assert_eq!(
+        vis_of(&vis, "--spec"),
+        Visibility::Disabled,
+        "a selected archetype must disable --spec"
+    );
+    let argv = build_descriptor_argv(&state);
+    assert!(
+        argv.windows(2).any(|w| w[0] == "--archetype" && w[1] == "kofn-recovery"),
+        "a selected archetype must emit: {argv:?}"
+    );
+}
+
+#[test]
+fn cell_14_build_descriptor_archetype_round_trip_reselect_none() {
+    // R0-r2 I-1 round-trip: select an archetype → --spec Disabled;
+    // re-select the "(none)" row (stored value back to "") → --spec
+    // re-enabled AND --archetype gone from argv. (FormState persists per
+    // subcommand with no reset affordance — without the display-mapped
+    // "(none)" escape row the user would be near-permanently trapped out
+    // of --spec.)
+    let mut state = FormState::from_pairs(vec![(
+        "--archetype",
+        FlagValue::Dropdown("tiered-recovery".into()),
+    )]);
+    assert_eq!(
+        vis_of(&run_conditional("build-descriptor", &state), "--spec"),
+        Visibility::Disabled
+    );
+    // Re-select "(none)": the stored value returns to the "" sentinel.
+    state.values[0].1 = FlagValue::Dropdown(String::new());
+    let vis = run_conditional("build-descriptor", &state);
+    assert_eq!(
+        vis_of(&vis, "--spec"),
+        Visibility::Visible,
+        "re-selecting \"(none)\" must re-enable --spec"
+    );
+    let argv = build_descriptor_argv(&state);
+    assert!(
+        !argv.contains(&"--archetype".to_string()),
+        "--archetype must vanish from argv after re-selecting \"(none)\": {argv:?}"
+    );
+}
+
+#[test]
+fn cell_15_build_descriptor_spec_disables_archetype() {
+    let state = FormState::from_pairs(vec![(
+        "--spec",
+        FlagValue::Path("/tmp/policy.json".into()),
+    )]);
+    let vis = run_conditional("build-descriptor", &state);
+    assert_eq!(
+        vis_of(&vis, "--archetype"),
+        Visibility::Disabled,
+        "a non-empty --spec must disable --archetype"
+    );
+    assert_eq!(
+        vis_of(&vis, "--spec"),
+        Visibility::Visible,
+        "--spec itself stays usable"
+    );
 }

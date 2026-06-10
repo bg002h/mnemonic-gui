@@ -85,6 +85,18 @@ pub fn render_with_dispatch(
         return;
     }
 
+    // v0.30.0 SPEC §3: NON-secret repeating flags get the generic
+    // multi-row widget (header + N rows + per-row remove + "+ add").
+    // The branch order is load-bearing: the secret check above runs FIRST,
+    // so secret repeating flags (import-wallet --ms1, --share) keep
+    // today's single-secret_widgets-entry behavior — the live emission
+    // bug for those is filed as FOLLOWUP
+    // `repeating-secret-flags-never-reach-argv`, out of this cycle's scope.
+    if flag.repeating {
+        render_repeating(ui, tab, subcommand, flag, state, disabled_options);
+        return;
+    }
+
     // Non-secret path: look up FlagValue from state.values, render via
     // the existing FlagValue-based renderer, then write back. The Number
     // widget reads state.slot_count() via the NumberMax::FromSlotCount
@@ -107,6 +119,117 @@ pub fn render_with_dispatch(
     match idx {
         Some(i) => state.values[i].1 = value,
         None => state.values.push((flag.name.to_string(), value)),
+    }
+}
+
+/// v0.30.0 SPEC §3 — generic multi-row widget for NON-secret repeating
+/// flags (`--key`, `--recovery-key`, `--allow`, `--md1`, `--cosigner`,
+/// `--to`, `--group`, `--add-path`, `--target-address`, …; `--slot` keeps
+/// its dedicated SlotEditor branch in main.rs). The argv assembler already
+/// emits every matching `state.values` row for `flag.repeating`
+/// (invocation.rs); this widget closes the render-side gap (pre-v0.30.0,
+/// `render_with_dispatch` rendered at most ONE row per flag name).
+///
+/// Layout:
+///   - Header row (R0-r1 I5) renders REGARDLESS of row count: flag label +
+///     `?` help icon + required marker + "+ add" button — zero rows must
+///     not make the flag invisible or drop the help affordance.
+///   - One widget row per `(k, v)` entry in `state.values` with
+///     `k == flag.name`, each with a per-row remove button. Remove-intents
+///     are collected during the loop and applied AFTER it (R0-r1 M7 — the
+///     existing `transition` pattern; mutating `state.values` mid-iteration
+///     is a borrow error).
+///   - Seed rule (R0-r1 C2 / R0-r3 M-i): ANY render observing zero rows for
+///     a REQUIRED repeating flag seeds one row with
+///     `default_flag_value_for_flag(flag)` — convert `--to` keeps seeding
+///     `Dropdown("phrase")` exactly as the pre-v0.30.0 scalar path did, so
+///     the default convert form stays runnable. Optional repeating flags
+///     (`--key`/`--recovery-key`/`--allow`) seed NOTHING (never auto-emit
+///     an allowance). Removing the LAST row of a required flag respawns it
+///     next frame (the per-frame seed re-fires) — INTENDED (R0-r2 M-C):
+///     a required flag always shows at least one row.
+///   - "+ add" appends `add_row_value_for(&flag.kind)`: Text rows seed
+///     `Text("")`; Dropdown rows seed `Dropdown("")` — NOT `opts[0]`
+///     (R0-r1 I3: an added-but-untouched `--allow` row must emit NOTHING;
+///     accidental emission of an allowance is a funds-safety opt-out).
+fn render_repeating(
+    ui: &mut egui::Ui,
+    tab: CliTab,
+    subcommand: &str,
+    flag: &FlagSchema,
+    state: &mut FormState,
+    disabled_options: &[String],
+) {
+    // Header row: label + `?` + required marker + "+ add".
+    ui.horizontal(|ui| {
+        ui.label(flag.name).on_hover_text(flag.help);
+        render_help_icon(ui, tab, subcommand, flag);
+        if flag.required {
+            ui.colored_label(egui::Color32::from_rgb(220, 60, 60), "*");
+        }
+        if ui.button("+ add").clicked() {
+            state
+                .values
+                .push((flag.name.to_string(), add_row_value_for(&flag.kind)));
+        }
+    });
+
+    // Per-frame required-row seed (see fn doc).
+    let has_rows = state.values.iter().any(|(k, _)| k == flag.name);
+    if flag.required && !has_rows {
+        state
+            .values
+            .push((flag.name.to_string(), default_flag_value_for_flag(flag)));
+    }
+
+    // Render every matching row. `row_idx` (0-based position among THIS
+    // flag's rows) is threaded into the egui ID salts (R0-r1 I4 — N
+    // same-name rows sharing a ComboBox ID is the v0.1.1 popup-state-leak
+    // bug class); `i` is the absolute `state.values` index used for
+    // write-back + removal.
+    let indices: Vec<usize> = state
+        .values
+        .iter()
+        .enumerate()
+        .filter(|(_, (k, _))| k == flag.name)
+        .map(|(i, _)| i)
+        .collect();
+    let mut remove_at: Option<usize> = None;
+    for (row_idx, &i) in indices.iter().enumerate() {
+        let mut value = state.values[i].1.clone();
+        ui.horizontal(|ui| {
+            render_row(
+                ui,
+                tab,
+                subcommand,
+                flag,
+                &mut value,
+                state,
+                disabled_options,
+                Some(row_idx),
+            );
+            if ui.small_button("✕").on_hover_text("remove row").clicked() {
+                remove_at = Some(i);
+            }
+        });
+        state.values[i].1 = value;
+    }
+    if let Some(i) = remove_at {
+        state.values.remove(i);
+    }
+}
+
+/// v0.30.0 SPEC §3 — the "+ add" row seed. Text rows seed empty;
+/// Dropdown rows seed `Dropdown("")` rather than
+/// `default_flag_value_for`'s `opts[0]` (R0-r1 I3): `emit_one` skips an
+/// empty Dropdown, so an added-but-untouched row emits NOTHING — on
+/// `--allow`, accidental emission of `opts[0]` would be a silent
+/// funds-safety opt-out. Other kinds fall through to the kind-only
+/// default (`Unset` for Number/Range/Timestamp/TaggedOrIndexed).
+fn add_row_value_for(kind: &FlagKind) -> FlagValue {
+    match kind {
+        FlagKind::Dropdown(_) => FlagValue::Dropdown(String::new()),
+        other => default_flag_value_for(other),
     }
 }
 
@@ -217,6 +340,10 @@ pub fn seeded_value_for(kind: &FlagKind) -> FlagValue {
 /// button (G-P2.2 / §2.4 render-site contract). The icon is rendered
 /// inside the same `ui.horizontal` row as the flag label so the P1.4
 /// kittest can find it via `harness.query_by_label("?")`.
+///
+/// v0.30.0: delegates to `render_row` with `row: None` — the scalar path
+/// is byte-unchanged (same egui ID salts, same chrome). Repeating rows go
+/// through `render_repeating` → `render_row(Some(row_idx))`.
 pub fn render(
     ui: &mut egui::Ui,
     tab: CliTab,
@@ -226,13 +353,42 @@ pub fn render(
     state: &FormState,
     disabled_options: &[String],
 ) {
+    render_row(ui, tab, subcommand, flag, value, state, disabled_options, None);
+}
+
+/// Per-row renderer behind [`render`] (v0.30.0 SPEC §3).
+///
+/// `row` semantics:
+///   - `None` — the scalar (non-repeating) path. Behavior is byte-identical
+///     to the pre-v0.30.0 `render`: per-flag chrome (label + `?` help icon +
+///     required marker) renders here, and the egui ID salts keep the
+///     two-element tuple shape (`("flag_dropdown", flag.name)`, …) so
+///     existing egui widget state is not invalidated.
+///   - `Some(row_idx)` — one row of a repeating flag. The header row in
+///     `render_repeating` owns the chrome, so it is skipped here; the
+///     ID salts gain the row index (`("flag_dropdown", flag.name, row_idx)`
+///     — R0-r1 I4: N same-name rows sharing an ID is the v0.1.1
+///     popup-state-leak bug class).
+#[allow(clippy::too_many_arguments)]
+fn render_row(
+    ui: &mut egui::Ui,
+    tab: CliTab,
+    subcommand: &str,
+    flag: &FlagSchema,
+    value: &mut FlagValue,
+    state: &FormState,
+    disabled_options: &[String],
+    row: Option<usize>,
+) {
     // v0.6.0 P3 — transition sentinel for Unset ↔ seeded swaps. Mutating
     // *value mid-match would conflict with the destructured borrow inside
     // each arm; collect any swap intent here and apply it after the match.
     let mut transition: Option<FlagValue> = None;
     ui.horizontal(|ui| {
-        ui.label(flag.name).on_hover_text(flag.help);
-        render_help_icon(ui, tab, subcommand, flag);
+        if row.is_none() {
+            ui.label(flag.name).on_hover_text(flag.help);
+            render_help_icon(ui, tab, subcommand, flag);
+        }
         match (&flag.kind, &mut *value) {
             (FlagKind::Text, FlagValue::Text(s)) => {
                 ui.text_edit_singleline(s);
@@ -273,14 +429,40 @@ pub fn render(
                 // can simultaneously be Required (red asterisk on label) AND
                 // have invalid Dropdown options greyed out (e.g., --template
                 // when slot_count>=2 and no descriptor).
-                egui::ComboBox::from_id_salt(("flag_dropdown", flag.name))
-                    .selected_text(sel.as_str())
+                //
+                // v0.30.0 R0-r1 I4: repeating rows salt the row index in —
+                // the scalar path keeps the 2-tuple salt byte-unchanged.
+                let combo = match row {
+                    Some(row_idx) => egui::ComboBox::from_id_salt((
+                        "flag_dropdown",
+                        flag.name,
+                        row_idx,
+                    )),
+                    None => egui::ComboBox::from_id_salt(("flag_dropdown", flag.name)),
+                };
+                // v0.30.0 R0-r2 I-1 — empty-option display mapping: the ""
+                // UNSET sentinel (ARCHETYPES[0]; also the "+ add" Dropdown
+                // row seed) displays as "(none)" for BOTH the selected_text
+                // and the popup row. DISPLAY-ONLY: the stored/emitted value
+                // stays "" (`emit_one` / `is_at_default` / `has_value` all
+                // key off the value). Without it the unset row is a ~4px
+                // sliver and — with FormState persisted per subcommand and
+                // no reset affordance — selecting an archetype once would
+                // near-permanently trap the user out of `--spec`.
+                let selected_label = if sel.is_empty() {
+                    "(none)".to_string()
+                } else {
+                    sel.clone()
+                };
+                combo
+                    .selected_text(selected_label)
                     .show_ui(ui, |ui| {
                         for opt in *opts {
                             let is_disabled =
                                 disabled_options.iter().any(|d| d == *opt);
+                            let display = if opt.is_empty() { "(none)" } else { *opt };
                             ui.add_enabled_ui(!is_disabled, |ui| {
-                                ui.selectable_value(sel, (*opt).to_string(), *opt);
+                                ui.selectable_value(sel, (*opt).to_string(), display);
                             });
                         }
                     });
@@ -317,7 +499,18 @@ pub fn render(
                 FlagKind::NodeValueComposite(opts),
                 FlagValue::NodeValueComposite { node, value },
             ) => {
-                egui::ComboBox::from_id_salt(("flag_nodevalue", flag.name))
+                // v0.30.0 R0-r1 I4: row-salted for repeating rows (no
+                // NodeValueComposite flag repeats today; defensive parity
+                // with the Dropdown arm).
+                let combo = match row {
+                    Some(row_idx) => egui::ComboBox::from_id_salt((
+                        "flag_nodevalue",
+                        flag.name,
+                        row_idx,
+                    )),
+                    None => egui::ComboBox::from_id_salt(("flag_nodevalue", flag.name)),
+                };
+                combo
                     .selected_text(node.as_str())
                     .show_ui(ui, |ui| {
                         for opt in *opts {
@@ -341,7 +534,19 @@ pub fn render(
                             tags.first().map(|s| (*s).to_string()).unwrap_or_default()
                         }
                     };
-                    egui::ComboBox::from_id_salt(("flag_tagged", flag.name))
+                    // v0.30.0 R0-r1 I4: row-salted for repeating rows (no
+                    // TaggedOrIndexed flag repeats today; defensive parity).
+                    let combo = match row {
+                        Some(row_idx) => egui::ComboBox::from_id_salt((
+                            "flag_tagged",
+                            flag.name,
+                            row_idx,
+                        )),
+                        None => {
+                            egui::ComboBox::from_id_salt(("flag_tagged", flag.name))
+                        }
+                    };
+                    combo
                         .selected_text(s.as_str())
                         .show_ui(ui, |ui| {
                             for opt in *tags {
@@ -383,7 +588,9 @@ pub fn render(
                 }
             }
         }
-        if flag.required {
+        // Required marker: scalar path only — for repeating rows the
+        // header row in `render_repeating` owns the marker (R0-r1 I5).
+        if row.is_none() && flag.required {
             ui.colored_label(egui::Color32::from_rgb(220, 60, 60), "*");
         }
     });

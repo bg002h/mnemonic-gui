@@ -621,6 +621,33 @@ pub fn export_wallet(state: &FormState) -> FlagVisibility {
     vis
 }
 
+/// `build-descriptor` subcommand conditionals (v0.30.0).
+///
+/// Upstream (toolkit presets, v0.51.0/v0.52.0): `--archetype` conflicts_with
+/// `--spec` — a curated preset and a hand-written node-tree spec are
+/// exclusive input modes. Mirrors the `export_wallet` mutex pattern above.
+///
+/// `--archetype`'s `""` UNSET sentinel (v0.30.0 R0-r1 C1): `has_value` is
+/// `false` for an empty Dropdown, so the default form (seeded `Dropdown("")`)
+/// leaves `--spec` enabled; selecting an archetype disables `--spec`;
+/// re-selecting the "(none)" row re-enables it (R0-r2 I-1 round-trip).
+///
+/// The OTHER preset clap edges (10 `requires = "archetype"` parameter
+/// edges + `--emit-spec` `conflicts_with_all = [--format, --json]`) stay
+/// deliberately UN-projected — recorded decision (SPEC §4): the CLI is the
+/// gate, and the A2 archetype-forms wizard supersedes the generic form as
+/// the preset surface, so further projection investment is waste.
+pub fn build_descriptor(state: &FormState) -> FlagVisibility {
+    let mut vis = Vec::new();
+    if state.has_value("--archetype") {
+        vis.push(("--spec", Visibility::Disabled));
+    }
+    if state.has_value("--spec") {
+        vis.push(("--archetype", Visibility::Disabled));
+    }
+    vis
+}
+
 /// `derive-child` subcommand conditionals (v0.3 drift fix).
 ///
 /// Upstream (`crates/mnemonic-toolkit/src/cmd/derive_child.rs`):

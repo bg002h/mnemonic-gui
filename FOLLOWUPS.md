@@ -7,6 +7,16 @@ mirrors it.
 
 ## Active
 
+### `repeating-secret-flags-never-reach-argv` — live bug: secret+repeating Text flags render into `secret_widgets` but `assemble_argv` reads them from `state.values`
+
+- **Surfaced:** 2026-06-09, GUI v0.30.0 cycle (SPEC §5; pre-existing — NOT introduced by the v0.30.0 repeating-row widget, whose dispatch deliberately leaves the secret branch first/unchanged).
+- **Where:** `src/form/widget.rs::render_with_dispatch` (the secret branch: `flag_is_secret(flag) && FlagKind::Text` → ONE `SecretLineEdit` in `state.secret_widgets[flag.name]`, regardless of `flag.repeating`) vs `src/form/invocation.rs::assemble_argv` (the secret-flag branch: `flag.repeating` → reads rows from **`state.values`** — the v0.3 repeating-secret fold comment documents that intended routing; the widget layer never got the per-row half).
+- **What:** for every secret + repeating + Text flag — `--ms1` (2 repeating+secret sites in `src/schema/mnemonic.rs`: `VERIFY_BUNDLE_FLAGS` + `IMPORT_WALLET_FLAGS`) and `--share` (3 sites: `SLIP39_COMBINE_FLAGS`, `MS_SHARES_COMBINE_FLAGS`, `SEED_XOR_COMBINE_FLAGS`) — a LIVE form renders a single secret widget whose buffer lives in `secret_widgets`, while emission reads repeating secrets from `state.values` → **the live form emits NOTHING for these flags**. Masked by the kittest/unit cells, which synthesize `state.values` entries directly (e.g. `cell_import_wallet_repeating_ms1_argv`) and so exercise only the assembler half.
+- **Fix direction (the v0.3 fold comment's design):** per-row `SecretLineEdit` rendering routed through `state.values` — render N secret rows (one `SecretLineEdit` per row, keyed per-row), write each row's value into `state.values` so the existing assembler loop emits them; keep the paste-warn modal + zeroize-per-widget posture; accept (as the v0.3 fold already did) that the values-map String copies are plain heap allocations during emission.
+- **Why deferred:** out of A1 scope (consult ruling + SPEC §3 — the v0.30.0 repeating-row widget covers NON-secret flags only; the secret branch order is load-bearing and unchanged). Needs its own cycle: secret-row UX (per-row paste-warn, per-row remove) + the `secret_widgets`→`state.values` migration story for persisted sessions.
+- **Status:** open.
+- **Tier:** GUI-local (no sibling-repo flag surface change; the toolkit CLIs already accept the repeats).
+
 ### `gui-build-descriptor-presets-pending-pin-bump` — bump toolkit pin → v0.52.0 + add the 12 build-descriptor flags to the SubcommandSchema
 
 - **Surfaced:** 2026-06-09, toolkit descriptor-builder Release B ship (`mnemonic-toolkit-v0.51.0`); **extended same day at toolkit v0.52.0** (+`--allow` → 12 flags; pin target → v0.52.0). `mnemonic build-descriptor` gained 11 clap flags → the `schema_mirror` flag-NAME lockstep applies; the schema cannot add them until the toolkit pin is bumped to v0.52.0 (chicken-and-egg, same arc as the v0.29.0 build-descriptor surfacing). Pin bump = the usual **6 lockstep sites** (Cargo.toml + Cargo.lock + `pinned-upstream.toml` `[mnemonic].tag` + README pin marker + `pinned_version` banner + module-doc), 4 gated by `pin_coherence`/`readme_pin_coherence`, 2 ungated.

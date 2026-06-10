@@ -1,4 +1,4 @@
-//! Pinned schema for the `mnemonic` CLI from mnemonic-toolkit-v0.50.0.
+//! Pinned schema for the `mnemonic` CLI from mnemonic-toolkit-v0.52.0.
 //!
 //! Five subcommands covered in v0.1 (Section A coverage table):
 //!   - bundle
@@ -31,6 +31,33 @@ const NETWORKS: &[&str] = &["mainnet", "testnet", "signet", "regtest"];
 const VERIFY_FORMATS: &[&str] = &["auto", "legacy", "bip322"];
 // toolkit v0.50.0: `build-descriptor --format` value-enum (CliBuildFormat).
 const BUILD_FORMATS: &[&str] = &["descriptor", "bip388"];
+// toolkit v0.51.0/v0.52.0: `build-descriptor --archetype` value-enum
+// (CliArchetype order). The leading `""` is the GUI-side UNSET sentinel
+// (v0.30.0 R0-r1 C1): `emit_one` skips an empty Dropdown, `has_value` is
+// false, and the user can re-select the "(none)" display row — without it
+// the default form would emit a guaranteed-refusal `--archetype
+// decaying-multisig` AND the archetype↔spec mutex would deadlock `--spec`
+// from frame 1. The sentinel is GUI-only; the toolkit never sees it
+// (empty Dropdown is never emitted). Value-list parity with the binary is
+// pinned by `tests/build_descriptor_schema.rs` (the value-enum is NOT
+// gate-checked by `schema_mirror`, which compares flag NAMES only).
+const ARCHETYPES: &[&str] = &[
+    "",
+    "decaying-multisig",
+    "hashlock-gated",
+    "kofn-recovery",
+    "simple-timelocked-inheritance",
+    "tiered-recovery",
+];
+// toolkit v0.52.0: `build-descriptor --allow` value-enum (sanity-rule
+// opt-out names). Parity pinned by `tests/build_descriptor_schema.rs`.
+const ALLOW_RULES: &[&str] = &[
+    "malleable",
+    "mixed-timelock",
+    "repeated-keys",
+    "resource-limit",
+    "sigless-branch",
+];
 
 const TEMPLATES: &[&str] = &[
     "bip44",
@@ -3432,6 +3459,160 @@ const BUILD_DESCRIPTOR_FLAGS: &[FlagSchema] = &[
         default_value: None,
         global: false,
     },
+    // toolkit v0.51.0/v0.52.0 — archetype presets (12 flags). `--archetype`
+    // carries the GUI-side `""` UNSET sentinel (default_value Some("") —
+    // see the ARCHETYPES const comment). `--key`/`--recovery-key`/`--allow`
+    // are repeating (row order = argv order = quorum order). The 10
+    // `requires = "archetype"` clap edges + the `--emit-spec`
+    // conflicts_with_all stay deliberately UN-projected (SPEC §4 recorded
+    // decision: the CLI is the gate; the A2 archetype wizard supersedes the
+    // generic form as the preset surface). The archetype↔spec mutex IS
+    // projected (`conditional::build_descriptor`).
+    FlagSchema {
+        name: "--archetype",
+        kind: FlagKind::Dropdown(ARCHETYPES),
+        required: false,
+        repeating: false,
+        help: "Build from a curated archetype preset instead of a --spec node-tree; \
+               parameters come from the preset flags. \"(none)\" = no preset.",
+        secret: false,
+        default_value: Some(""),
+        global: false,
+    },
+    FlagSchema {
+        name: "--key",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: true,
+        help: "Primary-path key (`[fp/path]xpub…`); repeat per cosigner — row \
+               order is preserved into the quorum.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--threshold",
+        kind: FlagKind::Number {
+            min: 1,
+            max: NumberMax::Static(20),
+        },
+        required: false,
+        repeating: false,
+        help: "Primary quorum threshold k.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--recovery-key",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: true,
+        help: "Recovery-path key; repeat per cosigner — row order is preserved.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--recovery-threshold",
+        kind: FlagKind::Number {
+            min: 1,
+            max: NumberMax::Static(20),
+        },
+        required: false,
+        repeating: false,
+        help: "Recovery quorum threshold k.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--final-key",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "Last-resort key (decaying-multisig tier 3).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--older",
+        kind: FlagKind::Number {
+            min: 1,
+            max: NumberMax::Static(2_147_483_647),
+        },
+        required: false,
+        repeating: false,
+        help: "Relative timelock (blocks) on the gated path (decaying-multisig: \
+               tier-1 timelock).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--recovery-older",
+        kind: FlagKind::Number {
+            min: 1,
+            max: NumberMax::Static(2_147_483_647),
+        },
+        required: false,
+        repeating: false,
+        help: "Decaying-multisig tier-2 relative timelock (blocks); must exceed \
+               --older.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--after",
+        // clap accepts 0..=u32::MAX; GUI min 1 is deliberately tighter —
+        // `after(0)` is gate-invalid miniscript (SPEC §2 / R0-r1 M8).
+        kind: FlagKind::Number {
+            min: 1,
+            max: NumberMax::Static(4_294_967_295),
+        },
+        required: false,
+        repeating: false,
+        help: "Decaying-multisig tier-3 absolute locktime (block height or unix \
+               time, per BIP-65 threshold).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--hash",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "SHA-256 digest (64 hex chars) for hashlock-gated.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--emit-spec",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Print the lowered + gate-validated node-tree spec JSON instead of \
+               building (review, edit, feed back via --spec).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--allow",
+        kind: FlagKind::Dropdown(ALLOW_RULES),
+        required: false,
+        repeating: true,
+        help: "Reviewed opt-out of ONE funds-safety sanity rule per occurrence \
+               (repeatable). Every rule that fires is named in an unmissable \
+               warning; never silent.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
     FlagSchema {
         name: "--format",
         kind: FlagKind::Dropdown(BUILD_FORMATS),
@@ -3514,14 +3695,18 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
     // spec (`--spec`, file/stdin) → wsh descriptor + BIP-388 + cost preview +
     // node-addressed diagnostics. Watch-only (no secret flags); the recursive
     // node-tree wizard FORM is a later cycle — this entry yields a basic
-    // file-picker `--spec` form. `conditional: None` (no clap conflicts).
+    // file-picker `--spec` form.
+    // v0.30.0 (toolkit v0.51.0/v0.52.0): archetype presets + `--allow` — the
+    // archetype↔spec clap mutex is projected via
+    // `conditional::build_descriptor`; the other preset clap edges stay
+    // deliberately UN-projected (CLI is the gate — SPEC §4).
     SubcommandSchema {
         name: "build-descriptor",
         human_name: "Build Descriptor (policy-tree spec → wsh descriptor + BIP-388)",
         flags: BUILD_DESCRIPTOR_FLAGS,
         positional_args: NO_POSITIONALS,
         allows_slots: false,
-        conditional: None,
+        conditional: Some(crate::form::conditional::build_descriptor),
     },
     // toolkit v0.43.0: re-derive a wallet export from a third-party source
     // (`--from`) — the inverse-ish sibling of export-wallet. Input is via
@@ -3761,6 +3946,6 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
 // drift here is a cosmetic banner mismatch, not a functional error.
 pub const SCHEMA: Schema = Schema {
     cli_name: "mnemonic",
-    pinned_version: "mnemonic 0.50.0",
+    pinned_version: "mnemonic 0.52.0",
     subcommands: SUBCOMMANDS,
 };
