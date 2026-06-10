@@ -3,6 +3,17 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## mnemonic-gui [0.33.0] — 2026-06-10
+
+**SemVer-MINOR — toolkit pin v0.52.0 → v0.53.1 + the master-phrase secret flips (audit I4 GUI half): `xpub-search --phrase` finally renders MASKED with run-confirm.**
+
+- **Toolkit pin bump v0.52.0 → v0.53.1** (the 6 lockstep sites: Cargo.toml + Cargo.lock + `pinned-upstream.toml` + README install line + `pinned_version` banner + module-doc). The bump carries toolkit v0.53.0 (multisig mk1 csi slot-unique — card bytes only, no schema surface) + v0.53.1 (the secret classifications). Measured pre-edit: the only gui-schema delta v0.52.0 → v0.53.1 is the 9 secret bits below; flag-NAME/conditional/archetype gates all green.
+- **9 `FlagSchema.secret` flips** (`src/schema/mnemonic.rs`): `--phrase` / `--phrase-stdin` / `--ms1-stdin` × the three xpub-search modes (`path-of-xpub`, `account-of-descriptor`, `passphrase-of-xpub`). A raw master BIP-39 phrase typed into the GUI now renders as a masked `SecretLineEdit` with exit-zeroize, triggers the run-confirm modal, and the two stdin toggles join the redaction union. Resolves `xpub-search-inline-phrase-not-secret-classified` (= audit I4's mnemonic.rs half; toolkit source-of-truth fixed in v0.53.1).
+- **`ms repair --ms1` → `secret: true` by deliberate GUI-side override** (`src/schema/ms.rs`): the to-be-repaired ms1 is master-secret material (BCH-corrupted BIP-39 entropy) — the lone false twin of the 8-site `--ms1` census. No automated gate covers ms.rs secret bits and ms-cli has no gui-schema surface to mirror, so the override is recorded at the site + pinned by `tests/secret_flips_v0_33_0.rs::t1`. Resolves `ms-repair-ms1-not-secret-classified` (= audit I4's ms.rs half).
+- **Boolean stdin-toggle census 18 → 24** (`boolean-stdin-secret-toggles-never-emit`): the flipped `--phrase-stdin` ×3 / `--ms1-stdin` ×3 move from generic-checkbox emission into the assembler's secret-Boolean suppression — deliberate (the GUI runner has no stdin feed; a checked toggle previously produced a CLI that hangs awaiting stdin). The no-emit mechanism is pinned for the first time (`t2`).
+- **Tests:** new `tests/secret_flips_v0_33_0.rs` (override pin + stdin-toggle no-emit + tri-mode `--phrase` secrecy); the 3 `xpub_search_widgets` argv cells converted to seed `secret_widgets` (the live form's routing — a values-synthesized Text-secret emits nothing by design) while KEEPING their `--phrase` emission asserts. The secret-drift gate goes green at the bumped pin (it was the forcing function: RED in both directions on exactly the 9 pairs).
+- SPEC + R0 reviews: `design/SPEC_gui_v0_33_0_secret_flips_pin_bump.md`, `design/agent-reports/gui-v0-33-0-secret-flips-r0-round{1,2}-review.md`.
+
 ## mnemonic-gui [0.32.0] — 2026-06-10
 
 **SemVer-MINOR — the recursive node-tree builder for `build-descriptor` (the wizard's tree stage): hand-build a miniscript policy tree node-by-node over the FULL 17-kind grammar, Validate it against the live binary with node-addressed diagnostic highlighting, and round-trip archetype presets into the tree via `--emit-spec`. NO toolkit pin change (stays `v0.52.0`) and NO `schema_mirror` delta (zero new flags — the tree is a GUI-side composition surface over the existing `--spec -` stdin contract).**

@@ -318,7 +318,13 @@ const REPAIR_FLAGS: &[FlagSchema] = &[
         required: true,
         repeating: false,
         help: "ms1 string to repair via BCH error correction. `-` reads stdin.",
-        secret: false,
+        // v0.33.0 deliberate GUI-side override (audit I4 ms.rs half): the
+        // to-be-repaired ms1 IS master-secret material (BCH-corrupted BIP-39
+        // entropy; the lone false twin of the 8-site --ms1 census). No
+        // automated gate covers ms.rs secret bits (schema_mirror_secret_drift
+        // walks schema::mnemonic only), and ms-cli has no gui-schema surface
+        // to mirror — see FOLLOWUPS.md::ms-repair-ms1-not-secret-classified.
+        secret: true,
         default_value: None,
         global: false,
     },

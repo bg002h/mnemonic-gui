@@ -42,10 +42,16 @@ fn cell_path_of_xpub_argv_assembles() {
                 ));
             }
             if ui.button("set-phrase").clicked() {
-                state.values.push((
+                // v0.33.0: --phrase is secret — the assembler reads Text
+                // secrets from secret_widgets, not values (a values-
+                // synthesized entry emits nothing). Seed the secret-widget
+                // path, mirroring the live form's routing.
+                state.secret_widgets.insert(
                     "--phrase".into(),
-                    FlagValue::Text("abandon abandon ...".into()),
-                ));
+                    vec![mnemonic_gui::form::secret_widget::SecretLineEdit::from_text(
+                        "abandon abandon ...",
+                    )],
+                );
             }
             if ui.button("set-network").clicked() {
                 state.values.push((
@@ -113,10 +119,16 @@ fn cell_account_of_descriptor_argv_assembles() {
                 ));
             }
             if ui.button("set-phrase").clicked() {
-                state.values.push((
+                // v0.33.0: --phrase is secret — the assembler reads Text
+                // secrets from secret_widgets, not values (a values-
+                // synthesized entry emits nothing). Seed the secret-widget
+                // path, mirroring the live form's routing.
+                state.secret_widgets.insert(
                     "--phrase".into(),
-                    FlagValue::Text("abandon abandon ...".into()),
-                ));
+                    vec![mnemonic_gui::form::secret_widget::SecretLineEdit::from_text(
+                        "abandon abandon ...",
+                    )],
+                );
             }
             if ui.button("set-json").clicked() {
                 state
@@ -259,10 +271,16 @@ fn cell_passphrase_of_xpub_argv_assembles() {
                 ));
             }
             if ui.button("set-phrase").clicked() {
-                state.values.push((
+                // v0.33.0: --phrase is secret — the assembler reads Text
+                // secrets from secret_widgets, not values (a values-
+                // synthesized entry emits nothing). Seed the secret-widget
+                // path, mirroring the live form's routing.
+                state.secret_widgets.insert(
                     "--phrase".into(),
-                    FlagValue::Text("abandon abandon ...".into()),
-                ));
+                    vec![mnemonic_gui::form::secret_widget::SecretLineEdit::from_text(
+                        "abandon abandon ...",
+                    )],
+                );
             }
             if ui.button("set-number-of-accounts").clicked() {
                 state

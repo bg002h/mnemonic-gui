@@ -1,4 +1,4 @@
-//! Pinned schema for the `mnemonic` CLI from mnemonic-toolkit-v0.52.0.
+//! Pinned schema for the `mnemonic` CLI from mnemonic-toolkit-v0.53.1.
 //!
 //! Five subcommands covered in v0.1 (Section A coverage table):
 //!   - bundle
@@ -2283,7 +2283,7 @@ const XPUB_SEARCH_PATH_OF_XPUB_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Master BIP-39 phrase (inline). Emits an argv-leakage advisory; \
                prefer --phrase-stdin for sensitive input.",
-        secret: false,
+        secret: true,
         default_value: None,
         global: false,
     },
@@ -2293,7 +2293,7 @@ const XPUB_SEARCH_PATH_OF_XPUB_FLAGS: &[FlagSchema] = &[
         required: false,
         repeating: false,
         help: "Read master BIP-39 phrase from stdin.",
-        secret: false,
+        secret: true,
         default_value: None,
         global: false,
     },
@@ -2314,7 +2314,7 @@ const XPUB_SEARCH_PATH_OF_XPUB_FLAGS: &[FlagSchema] = &[
         required: false,
         repeating: false,
         help: "Read ms1 card from stdin (single chunk).",
-        secret: false,
+        secret: true,
         default_value: None,
         global: false,
     },
@@ -2445,7 +2445,7 @@ const XPUB_SEARCH_ACCOUNT_OF_DESCRIPTOR_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Master BIP-39 phrase (inline). Emits an argv-leakage advisory; \
                prefer --phrase-stdin for sensitive input.",
-        secret: false,
+        secret: true,
         default_value: None,
         global: false,
     },
@@ -2455,7 +2455,7 @@ const XPUB_SEARCH_ACCOUNT_OF_DESCRIPTOR_FLAGS: &[FlagSchema] = &[
         required: false,
         repeating: false,
         help: "Read master BIP-39 phrase from stdin.",
-        secret: false,
+        secret: true,
         default_value: None,
         global: false,
     },
@@ -2476,7 +2476,7 @@ const XPUB_SEARCH_ACCOUNT_OF_DESCRIPTOR_FLAGS: &[FlagSchema] = &[
         required: false,
         repeating: false,
         help: "Read ms1 card from stdin (single chunk).",
-        secret: false,
+        secret: true,
         default_value: None,
         global: false,
     },
@@ -2715,7 +2715,7 @@ const XPUB_SEARCH_PASSPHRASE_OF_XPUB_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Master BIP-39 phrase (inline). Emits an argv-leakage advisory; \
                prefer --phrase-stdin for sensitive input.",
-        secret: false,
+        secret: true,
         default_value: None,
         global: false,
     },
@@ -2725,7 +2725,7 @@ const XPUB_SEARCH_PASSPHRASE_OF_XPUB_FLAGS: &[FlagSchema] = &[
         required: false,
         repeating: false,
         help: "Read master BIP-39 phrase from stdin.",
-        secret: false,
+        secret: true,
         default_value: None,
         global: false,
     },
@@ -2746,7 +2746,7 @@ const XPUB_SEARCH_PASSPHRASE_OF_XPUB_FLAGS: &[FlagSchema] = &[
         required: false,
         repeating: false,
         help: "Read ms1 card from stdin (single chunk).",
-        secret: false,
+        secret: true,
         default_value: None,
         global: false,
     },
@@ -3946,6 +3946,6 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
 // drift here is a cosmetic banner mismatch, not a functional error.
 pub const SCHEMA: Schema = Schema {
     cli_name: "mnemonic",
-    pinned_version: "mnemonic 0.52.0",
+    pinned_version: "mnemonic 0.53.1",
     subcommands: SUBCOMMANDS,
 };
