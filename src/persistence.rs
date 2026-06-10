@@ -118,6 +118,16 @@ pub fn redact_for_persistence(state: &FormState) -> FormState {
         // the redacted FormState has the never-persist invariant
         // satisfied by type.
         secret_widgets: BTreeMap::new(),
+        // v0.32.0 (node-tree builder SPEC §1.3): tree persists with every
+        // node's `key`/`keys` entries BLANKED when xprv-matching (the
+        // toolkit gate.rs heuristic — strip `[origin]` via rsplit(']'),
+        // bytes 1..4 == b"prv"; recursive walk incl. surplus children).
+        // Hashlock `hex` digests deliberately survive (public
+        // commitments); diagnostics/validate_ok are absent by type.
+        tree: state
+            .tree
+            .as_ref()
+            .map(crate::form::tree_model::TreeState::redacted_for_persistence),
     }
 }
 

@@ -16,6 +16,11 @@ materially different vector.
 | Fixture | Upstream path | Toolkit version | Last re-vendored |
 |---|---|---|---|
 | `coldcard_generic_bip84_mainnet.json` | `crates/mnemonic-toolkit/tests/export_wallet/coldcard_generic_bip84_mainnet.json` | `mnemonic-toolkit-v0.14.0` | 2026-05-16 |
+| `descriptor_builder/decaying-multisig.json` | `crates/mnemonic-toolkit/tests/fixtures/descriptor_builder/decaying-multisig.json` | `mnemonic-toolkit-v0.52.0` | 2026-06-10 |
+| `descriptor_builder/hashlock-gated.json` | `crates/mnemonic-toolkit/tests/fixtures/descriptor_builder/hashlock-gated.json` | `mnemonic-toolkit-v0.52.0` | 2026-06-10 |
+| `descriptor_builder/kofn-recovery.json` | `crates/mnemonic-toolkit/tests/fixtures/descriptor_builder/kofn-recovery.json` | `mnemonic-toolkit-v0.52.0` | 2026-06-10 |
+| `descriptor_builder/simple-timelocked-inheritance.json` | `crates/mnemonic-toolkit/tests/fixtures/descriptor_builder/simple-timelocked-inheritance.json` | `mnemonic-toolkit-v0.52.0` | 2026-06-10 |
+| `descriptor_builder/tiered-recovery.json` | `crates/mnemonic-toolkit/tests/fixtures/descriptor_builder/tiered-recovery.json` | `mnemonic-toolkit-v0.52.0` | 2026-06-10 |
 
 ## Re-vendor procedure
 
@@ -51,3 +56,9 @@ MNEMONIC_BIN=$(which mnemonic) \
   `tests/runner_integration.rs::cell_1_mnemonic_export_wallet_byte_exact`.
   Drives `mnemonic export-wallet --format coldcard` via the GUI's
   argv-assembly + runner; asserts stdout byte-equals the fixture.
+- `descriptor_builder/*.json` (the 5 archetype spec goldens, node-tree
+  builder SPEC §4 gate 3) → `tests/tree_round_trip.rs`. Round-trip law
+  (a) `to(from(j)) == j` per fixture + the live exit-0 leg through
+  `build-descriptor --spec - --json` (the staleness tether — fixture
+  immutability is CYCLE-scoped per the presets SPEC; if the exit-0 leg
+  fails, re-vendor from the toolkit tag and update the table above).

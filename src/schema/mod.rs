@@ -9,6 +9,7 @@ pub mod md;
 pub mod mk;
 pub mod mnemonic;
 pub mod ms;
+pub mod nodes;
 
 /// Static description of one CLI binary's flag surface.
 pub struct Schema {
@@ -301,6 +302,17 @@ pub struct FormState {
     #[serde(skip)]
     pub secret_widgets:
         std::collections::BTreeMap<String, Vec<crate::form::secret_widget::SecretLineEdit>>,
+
+    /// v0.32.0 (node-tree builder SPEC §1.3): the build-descriptor
+    /// recursive tree-builder state. `None` = non-tree mode (and what a
+    /// pre-v0.32.0 `state.json` with no `tree` field loads to —
+    /// `#[serde(default)]` is the migration leg, R0-r1 M6a). Persisted —
+    /// `redact_for_persistence` blanks xprv-matching `key`/`keys`
+    /// entries via `TreeState::redacted_for_persistence`; the transient
+    /// diagnostics / validate_ok never persist (`#[serde(skip)]` inside
+    /// `TreeState`).
+    #[serde(default)]
+    pub tree: Option<crate::form::tree_model::TreeState>,
 }
 
 impl FormState {
@@ -314,6 +326,7 @@ impl FormState {
             slots: crate::form::slot_editor::SlotState::new(),
             positionals: Vec::new(),
             secret_widgets: std::collections::BTreeMap::new(),
+            tree: None,
         }
     }
 

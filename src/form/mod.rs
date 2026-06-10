@@ -6,4 +6,5 @@ pub mod conditional;
 pub mod invocation;
 pub mod secret_widget;
 pub mod slot_editor;
+pub mod tree_model;
 pub mod widget;
