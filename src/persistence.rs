@@ -128,6 +128,10 @@ pub fn redact_for_persistence(state: &FormState) -> FormState {
             .tree
             .as_ref()
             .map(crate::form::tree_model::TreeState::redacted_for_persistence),
+        // v0.32.0 P3: the "Edit as tree…" error is transient by type
+        // (#[serde(skip)]) — freshly None here, same posture as
+        // secret_widgets.
+        edit_as_tree_error: None,
     }
 }
 

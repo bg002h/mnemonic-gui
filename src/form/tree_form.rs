@@ -35,13 +35,14 @@
 use eframe::egui;
 
 use crate::form::archetype_form;
+use crate::form::invocation::{posix_quote, render_copy_command, ShellFlavor};
 use crate::form::tree_model::{
-    completeness, emitted_child_count, is_xprv_like, node_paths, to_spec_json, TreeDiag,
-    TreeNode, TreeState, ValidateOk,
+    completeness, emitted_child_count, from_spec_json, is_xprv_like, node_paths,
+    to_spec_json, TreeDiag, TreeNode, TreeState, ValidateOk,
 };
 use crate::form::widget::display_or;
 use crate::runner::{self, RunResult};
-use crate::schema::archetypes::ARCHETYPE_PARAM_FLAGS;
+use crate::schema::archetypes::{ArchetypeSpec, ARCHETYPE_PARAM_FLAGS};
 use crate::schema::nodes::{spec_for, PayloadShape, NODE_KIND_SPECS};
 use crate::schema::{FlagValue, FormState};
 
@@ -106,6 +107,156 @@ pub fn spec_json_pretty(state: &FormState) -> Option<String> {
         return None;
     }
     serde_json::to_string_pretty(&to_spec_json(&t.root)).ok()
+}
+
+/// v0.32.0 P3 (SPEC §3) — the tree-mode POSIX pipeline copy string:
+/// `printf '%s' '<json>' | mnemonic build-descriptor … --spec -`.
+/// `argv` is the host-assembled Run argv (the user's mode-independent
+/// flags + the appended `--spec -`), quoted by the same
+/// `render_copy_command` the argv copies use; the spec JSON is COMPACT
+/// (`spec_stdin_bytes` parity — the pasted pipeline feeds the binary the
+/// exact bytes Run pipes) and `posix_quote`d (single-quote-safe for
+/// arbitrary key content). `Some` ONLY in tree mode with a structurally
+/// complete tree — the same completeness gate as Copy spec JSON
+/// (R0-r1 M4). The Windows copy deliberately stays argv + the separate
+/// "Copy spec JSON" button (no `CommandLineToArgvW`-safe pipeline
+/// one-liner exists for arbitrary JSON under cmd.exe quoting).
+pub fn posix_pipeline_command(state: &FormState, argv: &[String]) -> Option<String> {
+    let json_bytes = spec_stdin_bytes(state)?;
+    let json = String::from_utf8(json_bytes).expect("serde_json output is UTF-8");
+    Some(format!(
+        "printf '%s' {} | {}",
+        posix_quote(&json),
+        render_copy_command(argv, ShellFlavor::Posix),
+    ))
+}
+
+// ───────────────────────────── P3: "Edit as tree…" (archetype lowering) ──
+
+/// v0.32.0 P3 (SPEC §3) — the `--emit-spec` argv for the CURRENTLY
+/// selected archetype + its param rows: `["mnemonic", "build-descriptor",
+/// "--archetype", <id>, <declared param rows in schema order>,
+/// "--emit-spec"]` (`argv[0]` = the CLI binary name, the runner contract).
+///
+/// PURPOSE-BUILT rather than `assemble_argv` reuse: `--emit-spec` is
+/// `conflicts_with_all = [--format, --json]` (probed against v0.52.0), so
+/// the user's mode-independent flags must NOT ride along — the lowering
+/// input is the archetype + params ONLY. Every matching `state.values`
+/// row emits (parity with the archetype-mode Run argv, which emits every
+/// row off the static `FlagSchema.repeating` — the v0.31.0 C1 "what emits
+/// is what renders" corollary); empty Text rows skip (the `emit_one`
+/// rule). Missing/incomplete params are NOT pre-gated — the binary's
+/// `[param]` diagnostics are the validator (the no-second-validation-path
+/// ethos), surfaced by [`render_edit_as_tree`]'s error label.
+pub fn emit_spec_argv(state: &FormState, spec: &'static ArchetypeSpec) -> Vec<String> {
+    let mut argv: Vec<String> = vec![
+        "mnemonic".to_string(),
+        "build-descriptor".to_string(),
+        "--archetype".to_string(),
+        spec.id.to_string(),
+    ];
+    for param in spec.params {
+        for (_, value) in state.values.iter().filter(|(k, _)| k == param.flag) {
+            match value {
+                FlagValue::Text(s) if !s.is_empty() => {
+                    argv.push(param.flag.to_string());
+                    argv.push(s.clone());
+                }
+                FlagValue::Number(n) => {
+                    argv.push(param.flag.to_string());
+                    argv.push(n.to_string());
+                }
+                // Param flags are Text (key / hex_digest) or Number
+                // (threshold / blocks / absolute_locktime) by schema;
+                // anything else is a type-shape mismatch — skip, the
+                // binary's param diagnostics report the absence.
+                _ => {}
+            }
+        }
+    }
+    argv.push("--emit-spec".to_string());
+    argv
+}
+
+/// v0.32.0 P3 (SPEC §3) — apply one `--emit-spec` subprocess result:
+/// stdout parses as a spec doc (`from_spec_json`, the full grammar +
+/// version/wrapper checks) → populate the tree via the import chokepoint
+/// (`TreeState::import_root` recomputes `next_id` — the R0-r1 I3 import
+/// invariant) and switch to tree mode (`enabled = true`); anything else →
+/// `Err(message)` and the state is UNTOUCHED (stay in archetype mode).
+/// NEVER re-implements lowering — the binary's emitted spec is installed
+/// verbatim. Parse-keyed, not exit-code-keyed (the §0 contract posture):
+/// a refusal emits EMPTY stdout + human stderr (probed), which fails the
+/// parse and routes the stderr into the message.
+pub fn apply_emit_spec_result(
+    state: &mut FormState,
+    result: &RunResult,
+) -> Result<(), String> {
+    let parsed = serde_json::from_slice::<serde_json::Value>(&result.stdout)
+        .map_err(|e| e.to_string())
+        .and_then(|doc| from_spec_json(&doc));
+    match parsed {
+        Ok(root) => {
+            let tree = state.tree.get_or_insert_with(TreeState::fresh);
+            tree.import_root(root);
+            tree.enabled = true;
+            Ok(())
+        }
+        Err(parse_err) => {
+            let stderr = String::from_utf8_lossy(&result.stderr);
+            let stderr = stderr.trim();
+            Err(if stderr.is_empty() {
+                format!(
+                    "--emit-spec produced no parseable spec (exit {}): {parse_err}",
+                    result
+                        .exit_code
+                        .map(|c| c.to_string())
+                        .unwrap_or_else(|| "killed".to_string())
+                )
+            } else {
+                stderr.to_string()
+            })
+        }
+    }
+}
+
+/// v0.32.0 P3 (SPEC §3) — the archetype-mode "Edit as tree…" button + its
+/// transient error label. Renders whenever an archetype is selected
+/// (param completeness is NOT pre-gated — simplest posture, decided:
+/// failure is handled by the binary's diagnostics); on click, runs
+/// [`emit_spec_argv`] via the runner (no stdin) and applies
+/// [`apply_emit_spec_result`]. Success switches to tree mode (the
+/// archetype dropdown + params stay — never-destroys; switching back is
+/// one selector click). Failure stays in archetype mode and surfaces the
+/// stderr in `FormState.edit_as_tree_error`, rendered RED under the
+/// button; the label lives until the next attempt overwrites or clears it
+/// (transient by type — `#[serde(skip)]`, never persisted). `bin` is the
+/// spawn target ("mnemonic" from main.rs; the pinned-binary path from
+/// tests — the argv CONTRACT keeps `argv[0] = "mnemonic"`).
+pub fn render_edit_as_tree(ui: &mut egui::Ui, state: &mut FormState, bin: &str) {
+    let Some(spec) = archetype_form::active_archetype(state) else {
+        return;
+    };
+    let clicked = ui
+        .button("Edit as tree…")
+        .on_hover_text(
+            "runs `build-descriptor --archetype … --emit-spec` and loads the \
+             lowered spec into the tree builder (your archetype params are \
+             kept; switch back anytime)",
+        )
+        .clicked();
+    if clicked {
+        let mut argv = emit_spec_argv(state, spec);
+        argv[0] = bin.to_string();
+        state.edit_as_tree_error = match runner::run(argv) {
+            Ok(result) => apply_emit_spec_result(state, &result).err(),
+            // OS spawn failure (binary missing): the label, not a crash.
+            Err(e) => Some(format!("could not spawn `{bin}`: {e}")),
+        };
+    }
+    if let Some(err) = &state.edit_as_tree_error {
+        ui.colored_label(RED, format!("edit as tree failed: {err}"));
+    }
 }
 
 /// The FIXED Validate argv (SPEC §2.2): `["mnemonic", "build-descriptor",

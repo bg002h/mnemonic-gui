@@ -421,7 +421,12 @@ pub fn render_copy_command(argv: &[String], flavor: ShellFlavor) -> String {
 /// POSIX shell quoting. Wraps `shlex::try_quote` and falls back to a manual
 /// single-quote encoding for the (rare) inputs `shlex` rejects (interior
 /// NULs — not expected in clap argv but defended against).
-fn posix_quote(s: &str) -> String {
+///
+/// `pub` since v0.32.0 P3: the tree-mode POSIX pipeline copy
+/// (`tree_form::posix_pipeline_command`) quotes the spec JSON with the
+/// same machinery the argv copy uses — one quoting implementation, no
+/// hand-rolled second path.
+pub fn posix_quote(s: &str) -> String {
     match shlex::try_quote(s) {
         Ok(cow) => cow.into_owned(),
         Err(_) => {

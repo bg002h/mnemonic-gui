@@ -313,6 +313,15 @@ pub struct FormState {
     /// `TreeState`).
     #[serde(default)]
     pub tree: Option<crate::form::tree_model::TreeState>,
+
+    /// v0.32.0 P3 (node-tree builder SPEC §3): transient error from the
+    /// last archetype-mode "Edit as tree…" attempt (`--emit-spec` stderr,
+    /// spawn failure, or spec-parse failure). Rendered as a label under
+    /// the button (`tree_form::render_edit_as_tree`); overwritten or
+    /// cleared by the next attempt; NEVER persisted (`#[serde(skip)]` —
+    /// the diagnostics-never-persist discipline).
+    #[serde(skip)]
+    pub edit_as_tree_error: Option<String>,
 }
 
 impl FormState {
@@ -327,6 +336,7 @@ impl FormState {
             positionals: Vec::new(),
             secret_widgets: std::collections::BTreeMap::new(),
             tree: None,
+            edit_as_tree_error: None,
         }
     }
 

@@ -26,7 +26,9 @@ use mnemonic_gui::form::invocation::assemble_argv;
 use mnemonic_gui::form::tree_form::{
     self, MODE_ARCHETYPE_LABEL, MODE_GENERIC_LABEL, MODE_TREE_LABEL,
 };
-use mnemonic_gui::form::tree_model::{TreeDiag, TreeNode, TreeState, MAX_TREE_DEPTH};
+use mnemonic_gui::form::tree_model::{
+    max_id, to_spec_json, TreeDiag, TreeNode, TreeState, MAX_TREE_DEPTH,
+};
 use mnemonic_gui::runner::RunResult;
 use mnemonic_gui::schema::{self, FlagValue, FormState, Visibility};
 
@@ -725,4 +727,288 @@ fn cell_depth_cap_add_branch_refusal_lands_in_strip() {
     }
     assert_eq!(deepest.kind, "thresh");
     assert_eq!(deepest.children.len(), 1, "no branch was added past the cap");
+}
+
+// ─── P3: "Edit as tree…" cells (SPEC §3) ─────────────────────────────────
+
+/// The vendored kofn-recovery fixture's remaining keys (XPUB_A above IS
+/// the fixture's first key).
+const XPUB_B: &str = "[22222222/48h/0h/0h/2h]xpub661MyMwAqRbcFtXgS5sYJABqqG9YLmC4Q1Rdap9gSE8NqtwybGhePY2gZ29ESFjqJoCu1Rupje8YtGqsefD265TMg7usUDFdp6W1EGMcet8";
+const XPUB_C: &str = "[33333333/48h/0h/0h/2h]xpub661MyMwAqRbcFW31YEwpkMuc5THy2PSt5bDMsktWQcFF8syAmRUapSCGu8ED9W6oDMSgv6Zz8idoc4a6mr8BDzTJY47LJhkJ8UB7WEGuduB";
+const XPUB_D: &str = "[44444444/48h/0h/0h/2h]xpub661MyMwAqRbcGczjuMoRm6dXaLDEhW1u34gKenbeYqAix21mdUKJyuyu5F1rzYGVxyL6tmgBUAEPrEz92mBXjByMRiJdba9wpnN37RLLAXa";
+
+fn fixture(name: &str) -> serde_json::Value {
+    let path = format!(
+        "{}/tests/fixtures/descriptor_builder/{name}.json",
+        env!("CARGO_MANIFEST_DIR")
+    );
+    let raw = std::fs::read_to_string(&path)
+        .unwrap_or_else(|e| panic!("read fixture {path}: {e}"));
+    serde_json::from_str(&raw).unwrap_or_else(|e| panic!("parse fixture {path}: {e}"))
+}
+
+/// An archetype-mode FormState whose kofn-recovery params reproduce the
+/// vendored `kofn-recovery.json` fixture (the params it was generated
+/// from), PLUS stale mode-independent flags that must NOT enter the
+/// `--emit-spec` argv (`--json`/`--format` are clap-conflicting with it).
+fn kofn_archetype_form() -> FormState {
+    FormState::from_pairs(vec![
+        ("--archetype", FlagValue::Dropdown("kofn-recovery".into())),
+        ("--key", FlagValue::Text(XPUB_A.into())),
+        ("--key", FlagValue::Text(XPUB_B.into())),
+        ("--key", FlagValue::Text(XPUB_C.into())),
+        ("--threshold", FlagValue::Number(2)),
+        ("--recovery-key", FlagValue::Text(XPUB_D.into())),
+        ("--older", FlagValue::Number(52_560)),
+        // Mode-independent flags that must NOT ride along.
+        ("--json", FlagValue::Boolean(true)),
+        ("--format", FlagValue::Dropdown("descriptor".into())),
+        ("--network", FlagValue::Dropdown("testnet".into())),
+        ("--allow", FlagValue::Dropdown("sigless-branch".into())),
+    ])
+}
+
+fn edit_as_tree_harness(initial: FormState, bin: String) -> Harness<'static, FormState> {
+    Harness::new_ui_state(
+        move |ui, state: &mut FormState| {
+            tree_form::render_edit_as_tree(ui, state, &bin);
+        },
+        initial,
+    )
+}
+
+#[test]
+fn cell_emit_spec_argv_archetype_params_only() {
+    // Purpose-built argv (SPEC §3): --archetype + the declared param rows
+    // in schema order + --emit-spec; NO mode-independent flags (--json /
+    // --format clap-conflict with --emit-spec — probed) and no --spec.
+    let state = kofn_archetype_form();
+    let spec = mnemonic_gui::schema::archetypes::find("kofn-recovery").expect("kofn");
+    assert_eq!(
+        tree_form::emit_spec_argv(&state, spec),
+        [
+            "mnemonic",
+            "build-descriptor",
+            "--archetype",
+            "kofn-recovery",
+            "--key",
+            XPUB_A,
+            "--key",
+            XPUB_B,
+            "--key",
+            XPUB_C,
+            "--threshold",
+            "2",
+            "--recovery-key",
+            XPUB_D,
+            "--older",
+            "52560",
+            "--emit-spec",
+        ],
+        "archetype + declared params (schema order, all rows) + --emit-spec; \
+         nothing else"
+    );
+
+    // Empty Text rows skip (the emit_one rule); missing params are not
+    // pre-gated — the binary's [param] diagnostics are the validator.
+    let sparse = FormState::from_pairs(vec![
+        ("--archetype", FlagValue::Dropdown("kofn-recovery".into())),
+        ("--key", FlagValue::Text(String::new())), // added-but-blank row
+    ]);
+    assert_eq!(
+        tree_form::emit_spec_argv(&sparse, spec),
+        ["mnemonic", "build-descriptor", "--archetype", "kofn-recovery", "--emit-spec"],
+    );
+}
+
+#[test]
+fn cell_edit_as_tree_happy_path_populates_tree_and_switches_mode() {
+    // SPEC §3 happy path (REAL binary, skip-if-absent): kofn params →
+    // "Edit as tree…" → the tree holds the kofn fixture AST modulo ids,
+    // tree mode is on, next_id satisfies the import invariant.
+    let Some(bin) = resolve_bin() else { return };
+    let mut harness = edit_as_tree_harness(kofn_archetype_form(), bin);
+    harness.run();
+
+    harness.get_by_label("Edit as tree…").click();
+    harness.run();
+
+    let state = harness.state();
+    assert!(
+        state.edit_as_tree_error.is_none(),
+        "happy path must not error: {:?}",
+        state.edit_as_tree_error
+    );
+    assert!(tree_form::tree_enabled(state), "success switches to tree mode");
+    let tree = state.tree.as_ref().expect("tree populated");
+    // AST modulo ids: to_spec_json projects ids away — value-equal to the
+    // vendored fixture (the binary's lowering IS the fixture's source).
+    assert_eq!(
+        to_spec_json(&tree.root),
+        fixture("kofn-recovery"),
+        "the lowered spec must match the vendored kofn fixture AST"
+    );
+    // The import invariant (R0-r1 I3): next_id = max_id(root) + 1 — sane
+    // for post-import adds (no egui-identity collisions).
+    assert_eq!(tree.next_id, max_id(&tree.root) + 1, "next_id recomputed on import");
+    // The imported tree is complete → the tree-mode gates open.
+    assert!(tree_form::spec_stdin_bytes(state).is_some(), "imported tree is complete");
+    // The archetype params survive (never-destroys — switching back is
+    // one selector click).
+    assert!(
+        state.values.iter().any(|(k, v)| k == "--key" && *v == FlagValue::Text(XPUB_A.into())),
+        "archetype params stay populated"
+    );
+}
+
+#[test]
+fn cell_edit_as_tree_failure_stays_archetype_and_surfaces_stderr() {
+    // SPEC §3 failure path (REAL binary): an archetype with NO params →
+    // the binary refuses ([param] diagnostics on stderr, empty stdout) →
+    // archetype mode unchanged, no tree created, the error label renders.
+    let Some(bin) = resolve_bin() else { return };
+    let initial = FormState::from_pairs(vec![(
+        "--archetype",
+        FlagValue::Dropdown("kofn-recovery".into()),
+    )]);
+    let mut harness = edit_as_tree_harness(initial, bin);
+    harness.run();
+
+    harness.get_by_label("Edit as tree…").click();
+    harness.run();
+
+    let state = harness.state();
+    assert!(!tree_form::tree_enabled(state), "failure must stay in archetype mode");
+    assert!(state.tree.is_none(), "failure must not create/populate a tree");
+    let err = state
+        .edit_as_tree_error
+        .as_ref()
+        .expect("the stderr must be surfaced in the transient error");
+    assert!(
+        err.contains("requires --key (missing)"),
+        "the binary's [param] diagnostics surface verbatim: {err}"
+    );
+    // ... and the label renders next to the button.
+    assert!(
+        harness
+            .query_by_label(&format!("edit as tree failed: {err}"))
+            .is_some(),
+        "the transient error label must render"
+    );
+
+    // The error never persists (#[serde(skip)] — transient by type).
+    let raw = serde_json::to_string(harness.state()).expect("serialize FormState");
+    assert!(
+        !raw.contains("edit_as_tree_error"),
+        "edit_as_tree_error must be absent from the wire"
+    );
+}
+
+#[test]
+fn cell_edit_as_tree_renders_only_with_an_archetype_selected() {
+    // No archetype (the "" sentinel / no row): the button does not render.
+    let mut harness = edit_as_tree_harness(FormState::default(), "mnemonic".into());
+    harness.run();
+    assert!(
+        harness.query_by_label("Edit as tree…").is_none(),
+        "no archetype selected → no button"
+    );
+}
+
+// ─── P3: POSIX pipeline copy cells (SPEC §3) ─────────────────────────────
+
+#[test]
+fn cell_posix_pipeline_copy_quoting_flags_and_completeness_gate() {
+    // A complete tree + mode-independent flags; argv assembled exactly as
+    // the main.rs host does (assemble_argv + the appended `--spec -`).
+    let mut state = form_with_tree(enabled_tree(sigless_root()));
+    state
+        .values
+        .push(("--network".to_string(), FlagValue::Dropdown("testnet".into())));
+    state
+        .values
+        .push(("--allow".to_string(), FlagValue::Dropdown("sigless-branch".into())));
+    let mut argv = build_descriptor_argv(&state);
+    argv.push("--spec".to_string());
+    argv.push("-".to_string());
+
+    let pipeline = tree_form::posix_pipeline_command(&state, &argv)
+        .expect("complete tree in tree mode → Some");
+
+    // Quoting law: shlex round-trips the pipeline; the token after
+    // `printf '%s'` is EXACTLY the compact spec JSON Run pipes (the
+    // spec_stdin_bytes parity), `|` is its own token, and the argv tail
+    // carries the user's flags + `--spec -`.
+    let tokens = shlex::split(&pipeline).expect("the pipeline must be POSIX-parseable");
+    assert_eq!(tokens[0], "printf");
+    assert_eq!(tokens[1], "%s");
+    let expected_json =
+        String::from_utf8(tree_form::spec_stdin_bytes(&state).unwrap()).unwrap();
+    assert_eq!(tokens[2], expected_json, "the quoted JSON must round-trip byte-exact");
+    assert_eq!(tokens[3], "|");
+    assert_eq!(tokens[4], "mnemonic");
+    assert_eq!(tokens[5], "build-descriptor");
+    for pair in [["--network", "testnet"], ["--allow", "sigless-branch"]] {
+        assert!(
+            tokens.windows(2).any(|w| w == pair),
+            "mode-independent flag {pair:?} must ride the pipeline: {tokens:?}"
+        );
+    }
+    assert_eq!(&tokens[tokens.len() - 2..], ["--spec", "-"], "spec via stdin");
+
+    // Completeness gate (R0-r1 M4 parity with Copy spec JSON).
+    let incomplete = form_with_tree(enabled_tree(TreeNode::new_unset(0)));
+    assert!(
+        tree_form::posix_pipeline_command(&incomplete, &argv).is_none(),
+        "incomplete tree → no pipeline copy"
+    );
+
+    // Mode gate: a complete but DISABLED tree (non-tree mode) → None.
+    let mut disabled = form_with_tree(enabled_tree(sigless_root()));
+    disabled.tree.as_mut().unwrap().enabled = false;
+    assert!(
+        tree_form::posix_pipeline_command(&disabled, &argv).is_none(),
+        "non-tree mode → no pipeline copy"
+    );
+}
+
+#[test]
+fn cell_posix_pipeline_executes_through_a_real_shell() {
+    // The pasted one-liner is the product — prove it RUNS: sh -c the
+    // pipeline against the real binary and expect the same descriptor the
+    // direct Validate path yields. Skip-if-absent on both sh and the
+    // binary; an --allow row flips the sigless tree green.
+    let Some(bin) = resolve_bin() else { return };
+    if !std::path::Path::new("/bin/sh").exists() {
+        eprintln!("/bin/sh not available; skipping pipeline-exec cell");
+        return;
+    }
+    let mut state = form_with_tree(enabled_tree(sigless_root()));
+    state
+        .values
+        .push(("--allow".to_string(), FlagValue::Dropdown("sigless-branch".into())));
+    let mut argv = build_descriptor_argv(&state);
+    argv.push("--spec".to_string());
+    argv.push("-".to_string());
+    // The copy string carries the contract argv[0] "mnemonic"; for the
+    // exec leg substitute the resolved binary path (what a user with the
+    // binary on PATH gets for free).
+    argv[0] = bin;
+    let pipeline = tree_form::posix_pipeline_command(&state, &argv).expect("complete");
+
+    let out = std::process::Command::new("/bin/sh")
+        .args(["-c", &pipeline])
+        .output()
+        .expect("spawn sh");
+    assert!(
+        out.status.success(),
+        "the pasted pipeline must run exit-0:\nstdout: {}\nstderr: {}",
+        String::from_utf8_lossy(&out.stdout),
+        String::from_utf8_lossy(&out.stderr),
+    );
+    let stdout = String::from_utf8_lossy(&out.stdout);
+    assert!(
+        stdout.contains("wsh(or_d("),
+        "the pipeline must yield the descriptor: {stdout}"
+    );
 }

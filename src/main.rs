@@ -534,6 +534,15 @@ impl eframe::App for MnemonicGuiApp {
                                 spec,
                                 state,
                             );
+                            // v0.32.0 P3 (node-tree SPEC §3): the
+                            // archetype-mode "Edit as tree…" button —
+                            // lowers the current params via --emit-spec
+                            // and switches to tree mode; failure stays
+                            // here with the error label. Lib seam:
+                            // main.rs only dispatches.
+                            mnemonic_gui::form::tree_form::render_edit_as_tree(
+                                ui, state, "mnemonic",
+                            );
                         }
                     }
                 }
@@ -727,6 +736,16 @@ impl eframe::App for MnemonicGuiApp {
                 argv.push("--spec".to_string());
                 argv.push("-".to_string());
             }
+            // v0.32.0 P3 (SPEC §3): in tree mode the POSIX copy emits a
+            // paste-runnable printf pipeline (the spec JSON piped to
+            // `--spec -`) instead of the bare argv (which would hang on
+            // terminal stdin). Completeness-gated like Copy spec JSON;
+            // the Windows copy stays argv + the separate JSON copy.
+            let posix_pipeline = if tree_mode {
+                mnemonic_gui::form::tree_form::posix_pipeline_command(state, &argv)
+            } else {
+                None
+            };
             let needs_confirm = secrets::should_confirm_run(sub, state);
             let preview = render_copy_command(&argv, ShellFlavor::Posix);
             let argv_windows = render_copy_command(&argv, ShellFlavor::WindowsCmd);
@@ -744,18 +763,27 @@ impl eframe::App for MnemonicGuiApp {
             let mut copy_spec = false;
             let mut run_clicked = false;
             ui.horizontal(|ui| {
-                if ui.button("Copy command (POSIX)").clicked() {
+                // v0.32.0 P3: in tree mode the POSIX copy is the printf
+                // pipeline — completeness-gated (same gate as Copy spec
+                // JSON; the pipeline embeds the spec JSON).
+                let posix_enabled = !tree_mode || posix_pipeline.is_some();
+                if ui
+                    .add_enabled(posix_enabled, egui::Button::new("Copy command (POSIX)"))
+                    .clicked()
+                {
                     copy_posix = true;
                 }
                 if ui.button("Copy command (Windows)").clicked() {
                     copy_windows = true;
                 }
-                // v0.32.0 (node-tree SPEC §2.2 / brainstorm R0-r1 M4): the
-                // argv-Copy output ends in `--spec -`, which pasted bare
-                // into a shell hangs on terminal stdin — annotate, and
-                // offer the spec JSON as its own completeness-gated copy.
+                // v0.32.0 (node-tree SPEC §2.2 / brainstorm R0-r1 M4 +
+                // P3): the WINDOWS argv-Copy output ends in `--spec -`,
+                // which pasted bare into a shell hangs on terminal stdin —
+                // annotate, and offer the spec JSON as its own
+                // completeness-gated copy. (The POSIX copy is the
+                // self-contained printf pipeline since P3.)
                 if tree_mode {
-                    ui.weak("(spec via stdin — use Copy spec JSON)");
+                    ui.weak("(Windows copy: spec via stdin — use Copy spec JSON)");
                     if ui
                         .add_enabled(
                             spec_copy.is_some(),
@@ -776,7 +804,13 @@ impl eframe::App for MnemonicGuiApp {
             ui.label(format!("Preview: {preview}"));
 
             if copy_posix {
-                ctx.copy_text(argv_posix);
+                // v0.32.0 P3: tree mode copies the printf pipeline (Some
+                // is guaranteed by the button gate; the argv fallback is
+                // the non-tree path).
+                ctx.copy_text(match posix_pipeline {
+                    Some(pipeline) => pipeline,
+                    None => argv_posix,
+                });
             }
             if copy_windows {
                 ctx.copy_text(argv_windows);
