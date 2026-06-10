@@ -16,7 +16,7 @@ jobs:
     name: clippy
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: install-rust
         uses: dtolnay/rust-toolchain@stable
@@ -53,7 +53,7 @@ jobs:
             runner: macos-latest
             artifact_suffix: aarch64-macos.tar.gz
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: compute-version
         shell: bash
@@ -109,7 +109,7 @@ jobs:
 
       - name: upload-artifact
         if: startsWith(github.ref, 'refs/tags/mnemonic-gui-v')
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: mnemonic-gui-${{ env.VERSION }}-${{ matrix.artifact_suffix }}
           path: dist/mnemonic-gui-${{ env.VERSION }}-${{ matrix.artifact_suffix }}
@@ -122,7 +122,7 @@ jobs:
       contents: write
     steps:
       - name: download-artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           path: artifacts
       - name: github-release
