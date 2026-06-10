@@ -80,8 +80,12 @@ struct MnemonicGuiApp {
     show_cmdline: bool,
     show_stdout: bool,
     show_stderr: bool,
-    /// Run-confirm modal state. None = no modal; Some(argv) = pending.
-    pending_confirm_argv: Option<Vec<String>>,
+    /// Run-confirm modal state. None = no modal; Some((argv, stdin)) =
+    /// pending. v0.32.0: carries the tree-mode `--spec -` stdin bytes
+    /// alongside (build-descriptor has no secret flags so tree runs don't
+    /// confirm TODAY, but the pending state must not silently drop the
+    /// pipe if that ever changes).
+    pending_confirm_argv: Option<(Vec<String>, Option<Vec<u8>>)>,
     /// v0.6.0 P4 — last-observed `--template` value per form key, used by
     /// the per-frame template-aware-seed hook in `update()`. None means
     /// "no template was selected last frame" (either the form is new or
@@ -424,25 +428,53 @@ impl eframe::App for MnemonicGuiApp {
                     .unwrap_or(mnemonic_gui::schema::Visibility::Visible)
             };
 
-            // v0.31.0 (archetype forms SPEC §3): when build-descriptor's
-            // --archetype holds a non-empty ARCHETYPE_SPECS id, the 9 param
-            // flags + --spec are skipped in the generic loop by NAME-SET (a
-            // `continue` — NOT Visibility::Hidden, which suppresses argv;
-            // declared params must emit) and the schema-driven archetype
-            // param form renders directly under the --archetype dropdown
-            // (the SlotEditor bespoke-surface precedent below). The
-            // mode-independent flags keep their generic widgets.
-            let archetype_spec = if sub.name == "build-descriptor" {
-                mnemonic_gui::form::archetype_form::active_archetype(state)
-            } else {
-                None
-            };
-
             egui::ScrollArea::vertical().show(ui, |ui| {
+                // v0.32.0 (node-tree SPEC §2.2): the three-way mode
+                // selector at the top of the build-descriptor form
+                // (Generic / spec file · Archetype · Tree builder). The
+                // selector mutates state THIS frame, so the mode bits are
+                // computed after it (the conditional `vis` above lags one
+                // frame on a mode click; argv assembly below re-runs the
+                // conditional post-click, so emission is always correct).
+                if sub.name == "build-descriptor" {
+                    mnemonic_gui::form::tree_form::render_mode_selector(ui, state);
+                }
+                let tree_mode = sub.name == "build-descriptor"
+                    && mnemonic_gui::form::tree_form::tree_enabled(state);
+
+                // v0.31.0 (archetype forms SPEC §3): when build-descriptor's
+                // --archetype holds a non-empty ARCHETYPE_SPECS id, the 9 param
+                // flags + --spec are skipped in the generic loop by NAME-SET (a
+                // `continue` — NOT Visibility::Hidden, which suppresses argv;
+                // declared params must emit) and the schema-driven archetype
+                // param form renders directly under the --archetype dropdown
+                // (the SlotEditor bespoke-surface precedent below). The
+                // mode-independent flags keep their generic widgets.
+                // v0.32.0: tree mode trumps — the archetype form never
+                // renders in tree mode (the §0 mode-aware render dispatch).
+                let archetype_spec = if sub.name == "build-descriptor" && !tree_mode {
+                    mnemonic_gui::form::archetype_form::active_archetype(state)
+                } else {
+                    None
+                };
+
                 // Flag widgets.
                 for flag in sub.flags {
                     if flag.name == "--slot" && sub.allows_slots {
                         continue; // SlotEditor handles below.
+                    }
+                    // v0.32.0 (node-tree SPEC §0): in tree mode neither
+                    // the --spec row nor --archetype (nor the 10
+                    // requires=archetype flags) renders — the tree form
+                    // replaces them. Argv suppression is the conditional's
+                    // (Disabled/Hidden); this name-set continue is the
+                    // RENDER half of the mode mutex.
+                    if tree_mode
+                        && mnemonic_gui::form::tree_form::suppressed_in_tree_mode(
+                            flag.name,
+                        )
+                    {
+                        continue;
                     }
                     if archetype_spec.is_some()
                         && mnemonic_gui::form::archetype_form::suppressed_in_archetype_mode(
@@ -634,6 +666,14 @@ impl eframe::App for MnemonicGuiApp {
                         ui.text_edit_singleline(&mut state.positionals[i]);
                     });
                 }
+                // v0.32.0 (node-tree SPEC §2.2): the tree form renders
+                // INSTEAD of the archetype form + the --spec row in tree
+                // mode, after the mode-independent flag widgets. main.rs
+                // is dispatch-only — the form logic lives in the library
+                // (`form::tree_form`, the archetype_form lib seam).
+                if tree_mode {
+                    mnemonic_gui::form::tree_form::render(ui, state, "mnemonic");
+                }
             });
 
             ui.separator();
@@ -664,7 +704,29 @@ impl eframe::App for MnemonicGuiApp {
             // Snapshot argv + secret-status BEFORE the action bar so we can
             // drop the `state` mutable borrow ahead of any `self`-touching
             // callback (Run / pending_confirm_argv).
-            let argv = assemble_argv(sch, sub, state);
+            let mut argv = assemble_argv(sch, sub, state);
+            // v0.32.0 (node-tree SPEC §2.2 Run leg): in tree mode the host
+            // appends `--spec -` (the conditional suppressed any stale
+            // --spec/--archetype/param emission) and pipes the generated
+            // spec JSON via stdin. Copy-spec + Run are completeness-gated
+            // (spec_stdin/spec_copy are None while the tree is incomplete
+            // — R0-r1 M4).
+            let tree_mode = sub.name == "build-descriptor"
+                && mnemonic_gui::form::tree_form::tree_enabled(state);
+            let spec_stdin = if tree_mode {
+                mnemonic_gui::form::tree_form::spec_stdin_bytes(state)
+            } else {
+                None
+            };
+            let spec_copy = if tree_mode {
+                mnemonic_gui::form::tree_form::spec_json_pretty(state)
+            } else {
+                None
+            };
+            if tree_mode {
+                argv.push("--spec".to_string());
+                argv.push("-".to_string());
+            }
             let needs_confirm = secrets::should_confirm_run(sub, state);
             let preview = render_copy_command(&argv, ShellFlavor::Posix);
             let argv_windows = render_copy_command(&argv, ShellFlavor::WindowsCmd);
@@ -679,6 +741,7 @@ impl eframe::App for MnemonicGuiApp {
 
             let mut copy_posix = false;
             let mut copy_windows = false;
+            let mut copy_spec = false;
             let mut run_clicked = false;
             ui.horizontal(|ui| {
                 if ui.button("Copy command (POSIX)").clicked() {
@@ -687,7 +750,26 @@ impl eframe::App for MnemonicGuiApp {
                 if ui.button("Copy command (Windows)").clicked() {
                     copy_windows = true;
                 }
-                if ui.button("Run").clicked() {
+                // v0.32.0 (node-tree SPEC §2.2 / brainstorm R0-r1 M4): the
+                // argv-Copy output ends in `--spec -`, which pasted bare
+                // into a shell hangs on terminal stdin — annotate, and
+                // offer the spec JSON as its own completeness-gated copy.
+                if tree_mode {
+                    ui.weak("(spec via stdin — use Copy spec JSON)");
+                    if ui
+                        .add_enabled(
+                            spec_copy.is_some(),
+                            egui::Button::new("Copy spec JSON"),
+                        )
+                        .clicked()
+                    {
+                        copy_spec = true;
+                    }
+                }
+                // Run is completeness-gated in tree mode (the same gate as
+                // Validate/Copy-spec — SPEC §1.2).
+                let run_enabled = !tree_mode || spec_stdin.is_some();
+                if ui.add_enabled(run_enabled, egui::Button::new("Run")).clicked() {
                     run_clicked = true;
                 }
             });
@@ -699,17 +781,22 @@ impl eframe::App for MnemonicGuiApp {
             if copy_windows {
                 ctx.copy_text(argv_windows);
             }
+            if copy_spec {
+                if let Some(spec) = &spec_copy {
+                    ctx.copy_text(spec.clone());
+                }
+            }
             if run_clicked {
                 if needs_confirm {
-                    self.pending_confirm_argv = Some(argv);
+                    self.pending_confirm_argv = Some((argv, spec_stdin));
                 } else {
-                    spawn_and_capture(self, argv);
+                    spawn_and_capture(self, argv, spec_stdin);
                 }
             }
         });
 
         // ── Run-confirm modal ────────────────────────────────────────────
-        if let Some(argv) = self.pending_confirm_argv.clone() {
+        if let Some((argv, stdin)) = self.pending_confirm_argv.clone() {
             egui::Window::new("Confirm secret-bearing run")
                 .collapsible(false)
                 .resizable(false)
@@ -725,7 +812,7 @@ impl eframe::App for MnemonicGuiApp {
                     ui.horizontal(|ui| {
                         if ui.button("Run").clicked() {
                             self.pending_confirm_argv = None;
-                            spawn_and_capture(self, argv);
+                            spawn_and_capture(self, argv, stdin);
                         }
                         if ui.button("Cancel").clicked() {
                             self.pending_confirm_argv = None;
@@ -781,7 +868,10 @@ fn render_exit_badge(ui: &mut egui::Ui, exit_code: Option<i32>) {
     }
 }
 
-fn spawn_and_capture(app: &mut MnemonicGuiApp, argv: Vec<String>) {
+/// v0.32.0: `stdin` carries the tree-mode spec JSON for `--spec -` runs
+/// (`None` for every other subcommand/mode — byte-identical behavior via
+/// `run_with_stdin`'s `None` delegation path).
+fn spawn_and_capture(app: &mut MnemonicGuiApp, argv: Vec<String>, stdin: Option<Vec<u8>>) {
     if argv.is_empty() {
         return;
     }
@@ -803,7 +893,7 @@ fn spawn_and_capture(app: &mut MnemonicGuiApp, argv: Vec<String>) {
     // FlagSchema entry per subcommand (toolkit v5 `global: true`); the
     // form's argv assembly handles it like any other Boolean flag. The
     // prior `runner::prepend_no_auto_repair` helper has been deleted.
-    match runner::run(argv) {
+    match runner::run_with_stdin(argv, stdin) {
         Ok(result) => {
             app.last_run = Some(result);
             app.last_run_error = None;

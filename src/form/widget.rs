@@ -20,6 +20,19 @@ use crate::schema::{
     FlagKind, FlagSchema, FlagValue, FormState, TaggedOrIndexedValue, TimestampValue,
 };
 
+/// v0.32.0 (node-tree builder SPEC §2.2, R0-r1 M2) — the empty-value →
+/// display-label mapping, extracted from the v0.30.0 inline two-liner in
+/// the Dropdown render arm (which maps the `""` UNSET sentinel to
+/// `"(none)"`) so the tree form's kind picker (`"(choose…)"`) calls the
+/// SAME helper. DISPLAY-ONLY: the stored/emitted value stays `value`.
+pub fn display_or(label: &str, value: &str) -> String {
+    if value.is_empty() {
+        label.to_string()
+    } else {
+        value.to_string()
+    }
+}
+
 /// True iff `flag` is one of the Dropdown / NodeValueComposite /
 /// TaggedOrIndexed / `repeating: true` shapes that earn a `?` help-icon
 /// button per §1.6 Option C. Per §2.4 the button links to the flag
@@ -537,18 +550,17 @@ fn render_row(
                 // sliver and — with FormState persisted per subcommand and
                 // no reset affordance — selecting an archetype once would
                 // near-permanently trap the user out of `--spec`.
-                let selected_label = if sel.is_empty() {
-                    "(none)".to_string()
-                } else {
-                    sel.clone()
-                };
+                // v0.32.0 R0-r1 M2: both display sites route through the
+                // shared `display_or` helper (the tree form's kind picker
+                // is the third caller, with "(choose…)").
+                let selected_label = display_or("(none)", sel);
                 combo
                     .selected_text(selected_label)
                     .show_ui(ui, |ui| {
                         for opt in *opts {
                             let is_disabled =
                                 disabled_options.iter().any(|d| d == *opt);
-                            let display = if opt.is_empty() { "(none)" } else { *opt };
+                            let display = display_or("(none)", opt);
                             ui.add_enabled_ui(!is_disabled, |ui| {
                                 ui.selectable_value(sel, (*opt).to_string(), display);
                             });

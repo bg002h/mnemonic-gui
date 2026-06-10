@@ -76,6 +76,31 @@ where
     I: IntoIterator<Item = S>,
     S: Into<String>,
 {
+    // v0.32.0 (node-tree builder SPEC §2.1): `run` delegates with
+    // `stdin: None` — byte-identical behavior (Stdio::null stdin,
+    // MNEMONIC_FORCE_TTY spawn env, wait_with_output drain).
+    run_with_stdin(argv, None)
+}
+
+/// v0.32.0 (node-tree builder SPEC §2.1 / §0 stdin discipline) — spawn
+/// `argv[0]` with optional bytes piped to the child's stdin.
+///
+/// - `stdin: None` → `Stdio::null()` (the pre-v0.32.0 `run` behavior,
+///   byte-identical; [`run`] delegates here).
+/// - `stdin: Some(bytes)` → `Stdio::piped()`; the discipline is
+///   `write_all` → explicitly DROP the `ChildStdin` (the toolkit reads to
+///   EOF — an undropped handle deadlocks every run) → `wait_with_output`.
+/// - A failed write (the child exited pre-EOF, e.g. a clap error →
+///   `BrokenPipe`) DEGRADES to collect-output: never an error return for
+///   that case — the child's stdout/stderr are still drained and surfaced.
+/// - Unthreaded-writer license (SPEC §0): specs are ≤ ~2 KB ≪ the
+///   64 KiB/4 KiB pipe buffers, so a synchronous `write_all` before the
+///   output drain cannot deadlock on a child that reads to EOF.
+pub fn run_with_stdin<I, S>(argv: I, stdin: Option<Vec<u8>>) -> io::Result<RunResult>
+where
+    I: IntoIterator<Item = S>,
+    S: Into<String>,
+{
     let argv: Vec<String> = argv.into_iter().map(Into::into).collect();
     if argv.is_empty() {
         return Err(io::Error::new(
@@ -84,17 +109,40 @@ where
         ));
     }
 
-    debug!(target: "mnemonic_gui::runner", argv = ?argv, "subprocess spawn");
+    debug!(target: "mnemonic_gui::runner", argv = ?argv, stdin = stdin.is_some(), "subprocess spawn");
 
-    let output = Command::new(OsStr::new(&argv[0]))
+    let mut child = Command::new(OsStr::new(&argv[0]))
         // mnemonic-gui v0.9.0 D23: see module-level doc above run().
         .env("MNEMONIC_FORCE_TTY", "1")
         .args(&argv[1..])
-        .stdin(Stdio::null())
+        .stdin(if stdin.is_some() {
+            Stdio::piped()
+        } else {
+            Stdio::null()
+        })
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
-        .spawn()?
-        .wait_with_output()?;
+        .spawn()?;
+
+    if let Some(bytes) = stdin {
+        // SPEC §2.1: write_all → drop ChildStdin → wait_with_output. The
+        // explicit scope-drop closes the pipe so the child sees EOF.
+        let mut handle = child.stdin.take().expect("stdin was requested piped");
+        if let Err(e) = std::io::Write::write_all(&mut handle, &bytes) {
+            // BrokenPipe (child exited pre-EOF, e.g. a clap error) degrades
+            // to collect-output — NEVER an error return for that case. Any
+            // other write-error kind is equally non-fatal to output
+            // collection; log + degrade the same way.
+            warn!(
+                target: "mnemonic_gui::runner",
+                error = %e,
+                "stdin write failed; degrading to collect-output"
+            );
+        }
+        drop(handle); // EOF for the child.
+    }
+
+    let output = child.wait_with_output()?;
 
     let exit_code = output.status.code();
     let result = RunResult {
@@ -147,6 +195,82 @@ mod tests {
             stdout.lines().any(|line| line == "MNEMONIC_FORCE_TTY=1"),
             "D23 regression: MNEMONIC_FORCE_TTY=1 must appear in spawned \
              subprocess environment. stdout was:\n{stdout}"
+        );
+    }
+
+    // ── v0.32.0 run_with_stdin cells (SPEC §2.1) ─────────────────────────
+
+    fn have(path: &str) -> bool {
+        if std::path::Path::new(path).exists() {
+            true
+        } else {
+            eprintln!("{path} not available; skipping run_with_stdin cell");
+            false
+        }
+    }
+
+    /// A child that reads stdin to EOF gets the bytes (cat echoes them).
+    #[test]
+    fn run_with_stdin_child_reading_to_eof_gets_the_bytes() {
+        if !have("/bin/cat") {
+            return;
+        }
+        let bytes = b"node-tree spec bytes \xf0\x9f\x8c\xb3".to_vec();
+        let result = run_with_stdin(["/bin/cat".to_string()], Some(bytes.clone()))
+            .expect("cat should spawn cleanly");
+        assert_eq!(result.exit_code, Some(0));
+        assert_eq!(result.stdout, bytes, "cat must echo the piped stdin verbatim");
+    }
+
+    /// An immediately-exiting child does not error the parent — the
+    /// BrokenPipe on the write degrades to collect-output (SPEC §2.1).
+    /// 1 MiB ≫ the pipe buffer so the write deterministically hits the
+    /// closed pipe.
+    #[test]
+    fn run_with_stdin_immediately_exiting_child_degrades_not_errors() {
+        if !have("/bin/true") {
+            return;
+        }
+        let big = vec![b'x'; 1024 * 1024];
+        let result = run_with_stdin(["/bin/true".to_string()], Some(big))
+            .expect("BrokenPipe must degrade to collect-output, never Err");
+        assert_eq!(result.exit_code, Some(0));
+    }
+
+    /// Output is still collected when the child exits non-zero before
+    /// consuming stdin (the clap-error shape).
+    #[test]
+    fn run_with_stdin_output_collected_on_early_nonzero_exit() {
+        if !have("/bin/sh") {
+            return;
+        }
+        let result = run_with_stdin(
+            [
+                "/bin/sh".to_string(),
+                "-c".to_string(),
+                "echo out; echo err >&2; exit 3".to_string(),
+            ],
+            Some(vec![b'y'; 256 * 1024]),
+        )
+        .expect("early exit must not error the parent");
+        assert_eq!(result.exit_code, Some(3));
+        assert_eq!(result.stdout, b"out\n");
+        assert_eq!(result.stderr, b"err\n");
+    }
+
+    /// `run_with_stdin(.., None)` keeps the D23 spawn env (run() delegates
+    /// here, so this also pins the delegation path's env behavior).
+    #[test]
+    fn run_with_stdin_none_keeps_force_tty_env() {
+        if !have("/usr/bin/env") {
+            return;
+        }
+        let result = run_with_stdin(["/usr/bin/env".to_string()], None)
+            .expect("env should spawn cleanly");
+        let stdout = String::from_utf8_lossy(&result.stdout);
+        assert!(
+            stdout.lines().any(|line| line == "MNEMONIC_FORCE_TTY=1"),
+            "delegation path must keep the D23 env: {stdout}"
         );
     }
 }

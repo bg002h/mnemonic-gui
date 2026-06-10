@@ -641,7 +641,27 @@ pub fn export_wallet(state: &FormState) -> FlagVisibility {
 /// v0.31.0 adds archetype-mode awareness (archetype-forms SPEC §5): with a
 /// selected archetype, the param flags NOT declared by it are `Hidden`
 /// (argv-suppressed); declared params stay un-overridden (they must emit).
+///
+/// v0.32.0 adds the TREE-mode arm (node-tree SPEC §0 mode mutex): tree
+/// enabled ⇒ `--spec` + `--archetype` `Disabled` AND ALL TEN
+/// `requires = "archetype"` flags `Hidden` (the 9 params + `--emit-spec` —
+/// a stale checked `--emit-spec` would emit the bare flag with
+/// `--archetype` suppressed and clap-fail every tree-mode run; brainstorm
+/// R0-r2 I-1). Both Disabled and Hidden suppress argv, so stale-populated
+/// values from the other two modes NEVER ride a tree-mode run. The tree
+/// arm returns early — it overrides the dropdown-derived rules below.
 pub fn build_descriptor(state: &FormState) -> FlagVisibility {
+    if state.tree.as_ref().is_some_and(|t| t.enabled) {
+        let mut vis: FlagVisibility = vec![
+            ("--spec", Visibility::Disabled),
+            ("--archetype", Visibility::Disabled),
+            ("--emit-spec", Visibility::Hidden),
+        ];
+        for &name in crate::schema::archetypes::ARCHETYPE_PARAM_FLAGS {
+            vis.push((name, Visibility::Hidden));
+        }
+        return vis;
+    }
     let mut vis = Vec::new();
     if state.has_value("--archetype") {
         vis.push(("--spec", Visibility::Disabled));

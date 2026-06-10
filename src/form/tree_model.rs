@@ -56,6 +56,13 @@ pub struct TreeState {
     /// Transient, same discipline as `diagnostics`.
     #[serde(skip)]
     pub validate_ok: Option<ValidateOk>,
+    /// v0.32.0 P2 — the GLOBAL error strip (SPEC §2.2 / R0-r1 I5
+    /// fail-soft): unmatched-node_path diagnostics (drift, the `"params"`
+    /// sentinel, stale paths), non-envelope stderr, the `--allow` override
+    /// note on a green Validate, and depth-cap refusal notices. Transient,
+    /// same `mark_dirty` lifetime as `diagnostics`.
+    #[serde(skip)]
+    pub strip: Vec<String>,
 }
 
 /// One GUI tree node — the "wide node": every payload field coexists so
@@ -123,6 +130,7 @@ impl TreeState {
             root: TreeNode::new_unset(0),
             diagnostics: Vec::new(),
             validate_ok: None,
+            strip: Vec::new(),
         }
     }
 
@@ -134,6 +142,7 @@ impl TreeState {
     pub fn mark_dirty(&mut self) {
         self.diagnostics.clear();
         self.validate_ok = None;
+        self.strip.clear();
     }
 
     /// Allocate a fresh node id.
@@ -173,6 +182,7 @@ impl TreeState {
             root,
             diagnostics: Vec::new(),
             validate_ok: None,
+            strip: Vec::new(),
         }
     }
 }
@@ -257,8 +267,10 @@ pub fn fixed_child_arity(shape: PayloadShape) -> Option<usize> {
 
 /// How many leading children EMIT (and are path-addressable) for a node:
 /// the in-arity prefix for fixed-arity kinds, ALL children for `thresh`,
-/// 0 for leaves / unset kind. Clamped to `children.len()`.
-fn emitted_child_count(node: &TreeNode) -> usize {
+/// 0 for leaves / unset kind. Clamped to `children.len()`. `pub` since
+/// v0.32.0 P2 — the tree form's renderer needs the same boundary to place
+/// the surplus-children amber flags (SPEC §2.2).
+pub fn emitted_child_count(node: &TreeNode) -> usize {
     let Some(spec) = spec_for(&node.kind) else { return 0 };
     match fixed_child_arity(spec.payload) {
         Some(arity) => arity.min(node.children.len()),
@@ -724,9 +736,11 @@ mod tests {
         });
         state.validate_ok =
             Some(ValidateOk { descriptor: "wsh(...)".into(), cost: serde_json::json!({}) });
+        state.strip.push("params: [param] stale".into());
         state.mark_dirty();
         assert!(state.diagnostics.is_empty());
         assert!(state.validate_ok.is_none());
+        assert!(state.strip.is_empty(), "the global strip shares the mark_dirty lifetime");
     }
 
     #[test]
