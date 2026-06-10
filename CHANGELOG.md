@@ -3,6 +3,16 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## mnemonic-gui [0.34.0] — 2026-06-10
+
+**SemVer-MINOR — persistence-redaction hardening (audit I5 + I6): secret POSITIONALS never persist (by type) and the tree persist walk flips to a positive extended-public allowlist.**
+
+- **`PositionalArgSchema.secret: bool`** (+ all 20 literal sites; census: exactly 5 secret, all ms.rs — `inspect`/`decode`/`verify`/`derive` bare `ms1` + `combine shares` — pinned by a frozen non-circular census cell). Secret positionals render as per-row masked `SecretLineEdit`s stored under the `secret_widgets["positional:<name>"]` reserved key (`#[serde(skip)]` — never-persist holds by TYPE; the `positional:` prefix cannot collide with `--`-prefixed flag keys), with the v0.31.1 add/remove row chrome for the repeating `shares`. The assembler emits them at argv end from the widget rows; stale `state.positionals` content is ignored for them. `should_confirm_run` gains a secret-positional loop. NEW INVARIANT: `has_positional` is permanently false for secret positionals (its only two callers are the non-secret md template/phrases conditionals — verified).
+- **Redaction belt:** `redact_for_persistence` now drops ALL `state.positionals` content — the layer has no subcommand context, so the belt is unconditional/fail-closed (non-secret positionals are cheap re-pastes; persistence is still unwired and no `state.json` exists in the wild — no schema-version bump needed). Resolves `positional-secrets-not-redacted-at-persist` (audit I5).
+- **Tree persist walk: deny-list → POSITIVE allowlist.** `blank_xprv_keys` (xprv-prefix-only — WIF / raw-hex private keys survived in cleartext) is replaced by `blank_non_extended_public_keys`: a key/keys entry survives persist ONLY if origin-stripped it starts with one of the 10 SLIP-132 extended-public prefixes (`xpub/tpub/ypub/Ypub/zpub/Zpub/upub/Upub/vpub/Vpub` — full 4-byte literals: a bare "`pub` at 1..4" probe would keep `Kpub…`-form WIFs). Documented fail-closed cost: raw-hex PUBLIC keys (shape-indistinguishable from hex private keys; no `from_str` backstop on this path) blank too. `is_xprv_like` stays for the render-side amber hint only. Resolves audit I6 `tree-wif-hex-privkey-in-key-fields-unredacted`.
+- **Doc corrections:** the `SubcommandSchema.positional_args` doc claimed "mnemonic-toolkit's subcommands have zero positionals" — FALSE: the v0.53.1 `gui-schema` emits positionals for 7 subcommands, 6 secret-capable (everything except `decode-address`); this hand schema deliberately mirrors only `decode-address`. Filed `toolkit-secret-capable-positionals-unmirrored`.
+- Tests: `tests/persist_redaction_v0_34_0.rs` (8 cells, TDD-red-first: redaction belt + serialized-absence, widget-row emission/row-order/blank-rows, stale-positional no-emit, non-secret path regression, run-confirm, frozen census, 14-row allowlist table incl. the `Kpub…` false-accept class). SPEC + R0 ×2 + impl review: `design/SPEC_gui_v0_34_0_persist_redaction_hardening.md`, `design/agent-reports/gui-v0-34-0-persist-redaction-*.md`.
+
 ## mnemonic-gui [0.33.0] — 2026-06-10
 
 **SemVer-MINOR — toolkit pin v0.52.0 → v0.53.1 + the master-phrase secret flips (audit I4 GUI half): `xpub-search --phrase` finally renders MASKED with run-confirm.**

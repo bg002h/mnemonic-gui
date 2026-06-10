@@ -775,6 +775,13 @@ fn render_payload(
 /// The live xprv amber hint (SPEC §1.3): the persistence layer BLANKS
 /// xprv-matching keys, and the toolkit gate refuses them — warn at type
 /// time, never block (the gate is the validator).
+///
+/// v0.34.0 (audit I6) widening note: the persist layer now blanks EVERY
+/// non-extended-public key/keys entry (WIF, raw hex — incl. legit hex
+/// pubkeys — and garbage), not just xprv-likes; this hint still fires only
+/// on the xprv shape, so those other classes blank silently at persist.
+/// Extending the hint is render-side polish, deliberately out of the
+/// v0.34.0 scope.
 fn xprv_hint(ui: &mut egui::Ui, key: &str) {
     if is_xprv_like(key) {
         ui.colored_label(

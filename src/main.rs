@@ -660,8 +660,49 @@ impl eframe::App for MnemonicGuiApp {
                         );
                     }
                 }
-                // Positional args.
+                // Positional args. v0.34.0 (audit I5): SECRET positionals
+                // render as per-row SecretLineEdits stored under the
+                // "positional:<name>" reserved key (type-level
+                // never-persist; the assembler reads the same key —
+                // state.positionals is a dead path for them). Direct
+                // SecretLineEdit::show — do NOT route through the
+                // FlagSchema-coupled render_with_dispatch.
                 for (i, pos) in sub.positional_args.iter().enumerate() {
+                    if pos.secret {
+                        let key = format!("positional:{}", pos.name);
+                        let rows = state
+                            .secret_widgets
+                            .entry(key)
+                            .or_insert_with(|| {
+                                vec![mnemonic_gui::form::secret_widget::SecretLineEdit::new()]
+                            });
+                        let label = format!(
+                            "{} {}{}",
+                            pos.name,
+                            if pos.required { "*" } else { "" },
+                            if pos.repeating { "..." } else { "" }
+                        );
+                        let mut remove: Option<usize> = None;
+                        let n = rows.len();
+                        for (ri, row) in rows.iter_mut().enumerate() {
+                            ui.horizontal(|ui| {
+                                row.show(ui, &label, pos.help);
+                                if pos.repeating && n > 1 && ui.button("✕").clicked() {
+                                    remove = Some(ri);
+                                }
+                            });
+                        }
+                        if let Some(ri) = remove {
+                            let mut removed = rows.remove(ri);
+                            removed.zeroize();
+                        }
+                        if pos.repeating && ui.button(format!("+ add {}", pos.name)).clicked() {
+                            rows.push(
+                                mnemonic_gui::form::secret_widget::SecretLineEdit::new(),
+                            );
+                        }
+                        continue;
+                    }
                     ui.horizontal(|ui| {
                         ui.label(format!(
                             "{} {}{}",

@@ -28,6 +28,7 @@ const INSPECT_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
     required: false,
     repeating: true,
     help: "One or more mk1 strings. Use `-` to read one string per line from stdin.",
+    secret: false,
 }];
 
 // ─── encode ──────────────────────────────────────────────────────────────
@@ -155,6 +156,7 @@ const DECODE_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
     required: false,
     repeating: true,
     help: "One or more mk1 strings to decode. Use `-` to read one string per line from stdin.",
+    secret: false,
 }];
 
 // ─── verify ──────────────────────────────────────────────────────────────
@@ -231,6 +233,7 @@ const VERIFY_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
     required: false,
     repeating: true,
     help: "One or more mk1 strings to verify. Use `-` to read one string per line from stdin.",
+    secret: false,
 }];
 
 // ─── vectors ─────────────────────────────────────────────────────────────
@@ -283,6 +286,7 @@ const REPAIR_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
     required: false,
     repeating: true,
     help: "One or more mk1 strings to repair via BCH error correction. Use `-` for stdin.",
+    secret: false,
 }];
 
 // ─── address (v0.6) ──────────────────────────────────────────────────────
@@ -357,6 +361,7 @@ const ADDRESS_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
     required: false,
     repeating: true,
     help: "One or more mk1 strings whose xpub controls the addresses. Use `-` for stdin.",
+    secret: false,
 }];
 
 // ─── derive (v0.6) ───────────────────────────────────────────────────────
@@ -400,6 +405,7 @@ const DERIVE_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
     required: false,
     repeating: true,
     help: "One or more mk1 strings to derive a child xpub from. Use `-` for stdin.",
+    secret: false,
 }];
 
 // ─── SCHEMA constant ─────────────────────────────────────────────────────

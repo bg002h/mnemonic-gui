@@ -37,9 +37,14 @@ pub struct SubcommandSchema {
     /// Positional args (no `--name` prefix), emitted at the end of argv
     /// after all flags. Phase 6 introduced this for `md inspect`,
     /// `ms inspect`, `mk inspect` which take an `<MD1>` / `[MS1]` /
-    /// `[MK1_STRINGS]...` positional. mnemonic-toolkit's subcommands
-    /// have zero positionals — they pass slot data via `--slot`. Empty
-    /// slice for subcommands with no positionals.
+    /// `[MK1_STRINGS]...` positional. NOTE (v0.34.0 correction): the
+    /// toolkit's `gui-schema` DOES emit positionals for 7 subcommands
+    /// (decode-address `address`; inspect/repair/verify-bundle
+    /// `extra_strings`; the 3 xpub-search HRP-autodetect `[MS1]...`) —
+    /// this hand schema deliberately mirrors only `decode-address`; the
+    /// rest are tracked by FOLLOWUPS
+    /// `toolkit-secret-capable-positionals-unmirrored`. Empty slice for
+    /// subcommands with no positionals.
     pub positional_args: &'static [PositionalArgSchema],
     /// True for `bundle` / `verify-bundle` / `export-wallet` — subcommands
     /// that accept the `--slot @N.<subkey>=<value>` repeating grammar.
@@ -60,6 +65,15 @@ pub struct PositionalArgSchema {
     pub repeating: bool,
     /// Tooltip text.
     pub help: &'static str,
+    /// v0.34.0 (audit I5): true if the positional's VALUE is secret
+    /// material (never-persist / masked-widget / run-confirm class) —
+    /// mirrors `FlagSchema.secret`'s semantics. Secret positionals render
+    /// as per-row `SecretLineEdit`s stored under the
+    /// `secret_widgets["positional:<name>"]` reserved key (type-level
+    /// never-persist), NOT in `state.positionals`. Consequence:
+    /// `has_positional` is permanently false for secret positionals — a
+    /// future conditional over one must consult that reserved key.
+    pub secret: bool,
 }
 
 /// One flag (e.g. `--template`).
@@ -281,6 +295,10 @@ pub struct FormState {
     /// repeating positionals, multiple entries may share the same
     /// schema index (the form widget renders multiple input rows).
     /// Empty strings are dropped at emit time (SPEC §6.7 parity).
+    /// v0.34.0 (audit I5): SECRET positionals do NOT ride this Vec — they
+    /// live in `secret_widgets` under the `"positional:<name>"` reserved key
+    /// (type-level never-persist); `redact_for_persistence` additionally
+    /// drops ALL content here at persist (fail-closed belt).
     pub positionals: Vec<String>,
     /// SPEC §3 (v0.2 B.1): secret-bearing widgets keyed by flag name.
     /// Owned by FormState so the lifetime spans the form session; sweeped

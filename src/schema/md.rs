@@ -40,6 +40,7 @@ const INSPECT_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
     required: true,
     repeating: true,
     help: "One or more md1 strings to decode and pretty-print.",
+    secret: false,
 }];
 
 // ─── encode ──────────────────────────────────────────────────────────────
@@ -177,6 +178,7 @@ const ENCODE_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
     repeating: false,
     help: "BIP 388 template, e.g. `wsh(multi(2,@0/<0;1>/*,@1/<0;1>/*))`. \
            Mutually exclusive with --from-policy.",
+    secret: false,
 }];
 
 // ─── decode ──────────────────────────────────────────────────────────────
@@ -198,6 +200,7 @@ const DECODE_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
     required: true,
     repeating: true,
     help: "One or more md1 backup strings to decode into a wallet policy template.",
+    secret: false,
 }];
 
 // ─── verify ──────────────────────────────────────────────────────────────
@@ -254,6 +257,7 @@ const VERIFY_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
     required: true,
     repeating: true,
     help: "One or more md1 strings to verify re-encode to the template.",
+    secret: false,
 }];
 
 // ─── bytecode ────────────────────────────────────────────────────────────
@@ -275,6 +279,7 @@ const BYTECODE_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
     required: true,
     repeating: true,
     help: "One or more md1 strings whose raw payload bits to dump.",
+    secret: false,
 }];
 
 // ─── vectors ─────────────────────────────────────────────────────────────
@@ -341,6 +346,7 @@ const COMPILE_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
     required: true,
     repeating: false,
     help: "Sub-Miniscript-Policy expression to compile into a BIP 388 template.",
+    secret: false,
 }];
 
 // ─── address ─────────────────────────────────────────────────────────────
@@ -456,6 +462,7 @@ const ADDRESS_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
     required: false,
     repeating: true,
     help: "One or more md1 phrases. Mutually exclusive with --template.",
+    secret: false,
 }];
 
 // ─── repair ────────────────────────────────────────────────────────────────
@@ -481,6 +488,7 @@ const REPAIR_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
     repeating: true,
     help: "One or more md1 strings to repair (BCH error-correction). `-` reads one per line \
            from stdin. Chunked-form md1 only.",
+    secret: false,
 }];
 
 // ─── SCHEMA constant ─────────────────────────────────────────────────────

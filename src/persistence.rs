@@ -112,7 +112,15 @@ pub fn redact_for_persistence(state: &FormState) -> FormState {
     FormState {
         values,
         slots: SlotState { rows: slot_rows },
-        positionals: state.positionals.clone(),
+        // v0.34.0 (audit I5): drop ALL positionals at persist. This layer
+        // has no subcommand context, so name-aware positional redaction is
+        // impossible here -- the belt is unconditional / fail-closed. Secret
+        // positionals never reach state.positionals anyway (they live in
+        // secret_widgets under "positional:<name>" -- type-level
+        // never-persist); non-secret positionals are cheap re-pastes.
+        // Serde-shape compatible: no SCHEMA_VERSION bump (no state.json
+        // exists in the wild -- save/load have never had callers).
+        positionals: Vec::new(),
         // SPEC §3 / v0.2 Phase B.1: secret_widgets is never persisted
         // (#[serde(skip)]) and is freshly default-constructed here so
         // the redacted FormState has the never-persist invariant

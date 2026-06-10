@@ -213,6 +213,17 @@ pub fn should_confirm_run(
             return true;
         }
     }
+    // v0.34.0 (audit I5): check secret POSITIONALS — their rows live in
+    // secret_widgets under the "positional:<name>" reserved key.
+    for pos in subcommand.positional_args {
+        if pos.secret {
+            if let Some(rows) = state.secret_widgets.get(&format!("positional:{}", pos.name)) {
+                if rows.iter().any(|w| !w.is_empty()) {
+                    return true;
+                }
+            }
+        }
+    }
     // Check NodeValueComposite values — secrecy is value-dependent.
     for (_, v) in &state.values {
         if let crate::schema::FlagValue::NodeValueComposite { node, value } = v {

@@ -287,11 +287,27 @@ pub fn assemble_argv(
         }
     }
 
-    // Positional args (Phase 6) — emit at the end of argv in form-state
-    // order, skipping empty strings (SPEC §6.7 parity).
-    for pos in &state.positionals {
-        if !pos.is_empty() {
-            argv.push(pos.clone());
+    // Positional args (Phase 6; v0.34.0 audit-I5 split) — emit at the end
+    // of argv. SECRET positionals (every table has ≤1 entry) emit from
+    // their `secret_widgets["positional:<name>"]` rows in row order; any
+    // stale `state.positionals` content is IGNORED for them (the widget
+    // path is authoritative — mirrors the v0.31.1 kind-gated flag
+    // discipline). Non-secret positionals keep the `state.positionals`
+    // path, skipping empty strings (SPEC §6.7 parity).
+    if let Some(pos) = subcommand.positional_args.iter().find(|p| p.secret) {
+        if let Some(rows) = state.secret_widgets.get(&format!("positional:{}", pos.name)) {
+            for w in rows {
+                if !w.is_empty() {
+                    let value = w.as_string();
+                    argv.push(value.as_str().to_string());
+                }
+            }
+        }
+    } else {
+        for pos in &state.positionals {
+            if !pos.is_empty() {
+                argv.push(pos.clone());
+            }
         }
     }
 

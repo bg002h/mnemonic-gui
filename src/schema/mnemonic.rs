@@ -3217,6 +3217,7 @@ const DECODE_ADDRESS_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema
     required: true,
     repeating: false,
     help: "The Bitcoin address to decode (P2PKH / P2SH / P2WPKH / P2WSH / P2TR, any network).",
+    secret: false,
 }];
 const DECODE_ADDRESS_FLAGS: &[FlagSchema] = &[
     FlagSchema {

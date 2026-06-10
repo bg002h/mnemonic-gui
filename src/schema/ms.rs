@@ -46,6 +46,7 @@ const INSPECT_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
     required: false,
     repeating: false,
     help: "ms1 string to inspect. Use `-` or omit to read from stdin.",
+    secret: true,
 }];
 
 // ─── encode ──────────────────────────────────────────────────────────────
@@ -142,6 +143,7 @@ const DECODE_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
     required: false,
     repeating: false,
     help: "ms1 string to decode. Use `-` or omit to read from stdin.",
+    secret: true,
 }];
 
 // ─── verify ──────────────────────────────────────────────────────────────
@@ -187,6 +189,7 @@ const VERIFY_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
     required: false,
     repeating: false,
     help: "ms1 string to verify. Use `-` or omit to read from stdin.",
+    secret: true,
 }];
 
 // ─── vectors ─────────────────────────────────────────────────────────────
@@ -308,6 +311,7 @@ const DERIVE_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
     required: false,
     repeating: false,
     help: "ms1 string. Use `-` or omit to read from stdin.",
+    secret: true,
 }];
 
 // ─── repair (v0.4; backfilled into the mirror at v0.5) ───────────────────
@@ -450,6 +454,7 @@ const COMBINE_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
     required: true,
     repeating: true,
     help: "Distributed share strings to recombine (K or more, distinct indices). Secret-equivalent.",
+    secret: true,
 }];
 
 // ─── SCHEMA constant ─────────────────────────────────────────────────────

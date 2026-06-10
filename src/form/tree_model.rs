@@ -175,7 +175,7 @@ impl TreeState {
     /// are `#[serde(skip)]` anyway — belt and suspenders).
     pub fn redacted_for_persistence(&self) -> TreeState {
         let mut root = self.root.clone();
-        blank_xprv_keys(&mut root);
+        blank_non_extended_public_keys(&mut root);
         TreeState {
             enabled: self.enabled,
             next_id: self.next_id,
@@ -647,24 +647,62 @@ fn parse_uint(
 /// `[origin]` prefix via `rsplit(']')`, then extended-private prefixes
 /// `xprv`/`tprv`/`yprv`/`zprv`/`uprv`/`vprv` (+ capitals) all have `prv`
 /// at byte offset 1..4 (`xpub`/`tpub` have `pub`).
+///
+/// v0.34.0 (audit I6): this DENY-list heuristic serves the live render-side
+/// hint ONLY (`tree_form::xprv_hint` — warn-now semantics, false-negatives
+/// tolerable). Persist-redaction uses the POSITIVE allowlist
+/// (`is_extended_public_like`), NOT this — WIF / raw-hex / garbage are
+/// blanked at persist even though this fn returns false for them.
 pub fn is_xprv_like(key: &str) -> bool {
     let key_part = key.rsplit(']').next().unwrap_or(key);
     key_part.is_char_boundary(4) && key_part.as_bytes().get(1..4) == Some(b"prv")
 }
 
-/// Blank every xprv-matching `key` / `keys` entry, recursively over ALL
-/// children (incl. surplus — they persist too). Hex digests survive.
-fn blank_xprv_keys(node: &mut TreeNode) {
-    if is_xprv_like(&node.key) {
+/// v0.34.0 (audit I6) — the persist walk's POSITIVE allowlist: true iff the
+/// origin-stripped part starts with one of the 10 SLIP-132 extended-PUBLIC
+/// prefixes. Everything else (xprv-likes, WIF, raw hex, garbage) is blanked
+/// at persist — fail-closed, because this path has NO `from_str` backstop
+/// (the toolkit gate's WIF/raw-hex refusal lives in its step-2 type-check,
+/// which never runs here). Notes:
+/// - Byte 0 is constrained ON PURPOSE: a bare "`pub` at bytes 1..4" probe
+///   would keep a `Kpub…`-form WIF in cleartext (base58 contains p/u/b).
+/// - The list admits SLIP-132 forms (`ypub`/`zpub`/…) the toolkit's
+///   `Xpub::from_str` would refuse anyway — correct trade (public material,
+///   no leak direction). Do NOT "tighten" to {xpub,tpub} (back-door
+///   behavior change) or mistake this allowlist for a validity check.
+/// - Inherited `rsplit(']')` caveat (same as `is_xprv_like`): everything
+///   before the LAST `]` goes unexamined, so `xprv…]xpub…` keeps the whole
+///   string — tolerated; such a string is not a parseable key anywhere.
+fn is_extended_public_like(key: &str) -> bool {
+    const XPUB_PREFIXES: &[&[u8; 4]] = &[
+        b"xpub", b"tpub", b"ypub", b"Ypub", b"zpub", b"Zpub", b"upub", b"Upub", b"vpub", b"Vpub",
+    ];
+    let key_part = key.rsplit(']').next().unwrap_or(key);
+    match key_part.as_bytes().get(..4) {
+        Some(prefix) => XPUB_PREFIXES.iter().any(|p| prefix == &p[..]),
+        None => false,
+    }
+}
+
+/// Blank every `key` / `keys` entry that is NOT positively extended-public,
+/// recursively over ALL children (incl. surplus — they persist too).
+/// v0.34.0 (audit I6): replaces the deny-list walk (`is_xprv_like`-only),
+/// which let WIF / raw-hex private keys survive persist in cleartext. The
+/// fail-closed cost: a raw-hex x-only/compressed PUBLIC key is byte-shape-
+/// indistinguishable from a raw-hex PRIVATE key, so hex blanks too; xpub-form
+/// keys (the dominant input) survive. Hashlock `hex` FIELDS are untouched
+/// (different field, not key/keys).
+fn blank_non_extended_public_keys(node: &mut TreeNode) {
+    if !node.key.is_empty() && !is_extended_public_like(&node.key) {
         node.key.clear();
     }
     for key in &mut node.keys {
-        if is_xprv_like(key) {
+        if !key.is_empty() && !is_extended_public_like(key) {
             key.clear();
         }
     }
     for child in &mut node.children {
-        blank_xprv_keys(child);
+        blank_non_extended_public_keys(child);
     }
 }
 
