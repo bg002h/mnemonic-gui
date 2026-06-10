@@ -117,7 +117,7 @@ fn form_state_secret_widgets_never_serialized() {
     let mut state = FormState::default();
     state
         .secret_widgets
-        .insert("--passphrase".into(), SecretLineEdit::from_text("hunter2"));
+        .insert("--passphrase".into(), vec![SecretLineEdit::from_text("hunter2")]);
     let json = serde_json::to_string(&state).expect("FormState serialize");
     assert!(
         !json.contains("--passphrase"),
@@ -162,14 +162,18 @@ fn run_confirm_fires_when_passphrase_in_secret_widgets() {
     ));
     state
         .secret_widgets
-        .insert("--passphrase".into(), SecretLineEdit::from_text("hunter2"));
+        .insert("--passphrase".into(), vec![SecretLineEdit::from_text("hunter2")]);
     assert!(should_confirm_run(subcommand("bundle"), &state));
 
-    // Empty SecretLineEdit must NOT fire the modal.
+    // Empty SecretLineEdit must NOT fire the modal. (v0.31.1 SPEC §5 /
+    // R0-r1 C2: migrated FAITHFULLY as a 1-element vec holding an EMPTY
+    // widget — this is the net that catches the inverted-meaning
+    // `Vec::is_empty` migration bug in `has_value`: a non-empty vec of
+    // empty rows must read as "no value".)
     let mut empty_state = FormState::default();
     empty_state
         .secret_widgets
-        .insert("--passphrase".into(), SecretLineEdit::new());
+        .insert("--passphrase".into(), vec![SecretLineEdit::new()]);
     assert!(!should_confirm_run(subcommand("bundle"), &empty_state));
 }
 

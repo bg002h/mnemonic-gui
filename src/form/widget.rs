@@ -74,24 +74,87 @@ pub fn render_with_dispatch(
     disabled_options: &[String],
 ) {
     if crate::secrets::flag_is_secret(flag) && matches!(flag.kind, FlagKind::Text) {
+        // v0.31.1 (repeating-secrets SPEC §1): the secret branch splits on
+        // `flag.repeating`. Scalar secrets keep byte-identical behavior
+        // (one widget = the 1-element vec); repeating secrets mirror the
+        // v0.30.0 non-secret repeating UX (header + per-row SecretLineEdit
+        // + per-row ✕ + "+ add"), with the rows living in `secret_widgets`
+        // — NEVER `state.values` — so the never-persist invariant stays
+        // TYPE-level (#[serde(skip)]).
+        if !flag.repeating {
+            // Scalar (non-repeating) secret — behavior byte-identical to
+            // pre-v0.31.1: one widget = vec[0].
+            ui.horizontal(|ui| {
+                let rows = state
+                    .secret_widgets
+                    .entry(flag.name.to_string())
+                    .or_insert_with(|| vec![crate::form::secret_widget::SecretLineEdit::default()]);
+                if rows.is_empty() {
+                    // Defensive: an externally-inserted empty vec must not
+                    // panic the render (e.g. test-constructed state).
+                    rows.push(crate::form::secret_widget::SecretLineEdit::default());
+                }
+                rows[0].show(ui, flag.name, flag.help);
+                render_help_icon(ui, tab, subcommand, flag);
+                if flag.required {
+                    ui.colored_label(egui::Color32::from_rgb(220, 60, 60), "*");
+                }
+            });
+            return;
+        }
+
+        // Repeating secret (--ms1 on verify-bundle/import-wallet; --share
+        // on slip39-combine/ms-shares-combine). Mirrors render_repeating's
+        // layout, adapted to the secret_widgets rows:
+        //   - Header row ALWAYS: label + `?` (repeating flags qualify per
+        //     needs_help_icon) + required marker + "+ add" (appends an
+        //     empty SecretLineEdit).
+        //   - Per-frame required-seed (the v0.30.0 rule applied to the
+        //     vec): an empty vec for a REQUIRED repeating secret flag
+        //     seeds ONE empty widget (--share sites are required); optional
+        //     (--ms1) seeds none. Removing the last required row respawns
+        //     it next frame — intended.
+        //   - One masked TextEdit per row + per-row ✕ (collect-then-apply;
+        //     egui's positional auto-IDs keep the rows distinct — no salt
+        //     work needed). Empty rows emit nothing (assembler-side guard).
+        let rows = state.secret_widgets.entry(flag.name.to_string()).or_default();
         ui.horizontal(|ui| {
-            let widget = state.secret_widgets.entry(flag.name.to_string()).or_default();
-            widget.show(ui, flag.name, flag.help);
+            ui.label(flag.name).on_hover_text(flag.help);
             render_help_icon(ui, tab, subcommand, flag);
             if flag.required {
                 ui.colored_label(egui::Color32::from_rgb(220, 60, 60), "*");
             }
+            if ui.button("+ add").clicked() {
+                rows.push(crate::form::secret_widget::SecretLineEdit::new());
+            }
         });
+        if flag.required && rows.is_empty() {
+            rows.push(crate::form::secret_widget::SecretLineEdit::new());
+        }
+        let mut remove_at: Option<usize> = None;
+        for (row_idx, w) in rows.iter_mut().enumerate() {
+            ui.horizontal(|ui| {
+                // The header row owns the label/help chrome (the
+                // render_repeating convention); rows render the masked
+                // TextEdit only.
+                w.show(ui, "", "");
+                if ui.small_button("✕").on_hover_text("remove row").clicked() {
+                    remove_at = Some(row_idx);
+                }
+            });
+        }
+        if let Some(i) = remove_at {
+            rows.remove(i);
+        }
         return;
     }
 
     // v0.30.0 SPEC §3: NON-secret repeating flags get the generic
     // multi-row widget (header + N rows + per-row remove + "+ add").
     // The branch order is load-bearing: the secret check above runs FIRST,
-    // so secret repeating flags (import-wallet --ms1, --share) keep
-    // today's single-secret_widgets-entry behavior — the live emission
-    // bug for those is filed as FOLLOWUP
-    // `repeating-secret-flags-never-reach-argv`, out of this cycle's scope.
+    // so secret repeating flags (import-wallet --ms1, --share) route to
+    // the per-row secret widget above (v0.31.1), keeping their buffers in
+    // `secret_widgets` rather than `state.values`.
     if flag.repeating {
         render_repeating(ui, tab, subcommand, flag, state, disabled_options, None);
         return;

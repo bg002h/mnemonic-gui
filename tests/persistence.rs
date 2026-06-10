@@ -390,7 +390,7 @@ fn secret_widgets_round_trip_never_persists_both_directions() {
         FlagValue::Dropdown("mainnet".into()),
     ));
     form.secret_widgets
-        .insert("--passphrase".into(), SecretLineEdit::from_text("hunter2"));
+        .insert("--passphrase".into(), vec![SecretLineEdit::from_text("hunter2")]);
     let mut state = PersistedState::default();
     state
         .form_state_per_subcommand

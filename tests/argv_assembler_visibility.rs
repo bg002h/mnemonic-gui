@@ -197,7 +197,7 @@ fn passphrase_typed_then_stdin_set_does_not_emit_typed_value() {
     // internally so toggling back restores it.
     state.secret_widgets.insert(
         "--passphrase".into(),
-        SecretLineEdit::from_text("typed-but-not-meant-to-emit"),
+        vec![SecretLineEdit::from_text("typed-but-not-meant-to-emit")],
     );
     let argv = argv_for("bundle", &state);
     assert!(
@@ -217,7 +217,7 @@ fn bip38_passphrase_typed_then_stdin_set_does_not_emit_typed_value() {
     let mut state = FormState::default();
     state.secret_widgets.insert(
         "--bip38-passphrase".into(),
-        SecretLineEdit::from_text("bip38-typed"),
+        vec![SecretLineEdit::from_text("bip38-typed")],
     );
     state.values.push((
         "--bip38-passphrase-stdin".into(),

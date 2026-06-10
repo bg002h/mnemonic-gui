@@ -289,7 +289,57 @@ pub fn zeroize_form_state(state: &mut crate::schema::FormState) {
     // call here drops the bytes ahead of the BTreeMap's own Drop pass,
     // ensuring the secret memory is overwritten as early as possible on
     // app shutdown.
-    for widget in state.secret_widgets.values_mut() {
+    //
+    // v0.31.1 (SPEC §4, R0-r1 I1): per-row sweep — the map value is now
+    // `Vec<SecretLineEdit>` (one widget per repeating-secret row), so the
+    // sweep flattens over every row of every flag.
+    for widget in state.secret_widgets.values_mut().flatten() {
         widget.zeroize();
     }
+}
+
+/// v0.31.1 (SPEC §3): the union of every flag NAME declared `secret: true`
+/// in ANY of the 4 CLI schemas, plus the hand-maintained
+/// [`SECRET_FLAG_NAMES`]. Extracted from the schema STRUCTS' `secret`
+/// FIELD (never a text grep — R0-r3 m-NEW2: comment lines in mnemonic.rs
+/// contain the literal `secret: true`).
+///
+/// Consumed by `persistence::redact_for_persistence` as a belt-and-
+/// suspenders NAME-level net: any `state.values` entry under a
+/// secret-anywhere name is dropped at persist. This is NOT a guarantee
+/// that secrets never enter `values` — it is a name net. Deliberate side
+/// effects (SPEC §3):
+/// - the 5 Boolean `secret: true` `*-stdin` toggles join the union, so
+///   their persisted checkbox state resets across restarts (accepted —
+///   the `--passphrase-stdin` precedent; a stale-persisted stdin toggle
+///   is itself a foot-gun);
+/// - the cross-CLI name collisions `--phrase` (3 mnemonic xpub-search
+///   `secret: false` sites) and `--ms1` (`ms repair`, `secret: false`)
+///   silently stop persisting — accepted and WELCOMED: both were live
+///   plaintext-persistence leaks of master-secret material (FOLLOWUPs
+///   `xpub-search-inline-phrase-not-secret-classified` +
+///   `ms-repair-ms1-not-secret-classified` track the underlying
+///   mis-classifications).
+pub fn schema_secret_flag_names() -> &'static std::collections::BTreeSet<&'static str> {
+    static NAMES: std::sync::OnceLock<std::collections::BTreeSet<&'static str>> =
+        std::sync::OnceLock::new();
+    NAMES.get_or_init(|| {
+        let mut names: std::collections::BTreeSet<&'static str> =
+            SECRET_FLAG_NAMES.iter().copied().collect();
+        for schema in [
+            &crate::schema::mnemonic::SCHEMA,
+            &crate::schema::md::SCHEMA,
+            &crate::schema::ms::SCHEMA,
+            &crate::schema::mk::SCHEMA,
+        ] {
+            for sub in schema.subcommands {
+                for flag in sub.flags {
+                    if flag.secret {
+                        names.insert(flag.name);
+                    }
+                }
+            }
+        }
+        names
+    })
 }

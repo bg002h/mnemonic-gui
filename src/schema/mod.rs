@@ -287,12 +287,20 @@ pub struct FormState {
     /// the never-persist invariant by type — serde's deserialize codegen
     /// default-constructs the field to an empty BTreeMap.
     ///
+    /// v0.31.1 (repeating-secrets SPEC §0/§1): the value is a
+    /// `Vec<SecretLineEdit>` — one entry per ROW of a repeating secret
+    /// Text flag (`--ms1`, `--share`); scalar secrets (`--passphrase`,
+    /// `--bip38-passphrase`) are the 1-element vec. Row order = visual
+    /// order = argv order. Secrets never enter `state.values`; the
+    /// never-persist invariant stays TYPE-level.
+    ///
     /// FormState's `Clone` derive was removed because `SecretLineEdit`
     /// deliberately does not implement `Clone` (a clone is a second copy
     /// of the secret in memory). No v0.1.1 caller depended on
     /// `FormState::clone()`. See SPEC §3 R1 C-1 fold.
     #[serde(skip)]
-    pub secret_widgets: std::collections::BTreeMap<String, crate::form::secret_widget::SecretLineEdit>,
+    pub secret_widgets:
+        std::collections::BTreeMap<String, Vec<crate::form::secret_widget::SecretLineEdit>>,
 }
 
 impl FormState {
@@ -337,13 +345,20 @@ impl FormState {
     ///   - Number / Range / Timestamp / TaggedOrIndexed: always present
     ///     once in the map (no empty-form sentinel).
     pub fn has_value(&self, name: &str) -> bool {
+        // v0.31.1 (SPEC §4, R0-r1 C2 — THE silent migration site): the
+        // secret_widgets value is now a Vec of per-row widgets, and a bare
+        // `!w.is_empty()` would be `Vec::is_empty` — compiling cleanly with
+        // INVERTED meaning ("any rows exist" instead of "any row carries
+        // bytes"; the required-seed rule keeps `--share` at >= 1 blank row,
+        // so a blank form would read as present). Per-row semantics: present
+        // iff ANY row's buffer is non-empty.
         self.values
             .iter()
             .any(|(k, v)| k == name && flag_value_is_present(v))
             || self
                 .secret_widgets
                 .get(name)
-                .is_some_and(|w| !w.is_empty())
+                .is_some_and(|rows| rows.iter().any(|w| !w.is_empty()))
     }
 
     /// v0.2 D.1 N-1: True iff positional `idx` is filled. Used by

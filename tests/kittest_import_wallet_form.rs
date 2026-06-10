@@ -13,9 +13,9 @@
 //!      assembles when `FormState.values["--blob"]` is `Path(...)`.
 //!   3. `cell_import_wallet_blob_stdio_sentinel_argv` — `--blob -` emits
 //!      the `-` token verbatim (Path with stdio_sentinel: true).
-//!   4. `cell_import_wallet_repeating_ms1_argv` — two `--ms1` entries in
-//!      `state.values` produce two `--ms1 <value>` pairs in argv (positional
-//!      cosigner-index ordering).
+//!   4. `cell_import_wallet_repeating_ms1_argv` — two `--ms1` rows in
+//!      `state.secret_widgets` (the v0.31.1 per-row vec source) produce two
+//!      `--ms1 <value>` pairs in argv (positional cosigner-index ordering).
 //!   5. `cell_import_wallet_select_descriptor_default_suppressed` — the
 //!      schema-declared `default_value: "all"` suppresses `--select-descriptor all`
 //!      from argv (D33 default-suppression).
@@ -155,11 +155,14 @@ fn cell_import_wallet_blob_stdio_sentinel_argv() {
 
 #[test]
 fn cell_import_wallet_repeating_ms1_argv() {
-    // `--ms1` is `repeating: true + secret: true`; per v0.3 fold (see
-    // `src/form/invocation.rs:226-235`) repeating secrets route through
-    // `state.values` like non-secret repeating. The literal value flows
-    // to argv verbatim — see module-level doc for the env-var-channel
+    // `--ms1` is `repeating: true + secret: true`. v0.31.1 (SPEC §5,
+    // R0-r1 I4 migration): repeating secrets live as per-row
+    // `SecretLineEdit`s in `state.secret_widgets[flag.name]` (the vec
+    // source) — the v0.3 values-routing this cell used to synthesize was
+    // a dead source the widget never wrote. The literal value flows to
+    // argv verbatim — see module-level doc for the env-var-channel
     // FOLLOWUP that closes the argv-leak gap.
+    use mnemonic_gui::form::secret_widget::SecretLineEdit;
     let initial = FormState::default();
     let mut harness = Harness::new_ui_state(
         |ui, state: &mut FormState| {
@@ -171,13 +174,17 @@ fn cell_import_wallet_repeating_ms1_argv() {
             }
             if ui.button("set-ms1-0").clicked() {
                 state
-                    .values
-                    .push(("--ms1".into(), FlagValue::Text("ms1-cosigner-0".into())));
+                    .secret_widgets
+                    .entry("--ms1".into())
+                    .or_default()
+                    .push(SecretLineEdit::from_text("ms1-cosigner-0"));
             }
             if ui.button("set-ms1-1").clicked() {
                 state
-                    .values
-                    .push(("--ms1".into(), FlagValue::Text("ms1-cosigner-1".into())));
+                    .secret_widgets
+                    .entry("--ms1".into())
+                    .or_default()
+                    .push(SecretLineEdit::from_text("ms1-cosigner-1"));
             }
         },
         initial,
@@ -328,14 +335,20 @@ fn cell_import_wallet_env_sentinel_literal_emission() {
     // through contract: any change to argv-rewriting (e.g., the v0.12.0
     // env-var-channel FOLLOWUP) must explicitly opt into a behavior break
     // here.
+    //
+    // v0.31.1 (SPEC §5, R0-r1 I4 migration): the `@env:` sentinel rides a
+    // secret ROW — the vec source in `state.secret_widgets`, not a
+    // synthesized `state.values` entry.
+    use mnemonic_gui::form::secret_widget::SecretLineEdit;
     let mut state = FormState::default();
     state.values.push((
         "--blob".into(),
         FlagValue::Path("/tmp/wallet.bsms".into()),
     ));
-    state
-        .values
-        .push(("--ms1".into(), FlagValue::Text("@env:MNEMONIC_MS1_0".into())));
+    state.secret_widgets.insert(
+        "--ms1".into(),
+        vec![SecretLineEdit::from_text("@env:MNEMONIC_MS1_0")],
+    );
 
     let argv = assemble_argv(
         &schema::mnemonic::SCHEMA,

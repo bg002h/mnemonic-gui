@@ -294,18 +294,29 @@ fn cell_v0_3_slip39_split_argv_assembles() {
 
 #[test]
 fn cell_v0_3_slip39_combine_argv_assembles() {
+    // v0.31.1 (SPEC §5, R0-r1 I4 migration): slip39-combine `--share` is
+    // secret + repeating + Text — its rows live as per-row
+    // `SecretLineEdit`s in `state.secret_widgets` (the vec source), not
+    // `state.values`. Contrast `cell_v0_3_seed_xor_combine_argv_assembles`
+    // below, which stays values-routed UNCHANGED (NodeValueComposite —
+    // the §2 counter-example pin).
+    use mnemonic_gui::form::secret_widget::SecretLineEdit;
     let initial = FormState::default();
     let mut harness = Harness::new_ui_state(
-        |ui, state| {
+        |ui, state: &mut FormState| {
             if ui.button("set-share-1").clicked() {
                 state
-                    .values
-                    .push(("--share".into(), FlagValue::Text("share-1-words".into())));
+                    .secret_widgets
+                    .entry("--share".into())
+                    .or_default()
+                    .push(SecretLineEdit::from_text("share-1-words"));
             }
             if ui.button("set-share-2").clicked() {
                 state
-                    .values
-                    .push(("--share".into(), FlagValue::Text("share-2-words".into())));
+                    .secret_widgets
+                    .entry("--share".into())
+                    .or_default()
+                    .push(SecretLineEdit::from_text("share-2-words"));
             }
         },
         initial,

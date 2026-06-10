@@ -39,7 +39,7 @@ fn cell_1_bundle_phrase_minimal_argv() {
     ]);
     state
         .secret_widgets
-        .insert("--passphrase".into(), SecretLineEdit::from_text("hunter2"));
+        .insert("--passphrase".into(), vec![SecretLineEdit::from_text("hunter2")]);
     let argv = assemble_argv(&schema::mnemonic::SCHEMA, subcommand("bundle"), &state);
     assert_eq!(
         argv,
@@ -280,7 +280,7 @@ fn cell_7_emission_order_follows_schema_declaration() {
     ]);
     state
         .secret_widgets
-        .insert("--passphrase".into(), SecretLineEdit::from_text("p"));
+        .insert("--passphrase".into(), vec![SecretLineEdit::from_text("p")]);
     let argv = assemble_argv(&schema::mnemonic::SCHEMA, subcommand("bundle"), &state);
     assert_eq!(
         argv,
@@ -320,7 +320,7 @@ fn secret_class_flag_emitted_from_secret_widget_not_values_map() {
     // Populate the secret-widget bucket with --passphrase.
     state
         .secret_widgets
-        .insert("--passphrase".into(), SecretLineEdit::from_text("alpha"));
+        .insert("--passphrase".into(), vec![SecretLineEdit::from_text("alpha")]);
     // Populate state.values for a non-secret flag (--account) and also
     // intentionally for --passphrase (this entry must be IGNORED by the
     // secret-flag branch).

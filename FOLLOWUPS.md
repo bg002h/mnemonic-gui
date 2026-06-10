@@ -17,6 +17,38 @@ mirrors it.
 - **Status:** open.
 - **Tier:** GUI-local (no sibling-repo flag surface change; the toolkit CLIs already accept the repeats).
 
+### `boolean-stdin-secret-toggles-never-emit` — the 5 Boolean `secret: true` `*-stdin` toggles emit NOTHING from the GUI form
+
+- **Surfaced:** 2026-06-10, v0.31.1 cycle (SPEC §2 R0-r1 C1/I3 — the kind-gating of the assembler secret branch made the pre-existing suppression explicit).
+- **Where:** `src/form/invocation.rs::assemble_argv` secret-flag branch — the `else { continue }` arm (non-Text, non-NodeValueComposite secrets). Pre-v0.31.1 the kind-BLIND secret branch ate them the same way (`flag_is_secret` → repeating values-read finds nothing for a Boolean / scalar `secret_widgets.get` finds no widget for a checkbox flag → `continue`); v0.31.1 PRESERVES that no-emit byte-identically and records it.
+- **What:** the 5 Boolean `secret: true` toggle names — `--passphrase-stdin` (×12 sites), `--secret-stdin` (×2), `--decrypt-password-stdin` (×2), `--bip38-passphrase-stdin` (×1; all 17 sites `repeating: false`) — render as generic checkboxes (they fail the widget's Text gate) but their checked state NEVER reaches argv: the secret branch `continue`s before the generic Boolean emission. A user checking `--passphrase-stdin` in the GUI gets an argv without it (the GUI runner also provides no stdin channel for the value — the flag would hang or error if it DID emit, which is why the suppression has never been reported). Decide deliberately: either emit them (requires a stdin-feed story in `runner.rs`) or keep suppressing and grey them out in the form so the dead checkbox isn't a lie.
+- **Status:** open.
+- **Tier:** GUI-local.
+
+### `xpub-search-inline-phrase-not-secret-classified` — the 3 xpub-search `--phrase` (inline master phrase) flags are `secret: false`
+
+- **Surfaced:** 2026-06-10, v0.31.1 cycle (SPEC §3 R0-r2 I-NEW1 — the `schema_secret_flag_names()` union census found the cross-CLI name collision).
+- **Where:** `src/schema/mnemonic.rs` — the three xpub-search subcommand flag tables (`XPUB_SEARCH_PATH_OF_XPUB_FLAGS` / address-of-xpub / passphrase-of-xpub variants; "Master BIP-39 phrase (inline)" help text), each declaring `--phrase` `FlagKind::Text` + **`secret: false`**, mirroring the toolkit `gui-schema`'s own classification.
+- **What:** a master BIP-39 phrase typed inline renders as a PLAINTEXT (unmasked) generic Text widget, routes through `state.values`, and — pre-v0.31.1 — **persisted to `state.json` in plaintext** (no redaction class caught it). v0.31.1's `schema_secret_flag_names()` union incidentally closes the persistence leak at the NAME level (`--phrase` is `secret: true` on 4 ms.rs sites → the name joins the union → every `--phrase` values entry is dropped at persist). The underlying mis-classification remains: `secret: true` would flip the widget to a masked `SecretLineEdit` (+ run-confirm + zeroize). Likely needs a toolkit-side `gui-schema` classification fix first (the GUI mirrors the toolkit's `secret` field; hand-overriding GUI-side would trip `schema_mirror_secret_drift`) — check the gate's scope before choosing the layer.
+- **Status:** open.
+- **Tier:** cross-repo (classification source of truth is the toolkit `gui-schema`).
+
+### `ms-repair-ms1-not-secret-classified` — `ms repair --ms1` is `secret: false` (master-secret material)
+
+- **Surfaced:** 2026-06-10, v0.31.1 cycle (SPEC §3 R0-r3 I-NEW2 — the union twin-check found the second `secret: false` collision; blind-spotted earlier because `--ms1` sat in the union's headline).
+- **Where:** `src/schema/ms.rs::REPAIR_FLAGS` — `--ms1` `FlagKind::Text` / `required: true` / **`secret: false`** ("ms1 string to repair via BCH error correction"), vs the 7 `secret: true` `--ms1` sites in mnemonic.rs (this is the lone false twin in the 8-site census — R0-r4).
+- **What:** the to-be-repaired ms1 string is master-secret material (merely BCH-corrupted), yet it renders unmasked, routes through `state.values`, and — pre-v0.31.1 — **persisted to `state.json` in plaintext**. v0.31.1's `schema_secret_flag_names()` union closes the persistence leak (the `--ms1` NAME is secret elsewhere → all `--ms1` values entries drop at persist); the widget-side mis-classification (unmasked input, no run-confirm) remains. Same layering question as `xpub-search-inline-phrase-not-secret-classified` — the classification mirrors the toolkit's `gui-schema` for `ms repair`.
+- **Status:** open.
+- **Tier:** cross-repo (classification source of truth is the sibling `ms-cli` projection consumed via the toolkit `gui-schema` mirror discipline).
+
+### `positional-secrets-not-redacted-at-persist` — secret-equivalent POSITIONALS ride `state.positionals`, cloned unredacted
+
+- **Surfaced:** 2026-06-10, v0.31.1 cycle (SPEC §3 R0-r3 m-NEW1 — adjacent family leak OUTSIDE the flag-name net).
+- **Where:** `src/schema/ms.rs::COMBINE_POSITIONALS` — the codex32 combine `shares` positional (help text says "Secret-equivalent" outright) — vs `src/persistence.rs::redact_for_persistence`, whose `positionals: state.positionals.clone()` copies every positional to disk with NO redaction class (the three drop classes are flag-name / node-type / slot-subkey; positionals have none).
+- **What:** distributed codex32 share strings typed into the `ms combine` positional rows persist to `state.json` in plaintext. Pre-existing (untouched by v0.31.1, which extended only the flag-NAME net). Fix shape: a `PositionalArgSchema.secret` field (mirroring `FlagSchema.secret`) + a redaction arm dropping secret positionals — or route secret positionals through per-row `SecretLineEdit`s like v0.31.1 did for repeating secret flags.
+- **Status:** open.
+- **Tier:** GUI-local (the schema field addition is GUI-side; the toolkit `gui-schema` positional projection may want a companion if the field should mirror).
+
 ### `gui-build-descriptor-presets-pending-pin-bump` — bump toolkit pin → v0.52.0 + add the 12 build-descriptor flags to the SubcommandSchema
 
 - **Surfaced:** 2026-06-09, toolkit descriptor-builder Release B ship (`mnemonic-toolkit-v0.51.0`); **extended same day at toolkit v0.52.0** (+`--allow` → 12 flags; pin target → v0.52.0). `mnemonic build-descriptor` gained 11 clap flags → the `schema_mirror` flag-NAME lockstep applies; the schema cannot add them until the toolkit pin is bumped to v0.52.0 (chicken-and-egg, same arc as the v0.29.0 build-descriptor surfacing). Pin bump = the usual **6 lockstep sites** (Cargo.toml + Cargo.lock + `pinned-upstream.toml` `[mnemonic].tag` + README pin marker + `pinned_version` banner + module-doc), 4 gated by `pin_coherence`/`readme_pin_coherence`, 2 ungated.

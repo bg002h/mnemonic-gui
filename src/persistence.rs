@@ -10,6 +10,9 @@
 //! NEVER persisted (SPEC §10 R1 I-4; v0.4.0+ taxonomy imported from
 //! `mnemonic_toolkit::secret_taxonomy`):
 //!   - Any flag whose name is in `SECRET_FLAG_NAMES`
+//!   - Any `values` entry whose flag name is schema-`secret: true`
+//!     anywhere across the 4 CLI schemas (v0.31.1 SPEC §3 — the
+//!     `secrets::schema_secret_flag_names()` name-level net)
 //!   - `NodeValueComposite` entries where `node` is in `SECRET_NODE_TYPES`
 //!   - Slot rows whose subkey is in `SECRET_SLOT_SUBKEYS`
 //!
@@ -62,15 +65,29 @@ fn default_show_true() -> bool {
 /// Filter a `FormState` to drop every entry the GUI must never persist.
 /// SPEC §B.10 never-persist set:
 ///   - flags in `SECRET_FLAG_NAMES`
+///   - any flag name declared `secret: true` ANYWHERE across the 4 CLI
+///     schemas (`secrets::schema_secret_flag_names()` — v0.31.1 SPEC §3
+///     belt-and-suspenders; a NAME-level net, not a guarantee that
+///     secrets never enter `values`)
 ///   - `NodeValueComposite` whose `node` is in `SECRET_NODE_TYPES`
 ///   - slot rows whose subkey is in `SECRET_SLOT_SUBKEYS`
 pub fn redact_for_persistence(state: &FormState) -> FormState {
+    let schema_secret_names = crate::secrets::schema_secret_flag_names();
     let values: Vec<(String, FlagValue)> = state
         .values
         .iter()
         .filter(|(k, v)| {
             // Drop secret-class flags.
             if SECRET_FLAG_NAMES.contains(&k.as_str()) {
+                return false;
+            }
+            // v0.31.1 (SPEC §3): drop any entry whose flag name is
+            // schema-secret anywhere. Closes the FUTURE-drift class (any
+            // later code path writing a secret-NAMED value is redacted at
+            // persist) and incidentally closes two live plaintext leaks
+            // via cross-CLI name collisions (`--phrase` on xpub-search,
+            // `--ms1` on `ms repair` — see schema_secret_flag_names docs).
+            if schema_secret_names.contains(&k.as_str()) {
                 return false;
             }
             // Drop secret-class NodeValueComposite entries.

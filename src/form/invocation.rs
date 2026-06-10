@@ -219,38 +219,64 @@ pub fn assemble_argv(
             }
             continue;
         }
-        // SPEC §3 / v0.2 Phase B.1 + v0.3 repeating-secret fold:
-        // secret-flag branch.
+        // SPEC §3 / v0.2 Phase B.1 + v0.31.1 repeating-secrets fold:
+        // secret-flag branch, KIND-GATED to mirror the widget dispatch.
         //
-        // - Non-repeating secrets (--passphrase, --bip38-passphrase, etc.)
-        //   live in `state.secret_widgets[flag.name]` — a SecretLineEdit
-        //   owning a `Zeroizing<Vec<u8>>`. `state.values` is bypassed.
-        // - Repeating secrets (--ms1/--mk1/--md1 from v0.2; --share from
-        //   v0.3 slip39-combine + seed-xor-combine) need N occurrences,
-        //   but `secret_widgets` is BTreeMap<String, SecretLineEdit> —
-        //   one widget per flag name. v0.3 fold: route repeating-secret
-        //   through `state.values` like non-secret repeating. Trade-off:
-        //   zeroize-on-drop applies only per-widget (the widget layer
-        //   still renders a SecretLineEdit per row), not to the values-
-        //   map String copies — the in-memory share strings are plain
-        //   heap allocations during emission. Paste-warn-modal still
-        //   fires on secret-flag widget input (UX protection preserved).
+        // SUPERSESSION NOTE (v0.31.1): the v0.3 fold documented here an
+        // intent to route REPEATING secrets through `state.values` like
+        // non-secret repeating — but the widget layer never wrote secret
+        // Text rows into `state.values` (its secret dispatch routed every
+        // secret Text flag, repeating or not, to a single `secret_widgets`
+        // entry), so the values-read below was a DEAD source and live
+        // forms emitted NOTHING for `--ms1` / `--share` (FOLLOWUP
+        // `repeating-secret-flags-never-reach-argv`). v0.31.1 inverts the
+        // fix direction: `secret_widgets` became `BTreeMap<String,
+        // Vec<SecretLineEdit>>` (scalar = the 1-element vec) and the
+        // assembler reads the rows from it — per-row secrets STAY in
+        // `secret_widgets`, never entering `state.values`, so the
+        // never-persist invariant remains TYPE-level (#[serde(skip)]).
+        // Trade-off posture unchanged: the transient plain `String` copies
+        // pushed into argv exist exactly as the pre-v0.31.1 scalar
+        // `as_string()` path always produced.
+        //
+        // R0-r1 C1: the branch MIRRORS the widget dispatch (kind-gated),
+        // because flag_is_secret is kind-BLIND while the widget routes only
+        // Text secrets to secret_widgets:
+        // - Text → the secret_widgets vec, unconditional `continue` (a
+        //   values-synthesized Text-secret entry emits NOTHING).
+        // - NodeValueComposite (seed-xor-combine --share) → falls through
+        //   to the generic values paths (render_repeating writes
+        //   state.values; emit_one's composite arm emits; values-routed
+        //   composites are redaction-covered at persist — SPEC §3).
+        // - Boolean *-stdin secrets → `continue`, preserving today's
+        //   no-emit (the old kind-blind branch ate them; FOLLOWUP
+        //   `boolean-stdin-secret-toggles-never-emit` tracks whether they
+        //   should emit).
         if crate::secrets::flag_is_secret(flag) {
-            if flag.repeating {
-                for (_, value) in state.values.iter().filter(|(k, _)| k == flag.name) {
-                    emit_one(flag, value, &mut argv);
+            if matches!(flag.kind, FlagKind::Text) {
+                if let Some(rows) = state.secret_widgets.get(flag.name) {
+                    for w in rows {
+                        // scalar = 1-element vec; row order = vec order =
+                        // visual order (argv order preserved). Empty rows
+                        // (added-but-blank) emit nothing.
+                        if !w.is_empty() {
+                            // B.1 R1 I-2 fold: as_string() returns
+                            // Zeroizing<String> directly; the wrap is
+                            // type-level rather than caller-applied.
+                            let value = w.as_string();
+                            argv.push(flag.name.to_string());
+                            argv.push(value.as_str().to_string());
+                        }
+                    }
                 }
-            } else if let Some(widget) = state.secret_widgets.get(flag.name) {
-                if !widget.is_empty() {
-                    // B.1 R1 I-2 fold: as_string() returns
-                    // Zeroizing<String> directly; the wrap is now
-                    // type-level rather than caller-applied.
-                    let value = widget.as_string();
-                    argv.push(flag.name.to_string());
-                    argv.push(value.as_str().to_string());
-                }
+                continue;
             }
-            continue;
+            if matches!(flag.kind, FlagKind::NodeValueComposite(_)) {
+                // fall through to the generic values paths (seed-xor
+                // --share keeps emitting).
+            } else {
+                continue; // Boolean *-stdin secrets: preserve today's no-emit.
+            }
         }
         if flag.repeating {
             for (_, value) in state.values.iter().filter(|(k, _)| k == flag.name) {
