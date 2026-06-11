@@ -112,6 +112,10 @@ struct MnemonicGuiApp {
     /// confirm TODAY, but the pending state must not silently drop the
     /// pipe if that ever changes).
     pending_confirm_argv: Option<PendingConfirm>,
+    /// v0.40.0 (Item 3) — set when a secret widget reported an over-threshold
+    /// paste this frame (via the `secret_widget::paste_warn_id()` ctx-data
+    /// bus); drives the informational paste-warn modal. Cleared on Dismiss.
+    pending_paste_warn: bool,
     /// v0.6.0 P4 — last-observed `--template` value per form key, used by
     /// the per-frame template-aware-seed hook in `update()`. None means
     /// "no template was selected last frame" (either the form is new or
@@ -318,6 +322,7 @@ impl MnemonicGuiApp {
             show_stdout,
             show_stderr,
             pending_confirm_argv: None,
+            pending_paste_warn: false,
             last_template: BTreeMap::new(),
             state_path,
             last_autosave: std::time::Instant::now(),
@@ -1044,6 +1049,17 @@ impl eframe::App for MnemonicGuiApp {
             }
         });
 
+        // ── v0.40.0 (Item 3): paste-warn read-once ───────────────────────
+        // The CentralPanel form rendered above; any secret widget that took an
+        // over-threshold paste raised the ctx-data bus flag. `remove_temp`
+        // reads AND clears it (so a stale flag can't leak into next frame).
+        if ctx.data_mut(|d| {
+            d.remove_temp::<bool>(mnemonic_gui::form::secret_widget::paste_warn_id())
+                .unwrap_or(false)
+        }) {
+            self.pending_paste_warn = true;
+        }
+
         // ── Run-confirm modal ────────────────────────────────────────────
         if let Some((argv, mask, stdin)) = self.pending_confirm_argv.clone() {
             egui::Window::new("Confirm secret-bearing run")
@@ -1080,6 +1096,24 @@ impl eframe::App for MnemonicGuiApp {
                             self.pending_confirm_argv = None;
                         }
                     });
+                });
+        }
+
+        // ── v0.40.0 (Item 3): paste-warn modal ───────────────────────────
+        // Informational + non-blocking (the value is already in the field);
+        // warns about clipboard managers / paste history. One-shot per
+        // trigger — re-fires on the next over-threshold paste.
+        if self.pending_paste_warn {
+            egui::Window::new("Secret paste warning")
+                .collapsible(false)
+                .resizable(false)
+                .anchor(egui::Align2::CENTER_CENTER, [0.0, 0.0])
+                .show(ctx, |ui| {
+                    ui.label(secrets::PASTE_WARN_MODAL_TEXT);
+                    ui.separator();
+                    if ui.button("Dismiss").clicked() {
+                        self.pending_paste_warn = false;
+                    }
                 });
         }
     }

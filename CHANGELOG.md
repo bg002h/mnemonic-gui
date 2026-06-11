@@ -3,6 +3,16 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## mnemonic-gui [0.40.0] — 2026-06-11
+
+**SemVer-MINOR — the paste-warn modal is WIRED: pasting secret-length material into a secret field now fires an informational warning.**
+
+- `should_warn_on_paste` + `PASTE_WARN_MODAL_TEXT` + `PASTE_WARN_THRESHOLD` had been DEAD code since v0.2 (no `src/` caller; `SecretLineEdit::show` did no paste detection) — the documented mitigation did not exist. Now `SecretLineEdit::show` detects an over-threshold (`>= 8` chars) `egui::Event::Paste` into the FOCUSED field and raises a signal; `update()` reads it once per frame and shows an informational, non-blocking modal (`PASTE_WARN_MODAL_TEXT` — clipboard-manager / paste-history caveats) with a Dismiss button. Resolves `paste-warn-modal-dead-code` + `paste-warn-live-wiring-untested`. Last item of the GUI secret-exposure cluster (Item 2 = v0.38.0, Item 1 = v0.39.0).
+- **Signal routing = an egui Context-data bus, NOT a per-call-site return.** `show` sets a `ctx.data_mut` temp flag (`secret_widget::paste_warn_id()`); `update()` `remove_temp`s it (read-AND-clear, so no leak into the next frame). Because the flag is set INSIDE `show`, `show` is the single chokepoint covering all 3 direct call sites (`widget.rs` scalar + repeating, `main.rs` positional) AND every transitive archetype-form path — no signature change, no forgotten site. `Event::Paste` stays in `input.events` after the TextEdit reads it (egui 0.31 `filtered_events` clones), confirmed from source.
+- **Attribution via `response.changed()`:** a paste only changes the focused field's buffer, so only the recipient field raises the flag — no false-positive from a paste into a non-secret field, no multi-row double-trigger. Benign false-negative: pasting text identical to the field's current content doesn't `changed()` → no warn.
+- Tests: `tests/paste_warn_wiring_v0_40_0.rs` (4 — T-B2 live kittest `Event::Paste` injection ≥/< threshold [RED-proven via scratch-revert], T-B3 read-once+clear no-leak, T-B4 3-direct-site chokepoint pin). SPEC + R0 ×2 GREEN: `design/SPEC_gui_v0_40_0_paste_warn_wiring.md`, `design/agent-reports/gui-v0-40-0-paste-warn-r0-round{1,2}-review.md`.
+- **Scope honesty:** the warn fires on **`SecretLineEdit`** paste events. Secret `NodeValueComposite` value fields (`--from phrase=…`) and secret SLOT fields (`@N.phrase=…`) use different widgets and are NOT yet covered — tracked as `composite-paste-warn-parity` + `slot-field-paste-warn-uncovered`. No clap flag / secret-bit / schema_mirror / manual / toolkit-pin change.
+
 ## mnemonic-gui [0.39.0] — 2026-06-11
 
 **SemVer-MINOR — secret values are masked in every on-screen command display (preview / run-confirm modal / last-run argv); copying the real runnable command is a deliberate, labeled action.**
@@ -1987,8 +1997,10 @@ doubled-prefix release-artifact fix (Phase A.1).
   `ms encode` argv assembly (cell 4), `md encode` dropdown
   value-inspection (cell 5).
 - `tests/widget_secret.rs` — `cell_paste_warn_modal_trigger`
-  validates the paste-warn modal text and behavior on
-  `SecretLineEdit` paste events.
+  validates the paste-warn PREDICATE (`should_warn_on_paste`) +
+  modal-text constant. (The live paste→modal wiring was DEAD until
+  v0.40.0, which adds `tests/paste_warn_wiring_v0_40_0.rs` for the
+  live check; see that entry.)
 - `tests/dropdown_id_salt.rs` — source-audit regression backstop
   for the v0.1.2 ComboBox ID-collision hotfix.
 

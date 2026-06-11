@@ -17,8 +17,8 @@ mirrors it.
   - **[IMPORTANT/I4] ✓ RESOLVED (v0.33.0, 2026-06-10)** `secret-false-flags-render-cleartext-no-confirm` — toolkit v0.53.1 fixed the gui-schema source of truth; GUI v0.33.0 flipped the 9 mnemonic.rs sites + the ms.rs:321 deliberate override. See `xpub-search-inline-phrase-not-secret-classified` + `ms-repair-ms1-not-secret-classified`.
   - **[IMPORTANT/I6] ✓ RESOLVED (v0.34.0, 2026-06-10)** `tree-wif-hex-privkey-in-key-fields-unredacted` — promoted below; persist walk flipped to the positive extended-public allowlist.
   - **[minor]** `conditional-drift-gate-stale-binary-doc-lie` — The module doc (:13) states the gate is 'Skipped (returns early) when MNEMONIC_BIN is unset', but mnemonic_bin() always returns Some (PATH fallback to "mnemonic"), so a stale/unpinned `mnemonic` on PA (`tests/gui_schema_conditional_drift.rs:13,28-33,194-210`)
-  - **[minor]** `paste-warn-live-wiring-untested` — widget_secret.rs asserts only the pure predicate should_warn_on_paste(flag,len) + SecretLineEdit buffer/zeroize transitions; its own doc (:18-24) defers the live check (paste into the rendered secret  (`tests/widget_secret.rs:18-24,42-71`)
-  - **[minor]** `paste-warn-modal-dead-code` — PASTE_WARN_MODAL_TEXT and should_warn_on_paste are never called anywhere in src/. SecretLineEdit does no paste detection. The paste-warning affordance described in module prose and SPEC does not exist (`src/secrets.rs:164-196`)
+  - **[minor] ✓ RESOLVED (v0.40.0, 2026-06-11)** `paste-warn-live-wiring-untested` — `tests/paste_warn_wiring_v0_40_0.rs` adds the live kittest check (T-B2: inject `egui::Event::Paste` ≥/< threshold into a focused `SecretLineEdit`, assert the `paste_warn_id()` bus flag set/not-set; RED-proven). SPEC `design/SPEC_gui_v0_40_0_paste_warn_wiring.md`.
+  - **[minor] ✓ RESOLVED (v0.40.0, 2026-06-11)** `paste-warn-modal-dead-code` — `SecretLineEdit::show` now detects an over-threshold `Event::Paste` into the focused field and raises a ctx-data bus flag (`secret_widget::paste_warn_id()`); `update()` `remove_temp`s it (read+clear) and renders the informational `PASTE_WARN_MODAL_TEXT` modal. The bus is the single chokepoint (no per-call-site wiring). SPEC + R0 ×2.
   - **[minor]** `secret-drift-gate-version-skip-silent` — fetch_v5_schema() returns None (→ silent PASS) when the binary can't spawn, exits non-zero, JSON won't parse, OR version<5. The version<5 branch means a regressed/pre-v5 pinned binary would silently d (`tests/schema_mirror_secret_drift.rs:61-91`)
   - **[minor] ✓ RESOLVED (v0.38.0, 2026-06-10)** `slot-secret-values-rendered-unmasked` — secret-bearing slot values now render `.password(true)` (gated on `is_secret_bearing()`); row removal zeroizes a secret value first (`SlotRow::zeroize_if_secret` + `remove_row`). Split-brain pin (T3): `is_secret_bearing()` == the persistence `SECRET_SLOT_SUBKEYS` gate for all 10 variants. Persistence was already safe. SPEC `design/SPEC_gui_v0_38_0_slot_secret_mask.md`. (paste-warn on slot edits deferred to the Item-1/3 cycle.)
   - **[obs]** `conditional-cells-lookup-not-live-form` — Every cell calls run_conditional(name,state) → the pure conditional fn → and asserts the returned (flag,Visibility) map; none drives the live form to confirm the rendered widget is actually hidden/dis (`tests/conditional_visibility.rs:36-73 (helper + all cells)`)
@@ -41,9 +41,17 @@ mirrors it.
 
 - **Surfaced:** 2026-06-11, v0.39.0 cycle (round-1 R0 M1), carried forward.
 - **Where:** Item 3 (paste-warn wiring, v0.40.0) threads through `SecretLineEdit::show`; `NodeValueComposite` values (e.g. `--from phrase=<seed>`) are typed in a different widget.
-- **What:** a large paste of a seed into a composite VALUE field whose node is secret-classed would not trigger the paste-warn modal once Item 3 lands (the warn keys on `SecretLineEdit`, and composites don't use it).
-- **Fix:** when wiring Item 3 (v0.40.0), extend the paste-detection to the composite value widget OR document the gap explicitly. The v0.39.0 masking already covers the DISPLAY of these composites; this is only about the paste-warn affordance.
-- **Tier:** deferred (pairs with the v0.40.0 paste-warn cycle).
+- **What:** a large paste of a seed into a composite VALUE field whose node is secret-classed does not trigger the paste-warn modal (v0.40.0 keys the warn on `SecretLineEdit`, and composites don't use it).
+- **Fix:** extend the paste-detection to the composite value widget (it could set the same `secret_widget::paste_warn_id()` flag with the same `changed() + Event::Paste` check) OR keep documented. The v0.39.0 masking already covers the DISPLAY of these composites; this is only the paste-warn affordance.
+- **Tier:** deferred (still open after v0.40.0).
+
+### `slot-field-paste-warn-uncovered` — paste-warn (v0.40.0) does not cover secret SLOT value fields
+
+- **Surfaced:** 2026-06-11, v0.40.0 cycle (SPEC non-goal + R0).
+- **Where:** v0.38.0 renders secret slot values via a raw `egui::TextEdit::singleline(&mut row.value).password(true)` in `src/form/slot_editor.rs`, NOT `SecretLineEdit`.
+- **What:** a large paste into a `@N.phrase=`/`@N.ms1=` slot box does not fire the paste-warn modal (the v0.40.0 detection lives in `SecretLineEdit::show`, which the slot editor does not use). Sibling of `composite-paste-warn-parity` — both are "secret input not via SecretLineEdit."
+- **Fix (cheap, by design):** the slot render can set the same `secret_widget::paste_warn_id()` bus flag with the same `response.changed() + Event::Paste ≥ PASTE_WARN_THRESHOLD` check on `is_secret_bearing()` rows; `update()`'s read-once already covers it. ~3 lines.
+- **Tier:** deferred (low-risk; the slot value is already masked + zeroized since v0.38.0; this is only the paste affordance).
 
 ### `runner-tracing-test-flaky-under-parallel-load` — cell_2_tracing_init_logs_subprocess_spawn intermittently misses the exit event
 
