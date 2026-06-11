@@ -162,6 +162,31 @@ pub fn render_with_dispatch(
         return;
     }
 
+    // v0.37.0: a secret Boolean is a `*-stdin` toggle the assembler
+    // SUPPRESSES (the GUI runner has no stdin channel to feed it —
+    // invocation.rs's secret-branch `continue`). Render it DISABLED so the
+    // dead control isn't a lie (user decision: grey out, not emit). This
+    // predicate is EXACTLY the assembler's suppressed set
+    // (flag_is_secret && Boolean → no emit; verified the only secret
+    // non-Text/non-Composite kind), so render and emit cannot drift —
+    // pinned by the converse-closure invariant test. No state.values
+    // writeback (early return) — the flag stays absent from argv, matching
+    // the suppression.
+    if crate::secrets::flag_is_secret(flag) && matches!(flag.kind, FlagKind::Boolean) {
+        ui.horizontal(|ui| {
+            let mut unchecked = false;
+            // Label the checkbox ITSELF so kittest `get_by_label` targets
+            // the CheckBox node (the tree_form.rs Validate-button precedent).
+            ui.add_enabled(false, egui::Checkbox::new(&mut unchecked, flag.name))
+                .on_hover_text(
+                    "stdin toggles can't be driven from the GUI (no stdin channel) — \
+                     type the value in the inline field, or run the CLI directly",
+                );
+            render_help_icon(ui, tab, subcommand, flag);
+        });
+        return;
+    }
+
     // v0.30.0 SPEC §3: NON-secret repeating flags get the generic
     // multi-row widget (header + N rows + per-row remove + "+ add").
     // The branch order is load-bearing: the secret check above runs FIRST,

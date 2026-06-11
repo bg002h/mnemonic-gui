@@ -320,7 +320,7 @@ pub fn zeroize_form_state(state: &mut crate::schema::FormState) {
 /// secret-anywhere name is dropped at persist. This is NOT a guarantee
 /// that secrets never enter `values` — it is a name net. Deliberate side
 /// effects (SPEC §3):
-/// - the 5 Boolean `secret: true` `*-stdin` toggles join the union, so
+/// - the 6 Boolean `secret: true` `*-stdin` toggles join the union, so
 ///   their persisted checkbox state resets across restarts (accepted —
 ///   the `--passphrase-stdin` precedent; a stale-persisted stdin toggle
 ///   is itself a foot-gun);

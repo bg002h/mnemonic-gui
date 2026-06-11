@@ -3,6 +3,14 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## mnemonic-gui [0.37.0] — 2026-06-10
+
+**SemVer-MINOR — the suppressed `*-stdin` secret toggles render disabled (greyed), so the dead checkbox isn't a lie.**
+
+- The 6 `*-stdin` secret toggle names (24 sites: `--passphrase-stdin`, `--secret-stdin`, `--decrypt-password-stdin`, `--bip38-passphrase-stdin`, `--phrase-stdin`, `--ms1-stdin`) rendered as live checkboxes whose checked state never reached argv (the GUI runner has no stdin channel to feed them — `assemble_argv`'s secret branch suppresses them). A user could check a control that did nothing. Per the user's decision (grey out, not emit), `render_with_dispatch` now renders these disabled with a tooltip ("stdin toggles can't be driven from the GUI — type the value in the inline field, or run the CLI directly").
+- **Predicate-mirror, no drift:** the grey-out condition (`flag_is_secret && FlagKind::Boolean`) is EXACTLY the assembler's suppressed set — verified by a converse-closure invariant test that fails RED if any future secret non-Text/non-Composite flag (e.g. a secret `Path`) is added that would be suppressed but not greyed. No state.values writeback (early return), so the flag stays absent from argv.
+- Tests: `tests/greyout_stdin_toggles_v0_37_0.rs` — T1 (predicate==suppression across all 4 schemas + the converse-closure), T2 (kittest: the `--passphrase-stdin` checkbox renders disabled; verified RED without the branch). No schema/secret-bit change → `schema_mirror` + drift gates byte-unaffected; `assemble_argv` byte-identical. Resolves `boolean-stdin-secret-toggles-never-emit`. SPEC + R0: `design/SPEC_gui_v0_37_0_greyout_stdin_toggles.md`, `design/agent-reports/gui-v0-37-0-greyout-r0-round1-review.md`.
+
 ## mnemonic-gui [0.36.0] — 2026-06-10
 
 **SemVer-MINOR — debounced autosave + atomic `state.json` writes (closes v0.35.0's two recorded gaps: crash session-loss + signal-torn writes).**
