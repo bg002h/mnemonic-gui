@@ -146,6 +146,7 @@ fn state_with_everything_stale(tree_enabled: bool) -> FormState {
 fn run_result(stdout: &str, stderr: &str, exit: i32) -> RunResult {
     RunResult {
         argv: vec!["mnemonic".into()],
+        mask: Vec::new(),
         exit_code: Some(exit),
         stdout: stdout.as_bytes().to_vec(),
         stderr: stderr.as_bytes().to_vec(),

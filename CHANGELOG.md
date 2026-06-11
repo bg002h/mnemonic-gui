@@ -3,6 +3,17 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## mnemonic-gui [0.39.0] — 2026-06-11
+
+**SemVer-MINOR — secret values are masked in every on-screen command display (preview / run-confirm modal / last-run argv); copying the real runnable command is a deliberate, labeled action.**
+
+- `assemble_argv` pushed real secret VALUES into argv, and `render_copy_command` shell-quoted them verbatim — so the always-on-screen `Preview:` label, the run-confirm modal's token list (the modal that exists *because* a secret is present printed it cleartext), and the last-run `argv:` line (under "show command-line") all leaked secrets. Now a parallel secret-mask, computed at argv-assembly time, drives a masked display: every secret value token renders as a fixed `••••` sentinel (un-quoted; never run). Resolves `run-confirm-and-preview-show-secrets-cleartext` (user decision (d): mask the display, reveal on deliberate copy).
+- **Four secret-value sources covered** — the same four `should_confirm_run` classifies: (1) secret Text flag values (`--passphrase`), (2) secret-bearing slot value tokens (`@N.phrase=…`), (3) secret positionals (`ms combine <shares>`), (4) value-dependent `NodeValueComposite` values — both the secret flag `--share` and the secrecy-by-node `--from phrase=<seed>` (while `--from xpub=…` is correctly NOT masked). The mask is correct-by-construction: every `argv.push` pairs exactly one `mask.push` (`mask.len() == argv.len()`, debug-asserted), set `true` iff the token is a secret value.
+- **The copy buttons still copy the REAL runnable command** (the masked display is never copied or run) — when a secret is present the button relabels `Copy command (POSIX/Windows) — reveals secret` so the reveal is an informed click. Run / the run-confirm "Run" spawn the real argv unchanged.
+- New: `assemble_argv_with_secret_mask`, `render_copy_command_masked`, `SECRET_MASK`, `SlotState::to_slot_argv_masked` (the old `to_slot_argv` now thin-delegates); `RunResult` gains a mask field (the runner layer stays mask-oblivious — `spawn_and_capture` attaches the assembly-time mask). No clap flag / secret-bit / schema_mirror / manual / toolkit-pin change.
+- **Anti-split-brain pin (T-A3):** every state where a token is masked also gates the run-confirm modal (`mask.any() ⟹ should_confirm_run`) — a secret can never render masked while the run skips the confirm. The safe asymmetry (a greyed `*-stdin` toggle confirms but emits no token) is documented, not falsely asserted.
+- Tests: `tests/secret_mask_preview_v0_39_0.rs` (11; per-source mask correctness, masked-render-hides / real-render-reveals, dangerous-direction, preview string — composite + slot RED-proven via scratch-revert). Second of the GUI secret-exposure cluster; Item 3 (paste-warn wiring) is v0.40.0. SPEC + R0 ×3 + impl review: `design/SPEC_gui_v0_39_0_mask_preview_paste_warn.md`, `design/agent-reports/gui-v0-39-0-mask-{paste-warn-r0-round1,r0-round2,r0-round3,impl}-review.md`.
+
 ## mnemonic-gui [0.38.0] — 2026-06-10
 
 **SemVer-MINOR — secret-bearing slot values render masked, and zeroize on row removal.**

@@ -10,7 +10,9 @@ use eframe::egui;
 use tracing_subscriber::EnvFilter;
 
 use mnemonic_gui::app::{AppState, CliTab};
-use mnemonic_gui::form::invocation::{assemble_argv, render_copy_command, ShellFlavor};
+use mnemonic_gui::form::invocation::{
+    assemble_argv_with_secret_mask, render_copy_command, render_copy_command_masked, ShellFlavor,
+};
 use mnemonic_gui::form::slot_editor::{SlotState, SlotSubkey};
 use mnemonic_gui::form::widget;
 use mnemonic_gui::help::url as help_url;
@@ -85,6 +87,10 @@ fn init_tracing(debug_flag: bool) {
         .try_init();
 }
 
+/// Pending run-confirm modal payload: the real argv, its parallel display
+/// secret-mask (v0.39.0), and the optional tree-mode `--spec -` stdin bytes.
+type PendingConfirm = (Vec<String>, Vec<bool>, Option<Vec<u8>>);
+
 /// Top-level egui app. Holds AppState (per-CLI detect results + active
 /// tab), per-(cli, subcommand) FormState, and the captured last-run
 /// stdout/stderr/argv. Output panel toggles per SPEC §B.10.
@@ -105,7 +111,7 @@ struct MnemonicGuiApp {
     /// alongside (build-descriptor has no secret flags so tree runs don't
     /// confirm TODAY, but the pending state must not silently drop the
     /// pipe if that ever changes).
-    pending_confirm_argv: Option<(Vec<String>, Option<Vec<u8>>)>,
+    pending_confirm_argv: Option<PendingConfirm>,
     /// v0.6.0 P4 — last-observed `--template` value per form key, used by
     /// the per-frame template-aware-seed hook in `update()`. None means
     /// "no template was selected last frame" (either the form is new or
@@ -458,9 +464,16 @@ impl eframe::App for MnemonicGuiApp {
             }
             if let Some(ref result) = self.last_run {
                 if self.show_cmdline {
+                    // v0.39.0 (Item 1, D3): the last-run command-line is masked
+                    // too — `result.mask` is the assembly-time mask carried
+                    // through `spawn_and_capture`.
                     ui.label(format!(
                         "argv: {}",
-                        render_copy_command(&result.argv, ShellFlavor::Posix)
+                        render_copy_command_masked(
+                            &result.argv,
+                            &result.mask,
+                            ShellFlavor::Posix
+                        )
                     ));
                 }
                 render_exit_badge(ui, result.exit_code);
@@ -895,7 +908,7 @@ impl eframe::App for MnemonicGuiApp {
             // Snapshot argv + secret-status BEFORE the action bar so we can
             // drop the `state` mutable borrow ahead of any `self`-touching
             // callback (Run / pending_confirm_argv).
-            let mut argv = assemble_argv(sch, sub, state);
+            let (mut argv, mut mask) = assemble_argv_with_secret_mask(sch, sub, state);
             // v0.32.0 (node-tree SPEC §2.2 Run leg): in tree mode the host
             // appends `--spec -` (the conditional suppressed any stale
             // --spec/--archetype/param emission) and pipes the generated
@@ -916,7 +929,9 @@ impl eframe::App for MnemonicGuiApp {
             };
             if tree_mode {
                 argv.push("--spec".to_string());
+                mask.push(false);
                 argv.push("-".to_string());
+                mask.push(false); // both tree-mode tokens are non-secret
             }
             // v0.32.0 P3 (SPEC §3): in tree mode the POSIX copy emits a
             // paste-runnable printf pipeline (the spec JSON piped to
@@ -929,9 +944,14 @@ impl eframe::App for MnemonicGuiApp {
                 None
             };
             let needs_confirm = secrets::should_confirm_run(sub, state);
-            let preview = render_copy_command(&argv, ShellFlavor::Posix);
+            // v0.39.0 (Item 1): the on-screen Preview is MASKED; the copy
+            // buttons + Run still use the REAL command (the deliberate-reveal
+            // half of decision (d)). `argv_posix` must NOT alias `preview`
+            // anymore — it is the real clipboard payload.
+            let any_secret = mask.iter().any(|&m| m);
+            let preview = render_copy_command_masked(&argv, &mask, ShellFlavor::Posix);
             let argv_windows = render_copy_command(&argv, ShellFlavor::WindowsCmd);
-            let argv_posix = preview.clone();
+            let argv_posix = render_copy_command(&argv, ShellFlavor::Posix);
             let _ = state; // explicit end-of-life for clarity
             // v0.6.0 P4 — update last_template AFTER state borrow ends.
             // `template_changed` was computed inside the state-borrow scope;
@@ -948,14 +968,27 @@ impl eframe::App for MnemonicGuiApp {
                 // v0.32.0 P3: in tree mode the POSIX copy is the printf
                 // pipeline — completeness-gated (same gate as Copy spec
                 // JSON; the pipeline embeds the spec JSON).
+                // v0.39.0: when the command carries a secret value, the copy
+                // reveals it (the Preview is masked) — label the button so the
+                // reveal is a deliberate, informed click.
+                let posix_label = if any_secret {
+                    "Copy command (POSIX) — reveals secret"
+                } else {
+                    "Copy command (POSIX)"
+                };
+                let windows_label = if any_secret {
+                    "Copy command (Windows) — reveals secret"
+                } else {
+                    "Copy command (Windows)"
+                };
                 let posix_enabled = !tree_mode || posix_pipeline.is_some();
                 if ui
-                    .add_enabled(posix_enabled, egui::Button::new("Copy command (POSIX)"))
+                    .add_enabled(posix_enabled, egui::Button::new(posix_label))
                     .clicked()
                 {
                     copy_posix = true;
                 }
-                if ui.button("Copy command (Windows)").clicked() {
+                if ui.button(windows_label).clicked() {
                     copy_windows = true;
                 }
                 // v0.32.0 (node-tree SPEC §2.2 / brainstorm R0-r1 M4 +
@@ -1004,15 +1037,15 @@ impl eframe::App for MnemonicGuiApp {
             }
             if run_clicked {
                 if needs_confirm {
-                    self.pending_confirm_argv = Some((argv, spec_stdin));
+                    self.pending_confirm_argv = Some((argv, mask, spec_stdin));
                 } else {
-                    spawn_and_capture(self, argv, spec_stdin);
+                    spawn_and_capture(self, argv, mask, spec_stdin);
                 }
             }
         });
 
         // ── Run-confirm modal ────────────────────────────────────────────
-        if let Some((argv, stdin)) = self.pending_confirm_argv.clone() {
+        if let Some((argv, mask, stdin)) = self.pending_confirm_argv.clone() {
             egui::Window::new("Confirm secret-bearing run")
                 .collapsible(false)
                 .resizable(false)
@@ -1021,14 +1054,27 @@ impl eframe::App for MnemonicGuiApp {
                     ui.label(secrets::RUN_CONFIRM_MODAL_PREFIX);
                     ui.separator();
                     ui.label("Argv:");
-                    for tok in &argv {
-                        ui.monospace(format!("  {}", tok));
+                    // v0.39.0 (Item 1): the modal that exists BECAUSE a secret
+                    // is present must not print it cleartext — mask each secret
+                    // value token (the real argv still spawns on Run).
+                    debug_assert_eq!(
+                        argv.len(),
+                        mask.len(),
+                        "confirm-modal: mask/argv length mismatch — a secret token may render cleartext"
+                    );
+                    for (i, tok) in argv.iter().enumerate() {
+                        let shown = if mask.get(i).copied().unwrap_or(false) {
+                            mnemonic_gui::form::invocation::SECRET_MASK
+                        } else {
+                            tok.as_str()
+                        };
+                        ui.monospace(format!("  {}", shown));
                     }
                     ui.separator();
                     ui.horizontal(|ui| {
                         if ui.button("Run").clicked() {
                             self.pending_confirm_argv = None;
-                            spawn_and_capture(self, argv, stdin);
+                            spawn_and_capture(self, argv, mask, stdin);
                         }
                         if ui.button("Cancel").clicked() {
                             self.pending_confirm_argv = None;
@@ -1107,7 +1153,12 @@ fn render_exit_badge(ui: &mut egui::Ui, exit_code: Option<i32>) {
 /// v0.32.0: `stdin` carries the tree-mode spec JSON for `--spec -` runs
 /// (`None` for every other subcommand/mode — byte-identical behavior via
 /// `run_with_stdin`'s `None` delegation path).
-fn spawn_and_capture(app: &mut MnemonicGuiApp, argv: Vec<String>, stdin: Option<Vec<u8>>) {
+fn spawn_and_capture(
+    app: &mut MnemonicGuiApp,
+    argv: Vec<String>,
+    mask: Vec<bool>,
+    stdin: Option<Vec<u8>>,
+) {
     if argv.is_empty() {
         return;
     }
@@ -1130,7 +1181,10 @@ fn spawn_and_capture(app: &mut MnemonicGuiApp, argv: Vec<String>, stdin: Option<
     // form's argv assembly handles it like any other Boolean flag. The
     // prior `runner::prepend_no_auto_repair` helper has been deleted.
     match runner::run_with_stdin(argv, stdin) {
-        Ok(result) => {
+        Ok(mut result) => {
+            // v0.39.0 (R0-r2 I1): the runner layer is mask-oblivious; attach
+            // the assembly-time display mask here, before storing.
+            result.mask = mask;
             app.last_run = Some(result);
             app.last_run_error = None;
         }

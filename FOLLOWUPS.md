@@ -24,9 +24,26 @@ mirrors it.
   - **[obs]** `conditional-cells-lookup-not-live-form` — Every cell calls run_conditional(name,state) → the pure conditional fn → and asserts the returned (flag,Visibility) map; none drives the live form to confirm the rendered widget is actually hidden/dis (`tests/conditional_visibility.rs:36-73 (helper + all cells)`)
   - **[obs]** `json-envelope-wire-shape-ungated-stale-fixtures` — The runtime --json envelopes (bundle, import-wallet, export-wallet, xpub-search) remain ungated for wire-shape (schema_mirror is flag-name only). The new spec-schema surface IS now wire-shape-gated (a (`tests/cli_envelope_smoke.rs:1-59`)
   - **[obs] ✓ RESOLVED (v0.35.0, 2026-06-10)** `persistence-unwired-redaction-never-runs` — Phase-8 persistence WIRED: main() loads before run_native, on_exit saves (borrow-side redact, save-then-zeroize), per-frame Some-guarded geometry snapshot. See SPEC_gui_v0_35_0_persistence_wiring.md.
-  - **[obs]** `run-confirm-and-preview-show-secrets-cleartext` — assemble_argv pushes secret values directly into argv. The main form unconditionally renders 'Preview: {preview}' where preview is render_copy_command(&argv), so every secret value is shown on the mai (`src/main.rs:804, src/main.rs:842-844`)
+  - **[obs] ✓ RESOLVED (v0.39.0, 2026-06-11)** `run-confirm-and-preview-show-secrets-cleartext` — a parallel secret-mask (`assemble_argv_with_secret_mask`) now drives a masked display: the `Preview:` label, the run-confirm modal token list, and the last-run `argv:` line all render secret value tokens as `••••` (`render_copy_command_masked`), covering all four secret sources (Text/slot/positional/value-dependent composite). The copy buttons still copy the REAL command (deliberate reveal, relabeled). User decision (d). T-A3 pins `mask.any() ⟹ should_confirm_run`. SPEC `design/SPEC_gui_v0_39_0_mask_preview_paste_warn.md`. (Item 3 / paste-warn wiring is the separate v0.40.0 cycle.)
 - **Status:** open (backlog index; individual items dispositioned in the report).
 - **Tier:** audit-backlog.
+
+### `tree-mode-posix-pipeline-spec-json-unmasked` — the build-descriptor tree-mode POSIX copy embeds the spec JSON unmasked
+
+- **Surfaced:** 2026-06-11, v0.39.0 (Item 1 masking) cycle — deliberately scoped OUT.
+- **Where:** `src/main.rs` tree-mode `posix_pipeline` (`tree_form::posix_pipeline_command(state, &argv)`); the copy embeds `spec_json_pretty(state)`.
+- **What:** the v0.39.0 secret-mask covers the argv tokens but NOT the tree-mode spec JSON, which is copied/displayed via a different mechanism (JSON-string redaction, not the argv mask).
+- **Why it is currently safe (verified R0-r2):** build-descriptor's policy tree is over XPUBS (watch-only) — none of its node kinds (`pk`/`pkh`/`multi`/`sortedmulti`/`older`/`after`/hash/child-ref) are in `SECRET_NODE_TYPES`. So there is no secret to leak TODAY. This is a defense-in-depth gap, not a live leak.
+- **Fix when needed:** if a future build-descriptor node ever carries a secret-class value, add a JSON-redaction pass over the pipeline spec mirroring the argv mask. Re-verify the watch-only assumption at that time.
+- **Tier:** deferred / conditional (no live leak).
+
+### `composite-paste-warn-parity` — paste-warn (v0.40.0) wires into SecretLineEdit but not the NodeValueComposite value field
+
+- **Surfaced:** 2026-06-11, v0.39.0 cycle (round-1 R0 M1), carried forward.
+- **Where:** Item 3 (paste-warn wiring, v0.40.0) threads through `SecretLineEdit::show`; `NodeValueComposite` values (e.g. `--from phrase=<seed>`) are typed in a different widget.
+- **What:** a large paste of a seed into a composite VALUE field whose node is secret-classed would not trigger the paste-warn modal once Item 3 lands (the warn keys on `SecretLineEdit`, and composites don't use it).
+- **Fix:** when wiring Item 3 (v0.40.0), extend the paste-detection to the composite value widget OR document the gap explicitly. The v0.39.0 masking already covers the DISPLAY of these composites; this is only about the paste-warn affordance.
+- **Tier:** deferred (pairs with the v0.40.0 paste-warn cycle).
 
 ### `runner-tracing-test-flaky-under-parallel-load` — cell_2_tracing_init_logs_subprocess_spawn intermittently misses the exit event
 

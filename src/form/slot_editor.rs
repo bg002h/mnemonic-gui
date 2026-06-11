@@ -173,17 +173,28 @@ impl SlotState {
     /// are skipped (matches the SPEC §6.7 empty-value omission rule for
     /// other FlagKind variants).
     pub fn to_slot_argv(&self) -> Vec<String> {
+        self.to_slot_argv_masked()
+            .into_iter()
+            .map(|(token, _)| token)
+            .collect()
+    }
+
+    /// v0.39.0 — like [`to_slot_argv`], but pairs each token with its
+    /// secret-mask bit for the on-screen-command masking. The `"--slot"` token
+    /// is always `false`; the `"@N.subkey=value"` value token is `true` iff the
+    /// subkey is secret-bearing (Phrase / Seedqr / Entropy / Ms1 / Wif / Xprv).
+    /// `is_secret_bearing()` is the same gate v0.38.0's split-brain test (T3)
+    /// pins equal to the persistence `SECRET_SLOT_SUBKEYS` set.
+    pub fn to_slot_argv_masked(&self) -> Vec<(String, bool)> {
         let mut out = Vec::new();
         for row in self.rows_sorted() {
             if row.value.is_empty() {
                 continue;
             }
-            out.push("--slot".to_string());
-            out.push(format!(
-                "@{}.{}={}",
-                row.index,
-                row.subkey.as_str(),
-                row.value
+            out.push(("--slot".to_string(), false));
+            out.push((
+                format!("@{}.{}={}", row.index, row.subkey.as_str(), row.value),
+                row.subkey.is_secret_bearing(),
             ));
         }
         out

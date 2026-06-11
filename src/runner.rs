@@ -18,6 +18,13 @@ use tracing::{debug, warn};
 pub struct RunResult {
     /// The exact argv passed to spawn (including `argv[0]` = binary name).
     pub argv: Vec<String>,
+    /// v0.39.0 — display secret-mask parallel to `argv` (`mask[i] == true` iff
+    /// `argv[i]` is a secret value token). The runner layer is mask-oblivious:
+    /// `run_with_stdin` initialises this `Vec::new()` and the GUI's
+    /// `spawn_and_capture` overwrites it with the mask computed at assembly
+    /// time before storing the result. Used only to mask the last-run `argv:`
+    /// display; never affects what is spawned.
+    pub mask: Vec<bool>,
     /// `Some(n)` for normal exit; `None` if killed by signal / no code.
     pub exit_code: Option<i32>,
     pub stdout: Vec<u8>,
@@ -147,6 +154,9 @@ where
     let exit_code = output.status.code();
     let result = RunResult {
         argv,
+        // v0.39.0: runner stays mask-oblivious; the GUI caller
+        // (`spawn_and_capture`) overwrites this with the assembly-time mask.
+        mask: Vec::new(),
         exit_code,
         stdout: output.stdout,
         stderr: output.stderr,

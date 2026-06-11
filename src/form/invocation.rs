@@ -128,9 +128,37 @@ pub fn assemble_argv(
     subcommand: &SubcommandSchema,
     state: &crate::schema::FormState,
 ) -> Vec<String> {
+    assemble_argv_with_secret_mask(schema, subcommand, state).0
+}
+
+/// Fixed redaction placeholder substituted for every secret VALUE token in
+/// `render_copy_command_masked`. NOT shell-quoted (it is a display sentinel,
+/// never run). Four `\u{2022}` bullets.
+pub const SECRET_MASK: &str = "••••";
+
+/// Like [`assemble_argv`], but also returns a parallel `mask: Vec<bool>` where
+/// `mask[i] == true` iff `argv[i]` is a SECRET VALUE token. The mask is
+/// correct-by-construction: every `argv.push` is paired with exactly one
+/// `mask.push`, so `mask.len() == argv.len()` structurally.
+///
+/// A token is masked `true` at exactly the four secret-VALUE sources — the
+/// same four `secrets::should_confirm_run` classifies: (1) secret Text flag
+/// value; (2) secret slot row value token (`@N.subkey=value`, subkey
+/// secret-bearing); (3) secret positional value; (4) `NodeValueComposite`
+/// value token whose flag is secret-bearing OR whose node is secret-classed
+/// (`node_type_is_secret`). All other tokens (cli/subcommand names, flag
+/// names, PinValue tokens, non-secret values, sentinels) are masked `false`.
+pub fn assemble_argv_with_secret_mask(
+    schema: &Schema,
+    subcommand: &SubcommandSchema,
+    state: &crate::schema::FormState,
+) -> (Vec<String>, Vec<bool>) {
     let mut argv: Vec<String> = Vec::new();
+    let mut mask: Vec<bool> = Vec::new();
     argv.push(schema.cli_name.to_string());
+    mask.push(false);
     argv.push(subcommand.name.to_string());
+    mask.push(false);
 
     // v0.16.0 SPEC §6.10 visibility gate. Compute the per-frame visibility
     // override map once. `subcommand.conditional` is `Option<fn(&FormState)
@@ -179,7 +207,9 @@ pub fn assemble_argv(
             if let Visibility::PinValue { value } = &flag_vis {
                 if let Some(rendered) = pin_value_to_argv_token(value) {
                     argv.push(flag.name.to_string());
+                    mask.push(false);
                     argv.push(rendered);
+                    mask.push(false); // pinned values are non-secret (only --account=0 lives today)
                 }
                 // PinValue is exclusive with the normal emit path — even
                 // when the JSON value can't be rendered we suppress the
@@ -214,8 +244,13 @@ pub fn assemble_argv(
             if matches!(flag_vis, Visibility::PinValue { .. }) {
                 continue;
             }
-            for token in state.slots.to_slot_argv() {
+            // Slot tokens come in pairs ["--slot", "@N.subkey=value"]; the
+            // value token is secret iff its subkey is secret-bearing (Phrase /
+            // Seedqr / Entropy / Ms1 / Wif / Xprv). `to_slot_argv_masked`
+            // carries the per-token bit (the "--slot" token is always false).
+            for (token, secret) in state.slots.to_slot_argv_masked() {
                 argv.push(token);
+                mask.push(secret);
             }
             continue;
         }
@@ -265,7 +300,9 @@ pub fn assemble_argv(
                             // type-level rather than caller-applied.
                             let value = w.as_string();
                             argv.push(flag.name.to_string());
+                            mask.push(false);
                             argv.push(value.as_str().to_string());
+                            mask.push(true); // secret Text value
                         }
                     }
                 }
@@ -280,10 +317,10 @@ pub fn assemble_argv(
         }
         if flag.repeating {
             for (_, value) in state.values.iter().filter(|(k, _)| k == flag.name) {
-                emit_one(flag, value, &mut argv);
+                emit_one(flag, value, &mut argv, &mut mask);
             }
         } else if let Some((_, value)) = state.values.iter().find(|(k, _)| k == flag.name) {
-            emit_one(flag, value, &mut argv);
+            emit_one(flag, value, &mut argv, &mut mask);
         }
     }
 
@@ -300,6 +337,7 @@ pub fn assemble_argv(
                 if !w.is_empty() {
                     let value = w.as_string();
                     argv.push(value.as_str().to_string());
+                    mask.push(true); // secret positional value
                 }
             }
         }
@@ -307,11 +345,17 @@ pub fn assemble_argv(
         for pos in &state.positionals {
             if !pos.is_empty() {
                 argv.push(pos.clone());
+                mask.push(false);
             }
         }
     }
 
-    argv
+    debug_assert_eq!(
+        argv.len(),
+        mask.len(),
+        "secret-mask length must track argv length — a push site is missing its mask.push"
+    );
+    (argv, mask)
 }
 
 /// SPEC §6.10.4 v3 PinValue emission helper. Renders the pinned
@@ -336,7 +380,14 @@ fn pin_value_to_argv_token(v: &serde_json::Value) -> Option<String> {
     }
 }
 
-fn emit_one(flag: &FlagSchema, value: &FlagValue, argv: &mut Vec<String>) {
+// v0.39.0: `mask` tracks `argv` 1:1 — every `argv.push` here pairs a
+// `mask.push`. Only the `NodeValueComposite` value token can be secret in
+// this function (secret Text + secret positionals are handled in the caller's
+// secret branch BEFORE reaching emit_one; secret non-Text/non-Composite flags
+// are Boolean-suppressed). Its bit is `flag_is_secret(flag) ||
+// node_type_is_secret(node)` — covering both the secret flag `--share` and the
+// value-dependent `--from phrase=<seed>` (flag non-secret, NODE secret).
+fn emit_one(flag: &FlagSchema, value: &FlagValue, argv: &mut Vec<String>, mask: &mut Vec<bool>) {
     // v0.10.0 B.3 (D33): default-value suppression. When the user's typed
     // value equals the toolkit-declared default for this flag, omit the
     // flag from argv entirely — the toolkit will pick up the same value
@@ -349,33 +400,44 @@ fn emit_one(flag: &FlagSchema, value: &FlagValue, argv: &mut Vec<String>) {
         (FlagKind::Text, FlagValue::Text(v))
             if !v.is_empty() => {
                 argv.push(flag.name.to_string());
+                mask.push(false);
                 argv.push(v.clone());
+                mask.push(false);
             }
         (FlagKind::Number { .. }, FlagValue::Number(n)) => {
             argv.push(flag.name.to_string());
+            mask.push(false);
             argv.push(n.to_string());
+            mask.push(false);
         }
         (FlagKind::Dropdown(_), FlagValue::Dropdown(v))
             if !v.is_empty() => {
                 argv.push(flag.name.to_string());
+                mask.push(false);
                 argv.push(v.clone());
+                mask.push(false);
             }
         (FlagKind::Boolean, FlagValue::Boolean(true)) => {
             argv.push(flag.name.to_string());
+            mask.push(false);
         }
         (FlagKind::Boolean, FlagValue::Boolean(false)) => {
             // Omitted.
         }
         (FlagKind::Range, FlagValue::Range(a, b)) => {
             argv.push(flag.name.to_string());
+            mask.push(false);
             argv.push(format!("{},{}", a, b));
+            mask.push(false);
         }
         (FlagKind::Timestamp, FlagValue::Timestamp(t)) => {
             argv.push(flag.name.to_string());
+            mask.push(false);
             argv.push(match t {
                 TimestampValue::Now => "now".to_string(),
                 TimestampValue::Unix(n) => n.to_string(),
             });
+            mask.push(false);
         }
         (
             FlagKind::NodeValueComposite(_),
@@ -386,14 +448,23 @@ fn emit_one(flag: &FlagSchema, value: &FlagValue, argv: &mut Vec<String>) {
             // rejection from `parse_from_input` at convert.rs:128-132).
             if !value.is_empty() => {
                 argv.push(flag.name.to_string());
+                mask.push(false);
                 argv.push(format!("{}={}", node, value));
+                // v0.39.0: secret iff the flag is secret-bearing (--share) OR
+                // the node is a secret class (--from phrase=<seed>).
+                mask.push(
+                    crate::secrets::flag_is_secret(flag)
+                        || crate::secrets::node_type_is_secret(node),
+                );
             }
         (FlagKind::TaggedOrIndexed(_), FlagValue::TaggedOrIndexed(tv)) => {
             argv.push(flag.name.to_string());
+            mask.push(false);
             argv.push(match tv {
                 TaggedOrIndexedValue::Tag(t) => t.clone(),
                 TaggedOrIndexedValue::Indexed(n) => format!("@{}", n),
             });
+            mask.push(false);
         }
         (FlagKind::Path { stdio_sentinel }, FlagValue::Path(p)) => {
             if p.is_empty() {
@@ -406,7 +477,9 @@ fn emit_one(flag: &FlagSchema, value: &FlagValue, argv: &mut Vec<String>) {
                 return;
             }
             argv.push(flag.name.to_string());
+            mask.push(false);
             argv.push(p.clone());
+            mask.push(false);
         }
         // Type-shape mismatch: state carries the wrong FlagValue for this
         // flag's FlagKind. Phase 2 trusts the form widget to maintain the
@@ -431,6 +504,39 @@ pub fn render_copy_command(argv: &[String], flavor: ShellFlavor) -> String {
             .map(|s| cmd_quote(s))
             .collect::<Vec<_>>()
             .join(" ^\r\n  "),
+    }
+}
+
+/// v0.39.0 — DISPLAY-ONLY variant of [`render_copy_command`] that substitutes
+/// the fixed [`SECRET_MASK`] placeholder (un-quoted — it is a sentinel, never
+/// run) for every token whose `mask` bit is `true`, shell-quoting the rest as
+/// usual. The masked output is NEVER copied to the clipboard or run — only the
+/// real [`render_copy_command`] feeds Run and the deliberate-reveal copy.
+///
+/// `mask` is the parallel vector from [`assemble_argv_with_secret_mask`];
+/// `mask.len()` is expected to equal `argv.len()` (a shorter mask defaults the
+/// tail to non-secret — fail-open is acceptable here only because the assembler
+/// guarantees equal length, asserted in debug).
+pub fn render_copy_command_masked(argv: &[String], mask: &[bool], flavor: ShellFlavor) -> String {
+    debug_assert_eq!(
+        argv.len(),
+        mask.len(),
+        "render_copy_command_masked: mask/argv length mismatch — a secret token could render cleartext"
+    );
+    let render = |i: usize, s: &String| -> String {
+        if mask.get(i).copied().unwrap_or(false) {
+            SECRET_MASK.to_string()
+        } else {
+            match flavor {
+                ShellFlavor::Posix => posix_quote(s),
+                ShellFlavor::WindowsCmd => cmd_quote(s),
+            }
+        }
+    };
+    let parts: Vec<String> = argv.iter().enumerate().map(|(i, s)| render(i, s)).collect();
+    match flavor {
+        ShellFlavor::Posix => parts.join(" "),
+        ShellFlavor::WindowsCmd => parts.join(" ^\r\n  "),
     }
 }
 
