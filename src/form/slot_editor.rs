@@ -9,6 +9,7 @@
 //! source-side.
 
 use eframe::egui;
+use zeroize::Zeroize;
 
 /// Per-row slot subkey selector. Variants + `as_str()` ordering match
 /// `crates/mnemonic-toolkit/src/slot_input.rs:13-28, 44-55` exactly.
@@ -109,6 +110,30 @@ impl Default for SlotRow {
             value: String::new(),
         }
     }
+}
+
+impl SlotRow {
+    /// v0.38.0: best-effort zeroize the in-memory `value` for a
+    /// secret-bearing subkey (the masked render + this both gate on
+    /// `is_secret_bearing()`; persistence redaction gates on the
+    /// equivalent `SECRET_SLOT_SUBKEYS` — pinned equal by the split-brain
+    /// test). Non-secret rows untouched. CAVEAT: `String::zeroize` scrubs
+    /// the CURRENT buffer only, not prior reallocations (FOLLOWUP
+    /// `gui-secret-buffer-allocator-residue`).
+    pub fn zeroize_if_secret(&mut self) {
+        if self.subkey.is_secret_bearing() {
+            self.value.zeroize();
+        }
+    }
+}
+
+/// v0.38.0: remove a slot row, zeroizing its value first if secret-bearing
+/// (a free fn so the zeroize-then-remove is unit-testable without egui).
+pub fn remove_row(state: &mut SlotState, i: usize) {
+    if let Some(row) = state.rows.get_mut(i) {
+        row.zeroize_if_secret();
+    }
+    state.rows.remove(i);
 }
 
 /// Multi-row slot state. Owned by `FormState` for subcommands where
@@ -216,14 +241,23 @@ pub fn render(ui: &mut egui::Ui, state: &mut SlotState, path_hint: Option<&str>)
                             }
                         });
                     ui.label("=");
-                    match (row.subkey, path_hint) {
-                        (SlotSubkey::Path, Some(hint)) if row.value.is_empty() => {
-                            ui.add(
-                                egui::TextEdit::singleline(&mut row.value).hint_text(hint),
-                            );
-                        }
-                        _ => {
-                            ui.text_edit_singleline(&mut row.value);
+                    // v0.38.0: mask secret-bearing slot values. Gate on
+                    // is_secret_bearing() FIRST — Path is never secret, so
+                    // the password edit and the (Path, hint) edit are
+                    // mutually exclusive (.password never combines with
+                    // hint_text).
+                    if row.subkey.is_secret_bearing() {
+                        ui.add(egui::TextEdit::singleline(&mut row.value).password(true));
+                    } else {
+                        match (row.subkey, path_hint) {
+                            (SlotSubkey::Path, Some(hint)) if row.value.is_empty() => {
+                                ui.add(
+                                    egui::TextEdit::singleline(&mut row.value).hint_text(hint),
+                                );
+                            }
+                            _ => {
+                                ui.text_edit_singleline(&mut row.value);
+                            }
                         }
                     }
                     if ui.button("✕").clicked() {
@@ -232,7 +266,7 @@ pub fn render(ui: &mut egui::Ui, state: &mut SlotState, path_hint: Option<&str>)
                 });
             }
             if let Some(i) = remove_idx {
-                state.rows.remove(i);
+                remove_row(state, i);
             }
             if ui.button("+ Add slot").clicked() {
                 state.rows.push(SlotRow::default());

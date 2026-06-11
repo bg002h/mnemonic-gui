@@ -3,6 +3,15 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## mnemonic-gui [0.38.0] — 2026-06-10
+
+**SemVer-MINOR — secret-bearing slot values render masked, and zeroize on row removal.**
+
+- The SlotEditor's value field rendered every subkey in plaintext (`slot_editor.rs` branched only on the Path hint). Secret-bearing subkeys (Phrase / Seedqr / Entropy / Ms1 / Wif / Xprv) now render as masked password fields (`.password(true)`, gated on `is_secret_bearing()` FIRST — Path is never secret, so masking never combines with the path hint). Watch-only subkeys (Xpub / MasterXpub / Fingerprint / Path) are unchanged.
+- Removing a slot row now zeroizes a secret-bearing value first (`SlotRow::zeroize_if_secret` + a free `remove_row` seam) — previously the plain `String` was dropped without scrubbing. Best-effort (current heap buffer only; the allocator-residue limit is the same one `SecretLineEdit` documents). Secret slot values already never persisted (`redact_for_persistence` drops secret-subkey rows) — this is the render-side + in-memory residue half.
+- **Split-brain pin:** the new render/zeroize gate (`is_secret_bearing()`) and the persistence gate (the toolkit-imported `SECRET_SLOT_SUBKEYS`) are now asserted EQUAL for all 10 `SlotSubkey` variants (T3) — no prior test pinned them across all variants (the closest omitted Seedqr+Ms1), so a future variant could have rendered plaintext while being persist-redacted.
+- Tests: `tests/slot_secret_mask_v0_38_0.rs` (T1 zeroize-on-remove, T2 kittest `Role::PasswordInput` positive+negative — verified RED without the mask, T3 the split-brain pin). First of the GUI secret-exposure cluster (preview/copy/modal masking + paste-warn wiring follow). Resolves `slot-secret-values-rendered-unmasked`. SPEC + R0 ×2: `design/SPEC_gui_v0_38_0_slot_secret_mask.md`, `design/agent-reports/gui-v0-38-0-slot-mask-r0-round{1,2}-review.md`.
+
 ## mnemonic-gui [0.37.0] — 2026-06-10
 
 **SemVer-MINOR — the suppressed `*-stdin` secret toggles render disabled (greyed), so the dead checkbox isn't a lie.**
