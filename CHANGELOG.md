@@ -3,6 +3,15 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## mnemonic-gui [0.41.0] — 2026-06-15
+
+**SemVer-MINOR — schema-mirror catch-up for the cross-repo mstring display-grouping cycle.** The four constellation CLIs gained uniform display-grouping flags (`--group-size <u16>`, `--separator <space|hyphen|comma>`) on their emit subcommands; this release mirrors them into the GUI clap-flag schema and bumps all four upstream pins to the grouping-enabled releases (final phase, P5).
+
+- **Flags added to `src/schema/{mnemonic,md,ms,mk}.rs`** on exactly the subcommands that gained them upstream: `mnemonic` {bundle, convert, ms-shares-split, ms-shares-combine}; `md` {encode}; `ms` {encode, split}; `mk` {encode}. `--group-size` is a `Number{0..=65535}` (default 5; 0 = unbroken); `--separator` is an **I7 keyword dropdown** (`space|hyphen|comma`, default space). The delta was measured empirically against the v0.56.0 / 0.7.0 / 0.8.0 / 0.9.0 binaries via the `gui-schema` JSON path — purely additive, with no accumulated lagging-gate drift on any other declared subcommand.
+- **I7 (SPEC §I7):** the toolkit reports `--separator` as kind `text` (its `value_parser` accepts keyword OR literal). The GUI deliberately narrows it to a keyword `Dropdown` so the GUI→argv path never emits a literal space (whitespace ambiguity). `schema_mirror` gates flag NAMES only, so the Dropdown-vs-text kind divergence is invariant-safe (same precedent as the archetype/build-format dropdowns). `default_value: Some("space")`/`Some("5")` suppress the flags from argv when left at default (`is_at_default`), so no `""` sentinel is needed.
+- **Pin bumps (six edit categories, lockstep):** `mnemonic-toolkit-v0.53.1`→`v0.56.0` (Cargo.toml dep tag + Cargo.lock rev `a1dcff82` + `pinned-upstream.toml` + README), `descriptor-mnemonic-md-cli-v0.6.2`→`v0.7.0`, `ms-cli-v0.7.0`→`v0.8.0`, `mk-cli-v0.7.0`→`v0.9.0`; module-doc + `pinned_version` strings updated to each binary's `--version`. The v0.53.1→v0.56.0 toolkit jump recompiled the `secrets` `secret_taxonomy` compile-time guard clean (grouping touched no secret taxonomy).
+- **Gates:** `schema_mirror` (4 CLIs) GREEN against the new binaries; `pin_coherence`, `readme_pin_coherence`, `secret_taxonomy_pin`, `schema_mirror_secret_drift`, `gui_schema_conditional_drift`, `archetype_schema_mirror` all green; `clippy -D warnings` clean. R0 plan-review GREEN (0C/0I); review persisted to `design/agent-reports/`.
+
 ## mnemonic-gui [0.40.0] — 2026-06-11
 
 **SemVer-MINOR — the paste-warn modal is WIRED: pasting secret-length material into a secret field now fires an informational warning.**
