@@ -1,4 +1,4 @@
-//! Pinned schema for the `mk` CLI (mk-cli-v0.7.0).
+//! Pinned schema for the `mk` CLI (mk-cli-v0.9.0).
 //!
 //! Scope: `inspect` (from v0.1) plus `encode`, `decode`, `verify`, `vectors`;
 //! `repair` (backfilled into the mirror at v0.6 — it shipped in v0.4 but was
@@ -7,7 +7,12 @@
 //! `design/agent-reports/v0_2-phase-D1-help-audit-r1.md` for the original
 //! per-flag provenance.
 
-use super::{FlagKind, FlagSchema, PositionalArgSchema, Schema, SubcommandSchema};
+use super::{FlagKind, FlagSchema, NumberMax, PositionalArgSchema, Schema, SubcommandSchema};
+
+// mstring display-grouping (mk-cli v0.9.0): `--separator` keyword values.
+// SPEC §I7 — keyword dropdown (space|hyphen|comma); the toolkit reports
+// `--separator` as kind `text`, the GUI narrows it. Names-only gate.
+const SEPARATORS: &[&str] = &["space", "hyphen", "comma"];
 
 // ─── inspect ─────────────────────────────────────────────────────────────
 
@@ -43,6 +48,32 @@ const INSPECT_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
 // doc-comments phrase it as "Mutually exclusive". Conditional fn at
 // `form::conditional::mk_encode` (manual-gui batch-8 R0 catch).
 const ENCODE_FLAGS: &[FlagSchema] = &[
+    FlagSchema {
+        name: "--group-size",
+        kind: FlagKind::Number {
+            min: 0,
+            max: NumberMax::Static(65535),
+        },
+        required: false,
+        repeating: false,
+        help: "Display grouping: break the emitted card into groups of N \
+               characters (default 5; 0 = unbroken single line). Cosmetic — \
+               intake strips separators, so any grouping re-ingests.",
+        secret: false,
+        default_value: Some("5"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--separator",
+        kind: FlagKind::Dropdown(SEPARATORS),
+        required: false,
+        repeating: false,
+        help: "Display-grouping separator keyword (space|hyphen|comma; \
+               default space). Cosmetic — non-load-bearing.",
+        secret: false,
+        default_value: Some("space"),
+        global: false,
+    },
     FlagSchema {
         name: "--xpub",
         kind: FlagKind::Text,
@@ -479,6 +510,6 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
 
 pub const SCHEMA: Schema = Schema {
     cli_name: "mk",
-    pinned_version: "mk 0.7.0",
+    pinned_version: "mk 0.9.0",
     subcommands: SUBCOMMANDS,
 };

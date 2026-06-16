@@ -1,4 +1,4 @@
-//! Pinned schema for the `ms` CLI (ms-cli-v0.7.0).
+//! Pinned schema for the `ms` CLI (ms-cli-v0.8.0).
 //!
 //! Scope: `inspect`/`encode`/`decode`/`verify`/`vectors` plus `repair`
 //! (backfilled into the mirror at v0.5 — it shipped in v0.4 but was never
@@ -7,7 +7,7 @@
 //! `design/agent-reports/v0_2-phase-D1-help-audit-r1.md` for the original
 //! per-flag provenance.
 
-use super::{FlagKind, FlagSchema, PositionalArgSchema, Schema, SubcommandSchema};
+use super::{FlagKind, FlagSchema, NumberMax, PositionalArgSchema, Schema, SubcommandSchema};
 
 /// BIP-39 wordlist tokens accepted by the `ms` CLI. Hyphenated
 /// Chinese variants (NOT the fused tokens used by mnemonic.rs:
@@ -26,6 +26,11 @@ pub const LANG_MS: &[&str] = &[
     "czech",
     "portuguese",
 ];
+
+// mstring display-grouping (ms-cli v0.8.0): `--separator` keyword values.
+// SPEC §I7 — keyword dropdown (space|hyphen|comma); the toolkit reports
+// `--separator` as kind `text`, the GUI narrows it. Names-only gate.
+const SEPARATORS: &[&str] = &["space", "hyphen", "comma"];
 
 // ─── inspect ─────────────────────────────────────────────────────────────
 
@@ -58,6 +63,32 @@ const INSPECT_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
 // `--hex` is supplied, `--language` is ignored (upstream help). Conditional
 // fn wires this in `form::conditional::ms_encode`.
 const ENCODE_FLAGS: &[FlagSchema] = &[
+    FlagSchema {
+        name: "--group-size",
+        kind: FlagKind::Number {
+            min: 0,
+            max: NumberMax::Static(65535),
+        },
+        required: false,
+        repeating: false,
+        help: "Display grouping: break the emitted card into groups of N \
+               characters (default 5; 0 = unbroken single line). Cosmetic — \
+               intake strips separators, so any grouping re-ingests.",
+        secret: false,
+        default_value: Some("5"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--separator",
+        kind: FlagKind::Dropdown(SEPARATORS),
+        required: false,
+        repeating: false,
+        help: "Display-grouping separator keyword (space|hyphen|comma; \
+               default space). Cosmetic — non-load-bearing.",
+        secret: false,
+        default_value: Some("space"),
+        global: false,
+    },
     FlagSchema {
         name: "--phrase",
         kind: FlagKind::Text,
@@ -355,6 +386,32 @@ const REPAIR_POSITIONALS: &[PositionalArgSchema] = &[];
 // `ms-kofn-json-wire-shape-ungated`).
 const SPLIT_FLAGS: &[FlagSchema] = &[
     FlagSchema {
+        name: "--group-size",
+        kind: FlagKind::Number {
+            min: 0,
+            max: NumberMax::Static(65535),
+        },
+        required: false,
+        repeating: false,
+        help: "Display grouping: break each emitted share into groups of N \
+               characters (default 5; 0 = unbroken single line). Cosmetic — \
+               intake strips separators, so any grouping re-ingests.",
+        secret: false,
+        default_value: Some("5"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--separator",
+        kind: FlagKind::Dropdown(SEPARATORS),
+        required: false,
+        repeating: false,
+        help: "Display-grouping separator keyword (space|hyphen|comma; \
+               default space). Cosmetic — non-load-bearing.",
+        secret: false,
+        default_value: Some("space"),
+        global: false,
+    },
+    FlagSchema {
         name: "--phrase",
         kind: FlagKind::Text,
         required: false,
@@ -537,6 +594,6 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
 
 pub const SCHEMA: Schema = Schema {
     cli_name: "ms",
-    pinned_version: "ms 0.7.0",
+    pinned_version: "ms 0.8.0",
     subcommands: SUBCOMMANDS,
 };

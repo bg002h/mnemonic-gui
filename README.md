@@ -47,10 +47,10 @@ constellation installer, install each one separately (pinned tags
 match [`pinned-upstream.toml`](pinned-upstream.toml)):
 
 ```sh
-cargo install --locked --git https://github.com/bg002h/mnemonic-toolkit     --tag mnemonic-toolkit-v0.53.1           mnemonic-toolkit
-cargo install --locked --git https://github.com/bg002h/descriptor-mnemonic  --tag descriptor-mnemonic-md-cli-v0.6.2  md-cli
-cargo install --locked --git https://github.com/bg002h/mnemonic-secret      --tag ms-cli-v0.7.0                      ms-cli
-cargo install --locked --git https://github.com/bg002h/mnemonic-key         --tag mk-cli-v0.7.0                      mk-cli
+cargo install --locked --git https://github.com/bg002h/mnemonic-toolkit     --tag mnemonic-toolkit-v0.56.0           mnemonic-toolkit
+cargo install --locked --git https://github.com/bg002h/descriptor-mnemonic  --tag descriptor-mnemonic-md-cli-v0.7.0  md-cli
+cargo install --locked --git https://github.com/bg002h/mnemonic-secret      --tag ms-cli-v0.8.0                      ms-cli
+cargo install --locked --git https://github.com/bg002h/mnemonic-key         --tag mk-cli-v0.9.0                      mk-cli
 ```
 
 Tabs for CLIs not present on `$PATH` are greyed at launch.

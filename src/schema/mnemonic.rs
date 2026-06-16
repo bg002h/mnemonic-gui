@@ -1,4 +1,4 @@
-//! Pinned schema for the `mnemonic` CLI from mnemonic-toolkit-v0.53.1.
+//! Pinned schema for the `mnemonic` CLI from mnemonic-toolkit-v0.56.0.
 //!
 //! Five subcommands covered in v0.1 (Section A coverage table):
 //!   - bundle
@@ -27,6 +27,13 @@ const NO_POSITIONALS: &[PositionalArgSchema] = &[];
 // ─── Shared dropdown option lists ───────────────────────────────────────
 
 const NETWORKS: &[&str] = &["mainnet", "testnet", "signet", "regtest"];
+// mstring display-grouping (toolkit v0.56.0): `--separator` keyword values.
+// SPEC §I7 — the GUI MUST emit a KEYWORD (space|hyphen|comma), never a
+// literal space, to avoid argv/whitespace ambiguity through the GUI→argv
+// path. The toolkit's gui-schema reports `--separator` as kind `text`
+// (keyword-or-literal value_parser); the GUI narrows it to this dropdown.
+// schema_mirror gates flag NAMES only, so the kind divergence is safe.
+const SEPARATORS: &[&str] = &["space", "hyphen", "comma"];
 // toolkit v0.36.0: `verify-message --format` value-enum.
 const VERIFY_FORMATS: &[&str] = &["auto", "legacy", "bip322"];
 // toolkit v0.50.0: `build-descriptor --format` value-enum (CliBuildFormat).
@@ -181,6 +188,32 @@ const NO_AUTO_REPAIR_FLAG: FlagSchema = FlagSchema {
 // ─── bundle ──────────────────────────────────────────────────────────────
 
 const BUNDLE_FLAGS: &[FlagSchema] = &[
+    FlagSchema {
+        name: "--group-size",
+        kind: FlagKind::Number {
+            min: 0,
+            max: NumberMax::Static(65535),
+        },
+        required: false,
+        repeating: false,
+        help: "Display grouping: break the emitted card into groups of N \
+               characters (default 5; 0 = unbroken single line). Cosmetic — \
+               intake strips separators, so any grouping re-ingests.",
+        secret: false,
+        default_value: Some("5"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--separator",
+        kind: FlagKind::Dropdown(SEPARATORS),
+        required: false,
+        repeating: false,
+        help: "Display-grouping separator keyword (space|hyphen|comma; \
+               default space). Cosmetic — non-load-bearing.",
+        secret: false,
+        default_value: Some("space"),
+        global: false,
+    },
     FlagSchema {
         name: "--network",
         kind: FlagKind::Dropdown(NETWORKS),
@@ -769,6 +802,32 @@ const VERIFY_BUNDLE_FLAGS: &[FlagSchema] = &[
 // ─── convert ─────────────────────────────────────────────────────────────
 
 const CONVERT_FLAGS: &[FlagSchema] = &[
+    FlagSchema {
+        name: "--group-size",
+        kind: FlagKind::Number {
+            min: 0,
+            max: NumberMax::Static(65535),
+        },
+        required: false,
+        repeating: false,
+        help: "Display grouping: break the emitted card into groups of N \
+               characters (default 5; 0 = unbroken single line). Cosmetic — \
+               intake strips separators, so any grouping re-ingests.",
+        secret: false,
+        default_value: Some("5"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--separator",
+        kind: FlagKind::Dropdown(SEPARATORS),
+        required: false,
+        repeating: false,
+        help: "Display-grouping separator keyword (space|hyphen|comma; \
+               default space). Cosmetic — non-load-bearing.",
+        secret: false,
+        default_value: Some("space"),
+        global: false,
+    },
     FlagSchema {
         name: "--from",
         kind: FlagKind::NodeValueComposite(NODE_TYPES),
@@ -1418,6 +1477,32 @@ const MS_SHARES_FROM_NODES: &[&str] = &["phrase", "entropy"];
 
 const MS_SHARES_SPLIT_FLAGS: &[FlagSchema] = &[
     FlagSchema {
+        name: "--group-size",
+        kind: FlagKind::Number {
+            min: 0,
+            max: NumberMax::Static(65535),
+        },
+        required: false,
+        repeating: false,
+        help: "Display grouping: break the emitted card into groups of N \
+               characters (default 5; 0 = unbroken single line). Cosmetic — \
+               intake strips separators, so any grouping re-ingests.",
+        secret: false,
+        default_value: Some("5"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--separator",
+        kind: FlagKind::Dropdown(SEPARATORS),
+        required: false,
+        repeating: false,
+        help: "Display-grouping separator keyword (space|hyphen|comma; \
+               default space). Cosmetic — non-load-bearing.",
+        secret: false,
+        default_value: Some("space"),
+        global: false,
+    },
+    FlagSchema {
         name: "--from",
         kind: FlagKind::NodeValueComposite(MS_SHARES_FROM_NODES),
         required: true,
@@ -1481,6 +1566,32 @@ const MS_SHARES_SPLIT_FLAGS: &[FlagSchema] = &[
 const MS_SHARES_TO_SHAPES: &[&str] = &["phrase", "entropy", "ms1"];
 
 const MS_SHARES_COMBINE_FLAGS: &[FlagSchema] = &[
+    FlagSchema {
+        name: "--group-size",
+        kind: FlagKind::Number {
+            min: 0,
+            max: NumberMax::Static(65535),
+        },
+        required: false,
+        repeating: false,
+        help: "Display grouping: break the emitted card into groups of N \
+               characters (default 5; 0 = unbroken single line). Cosmetic — \
+               intake strips separators, so any grouping re-ingests.",
+        secret: false,
+        default_value: Some("5"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--separator",
+        kind: FlagKind::Dropdown(SEPARATORS),
+        required: false,
+        repeating: false,
+        help: "Display-grouping separator keyword (space|hyphen|comma; \
+               default space). Cosmetic — non-load-bearing.",
+        secret: false,
+        default_value: Some("space"),
+        global: false,
+    },
     FlagSchema {
         name: "--share",
         kind: FlagKind::Text,
@@ -3947,6 +4058,6 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
 // drift here is a cosmetic banner mismatch, not a functional error.
 pub const SCHEMA: Schema = Schema {
     cli_name: "mnemonic",
-    pinned_version: "mnemonic 0.53.1",
+    pinned_version: "mnemonic 0.56.0",
     subcommands: SUBCOMMANDS,
 };

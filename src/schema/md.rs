@@ -1,4 +1,4 @@
-//! Pinned schema for the `md` CLI (descriptor-mnemonic-md-cli-v0.6.2).
+//! Pinned schema for the `md` CLI (descriptor-mnemonic-md-cli-v0.7.0).
 //!
 //! v0.2 scope: `inspect` (from v0.1) plus `encode`, `decode`, `verify`,
 //! `bytecode`, `vectors`, `compile`, `address`. See Phase D.1 audit report
@@ -17,6 +17,11 @@ use super::{FlagKind, FlagSchema, NumberMax, PositionalArgSchema, Schema, Subcom
 /// but defined locally to avoid cross-module coupling (each CLI's schema
 /// is independent per SPEC §B.3).
 pub const NETWORKS: &[&str] = &["mainnet", "testnet", "signet", "regtest"];
+
+// mstring display-grouping (md-cli v0.7.0): `--separator` keyword values.
+// SPEC §I7 — keyword dropdown (space|hyphen|comma); the toolkit reports
+// `--separator` as kind `text`, the GUI narrows it. Names-only gate.
+const SEPARATORS: &[&str] = &["space", "hyphen", "comma"];
 
 /// Script contexts accepted by `md encode --context` and `md compile --context`.
 pub const SCRIPT_CONTEXTS: &[&str] = &["tap", "segwitv0"];
@@ -57,6 +62,32 @@ const INSPECT_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
 // is rejected when `--context` value == "segwitv0" (value-inspect, not
 // presence-check). Conditional fn at `form::conditional::md_encode`.
 const ENCODE_FLAGS: &[FlagSchema] = &[
+    FlagSchema {
+        name: "--group-size",
+        kind: FlagKind::Number {
+            min: 0,
+            max: NumberMax::Static(65535),
+        },
+        required: false,
+        repeating: false,
+        help: "Display grouping: break the emitted card into groups of N \
+               characters (default 5; 0 = unbroken single line). Cosmetic — \
+               intake strips separators, so any grouping re-ingests.",
+        secret: false,
+        default_value: Some("5"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--separator",
+        kind: FlagKind::Dropdown(SEPARATORS),
+        required: false,
+        repeating: false,
+        help: "Display-grouping separator keyword (space|hyphen|comma; \
+               default space). Cosmetic — non-load-bearing.",
+        secret: false,
+        default_value: Some("space"),
+        global: false,
+    },
     FlagSchema {
         name: "--from-policy",
         kind: FlagKind::Text,
@@ -570,6 +601,6 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
 
 pub const SCHEMA: Schema = Schema {
     cli_name: "md",
-    pinned_version: "md 0.6.2",
+    pinned_version: "md 0.7.0",
     subcommands: SUBCOMMANDS,
 };
