@@ -109,4 +109,7 @@ Per-phase build logs live under [`design/agent-reports/`](design/agent-reports/)
 
 ## License
 
-MIT — see `LICENSE`.
+Dual-licensed, at your option, under either the [MIT License](LICENSE) or the
+[Unlicense](UNLICENSE) public-domain dedication — SPDX `MIT OR Unlicense`. Use
+the Unlicense for maximal freedom, or MIT where a public-domain dedication
+isn't accepted.
