@@ -1,4 +1,4 @@
-//! Pinned schema for the `mnemonic` CLI from mnemonic-toolkit-v0.56.0.
+//! Pinned schema for the `mnemonic` CLI from mnemonic-toolkit-v0.58.0.
 //!
 //! Five subcommands covered in v0.1 (Section A coverage table):
 //!   - bundle
@@ -2335,6 +2335,7 @@ const IMPORT_WALLET_FORMATS: &[&str] = &[
     "bsms",
     "coldcard",
     "coldcard-multisig",
+    "descriptor",
     "electrum",
     "jade",
     "sparrow",
@@ -4058,6 +4059,6 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
 // drift here is a cosmetic banner mismatch, not a functional error.
 pub const SCHEMA: Schema = Schema {
     cli_name: "mnemonic",
-    pinned_version: "mnemonic 0.56.0",
+    pinned_version: "mnemonic 0.58.0",
     subcommands: SUBCOMMANDS,
 };

@@ -3,6 +3,13 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## mnemonic-gui [0.42.0] — 2026-06-17
+
+**SemVer-MINOR — schema-mirror catch-up for `import-wallet --format descriptor` (toolkit v0.58.0, Tier-2 C5).** The toolkit added a new `descriptor` value to `import-wallet --format` (a generic commented-descriptor intake — reads a watch-only descriptor from text, tolerating `#`-comments; singlesig + multisig; explicit-only); this release mirrors it into the GUI dropdown and bumps the toolkit pin.
+
+- **`IMPORT_WALLET_FORMATS` gains `"descriptor"`** (`src/schema/mnemonic.rs`, alphabetically after `coldcard-multisig`). The GUI import-wallet `--format` dropdown now offers all 9 toolkit formats. Note: `schema_mirror` gates flag-NAMES only (not dropdown VALUES), so this value addition is the **paired-PR discipline**, not a gate-caught drift — measured clean against the v0.58.0 `gui-schema`.
+- **Pin bump:** `mnemonic-toolkit-v0.56.0` → `v0.58.0` (Cargo.toml dep tag + Cargo.lock rev + `pinned-upstream.toml` + README install line + schema module-doc + `pinned_version` string). The intervening toolkit releases v0.57.0 (verify-bundle BIP-388 intake) + v0.57.1 (unrestorable-shape advisory) added no clap flag NAMES, so the pin jump v0.56.0→v0.58.0 surfaces only the new `descriptor` value — `schema_mirror` (flag-name parity) stays green. The v0.56.0→v0.58.0 toolkit jump recompiled the `secrets` `secret_taxonomy` compile-time guard clean.
+
 ## mnemonic-gui [0.41.0] — 2026-06-15
 
 **SemVer-MINOR — schema-mirror catch-up for the cross-repo mstring display-grouping cycle.** The four constellation CLIs gained uniform display-grouping flags (`--group-size <u16>`, `--separator <space|hyphen|comma>`) on their emit subcommands; this release mirrors them into the GUI clap-flag schema and bumps all four upstream pins to the grouping-enabled releases (final phase, P5).
