@@ -1,4 +1,4 @@
-//! Pinned schema for the `mnemonic` CLI from mnemonic-toolkit-v0.59.0.
+//! Pinned schema for the `mnemonic` CLI from mnemonic-toolkit-v0.60.0.
 //!
 //! Five subcommands covered in v0.1 (Section A coverage table):
 //!   - bundle
@@ -119,6 +119,16 @@ const BSMS_FORMS: &[&str] = &["2-line", "4-line"];
 // (`Md1Form::Policy`/`Template` → `policy`/`template`). Value-list parity
 // is NOT gate-checked by `schema_mirror` (flag NAMES only).
 const MD1_FORMS: &[&str] = &["policy", "template"];
+
+// toolkit v0.60.0 (#28 phase 2): `restore --search-chain` /
+// `verify-bundle --search-chain` value-enum (`SearchChain`). Which BIP-32
+// change-chain branch(es) `--search-address` scans during a multisig
+// template completion: `receive` (chain 0, default), `change` (chain 1),
+// or `both`. clap derives the value names from the variant names lowercased.
+// Value-list parity is NOT gate-checked by `schema_mirror` (flag NAMES
+// only) — declared here for paired-PR discipline (the toolkit's gui-schema
+// reports `--search-chain` as a dropdown with these three choices).
+const SEARCH_CHAINS: &[&str] = &["receive", "change", "both"];
 
 // R1 C-2 fold: NODE_TYPES exactly mirrors upstream
 // `NodeType::as_str()` ordering in
@@ -496,6 +506,14 @@ const RESTORE_FLAGS: &[FlagSchema] = &[
         global: false,
     },
     FlagSchema {
+        // toolkit v0.60.0 (#28 phase 2): widened from a scalar to a
+        // comma-separated list (`Vec<u32>`) — single-sig restore uses the
+        // first value; a MULTISIG template completion uses the whole list
+        // (one own key per account, e.g. `--account 0,1,2,3`). The toolkit's
+        // gui-schema still reports `kind: number` (clap value-shape is not on
+        // the wire), so the GUI keeps `FlagKind::Number` (the Number widget
+        // does not model multiplicity); the comma-list is documented here for
+        // the form tooltip. schema_mirror gates flag NAMES only.
         name: "--account",
         kind: FlagKind::Number {
             min: 0,
@@ -503,7 +521,9 @@ const RESTORE_FLAGS: &[FlagSchema] = &[
         },
         required: false,
         repeating: false,
-        help: "BIP-32 account index (default 0).",
+        help: "BIP-32 account index(es) (default 0). Single-sig: the first \
+               value. Multisig template completion: a comma-list, one own \
+               account per slot (e.g. 0,1,2,3).",
         secret: false,
         default_value: Some("0"),
         global: false,
@@ -656,6 +676,91 @@ const RESTORE_FLAGS: &[FlagSchema] = &[
         default_value: None,
         global: false,
     },
+    // toolkit v0.60.0 (#28 phase 2): multisig / general-policy keyless
+    // TEMPLATE completion (`bundle --md1-form=template`, n≥2). The own seed
+    // (`--from`) + cosigner keys (`--cosigner`) plus a disambiguation input
+    // (`--account <N[,N,…]>` list, `--own-account-max` range fallback,
+    // `--search-address`, or `--expect-wallet-id`) drive a key→slot search.
+    // `--own-account-max` is reserved/refused this cycle (the subset-search
+    // engine is deferred — FOLLOWUP `template-multisig-own-account-range-
+    // subset-search`); it IS a clap flag, so it must be mirrored.
+    FlagSchema {
+        name: "--own-account-max",
+        kind: FlagKind::Number {
+            min: 0,
+            max: NumberMax::Static(2_147_483_647),
+        },
+        required: false,
+        repeating: false,
+        help: "Range fallback for the own seed's account(s) when the exact \
+               accounts are unknown (derive at every account in 0..K). NOT \
+               SUPPORTED YET — refused with a pointer to --account <N[,N,…]>.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--search-address",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "A known receive (or change) address of the wallet; triggers \
+               address-search for a multisig template completion (full \
+               scriptPubKey match — collision-free).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--search-addr-min",
+        kind: FlagKind::Number {
+            min: 0,
+            max: NumberMax::Static(2_147_483_647),
+        },
+        required: false,
+        repeating: false,
+        help: "Inclusive lower address index for --search-address (default 0).",
+        secret: false,
+        default_value: Some("0"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--search-addr-max",
+        kind: FlagKind::Number {
+            min: 0,
+            max: NumberMax::Static(2_147_483_647),
+        },
+        required: false,
+        repeating: false,
+        help: "Exclusive upper address index for --search-address \
+               (default 20). Deepen (0..20, then 20..40, …) if not found.",
+        secret: false,
+        default_value: Some("20"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--search-chain",
+        kind: FlagKind::Dropdown(SEARCH_CHAINS),
+        required: false,
+        repeating: false,
+        help: "Which BIP-32 change-chain branch(es) --search-address scans: \
+               receive (0, default), change (1), or both.",
+        secret: false,
+        default_value: Some("receive"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--accept-search-time",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "Override the 1-hour search-time ceiling for a multisig \
+               template completion. Must be ≥ the printed estimate. Accepts \
+               a humantime duration (e.g. 2h, 90min).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
     NO_AUTO_REPAIR_FLAG,
 ];
 
@@ -772,6 +877,102 @@ const VERIFY_BUNDLE_FLAGS: &[FlagSchema] = &[
         help: "Assert the recomposed wallet's WalletPolicyId starts with this \
                prefix (refuse on mismatch; skipped when --origin overrides \
                the canonical account path).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    // toolkit v0.60.0 (#28 phase 2): multisig / general-policy keyless
+    // TEMPLATE completion for verify-bundle (`bundle --md1-form=template`,
+    // n≥2), mirroring the same-named restore flags. The own seed (`--from`)
+    // + cosigner keys (`--cosigner`) plus a disambiguation input
+    // (`--search-address` / `--expect-wallet-id`) drive the key→slot search.
+    // `--from` mirrors restore's `--from` classification: non-secret here
+    // (the seed source supports `@env:VAR` / `-` stdin for secret values,
+    // but the schema marks restore's `--from` secret:false, so we mirror it).
+    FlagSchema {
+        name: "--from",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "The operator's OWN seed for completing a keyless multisig (or \
+               general-policy) template bundle (same grammar as restore \
+               --from: ms1=/phrase=/entropy=/seedqr=; @env:VAR / - stdin). \
+               Required to complete a multisig template; ignored otherwise.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--cosigner",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: true,
+        help: "An unassigned cosigner key (mk1/xpub) for completing a keyless \
+               multisig / general template bundle; repeat per cosigner card. \
+               Bare = search-placed; `@N=<mk1|xpub>` assigns explicitly. \
+               Watch-only (non-secret).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--search-address",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "A known receive (or change) address of the wallet; triggers \
+               address-search for a multisig template completion (mirrors \
+               restore --search-address; full scriptPubKey match).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--search-addr-min",
+        kind: FlagKind::Number {
+            min: 0,
+            max: NumberMax::Static(2_147_483_647),
+        },
+        required: false,
+        repeating: false,
+        help: "Inclusive lower address index for --search-address (default 0).",
+        secret: false,
+        default_value: Some("0"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--search-addr-max",
+        kind: FlagKind::Number {
+            min: 0,
+            max: NumberMax::Static(2_147_483_647),
+        },
+        required: false,
+        repeating: false,
+        help: "Exclusive upper address index for --search-address \
+               (default 20; mirrors restore).",
+        secret: false,
+        default_value: Some("20"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--search-chain",
+        kind: FlagKind::Dropdown(SEARCH_CHAINS),
+        required: false,
+        repeating: false,
+        help: "Which BIP-32 change-chain branch(es) --search-address scans: \
+               receive (0, default), change (1), or both (mirrors restore).",
+        secret: false,
+        default_value: Some("receive"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--accept-search-time",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "Override the 1-hour search-time ceiling for a multisig \
+               template completion (mirrors restore --accept-search-time). \
+               Must be ≥ the printed estimate. Humantime duration (2h, 90min).",
         secret: false,
         default_value: None,
         global: false,
