@@ -3,6 +3,16 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## mnemonic-gui [0.43.0] — 2026-06-19
+
+**SemVer-MINOR — schema-mirror lockstep for `mnemonic-toolkit-v0.59.0`'s `#28` keyless single-sig template flags.** The toolkit added three new clap flags across `bundle` / `restore` / `verify-bundle` for keyless, fingerprint-stripped, canonical-origin-elided single-sig template md1 cards; this release mirrors them into the GUI clap-flag schema and bumps the toolkit pin.
+
+- **`bundle --md1-form <policy|template>`** added to `BUNDLE_FLAGS` (`src/schema/mnemonic.rs`) as a **value-enum dropdown** (new `MD1_FORMS` const = `["policy", "template"]`, mirroring `Md1Form::Policy`/`Template`), `default_value: Some("policy")`. `policy` (default) = the pre-#28 full wallet-policy md1; `template` = the keyless single-sig template (requires `descriptor.n == 1` + a single-leaf shape; account/origin supplied at restore). `schema_mirror` gates flag NAMES only — the new dropdown VALUE list is the paired-PR discipline (measured clean vs the v0.59.0 `gui-schema`), same precedent as `--network`/`--template`/`--archetype`.
+- **`restore --origin <ORIGIN>` + `restore --expect-wallet-id <PREFIX>`** added to `RESTORE_FLAGS` (both `FlagKind::Text`, non-secret): `--origin` supplies the derivation path the template elided for keyless single-sig template restore; `--expect-wallet-id` recomputes the `WalletPolicyId` from the completed fully-keyed explicit-origin descriptor and refuses on prefix mismatch (skipped when `--origin` overrides the canonical account path).
+- **`verify-bundle --origin <ORIGIN>` + `verify-bundle --expect-wallet-id <PREFIX>`** added to `VERIFY_BUNDLE_FLAGS` (both `FlagKind::Text`, non-secret) — the verify/recompose mirror of the `restore` pair for a keyless template bundle.
+- **Pin bump:** `mnemonic-toolkit-v0.58.0` → `v0.59.0` (Cargo.toml dep tag + Cargo.lock rev `d72856f1` + `pinned-upstream.toml` `[mnemonic].tag` + README install line + schema module-doc header + `pinned_version` string). The intervening toolkit releases v0.58.1 (convert mk1 SLIP-0132 hint) + v0.58.2 (faithful non-taproot per-cosigner use-site restore) added no clap flag NAMES, so the pin jump v0.58.0→v0.59.0 surfaces exactly the three #28 flags — no accumulated lagging-gate drift. The toolkit's transitive `md-codec` dep moved 0.36.0 → 0.37.0 in `Cargo.lock` as a consequence of the pin bump; the `secrets` `secret_taxonomy` compile-time guard recompiled clean.
+- **Gates:** `schema_mirror` (4 CLIs) GREEN against the v0.59.0 binary (`MNEMONIC_BIN`) + the unchanged md/ms/mk pins; `pin_coherence` + `readme_pin_coherence` green; full suite green.
+
 ## mnemonic-gui [0.42.0] — 2026-06-17
 
 **SemVer-MINOR — schema-mirror catch-up for `import-wallet --format descriptor` (toolkit v0.58.0, Tier-2 C5).** The toolkit added a new `descriptor` value to `import-wallet --format` (a generic commented-descriptor intake — reads a watch-only descriptor from text, tolerating `#`-comments; singlesig + multisig; explicit-only); this release mirrors it into the GUI dropdown and bumps the toolkit pin.

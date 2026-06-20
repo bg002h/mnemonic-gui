@@ -1,4 +1,4 @@
-//! Pinned schema for the `mnemonic` CLI from mnemonic-toolkit-v0.58.0.
+//! Pinned schema for the `mnemonic` CLI from mnemonic-toolkit-v0.59.0.
 //!
 //! Five subcommands covered in v0.1 (Section A coverage table):
 //!   - bundle
@@ -109,6 +109,16 @@ const EXPORT_FORMATS: &[&str] = &[
 ];
 
 const BSMS_FORMS: &[&str] = &["2-line", "4-line"];
+
+// toolkit v0.59.0 (#28): `bundle --md1-form` value-enum (`Md1Form`).
+// `policy` (default) = the pre-#28 full wallet-policy md1; `template` =
+// a KEYLESS, fingerprint-stripped, canonical-origin-elided single-sig
+// template card (requires `descriptor.n == 1` + a single-leaf shape;
+// every other shape is refused upstream with `TemplateFormUnsupportedShape`).
+// clap derives the value names from the variant names lowercased
+// (`Md1Form::Policy`/`Template` → `policy`/`template`). Value-list parity
+// is NOT gate-checked by `schema_mirror` (flag NAMES only).
+const MD1_FORMS: &[&str] = &["policy", "template"];
 
 // R1 C-2 fold: NODE_TYPES exactly mirrors upstream
 // `NodeType::as_str()` ordering in
@@ -358,6 +368,20 @@ const BUNDLE_FLAGS: &[FlagSchema] = &[
         default_value: None,
         global: false,
     },
+    // toolkit v0.59.0 (#28): keyless single-sig template md1 form selector.
+    FlagSchema {
+        name: "--md1-form",
+        kind: FlagKind::Dropdown(MD1_FORMS),
+        required: false,
+        repeating: false,
+        help: "md1 card shape: `policy` (default) = full wallet-policy md1; \
+               `template` = a keyless, fingerprint-stripped, \
+               canonical-origin-elided single-sig template (descriptor.n == 1; \
+               account/origin supplied at restore via --account/--origin).",
+        secret: false,
+        default_value: Some("policy"),
+        global: false,
+    },
     FlagSchema {
         name: "--privacy-preserving",
         kind: FlagKind::Boolean,
@@ -495,6 +519,35 @@ const RESTORE_FLAGS: &[FlagSchema] = &[
         help: "Number of accounts / entries to restore (default 1).",
         secret: false,
         default_value: Some("1"),
+        global: false,
+    },
+    // toolkit v0.59.0 (#28): explicit origin derivation path + wallet-id
+    // assertion for keyless single-sig template restore (restore --md1
+    // <keyless-template>). `--origin` supplies the derivation path the
+    // template elided; `--expect-wallet-id` recomputes the WalletPolicyId
+    // from the completed fully-keyed explicit-origin descriptor and refuses
+    // on mismatch (only checked when no --origin override is supplied).
+    FlagSchema {
+        name: "--origin",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "Explicit origin derivation path for keyless single-sig \
+               template restore (supplies the path the template elided).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--expect-wallet-id",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "Assert the restored wallet's WalletPolicyId starts with this \
+               prefix (refuse on mismatch; skipped when --origin overrides \
+               the canonical account path).",
+        secret: false,
+        default_value: None,
         global: false,
     },
     FlagSchema {
@@ -693,6 +746,34 @@ const VERIFY_BUNDLE_FLAGS: &[FlagSchema] = &[
         help: "BIP-32 account index (default 0).",
         secret: false,
         default_value: Some("0"),
+        global: false,
+    },
+    // toolkit v0.59.0 (#28): explicit origin override + wallet-id assertion
+    // for verifying + recomposing a keyless single-sig template bundle.
+    // Mirrors `restore --origin` / `--expect-wallet-id`; only meaningful for
+    // a keyless template bundle, ignored otherwise. `--expect-wallet-id` is
+    // NOT checked when `--origin` overrides the canonical account path.
+    FlagSchema {
+        name: "--origin",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "Explicit origin derivation path for verifying + recomposing a \
+               keyless single-sig template bundle (mirrors restore --origin).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--expect-wallet-id",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "Assert the recomposed wallet's WalletPolicyId starts with this \
+               prefix (refuse on mismatch; skipped when --origin overrides \
+               the canonical account path).",
+        secret: false,
+        default_value: None,
         global: false,
     },
     FlagSchema {
@@ -4059,6 +4140,6 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
 // drift here is a cosmetic banner mismatch, not a functional error.
 pub const SCHEMA: Schema = Schema {
     cli_name: "mnemonic",
-    pinned_version: "mnemonic 0.58.0",
+    pinned_version: "mnemonic 0.59.0",
     subcommands: SUBCOMMANDS,
 };
