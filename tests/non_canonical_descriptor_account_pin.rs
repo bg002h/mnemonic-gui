@@ -41,6 +41,60 @@ fn canonical_descriptor_pins_account_to_zero() {
 }
 
 #[test]
+fn suffix_form_origin_descriptor_pins_account_to_zero() {
+    // L12 (constellation bughunt): the SUFFIX-origin form `@N[fp/path]` is
+    // accepted by the toolkit and classified CANONICAL (empirically, the
+    // v0.60.0 binary: `gui-schema --classify-descriptor` → `canonical`).
+    // The GUI regex anchored the origin bracket BEFORE `@N` only, so it
+    // misclassified this NonCanonical → LIFTED the pin → user `--account N`
+    // reached the toolkit → toolkit hard-errored `DESCRIPTOR_WITH_NONZERO_
+    // ACCOUNT` on a valid input. After the regex fix the GUI agrees
+    // (Canonical → pin fires).
+    let state = state_with_descriptor("wpkh(@0[deadbeef/84'/0'/0']/<0;1>/*)");
+    let vis = bundle(&state);
+    let pinned = vis.iter().any(|(k, v)| {
+        *k == "--account"
+            && matches!(v, Visibility::PinValue { value } if value == &serde_json::json!(0))
+    });
+    assert!(
+        pinned,
+        "suffix-origin descriptor should pin --account to 0; got vis: {vis:?}"
+    );
+}
+
+#[test]
+fn prefix_form_origin_still_pins() {
+    // Positive control: the PREFIX-origin form `[fp/path]@N` must STILL pin
+    // (the reposition keeps the prefix bracket group — no regression).
+    let state = state_with_descriptor("wpkh([deadbeef/84'/0'/0']@0/<0;1>/*)");
+    let vis = bundle(&state);
+    let pinned = vis.iter().any(|(k, v)| {
+        *k == "--account"
+            && matches!(v, Visibility::PinValue { value } if value == &serde_json::json!(0))
+    });
+    assert!(
+        pinned,
+        "prefix-origin descriptor should still pin --account to 0; got vis: {vis:?}"
+    );
+}
+
+#[test]
+fn no_origin_form_still_pins() {
+    // Positive control: the no-origin form `@N` must STILL pin (both
+    // optional bracket groups skipped — no regression).
+    let state = state_with_descriptor("wpkh(@0)");
+    let vis = bundle(&state);
+    let pinned = vis.iter().any(|(k, v)| {
+        *k == "--account"
+            && matches!(v, Visibility::PinValue { value } if value == &serde_json::json!(0))
+    });
+    assert!(
+        pinned,
+        "no-origin descriptor should still pin --account to 0; got vis: {vis:?}"
+    );
+}
+
+#[test]
 fn non_canonical_descriptor_lifts_account_pin() {
     // Non-canonical descriptor — pin is LIFTED so the user-typed
     // `--account N` flows through to the toolkit, which consumes it for

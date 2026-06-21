@@ -130,14 +130,39 @@ const MD1_FORMS: &[&str] = &["policy", "template"];
 // reports `--search-chain` as a dropdown with these three choices).
 const SEARCH_CHAINS: &[&str] = &["receive", "change", "both"];
 
-// R1 C-2 fold: NODE_TYPES exactly mirrors upstream
-// `NodeType::as_str()` ordering in
-// `crates/mnemonic-toolkit/src/cmd/convert.rs:48-64`. Drift here is invisible
-// to the schema-mirror flag-name test, so we hand-pin against the upstream
-// source. Master xpub / fingerprint plumbing for cosigner identification
-// lives in SlotSubkey (slot_input.rs), NOT NodeType — `--from`/`--to`
-// never see those tokens.
-const NODE_TYPES: &[&str] = &[
+// L13 (cycle-11a): `--from` and `--to` carry DIFFERENT node-token sets — they
+// are NOT the same list. Drift here is invisible to the schema-mirror
+// flag-name test, so we hand-pin against the upstream source.
+//
+// `CONVERT_FROM_NODES` mirrors the INPUT enum `NodeType::as_str` ordering in
+// `crates/mnemonic-toolkit/src/cmd/convert.rs:54-72` — it INCLUDES `seedqr`
+// (index 1, after `phrase`). The toolkit accepts `--from seedqr=<digits>`.
+//
+// `CONVERT_TO_NODES` mirrors the toolkit's `--to` `PossibleValuesParser` in
+// `crates/mnemonic-toolkit/src/cmd/convert.rs:209-223` — it EXCLUDES `seedqr`
+// (seedqr is decode/input-only; the toolkit refuses `--to seedqr`).
+//
+// Master xpub / fingerprint plumbing for cosigner identification lives in
+// SlotSubkey (slot_input.rs), NOT NodeType — `--from`/`--to` never see those
+// tokens.
+const CONVERT_FROM_NODES: &[&str] = &[
+    "phrase",
+    "seedqr",
+    "entropy",
+    "xpub",
+    "xprv",
+    "wif",
+    "fingerprint",
+    "path",
+    "ms1",
+    "mk1",
+    "bip38",
+    "minikey",
+    "electrum-phrase",
+    "address",
+];
+
+const CONVERT_TO_NODES: &[&str] = &[
     "phrase",
     "entropy",
     "xpub",
@@ -1112,7 +1137,7 @@ const CONVERT_FLAGS: &[FlagSchema] = &[
     },
     FlagSchema {
         name: "--from",
-        kind: FlagKind::NodeValueComposite(NODE_TYPES),
+        kind: FlagKind::NodeValueComposite(CONVERT_FROM_NODES),
         required: true,
         repeating: false,
         help: "Source node: <node>=<value>. `=-` reads value from stdin.",
@@ -1122,7 +1147,7 @@ const CONVERT_FLAGS: &[FlagSchema] = &[
     },
     FlagSchema {
         name: "--to",
-        kind: FlagKind::Dropdown(NODE_TYPES),
+        kind: FlagKind::Dropdown(CONVERT_TO_NODES),
         required: true,
         repeating: true,
         help: "Destination node (repeating: clap Append).",

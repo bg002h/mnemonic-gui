@@ -112,6 +112,11 @@ const FIXTURES: &[(&str, Expect)] = &[
     ("wpkh(@0)", Expect::Canonical),
     ("wpkh(@0/<0;1>/*)", Expect::Canonical),
     ("wpkh(@0/**)", Expect::ParseFails), // → toolkit exit 2 (`/**` shorthand)
+    // L12 (cycle-11a): SUFFIX-origin form `@N[fp/path]` — the toolkit
+    // classifies it Canonical; this fixture closes the corpus gap (the
+    // prefix-only corpus let GUI + toolkit happen to agree) that let the
+    // drift gate miss L12.
+    ("wpkh(@0[deadbeef/84'/0'/0']/<0;1>/*)", Expect::Canonical),
     // tr keypath-only shapes (BIP-86).
     ("tr(@0)", Expect::Canonical),
     ("tr(@0/<0;1>/*)", Expect::Canonical),
@@ -129,7 +134,7 @@ const FIXTURES: &[(&str, Expect)] = &[
     ("sh(sortedmulti(2,@0,@1))", Expect::NonCanonical),
     ("sh(multi(2,@0,@1))", Expect::NonCanonical),
 ];
-// 11 Canonical + 4 NonCanonical + 3 ParseFails = 18 (15 classify, 3 parse-fail).
+// 12 Canonical + 4 NonCanonical + 3 ParseFails = 19 (16 classify, 3 parse-fail).
 
 #[test]
 fn gui_classifier_matches_toolkit_for_all_fixtures() {

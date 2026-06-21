@@ -711,6 +711,18 @@ shipped partially.
   value-inspect) covering representative new surface. All 15
   subcommand tabs render in the GUI at v0.2.
 
+### `gui-tree-key-egui-undo-ring-residue` — egui undo ring may retain tree-key keystrokes after model zeroize
+
+- **Surfaced:** 2026-06-21, cycle-11a (M9 follow-on). The cycle-11a M9 fix (`gui-tree-key-not-zeroized-on-exit`) scrubs the model-side `TreeNode.key`/`.keys[i]` `String`s on exit, but the egui `text_edit_singleline` widgets rendering those fields (`src/form/tree_form.rs`) maintain an internal **undo ring** that may retain prior keystrokes after the model `String` is zeroized.
+- **Class:** identical to the already-tracked `gui-secret-buffer-allocator-residue` / `gui-os-snapshot-secret-occlusion` caveats (referenced in `PASTE_WARN_MODAL_TEXT`). The values/slots/positionals/secret_widgets the exit sweep already covers carry the same undo-ring caveat; M9 brought `state.tree` to parity with them. A separate, deferred mitigation.
+- **Status:** open (deferred).
+
+### `gui-canonicity-regex-coarse-pin-gate-not-validator` — canonicity regex is intentionally a coarse pin-gate, not a full validator
+
+- **Surfaced:** 2026-06-21, cycle-11a (L12 follow-on). `src/form/conditional.rs::classify_descriptor_canonicity` is by design a COARSE pin-gate for the `--account → PinValue(0)` push (the toolkit is the authority on canonicity). After the L12 fix it over-accepts the double-origin form `[fp]@N[fp]` (classifies Canonical). This is benign under both toolkit versions: the pinned v0.60.0 ACCEPTS the double-origin form (its suffix-only lexer silently skips a leading `[fp]`), and master/v0.62.0+ REFUSES it at parse ("supply exactly one"), so the pin value is moot.
+- **Alternative (deferred):** replace the regex with a single oracle — shell out to `gui-schema --classify-descriptor` — making the GUI exactly track the toolkit. A larger change (a subprocess per keystroke / classification site) for zero behavioral gain over the coarse gate, since v0.62.0+ already enforces the tightening toolkit-side. Doc-only record.
+- **Status:** open (deferred, doc-only).
+
 ## Process notes
 
 ### v0.2: enforce PR-CI gate before tag-push
@@ -739,6 +751,27 @@ the v0.2 release prep doesn't repeat the v0.1 deviation.
 - **Where:** the GUI classified composite-node secrecy via the narrow `mnemonic_toolkit::secret_taxonomy::SECRET_NODE_TYPES`, which OMITS `minikey`. So `convert --from minikey=<key>` fell through four surfaces: argv-mask (unmasked in Preview / last-run), `should_confirm_run` (no run-confirm), paste-warn (never fired), and `redact_for_persistence` (written **plaintext** to `~/.config/mnemonic-gui/state.json`).
 - **Fix:** new `secrets::node_type_is_argv_secret` predicate backed by the wider `SECRET_NODE_TYPES_ARGV` (= narrow + minikey, already present at the pinned `mnemonic-toolkit-v0.60.0`) routes argv-mask (`form/invocation.rs`), run-confirm (`secrets::should_confirm_run`), and persist-redaction (`persistence.rs`, autosave + on-exit); the composite value widget gained node-aware paste detection (see `composite-paste-warn-parity`). Compile-time drift-guard mod `argv_canonical_fallback` + `secret_taxonomy_pin` assertions prevent silent re-narrowing. No toolkit pin bump; no `schema_mirror` delta.
 - **Report:** `mnemonic-toolkit/design/agent-reports/constellation-bughunt-2026-06-20.md` (H3).
+
+### `gui-tree-key-not-zeroized-on-exit` — node-tree builder key material never scrubbed in RAM on exit (RESOLVED v0.46.0)
+
+- **Surfaced:** 2026-06-20, constellation bug-hunt (M9). **Resolved:** `mnemonic-gui-v0.46.0` (2026-06-21, cycle-11a).
+- **Where:** `src/secrets.rs::zeroize_form_state` swept `values`/`slots`/`positionals`/`secret_widgets` but never referenced `state.tree`. The node-tree builder's `TreeNode.key` / `.keys[i]` (plain `String`s accepting xprv/WIF/raw-hex PRIVATE keys) were therefore never zeroized in RAM on app shutdown. (On-disk was already defended via `redacted_for_persistence`; this was the strictly-in-memory non-scrub.)
+- **Fix:** new recursive `TreeNode::zeroize_keys` (`src/form/tree_model.rs`, sibling to the on-disk redactor `blank_non_extended_public_keys`) zeroizes `key` + every `keys[i]` through all `children`; wired into the exit sweep via `state.tree.as_mut()`. The public `hex` digest is deliberately excluded (commitment, never a private preimage — matches on-disk redaction). `String: Zeroize` is live (zeroize 1.8.2). Pinned by `zeroize_form_state_clears_tree_keys` in `tests/secrets.rs` (recursion + `hex`-untouched guard). No toolkit pin bump; no `schema_mirror` delta. **Deferred residue:** the egui `text_edit_singleline` undo ring (`gui-tree-key-egui-undo-ring-residue`).
+- **Report:** `mnemonic-toolkit/design/agent-reports/constellation-bughunt-2026-06-20.md` (M9).
+
+### `gui-canonicity-regex-suffix-origin-misclassify` — canonicity regex missed the suffix-origin form `@N[fp/path]` (RESOLVED v0.46.0)
+
+- **Surfaced:** 2026-06-20, constellation bug-hunt (L12). **Resolved:** `mnemonic-gui-v0.46.0` (2026-06-21, cycle-11a).
+- **Where:** the three single-key canonicity regexes in `src/form/conditional.rs` (`pkh`/`wpkh`/`tr`) anchored the optional origin bracket BEFORE `@N` (prefix form `[fp]@N` only). The pinned toolkit ALSO accepts the SUFFIX form `@N[fp/path]` and classifies it canonical (empirically, v0.60.0: `gui-schema --classify-descriptor` → `canonical`). The GUI misclassified it NonCanonical → LIFTED the `--account → PinValue(0)` push → user `--account N` reached the toolkit → confusing hard-error `DESCRIPTOR_WITH_NONZERO_ACCOUNT` on a valid input (NOT a silent wrong-address).
+- **Fix:** insert a SECOND optional origin bracket between `@\d+` and the multipath group (byte-identical to the prefix bracket; the prefix group is kept). The wsh/sh-wsh multisig regexes carry no origin bracket and are untouched. Added a suffix-form Canonical fixture to `tests/canonicity_drift.rs` (the live GUI-vs-toolkit parity gate that should have caught L12 — the prefix-only corpus let GUI + toolkit happen to agree) and a `suffix_form_origin_descriptor_pins_account_to_zero` pin test (+ prefix/no-origin positive controls). The GUI regex remains a coarse pin-gate (the toolkit is the authority); the double-origin over-acceptance is benign under both the pin (v0.60.0 ACCEPTS) and master/v0.62.0+ (REFUSES at parse) — see `gui-canonicity-regex-coarse-pin-gate-not-validator`. No toolkit pin bump.
+- **Report:** `mnemonic-toolkit/design/agent-reports/constellation-bughunt-2026-06-20.md` (L12).
+
+### `gui-convert-from-dropdown-missing-seedqr` — `convert --from seedqr` unreachable from the GUI (RESOLVED v0.46.0)
+
+- **Surfaced:** 2026-06-20, constellation bug-hunt (L13). **Resolved:** `mnemonic-gui-v0.46.0` (2026-06-21, cycle-11a).
+- **Where:** a single shared `NODE_TYPES` const (seedqr-free) in `src/schema/mnemonic.rs` backed BOTH `--from` (`NodeValueComposite`) and `--to` (`Dropdown`). The toolkit ACCEPTS `--from seedqr=<digits>` (`NodeType::as_str` lists `seedqr` at index 1) but REJECTS `--to seedqr` (its `--to` `PossibleValuesParser` omits it — seedqr is decode/input-only). So `--from seedqr` was un-offerable from the GUI.
+- **Fix:** split the list — `CONVERT_FROM_NODES` (14, seedqr@1, mirrors the INPUT enum `NodeType::as_str`) backs `--from`; `CONVERT_TO_NODES` (13, seedqr-free, mirrors the `--to` `PossibleValuesParser`) backs `--to` (value-preserving rename of the old `NODE_TYPES`). Pinned by `convert_from_dropdown_includes_seedqr` + the `convert_to_dropdown_excludes_seedqr` leak-guard in `tests/convert_node_dropdowns.rs`. **No toolkit pin bump / no `schema_mirror` trigger:** seedqr present since toolkit v0.31.6 < pinned v0.60.0; `--from` uses a custom `parse_from_input` value_parser (gui-schema emits NO `--from` value enum); `--to` keeps the seedqr-free list (schema_mirror compares flag NAMES only, and `schema_mirror_secret_drift` the per-(sub,flag) secret-bit — both stay GREEN).
+- **Report:** `mnemonic-toolkit/design/agent-reports/constellation-bughunt-2026-06-20.md` (L13).
 
 ### gui-combobox-id-collision (resolved in v0.1.2 by from_id_salt switch)
 
