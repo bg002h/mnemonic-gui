@@ -386,8 +386,9 @@ fn pin_value_to_argv_token(v: &serde_json::Value) -> Option<String> {
 // this function (secret Text + secret positionals are handled in the caller's
 // secret branch BEFORE reaching emit_one; secret non-Text/non-Composite flags
 // are Boolean-suppressed). Its bit is `flag_is_secret(flag) ||
-// node_type_is_secret(node)` — covering both the secret flag `--share` and the
-// value-dependent `--from phrase=<seed>` (flag non-secret, NODE secret).
+// node_type_is_argv_secret(node)` — covering both the secret flag `--share` and
+// the value-dependent `--from phrase=<seed>` / `--from minikey=<key>` (flag
+// non-secret, NODE secret; cycle-3 widened to the argv set so minikey masks).
 fn emit_one(flag: &FlagSchema, value: &FlagValue, argv: &mut Vec<String>, mask: &mut Vec<bool>) {
     // v0.10.0 B.3 (D33): default-value suppression. When the user's typed
     // value equals the toolkit-declared default for this flag, omit the

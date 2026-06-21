@@ -3,6 +3,14 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## mnemonic-gui [0.45.0] — 2026-06-21
+
+**SemVer-MINOR — two funds-safety secret-leak fixes (constellation bug-hunt cycle-3, H2 + H3).** GUI-only; no toolkit pin change (consumes `SECRET_NODE_TYPES_ARGV`, already present at the pinned `mnemonic-toolkit-v0.60.0`). No clap-flag / dropdown-value change → no `schema_mirror` impact.
+
+- **H2 — runner no longer logs cleartext argv.** `src/runner.rs` previously `debug!`-logged the entire spawn argv (`argv = ?argv`); under `--debug` / `RUST_LOG=…=debug` this printed secret-bearing tokens (BIP-39 phrase / entropy / WIF / minikey) verbatim to stderr (terminal / journald / file). The spawn log now emits only `program = %argv[0]` (the resolved binary, never secret) + `argv_len` + `stdin`. No signature/behavior change to `run_with_stdin`.
+- **H3 — minikey (Casascius mini PRIVATE KEY) now classified secret across all four GUI surfaces.** The GUI classified composite-node secrecy via the narrow `SECRET_NODE_TYPES` (which omits `minikey`), so `convert --from minikey=<key>` leaked: unmasked in the argv Preview / last-run line, no run-confirm modal, no paste-warn, and **written plaintext to `~/.config/mnemonic-gui/state.json`**. New `secrets::node_type_is_argv_secret` predicate (backed by the wider `SECRET_NODE_TYPES_ARGV` = narrow + minikey) now routes argv-mask (`form/invocation.rs`), run-confirm (`secrets::should_confirm_run`), and persistence-redaction (`persistence::redact_for_persistence`, both autosave + on-exit paths). The composite value widget gains node-aware paste detection (closes FOLLOWUP `composite-paste-warn-parity` for all 9 composite nodes — the warn fires only for secret-class nodes). Two false `// per-row paste-warn fires` schema comments corrected (`convert --from`, `seedqr decode --from`); `secret: false` unchanged → no schema-mirror delta.
+- **Drift-guards:** a new sibling compile-time fallback mod (`argv_canonical_fallback`) snapshots `SECRET_NODE_TYPES_ARGV`, and `tests/secret_taxonomy_pin.rs` pins `minikey ∈ wide ∧ ∉ narrow` — a future toolkit-side widening the GUI fails to track becomes a test failure, not a silent leak.
+
 ## mnemonic-gui [0.44.0] — 2026-06-20
 
 **SemVer-MINOR — schema-mirror lockstep for `mnemonic-toolkit-v0.60.0`'s `#28` phase-2 multisig / general-policy keyless TEMPLATE-completion flags.** The toolkit added new clap flags across `restore` + `verify-bundle` for completing a keyless, fingerprint-stripped, canonical-origin-elided MULTISIG / general-policy template bundle (`bundle --md1-form=template`, n≥2) by supplying the operator's own seed + the cosigner keys plus a key→slot disambiguation input; this release mirrors them into the GUI clap-flag schema and bumps the toolkit pin.

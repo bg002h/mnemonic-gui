@@ -43,7 +43,8 @@ mirrors it.
 - **Where:** Item 3 (paste-warn wiring, v0.40.0) threads through `SecretLineEdit::show`; `NodeValueComposite` values (e.g. `--from phrase=<seed>`) are typed in a different widget.
 - **What:** a large paste of a seed into a composite VALUE field whose node is secret-classed does not trigger the paste-warn modal (v0.40.0 keys the warn on `SecretLineEdit`, and composites don't use it).
 - **Fix:** extend the paste-detection to the composite value widget (it could set the same `secret_widget::paste_warn_id()` flag with the same `changed() + Event::Paste` check) OR keep documented. The v0.39.0 masking already covers the DISPLAY of these composites; this is only the paste-warn affordance.
-- **Tier:** deferred (still open after v0.40.0).
+- **Status:** **resolved** `mnemonic-gui-v0.45.0` (2026-06-21, constellation bug-hunt cycle-3 H3 fold). Wired node-aware paste-detection into the `NodeValueComposite` value widget (`src/form/widget.rs`): on `response.changed()` with `Event::Paste ≥ PASTE_WARN_THRESHOLD` AND `secrets::node_type_is_argv_secret(node)`, raise the same `secret_widget::paste_warn_id()` bus flag the existing modal already consumes (single chokepoint, no new modal wiring). Fires for every secret-class composite node's value (all 9 composites, incl. the cycle-3-newly-classified `minikey`); non-secret nodes (xpub/path/mk1/fingerprint/address) do not over-warn.
+- **Tier:** RESOLVED (was: deferred after v0.40.0).
 
 ### `slot-field-paste-warn-uncovered` — paste-warn (v0.40.0) does not cover secret SLOT value fields
 
@@ -51,7 +52,7 @@ mirrors it.
 - **Where:** v0.38.0 renders secret slot values via a raw `egui::TextEdit::singleline(&mut row.value).password(true)` in `src/form/slot_editor.rs`, NOT `SecretLineEdit`.
 - **What:** a large paste into a `@N.phrase=`/`@N.ms1=` slot box does not fire the paste-warn modal (the v0.40.0 detection lives in `SecretLineEdit::show`, which the slot editor does not use). Sibling of `composite-paste-warn-parity` — both are "secret input not via SecretLineEdit."
 - **Fix (cheap, by design):** the slot render can set the same `secret_widget::paste_warn_id()` bus flag with the same `response.changed() + Event::Paste ≥ PASTE_WARN_THRESHOLD` check on `is_secret_bearing()` rows; `update()`'s read-once already covers it. ~3 lines.
-- **Tier:** deferred (low-risk; the slot value is already masked + zeroized since v0.38.0; this is only the paste affordance).
+- **Tier:** deferred (low-risk; the slot value is already masked + zeroized since v0.38.0; this is only the paste affordance). **Considered + deferred again in cycle-3 (2026-06-21):** explicitly out of scope for the H3 funds-leak fix — `minikey` is `convert --from`-only and never reaches a slot (`SlotSubkey` has no minikey), so the slot gap carries no minikey funds-leak. Left open as the cheap sibling to `composite-paste-warn-parity`.
 
 ### `runner-tracing-test-flaky-under-parallel-load` — cell_2_tracing_init_logs_subprocess_spawn intermittently misses the exit event
 
@@ -724,6 +725,20 @@ via PR with full 5-target CI green before tagging. This entry exists so
 the v0.2 release prep doesn't repeat the v0.1 deviation.
 
 ## Resolved
+
+### `gui-runner-debug-logs-unmasked-secret-argv` — runner `debug!`-logged the full spawn argv in cleartext (RESOLVED v0.45.0)
+
+- **Surfaced:** 2026-06-20, constellation bug-hunt (H2). **Resolved:** `mnemonic-gui-v0.45.0` (2026-06-21, cycle-3).
+- **Where:** `src/runner.rs` `run_with_stdin` — `debug!(target: "mnemonic_gui::runner", argv = ?argv, …, "subprocess spawn")` Debug-formatted the ENTIRE argv. Under `--debug` / `RUST_LOG=…=debug`, secret-bearing argv tokens (BIP-39 phrase / entropy / WIF / minikey) printed verbatim to stderr (terminal / journald / log file).
+- **Fix:** the spawn log now emits `program = %argv[0]` (the resolved binary — never secret) + `argv_len` + `stdin` only; zero secret bytes, no `run_with_stdin` signature/behavior change. Pinned by `runner_no_argv_leak` in `tests/runner_integration.rs` (capture-gated sentinel-absence + `argv_len` positive control, reusing the `cell_2` 3-attempt race harness).
+- **Report:** `mnemonic-toolkit/design/agent-reports/constellation-bughunt-2026-06-20.md` (H2).
+
+### `gui-minikey-secret-not-masked-in-argv-preview` — minikey (Casascius mini PRIVATE KEY) leaked across 4 GUI surfaces (RESOLVED v0.45.0)
+
+- **Surfaced:** 2026-06-20, constellation bug-hunt (H3; folds the Wave-3 `w3-gui-minikey-persist-plaintext` facet). **Resolved:** `mnemonic-gui-v0.45.0` (2026-06-21, cycle-3).
+- **Where:** the GUI classified composite-node secrecy via the narrow `mnemonic_toolkit::secret_taxonomy::SECRET_NODE_TYPES`, which OMITS `minikey`. So `convert --from minikey=<key>` fell through four surfaces: argv-mask (unmasked in Preview / last-run), `should_confirm_run` (no run-confirm), paste-warn (never fired), and `redact_for_persistence` (written **plaintext** to `~/.config/mnemonic-gui/state.json`).
+- **Fix:** new `secrets::node_type_is_argv_secret` predicate backed by the wider `SECRET_NODE_TYPES_ARGV` (= narrow + minikey, already present at the pinned `mnemonic-toolkit-v0.60.0`) routes argv-mask (`form/invocation.rs`), run-confirm (`secrets::should_confirm_run`), and persist-redaction (`persistence.rs`, autosave + on-exit); the composite value widget gained node-aware paste detection (see `composite-paste-warn-parity`). Compile-time drift-guard mod `argv_canonical_fallback` + `secret_taxonomy_pin` assertions prevent silent re-narrowing. No toolkit pin bump; no `schema_mirror` delta.
+- **Report:** `mnemonic-toolkit/design/agent-reports/constellation-bughunt-2026-06-20.md` (H3).
 
 ### gui-combobox-id-collision (resolved in v0.1.2 by from_id_salt switch)
 
