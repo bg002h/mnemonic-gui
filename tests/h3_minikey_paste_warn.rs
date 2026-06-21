@@ -24,8 +24,8 @@ use mnemonic_gui::form::widget;
 use mnemonic_gui::schema::{self, FlagSchema, FlagValue, FormState};
 use mnemonic_gui::secrets::PASTE_WARN_THRESHOLD;
 
-/// The `convert --from` FlagSchema (NodeValueComposite over NODE_TYPES, which
-/// includes `minikey`).
+/// The `convert --from` FlagSchema (NodeValueComposite over
+/// CONVERT_FROM_NODES, which includes `minikey`).
 fn from_flag() -> &'static FlagSchema {
     schema::mnemonic::SCHEMA
         .subcommands

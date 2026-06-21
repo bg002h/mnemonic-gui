@@ -446,8 +446,8 @@ pub fn verify_bundle(state: &FormState) -> FlagVisibility {
 /// `target`. `dropdown_value` only inspects the first match in `state.values`,
 /// so for repeating dropdowns we iterate manually.
 ///
-/// SPEC §6.7 + `schema/mnemonic.rs:415-422` define `--to` as
-/// `FlagKind::Dropdown(NODE_TYPES)` with `repeating: true`; the argv assembler
+/// SPEC §6.7 + `schema/mnemonic.rs` define `--to` as
+/// `FlagKind::Dropdown(CONVERT_TO_NODES)` with `repeating: true`; the argv assembler
 /// at `form/invocation.rs:175-178` consumes all matching rows in order. This
 /// helper mirrors the same iteration shape so conditional predicates see
 /// every populated `--to` value.
