@@ -13,7 +13,8 @@
 //!   - Any `values` entry whose flag name is schema-`secret: true`
 //!     anywhere across the 4 CLI schemas (v0.31.1 SPEC §3 — the
 //!     `secrets::schema_secret_flag_names()` name-level net)
-//!   - `NodeValueComposite` entries where `node` is in `SECRET_NODE_TYPES`
+//!   - `NodeValueComposite` entries where `node` is in `SECRET_NODE_TYPES_ARGV`
+//!     (cycle-3 H3 — the wide argv/redaction set, incl. `minikey`)
 //!   - Slot rows whose subkey is in `SECRET_SLOT_SUBKEYS`
 //!
 //! Schema version mismatch → rename `state.json` to `state.json.bak` and
@@ -28,7 +29,7 @@ use serde::{Deserialize, Serialize};
 use crate::app::CliTab;
 use crate::form::slot_editor::SlotState;
 use crate::schema::{FlagValue, FormState};
-use crate::secrets::{SECRET_FLAG_NAMES, SECRET_NODE_TYPES, SECRET_SLOT_SUBKEYS};
+use crate::secrets::{SECRET_FLAG_NAMES, SECRET_NODE_TYPES_ARGV, SECRET_SLOT_SUBKEYS};
 
 /// Current persistence schema version. Bump when the on-disk shape
 /// changes incompatibly; loader writes `.bak` on mismatch.
@@ -70,7 +71,8 @@ fn default_show_true() -> bool {
 ///     schemas (`secrets::schema_secret_flag_names()` — v0.31.1 SPEC §3
 ///     belt-and-suspenders; a NAME-level net, not a guarantee that
 ///     secrets never enter `values`)
-///   - `NodeValueComposite` whose `node` is in `SECRET_NODE_TYPES`
+///   - `NodeValueComposite` whose `node` is in `SECRET_NODE_TYPES_ARGV`
+///     (cycle-3 H3 — wide argv/redaction set: narrow + `minikey`)
 ///   - slot rows whose subkey is in `SECRET_SLOT_SUBKEYS`
 pub fn redact_for_persistence(state: &FormState) -> FormState {
     let schema_secret_names = crate::secrets::schema_secret_flag_names();
@@ -91,9 +93,13 @@ pub fn redact_for_persistence(state: &FormState) -> FormState {
             if schema_secret_names.contains(&k.as_str()) {
                 return false;
             }
-            // Drop secret-class NodeValueComposite entries.
+            // Drop secret-class NodeValueComposite entries. cycle-3 H3: the WIDE
+            // argv/redaction set (`SECRET_NODE_TYPES_ARGV` = narrow + minikey) —
+            // `minikey` is a Casascius mini PRIVATE KEY and must not persist
+            // plaintext to state.json. The delta over the narrow set is exactly
+            // {minikey}; nothing argv-secret-but-persist-safe exists.
             if let FlagValue::NodeValueComposite { node, .. } = v {
-                if SECRET_NODE_TYPES.contains(&node.as_str()) {
+                if SECRET_NODE_TYPES_ARGV.contains(&node.as_str()) {
                     return false;
                 }
             }

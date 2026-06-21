@@ -31,7 +31,9 @@
 //!
 //! Modal copy texts are pinned byte-exact per SPEC §9.
 
-pub use mnemonic_toolkit::secret_taxonomy::{SECRET_NODE_TYPES, SECRET_SLOT_SUBKEYS};
+pub use mnemonic_toolkit::secret_taxonomy::{
+    SECRET_NODE_TYPES, SECRET_NODE_TYPES_ARGV, SECRET_SLOT_SUBKEYS,
+};
 
 /// One-cycle belt-and-suspenders snapshot. Removed in v0.5.0.
 mod v0_3_canonical_fallback {
@@ -156,9 +158,22 @@ pub fn slot_subkey_is_secret(subkey: SlotSubkey) -> bool {
     SECRET_SLOT_SUBKEYS.contains(&subkey.as_str())
 }
 
-/// True iff `node` (e.g. `"phrase"`, `"xpub"`) is in the secret-class set.
+/// True iff `node` (e.g. `"phrase"`, `"xpub"`) is in the NARROW secret-class
+/// set (`SECRET_NODE_TYPES`). Kept for any persistence-narrow semantics; the
+/// argv/redaction surfaces use [`node_type_is_argv_secret`] (the wider set).
 pub fn node_type_is_secret(node: &str) -> bool {
     SECRET_NODE_TYPES.contains(&node)
+}
+
+/// True iff `node` is in the WIDER argv/redaction secret set
+/// (`SECRET_NODE_TYPES_ARGV` = narrow + `minikey`). cycle-3 H3: use for
+/// argv-mask / run-confirm / persistence-redact / paste-warn. The toolkit ships
+/// the two sets as INTENTIONALLY distinct (`minikey`, a Casascius mini private
+/// key, is argv-secret but is omitted from the narrow persistence-historical
+/// set); two named predicates keep each call site self-documenting about which
+/// semantic it wants and prevent a "simplify back to one set" re-narrowing.
+pub fn node_type_is_argv_secret(node: &str) -> bool {
+    SECRET_NODE_TYPES_ARGV.contains(&node)
 }
 
 /// Paste-warn modal copy text (SPEC §9 — one-shot per session, per
@@ -224,10 +239,11 @@ pub fn should_confirm_run(
             }
         }
     }
-    // Check NodeValueComposite values — secrecy is value-dependent.
+    // Check NodeValueComposite values — secrecy is node-dependent. cycle-3 H3:
+    // route through the WIDE set so a `--from minikey=…` confirms.
     for (_, v) in &state.values {
         if let crate::schema::FlagValue::NodeValueComposite { node, value } = v {
-            if !value.is_empty() && node_type_is_secret(node) {
+            if !value.is_empty() && node_type_is_argv_secret(node) {
                 return true;
             }
         }

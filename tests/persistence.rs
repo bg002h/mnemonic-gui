@@ -3,7 +3,7 @@
 //! Cells:
 //!   - Round-trip: write PersistedState → read → assert equality.
 //!   - Never-persist set: write a state with secret-class entries; read;
-//!     assert NONE of `SECRET_FLAG_NAMES`, `SECRET_NODE_TYPES`,
+//!     assert NONE of `SECRET_FLAG_NAMES`, `SECRET_NODE_TYPES_ARGV`,
 //!     `SECRET_SLOT_SUBKEYS` survives. The audit reads the SECRET_*
 //!     constants DYNAMICALLY (not hard-coded literals) so adding new
 //!     upstream secret-bearing variants automatically extends the audit.
@@ -20,7 +20,7 @@ use mnemonic_gui::persistence::{
     load, redact_for_persistence, redact_persisted_state, save, PersistedState, SCHEMA_VERSION,
 };
 use mnemonic_gui::schema::{FlagValue, FormState};
-use mnemonic_gui::secrets::{SECRET_FLAG_NAMES, SECRET_NODE_TYPES, SECRET_SLOT_SUBKEYS};
+use mnemonic_gui::secrets::{SECRET_FLAG_NAMES, SECRET_NODE_TYPES_ARGV, SECRET_SLOT_SUBKEYS};
 
 fn watch_only_form() -> FormState {
     FormState::from_pairs(vec![
@@ -153,7 +153,12 @@ fn cell_2_never_persist_audit_strips_all_secret_flags() {
         );
     }
     // NodeValueComposite node tokens — quoted ("node-name") match.
-    for node in SECRET_NODE_TYPES {
+    // cycle-3 H3: iterate the WIDE argv/redaction set (narrow + minikey) so the
+    // authoritative redaction set is exercised here too (defense-in-depth). The
+    // genuine minikey on-disk proof lives in tests/h3_minikey_secret_surfaces.rs
+    // (this fixture has only phrase/xpub composites, so the minikey iteration is
+    // a no-op against THIS state — the loop just tracks the authoritative set).
+    for node in SECRET_NODE_TYPES_ARGV {
         let quoted = format!("\"{}\"", node);
         assert!(
             !on_disk.contains(&quoted),
@@ -303,13 +308,15 @@ fn cell_7_form_state_round_trip_in_memory() {
 
 #[test]
 fn cell_8_dynamic_secret_set_audit_no_hardcoded_literals() {
-    // Sanity: the test reads SECRET_NODE_TYPES + SECRET_SLOT_SUBKEYS
+    // Sanity: the test reads SECRET_NODE_TYPES_ARGV + SECRET_SLOT_SUBKEYS
     // FROM THE LIBRARY (re-exported from
     // `mnemonic_toolkit::secret_taxonomy` since v0.4.0; was
     // build.rs-generated in v0.3.x) — not hard-coded literals here.
     // R1 I-4 fold: dynamic source so adding new upstream
     // is_secret_bearing variants automatically extends the audit.
-    assert!(!SECRET_NODE_TYPES.is_empty());
+    // cycle-3 H3: the wide argv/redaction set is the authoritative
+    // composite-drop set used by `redact_for_persistence`.
+    assert!(!SECRET_NODE_TYPES_ARGV.is_empty());
     assert!(!SECRET_SLOT_SUBKEYS.is_empty());
     // Every entry in these arrays must be excluded from redacted output.
     let mixed = mixed_form_with_secrets();

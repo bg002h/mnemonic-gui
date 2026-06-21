@@ -145,8 +145,9 @@ pub const SECRET_MASK: &str = "••••";
 /// same four `secrets::should_confirm_run` classifies: (1) secret Text flag
 /// value; (2) secret slot row value token (`@N.subkey=value`, subkey
 /// secret-bearing); (3) secret positional value; (4) `NodeValueComposite`
-/// value token whose flag is secret-bearing OR whose node is secret-classed
-/// (`node_type_is_secret`). All other tokens (cli/subcommand names, flag
+/// value token whose flag is secret-bearing OR whose node is argv-secret-classed
+/// (`node_type_is_argv_secret` — the wide set, incl. `minikey`). All other
+/// tokens (cli/subcommand names, flag
 /// names, PinValue tokens, non-secret values, sentinels) are masked `false`.
 pub fn assemble_argv_with_secret_mask(
     schema: &Schema,
@@ -451,10 +452,12 @@ fn emit_one(flag: &FlagSchema, value: &FlagValue, argv: &mut Vec<String>, mask: 
                 mask.push(false);
                 argv.push(format!("{}={}", node, value));
                 // v0.39.0: secret iff the flag is secret-bearing (--share) OR
-                // the node is a secret class (--from phrase=<seed>).
+                // the node is a secret class (--from phrase=<seed>). cycle-3 H3:
+                // use the WIDE argv set so `--from minikey=…` (a private key)
+                // masks too.
                 mask.push(
                     crate::secrets::flag_is_secret(flag)
-                        || crate::secrets::node_type_is_secret(node),
+                        || crate::secrets::node_type_is_argv_secret(node),
                 );
             }
         (FlagKind::TaggedOrIndexed(_), FlagValue::TaggedOrIndexed(tv)) => {
