@@ -116,7 +116,17 @@ where
         ));
     }
 
-    debug!(target: "mnemonic_gui::runner", argv = ?argv, stdin = stdin.is_some(), "subprocess spawn");
+    // cycle-3 H2: NEVER Debug-format the cleartext argv — secret tokens
+    // (BIP-39 phrase / entropy / WIF / minikey) are assembled INTO argv and
+    // `--debug`/`RUST_LOG` would print them to stderr. Log only non-secret
+    // shape fields. `argv[0]` is the resolved binary path/name (never secret).
+    debug!(
+        target: "mnemonic_gui::runner",
+        program = %argv[0],
+        argv_len = argv.len(),
+        stdin = stdin.is_some(),
+        "subprocess spawn",
+    );
 
     let mut child = Command::new(OsStr::new(&argv[0]))
         // mnemonic-gui v0.9.0 D23: see module-level doc above run().

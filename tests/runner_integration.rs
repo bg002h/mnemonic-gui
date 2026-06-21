@@ -192,6 +192,60 @@ fn cell_2_tracing_init_logs_subprocess_spawn() {
     );
 }
 
+/// cycle-3 H2 regression — the spawn debug event MUST NOT leak the cleartext
+/// argv (which carries secret tokens: BIP-39 phrase / entropy / WIF / minikey).
+///
+/// Harness mirrors `cell_2_tracing_init_logs_subprocess_spawn` verbatim: a
+/// scoped `set_default` capture subscriber + `rebuild_interest_cache()` + a
+/// 3-attempt retry loop. The retry is gated on the **always-present**
+/// `"subprocess spawn"` message (present in BOTH the old `argv = ?argv` code
+/// and the new `argv_len` code), so the negative (sentinel-absent) assertion is
+/// reachable on a captured attempt and an empty capture retries-then-panics
+/// (never a false-GREEN). The positive control (`argv_len` field present) is the
+/// discriminator between a real GREEN and a captured-nothing vacuous pass.
+#[test]
+fn runner_no_argv_leak() {
+    let mut captured = String::new();
+    for attempt in 1..=3 {
+        let buf = Arc::new(Mutex::new(Vec::<u8>::new()));
+        let subscriber = tracing_subscriber::fmt()
+            .with_max_level(tracing::Level::DEBUG)
+            .with_writer(CapturedWriter(buf.clone()))
+            .with_ansi(false)
+            .finish();
+        let guard = tracing::subscriber::set_default(subscriber);
+        tracing::callsite::rebuild_interest_cache();
+
+        let _ = runner::run([
+            mnemonic_bin(),
+            "--version".into(),
+            "SENTINEL_SEED_abandon_abandon_xxxxxxxx".into(),
+        ])
+        .expect("spawn ok");
+        drop(guard);
+
+        captured = String::from_utf8(buf.lock().unwrap().clone()).unwrap();
+        if captured.contains("subprocess spawn") {
+            // CAPTURE GATE: the spawn event message is present in BOTH old and
+            // new code, so this negative assertion is always reached on a
+            // captured attempt.
+            assert!(
+                !captured.contains("SENTINEL_SEED"),
+                "argv leaked to debug log: {captured}"
+            );
+            // Positive control: the NEW field shape (argv_len) shipped, proving
+            // THIS subscriber captured the rewritten :119 event (not nothing).
+            assert!(
+                captured.contains("argv_len"),
+                "expected argv_len field in the fixed spawn log: {captured}"
+            );
+            return;
+        }
+        eprintln!("attempt {attempt}/3 missed the spawn event (interest race); retrying");
+    }
+    panic!("could not capture runner spawn debug event after 3 attempts:\n{captured}");
+}
+
 #[test]
 fn cell_3_runner_deadlock_safe_on_large_stdout() {
     // Use the system `yes` (Unix) or a Rust-spawned `cargo run`-style
