@@ -101,14 +101,17 @@ pub fn classify_descriptor_canonicity(desc: &str) -> Canonicity {
     static RES: OnceLock<[regex::Regex; 5]> = OnceLock::new();
     let res = RES.get_or_init(|| {
         [
-            // pkh(@N) single-key — pkh( + optional [fp/...] + @<digit>+ +
-            // optional multipath `/<...>` + optional `/*` or `/**` wildcard
-            // (BIP-388 shorthand) + close paren.
-            regex::Regex::new(r"^pkh\((?:\[[0-9a-fA-F]{8}(?:/\d+'?h?)*\])?@\d+(?:/<[0-9;]+>)?(?:/\*+'?h?)?\)$").expect("static regex"),
+            // pkh(@N) single-key — pkh( + optional PREFIX [fp/...] + @<digit>+
+            // + optional SUFFIX [fp/...] (L12: the toolkit accepts the suffix
+            // form `@N[fp/path]` and classifies it canonical; the second
+            // bracket is byte-identical to the prefix bracket) + optional
+            // multipath `/<...>` + optional `/*` or `/**` wildcard (BIP-388
+            // shorthand) + close paren.
+            regex::Regex::new(r"^pkh\((?:\[[0-9a-fA-F]{8}(?:/\d+'?h?)*\])?@\d+(?:\[[0-9a-fA-F]{8}(?:/\d+'?h?)*\])?(?:/<[0-9;]+>)?(?:/\*+'?h?)?\)$").expect("static regex"),
             // wpkh(@N)
-            regex::Regex::new(r"^wpkh\((?:\[[0-9a-fA-F]{8}(?:/\d+'?h?)*\])?@\d+(?:/<[0-9;]+>)?(?:/\*+'?h?)?\)$").expect("static regex"),
+            regex::Regex::new(r"^wpkh\((?:\[[0-9a-fA-F]{8}(?:/\d+'?h?)*\])?@\d+(?:\[[0-9a-fA-F]{8}(?:/\d+'?h?)*\])?(?:/<[0-9;]+>)?(?:/\*+'?h?)?\)$").expect("static regex"),
             // tr(@N) key-path-only — single arg, no comma, no TapTree
-            regex::Regex::new(r"^tr\((?:\[[0-9a-fA-F]{8}(?:/\d+'?h?)*\])?@\d+(?:/<[0-9;]+>)?(?:/\*+'?h?)?\)$").expect("static regex"),
+            regex::Regex::new(r"^tr\((?:\[[0-9a-fA-F]{8}(?:/\d+'?h?)*\])?@\d+(?:\[[0-9a-fA-F]{8}(?:/\d+'?h?)*\])?(?:/<[0-9;]+>)?(?:/\*+'?h?)?\)$").expect("static regex"),
             // wsh(multi(...)) or wsh(sortedmulti(...))
             regex::Regex::new(r"^wsh\((?:multi|sortedmulti)\(").expect("static regex"),
             // sh(wsh(multi(...))) or sh(wsh(sortedmulti(...)))
