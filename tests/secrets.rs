@@ -355,6 +355,64 @@ fn zeroize_form_state_clears_text_dropdown_path_and_slots() {
     }
 }
 
+#[test]
+fn zeroize_form_state_clears_tree_keys() {
+    use mnemonic_gui::form::tree_model::{TreeNode, TreeState};
+
+    // M9 (cycle-11a): the exit zeroize sweep must walk `state.tree` and
+    // scrub every secret-bearing `key`/`keys[i]` String recursively through
+    // `children` — these accept xprv/WIF/raw-hex private keys. The public
+    // digest field `hex` is DELIBERATELY left untouched (it is a hashlock
+    // commitment, never a private preimage — matches the on-disk redactor
+    // `blank_non_extended_public_keys`, which also leaves `hex` alone).
+    let tree = TreeState {
+        enabled: true,
+        next_id: 3,
+        root: TreeNode {
+            id: 0,
+            kind: "multi".into(),
+            key: "xprv9s21ZrQH143K3rootKeyMaterial".into(),
+            keys: vec![
+                "xprvA1quorumRowOne".into(),
+                "L1aW4aubDFB7yfras2S1mWFdLZQfQpz8WIFprivkey".into(),
+            ],
+            hex: "deadbeefcafef00ddeadbeefcafef00ddeadbeefcafef00ddeadbeefcafef00dd".into(),
+            children: vec![TreeNode {
+                id: 1,
+                kind: "pkh".into(),
+                key: "xprv9NestedChildKeyMaterial".into(),
+                ..Default::default()
+            }],
+            ..Default::default()
+        },
+        ..Default::default()
+    };
+    let mut state = FormState {
+        tree: Some(tree),
+        ..Default::default()
+    };
+
+    zeroize_form_state(&mut state);
+
+    let tree = state.tree.as_ref().expect("tree retained after sweep");
+    assert!(tree.root.key.is_empty(), "root.key should be zeroized");
+    for (i, k) in tree.root.keys.iter().enumerate() {
+        assert!(k.is_empty(), "root.keys[{}] should be zeroized", i);
+    }
+    // Proves the recursion descended into children.
+    assert!(
+        tree.root.children[0].key.is_empty(),
+        "nested children[0].key should be zeroized"
+    );
+    // `hex` is a public digest — must remain UNTOUCHED (guards against a
+    // future over-broad walk zeroizing public commitments).
+    assert_eq!(
+        tree.root.hex,
+        "deadbeefcafef00ddeadbeefcafef00ddeadbeefcafef00ddeadbeefcafef00dd",
+        "hex digest (public commitment) must NOT be zeroized"
+    );
+}
+
 // ─── flag_is_secret + slot_subkey_is_secret + node_type_is_secret ────────
 
 #[test]

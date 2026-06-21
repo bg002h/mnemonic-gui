@@ -323,6 +323,15 @@ pub fn zeroize_form_state(state: &mut crate::schema::FormState) {
     for widget in state.secret_widgets.values_mut().flatten() {
         widget.zeroize();
     }
+    // M9 (cycle-11a): scrub the node-tree builder's in-RAM key material.
+    // `TreeNode.key`/`.keys[i]` accept xprv/WIF/raw-hex private keys; the
+    // recursive `zeroize_keys` walks `children` and leaves the public `hex`
+    // digest untouched (parity with the on-disk redactor). Brings
+    // `state.tree` to the same in-RAM scrub parity as values/slots/
+    // positionals/secret_widgets above.
+    if let Some(tree) = state.tree.as_mut() {
+        tree.root.zeroize_keys();
+    }
 }
 
 /// v0.31.1 (SPEC §3): the union of every flag NAME declared `secret: true`

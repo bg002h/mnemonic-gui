@@ -246,6 +246,25 @@ impl TreeNode {
     pub fn node_count(&self) -> usize {
         1 + self.children.iter().map(TreeNode::node_count).sum::<usize>()
     }
+
+    /// M9 (cycle-11a): in-RAM secret scrub for the exit zeroize sweep
+    /// (`secrets::zeroize_form_state`). Recursively zeroizes every
+    /// secret-bearing `key`/`keys[i]` (xprv/WIF/raw-hex private keys the
+    /// user can type) through ALL `children` (incl. surplus — they hold
+    /// secrets too). EXCLUDES `hex` — a public digest commitment, never a
+    /// private preimage (same exclusion as the on-disk redactor
+    /// `blank_non_extended_public_keys`, which leaves `hex` untouched).
+    /// `w`/`kind`/`n`/`k`/`id` are non-secret structural fields.
+    pub fn zeroize_keys(&mut self) {
+        use zeroize::Zeroize;
+        self.key.zeroize();
+        for k in &mut self.keys {
+            k.zeroize();
+        }
+        for child in &mut self.children {
+            child.zeroize_keys();
+        }
+    }
 }
 
 /// Fixed child arity per shape: `Some(2)` / `Some(3)` / `Some(1)` for
