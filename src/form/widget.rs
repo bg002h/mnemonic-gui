@@ -643,7 +643,34 @@ fn render_row(
                         }
                     });
                 ui.label("=");
-                ui.text_edit_singleline(value);
+                // cycle-3 H3 surface (iii): node-aware composite paste-warn.
+                // The value field is a plain (non-password) text edit; mirror
+                // `SecretLineEdit::show`'s paste detection so an over-threshold
+                // paste raises the same `paste_warn_id()` bus flag, but GATED on
+                // the selected node being argv-secret-class (so non-secret nodes
+                // like xpub/path do not over-warn). Closes the FOLLOWUP
+                // `composite-paste-warn-parity` for all 9 composite nodes.
+                let response = ui.text_edit_singleline(value);
+                let pasted_len = ui.input(|i| {
+                    i.events.iter().find_map(|e| match e {
+                        egui::Event::Paste(s) => Some(s.chars().count()),
+                        _ => None,
+                    })
+                });
+                if response.changed() {
+                    if let Some(len) = pasted_len {
+                        if len >= crate::secrets::PASTE_WARN_THRESHOLD
+                            && crate::secrets::node_type_is_argv_secret(node.as_str())
+                        {
+                            ui.ctx().data_mut(|d| {
+                                d.insert_temp(
+                                    crate::form::secret_widget::paste_warn_id(),
+                                    true,
+                                )
+                            });
+                        }
+                    }
+                }
             }
             (FlagKind::TaggedOrIndexed(tags), FlagValue::TaggedOrIndexed(tv)) => {
                 // v0.1: emit a free-form text field + radio for Tag/Indexed.

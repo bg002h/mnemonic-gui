@@ -1116,7 +1116,7 @@ const CONVERT_FLAGS: &[FlagSchema] = &[
         required: true,
         repeating: false,
         help: "Source node: <node>=<value>. `=-` reads value from stdin.",
-        secret: false, // secrecy is value-dependent; per-row paste-warn fires
+        secret: false, // secrecy is node-dependent; composite paste-warn + argv-mask + run-confirm + persist-redact key on node_type_is_argv_secret (cycle-3)
         default_value: None,
         global: false,
     },
@@ -2092,7 +2092,7 @@ const SEEDQR_DECODE_FLAGS: &[FlagSchema] = &[
         help: "Canonical input (v0.31.6+): seedqr=<VALUE|->. SeedQR digit \
                string (48/60/72/84/96 ASCII digits). Only the `seedqr` node \
                type is accepted.",
-        secret: false, // value-dependent; per-row paste-warn fires
+        secret: false, // secrecy is node-dependent; composite paste-warn + argv-mask + run-confirm + persist-redact key on node_type_is_argv_secret (cycle-3)
         default_value: None,
         global: false,
     },
