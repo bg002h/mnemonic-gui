@@ -39,7 +39,7 @@ for per-component flags.
 To install just the GUI from source at the pinned tag:
 
 ```sh
-cargo install --locked --git https://github.com/bg002h/mnemonic-gui --tag mnemonic-gui-v0.47.0 mnemonic-gui
+cargo install --locked --git https://github.com/bg002h/mnemonic-gui --tag mnemonic-gui-v0.48.0 mnemonic-gui
 ```
 
 The GUI subprocess-runs the four sibling CLIs. If you skip the
@@ -47,7 +47,7 @@ constellation installer, install each one separately (pinned tags
 match [`pinned-upstream.toml`](pinned-upstream.toml)):
 
 ```sh
-cargo install --locked --git https://github.com/bg002h/mnemonic-toolkit     --tag mnemonic-toolkit-v0.60.0           mnemonic-toolkit
+cargo install --locked --git https://github.com/bg002h/mnemonic-toolkit     --tag mnemonic-toolkit-v0.70.0           mnemonic-toolkit
 cargo install --locked --git https://github.com/bg002h/descriptor-mnemonic  --tag descriptor-mnemonic-md-cli-v0.7.0  md-cli
 cargo install --locked --git https://github.com/bg002h/mnemonic-secret      --tag ms-cli-v0.8.0                      ms-cli
 cargo install --locked --git https://github.com/bg002h/mnemonic-key         --tag mk-cli-v0.9.0                      mk-cli

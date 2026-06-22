@@ -1,4 +1,4 @@
-//! Pinned schema for the `mnemonic` CLI from mnemonic-toolkit-v0.60.0.
+//! Pinned schema for the `mnemonic` CLI from mnemonic-toolkit-v0.70.0.
 //!
 //! Five subcommands covered in v0.1 (Section A coverage table):
 //!   - bundle
@@ -706,9 +706,13 @@ const RESTORE_FLAGS: &[FlagSchema] = &[
     // (`--from`) + cosigner keys (`--cosigner`) plus a disambiguation input
     // (`--account <N[,N,…]>` list, `--own-account-max` range fallback,
     // `--search-address`, or `--expect-wallet-id`) drive a key→slot search.
-    // `--own-account-max` is reserved/refused this cycle (the subset-search
-    // engine is deferred — FOLLOWUP `template-multisig-own-account-range-
-    // subset-search`); it IS a clap flag, so it must be mirrored.
+    // toolkit v0.70.0: `--own-account-max` flips refuse→subset-search — it
+    // over-supplies the own seed's accounts (0..K) and resolves the unique
+    // template assignment via an own-anchored k-permutation search (own-only
+    // by default; `--search-cosigner-subset` opts into bounded cosigner
+    // over-supply). Mutually exclusive with `--account` (clap conflicts_with);
+    // the mutex is NOT projected into gui-schema conditional_rules, so it is
+    // deliberately not modeled GUI-side (the drift gate pins restore at 1 rule).
     FlagSchema {
         name: "--own-account-max",
         kind: FlagKind::Number {
@@ -718,8 +722,28 @@ const RESTORE_FLAGS: &[FlagSchema] = &[
         required: false,
         repeating: false,
         help: "Range fallback for the own seed's account(s) when the exact \
-               accounts are unknown (derive at every account in 0..K). NOT \
-               SUPPORTED YET — refused with a pointer to --account <N[,N,…]>.",
+               accounts are unknown: derive the own seed at every account in \
+               0..K and let the multisig-template own-account subset-search \
+               select the subset actually used (own-only — cosigners must be \
+               EXACT unless --search-cosigner-subset). Mutually exclusive with \
+               --account. K ≤ 256.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    // toolkit v0.70.0 (#28 phase 2 / P3): opt-in bounded cosigner-subset
+    // search. Default OFF — cosigner cards are matched EXACTLY (own-only).
+    FlagSchema {
+        name: "--search-cosigner-subset",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Opt-in: allow over-supplying --cosigner cards (more than the \
+               template's cosigner slots) and let the subset-search resolve \
+               the correct cosigner subset too. Default OFF (cosigners matched \
+               exactly). Enlarges the search space, so a longer \
+               --expect-wallet-id prefix (or --search-address) may be needed; \
+               bounded by the hard ceiling + adaptive time-cap.",
         secret: false,
         default_value: None,
         global: false,
@@ -878,6 +902,32 @@ const VERIFY_BUNDLE_FLAGS: &[FlagSchema] = &[
         default_value: Some("0"),
         global: false,
     },
+    // toolkit v0.70.0 (#28 phase 2 / P4): RANGE fallback for the own seed's
+    // account, NEW on verify-bundle (mirrors `restore --own-account-max`).
+    // Over-supplies the own accounts (0..K) and resolves the unique template
+    // assignment via the own-anchored subset-search, threaded into the SAME
+    // shared `complete_multisig_template` engine restore uses. Mutually
+    // exclusive with `--account` (clap conflicts_with; mutex not projected
+    // into conditional_rules → not modeled GUI-side, drift gate pins 10 rules).
+    FlagSchema {
+        name: "--own-account-max",
+        kind: FlagKind::Number {
+            min: 0,
+            max: NumberMax::Static(2_147_483_647),
+        },
+        required: false,
+        repeating: false,
+        help: "Range fallback for the own seed's account when the exact \
+               account is unknown: derive the own seed at every account in \
+               0..K and let the multisig-template own-account subset-search \
+               select the account actually used (mirrors restore \
+               --own-account-max; cosigners EXACT unless \
+               --search-cosigner-subset). Mutually exclusive with --account. \
+               K ≤ 256.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
     // toolkit v0.59.0 (#28): explicit origin override + wallet-id assertion
     // for verifying + recomposing a keyless single-sig template bundle.
     // Mirrors `restore --origin` / `--expect-wallet-id`; only meaningful for
@@ -936,6 +986,22 @@ const VERIFY_BUNDLE_FLAGS: &[FlagSchema] = &[
                multisig / general template bundle; repeat per cosigner card. \
                Bare = search-placed; `@N=<mk1|xpub>` assigns explicitly. \
                Watch-only (non-secret).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    // toolkit v0.70.0 (#28 phase 2 / P4): opt-in bounded cosigner-subset
+    // search, NEW on verify-bundle (mirrors `restore --search-cosigner-subset`).
+    FlagSchema {
+        name: "--search-cosigner-subset",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Opt-in: allow over-supplying --cosigner cards and let the \
+               subset-search resolve the correct cosigner subset (mirrors \
+               restore --search-cosigner-subset). Default OFF (cosigners \
+               matched exactly). Bounded by the hard ceiling + adaptive \
+               time-cap.",
         secret: false,
         default_value: None,
         global: false,
