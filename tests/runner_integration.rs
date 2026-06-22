@@ -107,7 +107,10 @@ fn cell_1_mnemonic_export_wallet_byte_exact() {
         String::from_utf8_lossy(&result.stderr)
     );
 
-    let stdout = String::from_utf8(result.stdout).expect("stdout must be UTF-8");
+    // cycle-15 Lane G: `RunResult` now impls `Drop` (whole-holder zeroize), so
+    // `result.stdout` cannot be moved out (E0509). Clone the bytes for the
+    // byte-exact UTF-8 assertion; the holder still drops scrubbed afterward.
+    let stdout = String::from_utf8(result.stdout.clone()).expect("stdout must be UTF-8");
     assert_eq!(
         stdout, expected,
         "Coldcard BIP-84 mainnet emission must match fixture byte-exact"

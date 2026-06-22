@@ -18,7 +18,7 @@ use mnemonic_gui::form::widget;
 use mnemonic_gui::help::url as help_url;
 use mnemonic_gui::path_detect::Detected;
 use mnemonic_gui::persistence::{self, PersistedState};
-use mnemonic_gui::runner;
+use mnemonic_gui::runner::{self, PendingConfirm};
 use mnemonic_gui::schema::{self, FlagValue, FormState};
 use mnemonic_gui::secrets;
 use std::collections::BTreeMap;
@@ -87,9 +87,10 @@ fn init_tracing(debug_flag: bool) {
         .try_init();
 }
 
-/// Pending run-confirm modal payload: the real argv, its parallel display
-/// secret-mask (v0.39.0), and the optional tree-mode `--spec -` stdin bytes.
-type PendingConfirm = (Vec<String>, Vec<bool>, Option<Vec<u8>>);
+// cycle-15 Lane G: `PendingConfirm` was promoted from a bare tuple here to a
+// `Zeroize + Drop` struct in the `runner` lib module (so the app-level holder
+// scrubs whole on drop AND the `secrets::scrub_app_run_holders` exit-sweep seam
+// can name its type). Imported below.
 
 /// Top-level egui app. Holds AppState (per-CLI detect results + active
 /// tab), per-(cli, subcommand) FormState, and the captured last-run
@@ -106,11 +107,13 @@ struct MnemonicGuiApp {
     show_cmdline: bool,
     show_stdout: bool,
     show_stderr: bool,
-    /// Run-confirm modal state. None = no modal; Some((argv, stdin)) =
-    /// pending. v0.32.0: carries the tree-mode `--spec -` stdin bytes
-    /// alongside (build-descriptor has no secret flags so tree runs don't
-    /// confirm TODAY, but the pending state must not silently drop the
-    /// pipe if that ever changes).
+    /// Run-confirm modal state. `None` = no modal; `Some(PendingConfirm {
+    /// argv, mask, stdin })` = pending. v0.32.0: carries the tree-mode
+    /// `--spec -` stdin bytes alongside (build-descriptor has no secret flags
+    /// so tree runs don't confirm TODAY, but the pending state must not
+    /// silently drop the pipe if that ever changes). cycle-15 Lane G: the
+    /// payload is the `Zeroize + Drop` `runner::PendingConfirm` struct (was a
+    /// bare tuple) so the held cleartext argv/stdin scrubs on drop.
     pending_confirm_argv: Option<PendingConfirm>,
     /// v0.40.0 (Item 3) — set when a secret widget reported an over-threshold
     /// paste this frame (via the `secret_widget::paste_warn_id()` ctx-data
@@ -1042,7 +1045,11 @@ impl eframe::App for MnemonicGuiApp {
             }
             if run_clicked {
                 if needs_confirm {
-                    self.pending_confirm_argv = Some((argv, mask, spec_stdin));
+                    self.pending_confirm_argv = Some(PendingConfirm {
+                        argv,
+                        mask,
+                        stdin: spec_stdin,
+                    });
                 } else {
                     spawn_and_capture(self, argv, mask, spec_stdin);
                 }
@@ -1061,7 +1068,17 @@ impl eframe::App for MnemonicGuiApp {
         }
 
         // ── Run-confirm modal ────────────────────────────────────────────
-        if let Some((argv, mask, stdin)) = self.pending_confirm_argv.clone() {
+        // cycle-15 Lane G (§3.2 E0509-safe consume): `PendingConfirm` now impls
+        // `Drop`, so we CANNOT field-destructure the cloned value (E0509 —
+        // "cannot move out of type which implements the Drop trait"). Bind the
+        // WHOLE struct by a single name (legal for a `Drop` type); the modal
+        // reads `pending.argv`/`pending.mask` BY-REF (unchanged below); the Run
+        // path passes owned `.clone()`s into the owned `spawn_and_capture`. The
+        // cloned `pending` drops at the end of THIS scope on every path (Run /
+        // Cancel / modal-still-open) → its `Drop` scrubs the per-frame transient
+        // — the residue this cycle closes. DO NOT delete the `Drop` impl to
+        // "fix" a borrow error: that silently reverts to the un-scrubbed shape.
+        if let Some(pending) = self.pending_confirm_argv.clone() {
             egui::Window::new("Confirm secret-bearing run")
                 .collapsible(false)
                 .resizable(false)
@@ -1074,12 +1091,12 @@ impl eframe::App for MnemonicGuiApp {
                     // is present must not print it cleartext — mask each secret
                     // value token (the real argv still spawns on Run).
                     debug_assert_eq!(
-                        argv.len(),
-                        mask.len(),
+                        pending.argv.len(),
+                        pending.mask.len(),
                         "confirm-modal: mask/argv length mismatch — a secret token may render cleartext"
                     );
-                    for (i, tok) in argv.iter().enumerate() {
-                        let shown = if mask.get(i).copied().unwrap_or(false) {
+                    for (i, tok) in pending.argv.iter().enumerate() {
+                        let shown = if pending.mask.get(i).copied().unwrap_or(false) {
                             mnemonic_gui::form::invocation::SECRET_MASK
                         } else {
                             tok.as_str()
@@ -1089,14 +1106,21 @@ impl eframe::App for MnemonicGuiApp {
                     ui.separator();
                     ui.horizontal(|ui| {
                         if ui.button("Run").clicked() {
-                            self.pending_confirm_argv = None;
-                            spawn_and_capture(self, argv, mask, stdin);
+                            self.pending_confirm_argv = None; // old struct drops → scrub
+                            spawn_and_capture(
+                                self,
+                                pending.argv.clone(),
+                                pending.mask.clone(),
+                                pending.stdin.clone(),
+                            );
                         }
                         if ui.button("Cancel").clicked() {
-                            self.pending_confirm_argv = None;
+                            self.pending_confirm_argv = None; // old struct drops → scrub
                         }
                     });
                 });
+            // `pending` (a full PendingConfirm) drops here on every path → its
+            // Drop scrubs the per-frame transient clone.
         }
 
         // ── v0.40.0 (Item 3): paste-warn modal ───────────────────────────
@@ -1144,6 +1168,12 @@ impl eframe::App for MnemonicGuiApp {
         for state in self.form_state.values_mut() {
             secrets::zeroize_form_state(state);
         }
+        // cycle-15 Lane G: app-level run holders sit OUTSIDE form_state, so the
+        // sweep above never reaches them. Scrub them here for early RAM
+        // overwrite at shutdown (matching SecretBuffer's drop-ahead rationale).
+        // These holders are NOT serialized (no Serialize on RunResult/
+        // PendingConfirm) → order vs the state.json save is moot.
+        secrets::scrub_app_run_holders(&mut self.last_run, &mut self.pending_confirm_argv);
     }
 }
 

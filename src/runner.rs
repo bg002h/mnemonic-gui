@@ -12,6 +12,7 @@ use std::io;
 use std::process::{Command, Stdio};
 
 use tracing::{debug, warn};
+use zeroize::Zeroize;
 
 /// Capture from one subprocess run.
 #[derive(Debug)]
@@ -29,6 +30,71 @@ pub struct RunResult {
     pub exit_code: Option<i32>,
     pub stdout: Vec<u8>,
     pub stderr: Vec<u8>,
+}
+
+// cycle-15 Lane G (slug `gui-last-run-result-argv-stdout-not-zeroized`):
+// `last_run` is an app-level holder OUTSIDE `FormState`, so the on-exit
+// `zeroize_form_state` sweep never reaches it. Scrub the WHOLE holder on drop
+// (D1/D2 — fail-closed; the `mask` is a display hint, not a security boundary,
+// so it could drift — zeroize it too to stay uniform). `exit_code` is
+// non-secret and untouched. `Vec<String>: Zeroize` scrubs each `String`'s
+// bytes then clears the outer Vec; `Vec<u8>: Zeroize` clears the bytes.
+//
+// E0509-clean: `last_run` is read by-ref only (`main.rs:470`) and every
+// replace/clear (`:1206/:1222/:1226`) is a plain assignment whose old value
+// drops IN PLACE — nothing moves a field out of `last_run`, so `impl Drop`
+// compiles. DO NOT delete this `Drop` to silence a borrow error — that defeats
+// the scrub (guarded by `tests/run_holder_zeroize.rs` + a compile-green build).
+impl Zeroize for RunResult {
+    fn zeroize(&mut self) {
+        self.argv.zeroize();
+        self.mask.zeroize();
+        self.stdout.zeroize();
+        self.stderr.zeroize();
+    }
+}
+
+impl Drop for RunResult {
+    fn drop(&mut self) {
+        self.zeroize();
+    }
+}
+
+/// Pending run-confirm modal payload: the real argv, its parallel display
+/// secret-mask (v0.39.0), and the optional tree-mode `--spec -` stdin bytes.
+///
+/// cycle-15 Lane G (slug `gui-pending-confirm-argv-not-zeroized`): promoted
+/// from a bare tuple (`(Vec<String>, Vec<bool>, Option<Vec<u8>>)`) to a struct
+/// with `Zeroize + Drop` so the app-level holder scrubs whole on drop — and so
+/// the `secrets::scrub_app_run_holders` exit-sweep seam can name its type
+/// (the struct lives in this public lib module, harness-reachable). The
+/// `main.rs:1064` consumer MUST bind the WHOLE struct (single-name bind is
+/// legal for a `Drop` type) and re-clone inner fields on the Run path — a
+/// field-destructure of a `Drop` type is E0509 (see §3.2 of the plan-doc).
+///
+/// `Clone` is required for the per-frame `.clone()` at the consume site
+/// (`main.rs`): the cloned transient is exactly the residence `Drop` scrubs.
+#[derive(Debug, Clone)]
+pub struct PendingConfirm {
+    pub argv: Vec<String>,
+    pub mask: Vec<bool>,
+    pub stdin: Option<Vec<u8>>,
+}
+
+impl Zeroize for PendingConfirm {
+    fn zeroize(&mut self) {
+        self.argv.zeroize();
+        self.mask.zeroize();
+        // `Option<Vec<u8>>: Zeroize` overwrites the inner bytes then `take()`s
+        // to `None` — same effect as a hand-rolled scrub, uniform with above.
+        self.stdin.zeroize();
+    }
+}
+
+impl Drop for PendingConfirm {
+    fn drop(&mut self) {
+        self.zeroize();
+    }
 }
 
 /// Spawn `argv[0]` with `argv[1..]` as args; pipe stdout + stderr; wait

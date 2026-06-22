@@ -46,7 +46,7 @@ mirrors it.
 - **Fix direction (NOT a plan):** bring the app-level run holder into the exit sweep + scrub-on-replace — `impl Zeroize`/`Drop` for `RunResult` (or zeroize the `argv`/`stdout`/`stderr` before reassigning `app.last_run`) and visit it from the on-exit path alongside `form_state`. In-RAM only; never serialized (`RunResult` is not `Serialize`).
 - **Severity:** Med (in-RAM only; no disk/clipboard/log persistence). Same residue class as M9 but for an app holder M9 didn't reach.
 - **Note:** M9 (`TreeNode::zeroize_keys`, v0.46.0) + the on-disk redactor are COMPLETE within their declared scope; this gap is in a surface NEITHER reaches — an app-level run holder that sits OUTSIDE `FormState` and is structurally invisible to `zeroize_form_state`.
-- **Status:** open.
+- **Status:** **resolved** `mnemonic-gui-v0.47.0` (2026-06-21, cycle-15 Lane G, P1). `RunResult` gains `impl Zeroize + Drop` (whole-holder scrub: argv/mask/stdout/stderr; `exit_code` left, non-secret); `on_exit` scrubs it in the post-save sweep via the new pure `secrets::scrub_app_run_holders` seam (the holder sits outside `FormState`, so the `form_state` sweep never reached it). In-RAM only, never serialized. Tests: `tests/run_holder_zeroize.rs` (T1/T4). Per-phase R0 GREEN + whole-diff review.
 - **Tier:** GUI-local (in-RAM secret residue).
 - **Companion:** part of the constellation-wide "secret residue in surfaces outside the primary zeroize sweep" pattern from the 2026-06-21 secret-keymat sweep — siblings in `mnemonic-toolkit` (derived-output Strings) + `mnemonic-secret` (codec-internal). See the toolkit `design/agent-reports/sweep-keymat-*.md`.
 
@@ -59,7 +59,7 @@ mirrors it.
 - **Fix direction (NOT a plan):** scrub on clear (zeroize the `Vec<String>` argv + `Vec<u8>` stdin before setting `= None`) AND visit this app-level holder from the on-exit sweep so an exit during a pending modal does not leave it un-swept. Single combined "sweep the app-level secret holders on exit + scrub-on-clear" cycle covering this and `gui-last-run-result-argv-stdout-not-zeroized` is natural.
 - **Severity:** Med (in-RAM only; bounded modal-lifetime residence, but the drop is non-scrubbing and exit during a pending modal leaves it un-swept).
 - **Note:** M9 (`TreeNode::zeroize_keys`, v0.46.0) + the on-disk redactor are COMPLETE within their declared scope; this gap is in a surface NEITHER reaches — the other app-level holder of the real (unmasked) argv outside `FormState`.
-- **Status:** open.
+- **Status:** **resolved** `mnemonic-gui-v0.47.0` (2026-06-21, cycle-15 Lane G, P1). `PendingConfirm` promoted from a bare tuple to a `Zeroize + Drop` struct in the `runner` lib module; the run-confirm modal consume site is rewritten E0509-safe (bind the whole struct, read by-ref, pass owned clones on Run) so the per-frame clone drops scrubbed; `on_exit` scrubs the holder via `secrets::scrub_app_run_holders`. Tests: `tests/run_holder_zeroize.rs` (T3/T4). Per-phase R0 GREEN + whole-diff review.
 - **Tier:** GUI-local (in-RAM secret residue).
 - **Companion:** part of the constellation-wide "secret residue in surfaces outside the primary zeroize sweep" pattern from the 2026-06-21 secret-keymat sweep — siblings in `mnemonic-toolkit` (derived-output Strings) + `mnemonic-secret` (codec-internal). See the toolkit `design/agent-reports/sweep-keymat-*.md`.
 
@@ -72,7 +72,7 @@ mirrors it.
 - **Fix direction (NOT a plan):** render the composite value widget `.password(true)` when the selected node is argv-secret-class (`secrets::node_type_is_argv_secret(node)`), mirroring the slot v0.38.0 treatment. On-screen only.
 - **Severity:** Low/Med (on-screen reveal only — not persisted (redacted), not logged, masked in Preview/confirm; exposure is shoulder-surf / OS-screenshot, Linux unmitigated per `gui-os-snapshot-secret-occlusion`).
 - **Note:** the resolved `composite-paste-warn-parity` note claims the v0.39.0 masking covers the DISPLAY of these composites — but that masking is only the Preview LABEL, not the live `text_edit_singleline`. This is the on-screen-widget facet that note left open.
-- **Status:** open.
+- **Status:** **resolved** `mnemonic-gui-v0.47.0` (2026-06-21, cycle-15 Lane G, P2). The `NodeValueComposite` value field renders `.password(is_secret_node)` gated on a SINGLE hoisted `secrets::node_type_is_argv_secret(node)` boolean that also drives the existing paste-warn condition (no double-eval / split-brain). Non-secret nodes (xpub/path/number) stay readable. The `ui.add(TextEdit::singleline(..).password(..))` form preserves the paste-warn `Response`. Tests: `tests/widget_secret_mask_cycle15g.rs` (T5/T5b/T6). Per-phase R0 GREEN + whole-diff review.
 - **Tier:** GUI-local (on-screen widget cleartext).
 
 ### `gui-tree-key-field-rendered-cleartext-onscreen` — tree `key`/`keys[i]` build-descriptor fields render a mis-pasted xprv/WIF cleartext on screen (watch-only, gate-refused edge case)
@@ -84,7 +84,7 @@ mirrors it.
 - **Fix direction (NOT a plan):** render the tree key widgets `.password(true)` when the field is xprv-like (`is_xprv_like`), bundling with `gui-composite-secret-value-rendered-cleartext-onscreen`. On-screen only; arguably WONTFIX given the amber hint + watch-only contract.
 - **Severity:** Low (on-screen only; non-canonical input — watch-only builder, gate-refused, persist-blanked, RAM-zeroized). Lowest of the four sweep candidates; filed for completeness / dedup.
 - **Note:** distinct from `gui-tree-key-egui-undo-ring-residue` (that is the egui undo-ring residue after model zeroize; this is the live-widget cleartext render). M9 (`TreeNode::zeroize_keys`, v0.46.0) + the on-disk redactor are COMPLETE within their scope; this is the on-screen-widget surface neither reaches.
-- **Status:** open.
+- **Status:** **resolved** `mnemonic-gui-v0.47.0` (2026-06-21, cycle-15 Lane G, P2). The build-descriptor tree `key` / `keys[i]` fields render `.password(is_xprv_like(..))` — the same predicate the amber `xprv_hint` keys off, so a mis-pasted xprv-shaped private key masks while watch-only xpubs stay readable (the input-then-mask flicker is the ratified-acceptable edge). Tests: `tests/widget_secret_mask_cycle15g.rs` (T7, Key + KeyQuorum). Per-phase R0 GREEN + whole-diff review.
 - **Tier:** GUI-local (on-screen widget cleartext; watch-only edge case).
 
 ### `composite-paste-warn-parity` — paste-warn (v0.40.0) wires into SecretLineEdit but not the NodeValueComposite value field

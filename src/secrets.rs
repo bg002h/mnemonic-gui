@@ -334,6 +334,27 @@ pub fn zeroize_form_state(state: &mut crate::schema::FormState) {
     }
 }
 
+/// cycle-15 Lane G (slugs `gui-last-run-result-argv-stdout-not-zeroized` +
+/// `gui-pending-confirm-argv-not-zeroized`): scrub the app-level run holders.
+///
+/// `last_run` (`RunResult`) and `pending_confirm_argv` (`PendingConfirm`) sit
+/// OUTSIDE `FormState`, so the `zeroize_form_state` exit sweep — which iterates
+/// only `form_state.values_mut()` — never reaches them. `on_exit` calls this
+/// in the SAME post-save block (D3) for early RAM overwrite at shutdown. Both
+/// holders impl `Zeroize + Drop`, so `.take()`ing each `Option` drops the taken
+/// value → its `Drop` scrubs the secret bytes; we `drop()` the taken value
+/// explicitly (the drop IS the scrub). Neither holder is serialized (no
+/// `Serialize` on `RunResult`/`PendingConfirm`) so order vs the state.json save
+/// is moot.
+pub fn scrub_app_run_holders(
+    last_run: &mut Option<crate::runner::RunResult>,
+    pending: &mut Option<crate::runner::PendingConfirm>,
+) {
+    // `.take()` → the taken value drops here → its `Drop` impl zeroizes.
+    drop(last_run.take());
+    drop(pending.take());
+}
+
 /// v0.31.1 (SPEC §3): the union of every flag NAME declared `secret: true`
 /// in ANY of the 4 CLI schemas, plus the hand-maintained
 /// [`SECRET_FLAG_NAMES`]. Extracted from the schema STRUCTS' `secret`
