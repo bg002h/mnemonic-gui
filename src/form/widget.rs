@@ -644,13 +644,19 @@ fn render_row(
                     });
                 ui.label("=");
                 // cycle-3 H3 surface (iii): node-aware composite paste-warn.
-                // The value field is a plain (non-password) text edit; mirror
-                // `SecretLineEdit::show`'s paste detection so an over-threshold
-                // paste raises the same `paste_warn_id()` bus flag, but GATED on
-                // the selected node being argv-secret-class (so non-secret nodes
-                // like xpub/path do not over-warn). Closes the FOLLOWUP
-                // `composite-paste-warn-parity` for all 9 composite nodes.
-                let response = ui.text_edit_singleline(value);
+                // cycle-15 Lane G slug-3: mask the secret composite value on
+                // screen. Hoist the argv-secret gate ONCE so the SAME boolean
+                // drives `.password(..)` AND the existing paste-warn condition
+                // below (no double-eval drift). Non-secret nodes (xpub/path/
+                // number) stay plain — a watch-only xpub must be readable. The
+                // value already lives in the swept form-state String, so an
+                // inline `.password` (not a SecretLineEdit swap) is the minimal
+                // change. Use the `ui.add(TextEdit::singleline(..).password(..))`
+                // form (NOT a `.show(ui)` that buries the Response) so the
+                // paste-warn `response.changed()` read is preserved (M3).
+                let is_secret_node = crate::secrets::node_type_is_argv_secret(node.as_str());
+                let response =
+                    ui.add(egui::TextEdit::singleline(value).password(is_secret_node));
                 let pasted_len = ui.input(|i| {
                     i.events.iter().find_map(|e| match e {
                         egui::Event::Paste(s) => Some(s.chars().count()),
@@ -659,9 +665,7 @@ fn render_row(
                 });
                 if response.changed() {
                     if let Some(len) = pasted_len {
-                        if len >= crate::secrets::PASTE_WARN_THRESHOLD
-                            && crate::secrets::node_type_is_argv_secret(node.as_str())
-                        {
+                        if len >= crate::secrets::PASTE_WARN_THRESHOLD && is_secret_node {
                             ui.ctx().data_mut(|d| {
                                 d.insert_temp(
                                     crate::form::secret_widget::paste_warn_id(),

@@ -6,10 +6,11 @@
 //! paste-warn bus flag. This wires node-aware detection (mirroring
 //! `SecretLineEdit::show`), gated on `node_type_is_argv_secret(node)`.
 //!
-//! Mirrors `tests/paste_warn_wiring_v0_40_0.rs`, BUT the composite value field
-//! is a PLAIN (non-password) `text_edit_singleline` → its accessibility role is
-//! `Role::TextInput`, NOT `Role::PasswordInput`. Querying by PasswordInput would
-//! hit the wrong node and pass vacuously.
+//! Mirrors `tests/paste_warn_wiring_v0_40_0.rs`. cycle-15 Lane G slug-3 now
+//! masks the SECRET-class composite value on screen, so a secret node's value
+//! field is `Role::PasswordInput` while a non-secret (xpub) node stays
+//! `Role::TextInput`; the focus helper handles both. The paste-warn co-fire is
+//! the property under test (the `.password` swap must not regress it — M3).
 //!
 //! - secret node (minikey), over-threshold paste → flag RAISED.
 //! - non-secret node (xpub), over-threshold paste → flag NOT raised (negative).
@@ -67,15 +68,20 @@ fn bus_flag(h: &mut Harness<'static, FlagValue>) -> Option<bool> {
     h.ctx.data_mut(|d| d.get_temp::<bool>(paste_warn_id()))
 }
 
-/// Focus the composite value field (a PLAIN TextInput, not PasswordInput) and
-/// inject a paste event of `len` chars.
+/// Focus the composite value field and inject a paste event of `len` chars.
+///
+/// cycle-15 Lane G slug-3: a SECRET-class node's value field now renders
+/// `.password`-masked → its accessibility role is `PasswordInput`, NOT
+/// `TextInput`. A non-secret (xpub) node stays a plain `TextInput`. The
+/// composite has exactly one editable text field either way, so we focus
+/// whichever of the two roles is present (the ComboBox is a button/popup).
 fn paste_into_value_field(h: &mut Harness<'static, FlagValue>, len: usize) {
     h.run();
-    // The composite renders a ComboBox (node) + a plain text_edit_singleline
-    // (value). The plain field's accessibility role is TextInput. There is
-    // exactly one TextInput in this harness (the ComboBox is a button/popup),
-    // so get_by_role is unambiguous.
-    h.get_by_role(egui::accesskit::Role::TextInput).focus();
+    if let Some(field) = h.query_by_role(egui::accesskit::Role::PasswordInput) {
+        field.focus();
+    } else {
+        h.get_by_role(egui::accesskit::Role::TextInput).focus();
+    }
     h.run();
     h.input_mut()
         .events

@@ -694,7 +694,12 @@ fn render_payload(
         PayloadShape::Key => {
             ui.horizontal(|ui| {
                 ui.label("key");
-                ui.text_edit_singleline(&mut node.key);
+                // cycle-15 Lane G slug-4: mask a mis-pasted xprv-shaped key on
+                // screen, gated on the SAME `is_xprv_like` predicate `xprv_hint`
+                // keys off (mask + amber hint co-fire). A watch-only xpub (the
+                // canonical input) stays readable.
+                let key_is_xprv = crate::form::tree_model::is_xprv_like(&node.key);
+                ui.add(egui::TextEdit::singleline(&mut node.key).password(key_is_xprv));
             });
             xprv_hint(ui, &node.key);
         }
@@ -714,7 +719,12 @@ fn render_payload(
                 ui.push_id(("key_row", i), |ui| {
                     ui.horizontal(|ui| {
                         ui.label(format!("keys[{i}]"));
-                        ui.text_edit_singleline(&mut node.keys[i]);
+                        // cycle-15 Lane G slug-4: same xprv-shaped masking as the
+                        // single Key arm above, per keys[i] row.
+                        let k_is_xprv = crate::form::tree_model::is_xprv_like(&node.keys[i]);
+                        ui.add(
+                            egui::TextEdit::singleline(&mut node.keys[i]).password(k_is_xprv),
+                        );
                         if ui.small_button("✕").on_hover_text("remove key row").clicked()
                         {
                             remove_at = Some(i);
