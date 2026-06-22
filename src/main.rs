@@ -107,11 +107,13 @@ struct MnemonicGuiApp {
     show_cmdline: bool,
     show_stdout: bool,
     show_stderr: bool,
-    /// Run-confirm modal state. None = no modal; Some((argv, stdin)) =
-    /// pending. v0.32.0: carries the tree-mode `--spec -` stdin bytes
-    /// alongside (build-descriptor has no secret flags so tree runs don't
-    /// confirm TODAY, but the pending state must not silently drop the
-    /// pipe if that ever changes).
+    /// Run-confirm modal state. `None` = no modal; `Some(PendingConfirm {
+    /// argv, mask, stdin })` = pending. v0.32.0: carries the tree-mode
+    /// `--spec -` stdin bytes alongside (build-descriptor has no secret flags
+    /// so tree runs don't confirm TODAY, but the pending state must not
+    /// silently drop the pipe if that ever changes). cycle-15 Lane G: the
+    /// payload is the `Zeroize + Drop` `runner::PendingConfirm` struct (was a
+    /// bare tuple) so the held cleartext argv/stdin scrubs on drop.
     pending_confirm_argv: Option<PendingConfirm>,
     /// v0.40.0 (Item 3) — set when a secret widget reported an over-threshold
     /// paste this frame (via the `secret_widget::paste_warn_id()` ctx-data
