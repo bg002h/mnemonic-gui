@@ -36,6 +36,11 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/bg002h/mnemonic-toolkit/ma
 See `scripts/install.sh --help` (after `git clone bg002h/mnemonic-toolkit`)
 for per-component flags.
 
+**Requirements:** the GUI needs **rustc ≥ 1.88** (its locked dependency MSRV
+since v0.40.0); the four sibling CLIs build on **rustc ≥ 1.85**. The
+constellation installer skips the GUI with a warning on an older toolchain
+rather than failing the whole install.
+
 To install just the GUI from source at the pinned tag:
 
 ```sh

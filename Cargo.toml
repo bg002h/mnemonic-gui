@@ -2,7 +2,10 @@
 name = "mnemonic-gui"
 version = "0.49.0"
 edition = "2021"
-rust-version = "1.85"
+# The locked dependency graph (icu_*@2.2.0, idna_adapter@1.2.2, image@0.25.x,
+# pulled since v0.40.0) requires rustc >= 1.88. The prior "1.85" was wrong —
+# the crate never actually built on 1.85. (The four sibling CLIs build on 1.85.)
+rust-version = "1.88"
 license = "MIT OR Unlicense"
 repository = "https://github.com/bg002h/mnemonic-gui"
 description = "Cross-platform GUI overlay for the m-format constellation CLIs (mnemonic, md, ms, mk)"
