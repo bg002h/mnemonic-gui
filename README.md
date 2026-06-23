@@ -39,7 +39,7 @@ for per-component flags.
 To install just the GUI from source at the pinned tag:
 
 ```sh
-cargo install --locked --git https://github.com/bg002h/mnemonic-gui --tag mnemonic-gui-v0.48.1 mnemonic-gui
+cargo install --locked --git https://github.com/bg002h/mnemonic-gui --tag mnemonic-gui-v0.49.0 mnemonic-gui
 ```
 
 The GUI subprocess-runs the four sibling CLIs. If you skip the
