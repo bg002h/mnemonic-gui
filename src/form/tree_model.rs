@@ -169,10 +169,14 @@ impl TreeState {
     }
 
     /// Persistence redaction (SPEC §1.3): clone with every node's
-    /// `key`/`keys` entry BLANKED when xprv-matching (recursive walk over
-    /// ALL children incl. surplus — they persist too). Hashlock `hex` is
-    /// deliberately NOT redacted. Transient fields come back empty (they
-    /// are `#[serde(skip)]` anyway — belt and suspenders).
+    /// `key`/`keys` entry BLANKED when NOT positively extended-public
+    /// (recursive walk over ALL children incl. surplus — they persist too).
+    /// Hashlock `hex` (and the `w` wrapper) are NOT redacted when they hold
+    /// legitimate digest/wrap content; an xprv-SHAPED mis-paste into either
+    /// is blanked via the narrow `is_xprv_like` deny-list (Wave-2 G2 —
+    /// preserves valid digests/wrap strings; belt-and-suspenders against a
+    /// private key fat-fingered into a non-key field). Transient fields come
+    /// back empty (they are `#[serde(skip)]` anyway — belt and suspenders).
     pub fn redacted_for_persistence(&self) -> TreeState {
         let mut root = self.root.clone();
         blank_non_extended_public_keys(&mut root);
@@ -719,6 +723,19 @@ fn blank_non_extended_public_keys(node: &mut TreeNode) {
         if !key.is_empty() && !is_extended_public_like(key) {
             key.clear();
         }
+    }
+    // Wave-2 G2 (`tree-xprv-heuristic-only-covers-key-fields`): `hex` (hashlock
+    // digest) + `w` (wrapper) are NOT key fields — they have a legitimate
+    // non-key shape (64-hex digest / "sv"), so the positive allowlist above
+    // would destroy valid data. Apply the NARROW `is_xprv_like` DENY-list:
+    // blank ONLY an xprv-SHAPED mis-paste, preserve legit digests/wrap strings.
+    // (Asymmetric to the `is_extended_public_like` ALLOWLIST used for key/keys
+    // above — correct: key/keys have NO legitimate non-key shape, hex/w do.)
+    if !node.hex.is_empty() && is_xprv_like(&node.hex) {
+        node.hex.clear();
+    }
+    if !node.w.is_empty() && is_xprv_like(&node.w) {
+        node.w.clear();
     }
     for child in &mut node.children {
         blank_non_extended_public_keys(child);

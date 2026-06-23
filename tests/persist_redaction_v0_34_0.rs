@@ -247,3 +247,85 @@ fn t5_tree_persist_keeps_only_extended_public_keys() {
         );
     }
 }
+
+// ── T6 — tree persist DENY-list arm for the free-text `hex` / `w` fields ─────
+//
+// Wave-2 G2 (`tree-xprv-heuristic-only-covers-key-fields`): the persist walk's
+// positive `is_extended_public_like` ALLOWLIST cannot cover `hex`/`w` — those
+// fields have a legitimate non-key shape (64-char hashlock digest / "sv" wrap
+// string), so an allowlist would destroy valid data. Instead an xprv-SHAPED
+// mis-paste into either field is blanked via the NARROW `is_xprv_like`
+// deny-list (asymmetric to the key/keys allowlist — correct: key/keys have NO
+// legitimate non-key shape, hex/w do). The case-3/4 SURVIVE cells are the
+// regression guard against accidentally landing the fail-closed shape (B)
+// (`is_extended_public_like` on hex/w would blank every legit digest/wrapper).
+#[test]
+fn t6_tree_persist_blanks_xprv_in_hex_and_w() {
+    use mnemonic_gui::form::tree_model::{TreeNode, TreeState};
+
+    // Reuse the T5 xprv vector (BLANKED[0]) and the legit 64-hex digest.
+    const XPRV: &str =
+        "xprv9s21ZrQH143K3QTDL4LXw2F7HEK3wJUD2nW2nRk4stbPy6cq3jPPqjiChkVvvNKmPGJxWUtg6LnF5kejMRNNU3TGtRBeJgk33yuGBxrMPHi";
+    const DIGEST: &str =
+        "0000000000000000000000000000000000000000000000000000000000000001";
+    const WRAP: &str = "sv";
+
+    let child = TreeNode {
+        // Case 5 (recursion): an xprv mis-pasted into a CHILD `hex` proves the
+        // deny-list arm runs under the recursive walk, not only at root; the
+        // legit child `w` wrap string SURVIVES.
+        hex: XPRV.to_string(),
+        w: WRAP.to_string(),
+        ..Default::default()
+    };
+    let root = TreeNode {
+        hex: XPRV.to_string(), // case 1 — xprv into hex → blanks
+        w: XPRV.to_string(),   // case 2 — xprv into w   → blanks
+        children: vec![child],
+        ..Default::default()
+    };
+    let mut state = TreeState {
+        root,
+        ..Default::default()
+    };
+    // Sanity: the legit-content survival cells exercise a SECOND redaction so
+    // the digest/wrap survival is asserted independently of the xprv-blank
+    // root (a fresh node keeps the structurally-disjoint cases uncoupled).
+    let legit = TreeNode {
+        hex: DIGEST.to_string(), // case 3 — legit 64-hex digest → SURVIVES
+        w: WRAP.to_string(),     // case 4 — legit "sv" wrap      → SURVIVES
+        ..Default::default()
+    };
+    state.root.children.push(legit);
+
+    let redacted = state.redacted_for_persistence();
+
+    // Case 1 + 2 — xprv into hex/w blanks.
+    assert!(
+        redacted.root.hex.is_empty(),
+        "an xprv mis-pasted into `hex` must blank via the is_xprv_like deny-list"
+    );
+    assert!(
+        redacted.root.w.is_empty(),
+        "an xprv mis-pasted into `w` must blank via the is_xprv_like deny-list"
+    );
+    // Case 5 — recursion: child `hex` xprv blanks; child `w` legit wrap survives.
+    assert!(
+        redacted.root.children[0].hex.is_empty(),
+        "an xprv mis-pasted into a CHILD `hex` must blank (deny-list runs recursively)"
+    );
+    assert_eq!(
+        redacted.root.children[0].w, WRAP,
+        "a legit wrap string in a child `w` must SURVIVE the recursive walk"
+    );
+    // Case 3 + 4 — legit digest/wrap SURVIVE (proves NARROW is_xprv_like, not
+    // the fail-closed is_extended_public_like, was used — guards against (B)).
+    assert_eq!(
+        redacted.root.children[1].hex, DIGEST,
+        "a legit 64-hex hashlock digest in `hex` must SURVIVE (narrow deny-list, NOT fail-closed allowlist)"
+    );
+    assert_eq!(
+        redacted.root.children[1].w, WRAP,
+        "a legit \"sv\" wrap string in `w` must SURVIVE"
+    );
+}
