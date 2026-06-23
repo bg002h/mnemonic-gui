@@ -792,6 +792,15 @@ the v0.2 release prep doesn't repeat the v0.1 deviation.
 
 ## Resolved
 
+### `gui-msrv-ci-tested-invariant` — declared `rust-version = "1.88"` was an un-tested assertion; no CI job compiled at the MSRV (RESOLVED, CI-only NO-BUMP)
+
+- **Surfaced:** 2026-06-23, A2 cycle-prep recon (`mnemonic-toolkit/cycle-prep-recon-gui-msrv-ci-tested-invariant.md`). Source SHAs `e7f0c63` (mnemonic-gui) / `572a15d1` (mnemonic-toolkit).
+- **Where:** `Cargo.toml:8` declares `rust-version = "1.88"` (corrected 1.85→1.88 by PR#18 / `e7f0c63`), but all three `dtolnay/rust-toolchain` invocations were `@stable` — `.github/workflows/build.yml:22` (clippy), `.github/workflows/build.yml:73` (build matrix), `.github/workflows/schema-mirror.yml:24` (schema-mirror). Nothing in CI compiled at 1.88.
+- **What:** the declared MSRV was an un-tested assertion that could silently re-drift (accidental `Cargo.toml` edit, or a dep bump raising the real floor). The binding floor is `image@0.25.10` (`rust_version = 1.88.0`); icu_*@2.2.0 / idna_adapter@1.2.2 are only 1.86 (satisfied). So 1.88.0 is exactly correct and the gate goes GREEN at zero margin — and catches any future drift above it.
+- **Status:** **resolved** (CI-only, **NO version bump / NO tag**). Added a dedicated `msrv (1.88.0)` job to `.github/workflows/build.yml`: `dtolnay/rust-toolchain@1.88.0` + `cargo check --locked` (NOT the 5-target build matrix, NOT tests, NOT clippy). `--locked` checks the committed lockfile so an unlocked re-resolve can't mask drift. MSRV is now a 2-site edit (`Cargo.toml:8 rust-version` + the `@1.88.0` toolchain pin); an inline YAML comment records the coupling. Existing `@stable` clippy/build/schema-mirror jobs untouched. `actionlint` clean.
+- **Tier:** `cross-repo` (CI-hygiene; the CI-enforcement piece of the toolkit `install-sh-gui-sibling-pin-staleness-ungated` rustc-MSRV-tension leg).
+- **Companion:** `mnemonic-toolkit/design/FOLLOWUPS.md::install-sh-gui-sibling-pin-staleness-ungated` (its `rustc-MSRV tension` leg shipped the GUI `Cargo.toml`/README half via PR#18; this entry is the CI-test-the-MSRV piece that leg's OPEN-remainder (b) did not cover).
+
 ### `gui-runner-debug-logs-unmasked-secret-argv` — runner `debug!`-logged the full spawn argv in cleartext (RESOLVED v0.45.0)
 
 - **Surfaced:** 2026-06-20, constellation bug-hunt (H2). **Resolved:** `mnemonic-gui-v0.45.0` (2026-06-21, cycle-3).
