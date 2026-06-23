@@ -270,14 +270,15 @@ const VERIFY_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
 // ─── vectors ─────────────────────────────────────────────────────────────
 
 // `mk vectors [--pretty] [--out PATH]` — maintainer tool. `--pretty` is
-// silently ignored when `--out` is set (not a clap conflicts_with).
+// honored even when `--out` is set (each per-fixture file is pretty-printed;
+// not a clap conflicts_with).
 const VECTORS_FLAGS: &[FlagSchema] = &[
     FlagSchema {
         name: "--pretty",
         kind: FlagKind::Boolean,
         required: false,
         repeating: false,
-        help: "Pretty-print JSON output. Silently ignored when --out is set.",
+        help: "Pretty-print JSON output. Also honored when --out is set (each per-fixture file is pretty-printed).",
         secret: false,
         default_value: None,
         global: false,
