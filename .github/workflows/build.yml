@@ -29,6 +29,31 @@ jobs:
       - name: cargo clippy --all-targets -- -D warnings
         run: cargo clippy --all-targets -- -D warnings
 
+  msrv:
+    # gui-msrv-ci-tested-invariant: compile-at-MSRV gate. Cargo.toml declares
+    # `rust-version = "1.88"` (the binding floor is `image@0.25.10`, whose
+    # rust_version is 1.88.0); the @stable clippy/build jobs never prove the
+    # crate actually builds at that floor. This job pins the toolchain to
+    # 1.88.0 and runs `cargo check --locked` so the declared MSRV is an
+    # ENFORCED invariant, not an un-tested assertion. `--locked` is required:
+    # it checks the committed lockfile's graph, so an unlocked re-resolve
+    # cannot pull a newer-MSRV dep and mask drift.
+    # NOTE: bumping the MSRV is a 2-site edit — Cargo.toml `rust-version`
+    # AND the `@1.88.0` pin below must move together.
+    name: msrv (1.88.0)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: install-rust-1.88.0
+        uses: dtolnay/rust-toolchain@1.88.0
+
+      - name: cargo-cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: cargo check --locked
+        run: cargo check --locked
+
   build:
     name: ${{ matrix.target }}
     runs-on: ${{ matrix.runner }}
