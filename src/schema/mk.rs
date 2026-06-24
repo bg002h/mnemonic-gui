@@ -440,6 +440,25 @@ const DERIVE_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
     secret: false,
 }];
 
+// ─── gen-man ─────────────────────────────────────────────────────────────
+//
+// man-pages cycle (mk-cli v0.11.0): emit roff man pages for the whole CLI
+// tree into `--out <DIR>`. Single required directory-path flag; no
+// positionals, no global flags.
+const GEN_MAN_FLAGS: &[FlagSchema] = &[FlagSchema {
+    name: "--out",
+    kind: FlagKind::Path { stdio_sentinel: false },
+    required: true,
+    repeating: false,
+    help: "Directory to write the `*.1` man pages into (created if absent). \
+           One page per (nested) subcommand, hyphen-joined parent→child.",
+    secret: false,
+    default_value: None,
+    global: false,
+}];
+
+const GEN_MAN_POSITIONALS: &[PositionalArgSchema] = &[];
+
 // ─── SCHEMA constant ─────────────────────────────────────────────────────
 
 const SUBCOMMANDS: &[SubcommandSchema] = &[
@@ -507,10 +526,18 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
         allows_slots: false,
         conditional: None,
     },
+    SubcommandSchema {
+        name: "gen-man",
+        human_name: "Gen Man (emit roff man pages for the whole CLI tree)",
+        flags: GEN_MAN_FLAGS,
+        positional_args: GEN_MAN_POSITIONALS,
+        allows_slots: false,
+        conditional: None,
+    },
 ];
 
 pub const SCHEMA: Schema = Schema {
     cli_name: "mk",
-    pinned_version: "mk 0.9.0",
+    pinned_version: "mk 0.11.0",
     subcommands: SUBCOMMANDS,
 };

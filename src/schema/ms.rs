@@ -514,6 +514,26 @@ const COMBINE_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
     secret: true,
 }];
 
+// ─── gen-man ─────────────────────────────────────────────────────────────
+//
+// man-pages cycle (ms-cli v0.13.0): emit roff man pages for the whole CLI
+// tree into `--out <DIR>`. Single required directory-path flag; no
+// positionals, no global flags. The ms-cli gui-schema emits `--out` with
+// `kind: "text"`, so the GUI mirror uses `FlagKind::Text` for parity.
+const GEN_MAN_FLAGS: &[FlagSchema] = &[FlagSchema {
+    name: "--out",
+    kind: FlagKind::Text,
+    required: true,
+    repeating: false,
+    help: "Directory to write the `*.1` man pages into (created if absent). \
+           One page per (nested) subcommand, hyphen-joined parent→child.",
+    secret: false,
+    default_value: None,
+    global: false,
+}];
+
+const GEN_MAN_POSITIONALS: &[PositionalArgSchema] = &[];
+
 // ─── SCHEMA constant ─────────────────────────────────────────────────────
 
 const SUBCOMMANDS: &[SubcommandSchema] = &[
@@ -590,10 +610,18 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
         allows_slots: false,
         conditional: None,
     },
+    SubcommandSchema {
+        name: "gen-man",
+        human_name: "Gen Man (emit roff man pages for the whole CLI tree)",
+        flags: GEN_MAN_FLAGS,
+        positional_args: GEN_MAN_POSITIONALS,
+        allows_slots: false,
+        conditional: None,
+    },
 ];
 
 pub const SCHEMA: Schema = Schema {
     cli_name: "ms",
-    pinned_version: "ms 0.8.0",
+    pinned_version: "ms 0.13.0",
     subcommands: SUBCOMMANDS,
 };

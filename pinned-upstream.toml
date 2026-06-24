@@ -19,7 +19,7 @@
 url = "https://github.com/bg002h/mnemonic-toolkit"
 # Cross-cite with Cargo.toml's [dependencies] mnemonic-toolkit tag.
 # Both should bump in lockstep when the toolkit is upgraded.
-tag = "mnemonic-toolkit-v0.70.0"
+tag = "mnemonic-toolkit-v0.73.0"
 bin = "mnemonic"
 workspace-member-path = "crates/mnemonic-toolkit"
 # v0.2 Phase C.1: GUI consults `<cli> gui-schema` JSON path when true;
@@ -29,28 +29,27 @@ workspace-member-path = "crates/mnemonic-toolkit"
 gui-schema-capable = true
 
 [md]
-# v0.41.0 (mstring display-grouping P5): bumped to
-# descriptor-mnemonic-md-cli-v0.7.0 to match the released binary
-# (md --version → "md 0.7.0"). Schema and pinned-upstream tag must move
-# in lockstep so the runtime soft-check can't fire a false-positive
-# banner. v0.7.0 adds the `md encode --group-size`/`--separator` display-
-# grouping flags (mirrored in src/schema/md.rs this cycle).
+# man-pages cycle: bumped to descriptor-mnemonic-md-cli-v0.11.0 to match
+# the released binary (md --version → "md 0.11.0"). Schema and
+# pinned-upstream tag must move in lockstep so the runtime soft-check
+# can't fire a false-positive banner. v0.11.0 adds the visible `md
+# gen-man --out` subcommand (mirrored in src/schema/md.rs this cycle).
 url = "https://github.com/bg002h/descriptor-mnemonic"
-tag = "descriptor-mnemonic-md-cli-v0.7.0"
+tag = "descriptor-mnemonic-md-cli-v0.11.0"
 bin = "md"
 workspace-member-path = "crates/md-cli"
 gui-schema-capable = true
 
 [ms]
 url = "https://github.com/bg002h/mnemonic-secret"
-tag = "ms-cli-v0.8.0"
+tag = "ms-cli-v0.13.0"
 bin = "ms"
 workspace-member-path = "crates/ms-cli"
 gui-schema-capable = true
 
 [mk]
 url = "https://github.com/bg002h/mnemonic-key"
-tag = "mk-cli-v0.9.0"
+tag = "mk-cli-v0.11.0"
 bin = "mk"
 workspace-member-path = "crates/mk-cli"
 gui-schema-capable = true
