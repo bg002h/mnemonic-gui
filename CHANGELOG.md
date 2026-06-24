@@ -3,6 +3,17 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## mnemonic-gui [0.51.0] — 2026-06-23
+
+**SemVer-MINOR — fully-static musl GUI release binaries + a combined `SHA256SUMS` integrity asset.** The `build.yml` release matrix gains `x86_64-unknown-linux-musl` (native on `ubuntu-latest`) and `aarch64-unknown-linux-musl` (via `cross`) rows, so each `mnemonic-gui-v*` tag now also ships fully-static, dependency-free Linux GUI tarballs for air-gapped / Alpine / musl deployments alongside the existing gnu/darwin/windows assets. A new combined `SHA256SUMS` asset (emitted in the `release` job between artifact download and the GitHub-release publish) lets an air-gapped user verify any downloaded blob out-of-band. New user-visible release assets → MINOR.
+
+This cycle is **pin-NEUTRAL for the four sibling CLIs**: `pinned-upstream.toml`, the `README.md` sibling `--tag` install lines, and the `Cargo.toml` toolkit git-dep tag are left UNCHANGED. The lockstep CLI PATCH bumps (`mnemonic-toolkit` 0.73.2 / `md-cli` 0.11.2 / `ms-cli` 0.13.2 / `mk-cli` 0.11.2) are binary-asset + CI only and add NO clap-flag surface, so `gui-schema` output is byte-identical — bumping any sibling pin would either RED `readme_pin_coherence` / `pin_coherence` or force `schema_mirror` to install/run against unreleased tags. The GUI bumps ONLY its own four version sites.
+
+### Added
+
+- **musl release-binary rows** (`.github/workflows/build.yml`). `x86_64-unknown-linux-musl` builds natively with `musl-tools` (`musl-gcc`) + `CC_x86_64_unknown_linux_musl=musl-gcc` (so cc-rs compiles the only C dep — the vendored libsecp256k1 in `secp256k1-sys` — against musl); `aarch64-unknown-linux-musl` reuses the existing `cross: true` machinery. `artifact_suffix` `*-linux-musl.tar.gz` avoids colliding with the gnu `*-linux.tar.gz` names. `crt-static` is left at its musl default (ON) — the binaries are fully static (`file` → "static-pie linked", `ldd` → "statically linked"); `-Ctarget-feature=-crt-static` is never set (per `rust#135244` it would silently link host glibc). Toolchain stays `@stable` (matching the GUI's existing `build.yml` discipline).
+- **Combined `SHA256SUMS` release asset** (`.github/workflows/build.yml` `release` job). One `SHA256SUMS` over every `*.tar.gz` release tarball, emitted after `download-artifacts` and before the softprops `github-release` step, written under `artifacts/` so the existing `files: artifacts/**/*` glob uploads it. The step `-type f`-filters and `cd`s into each tarball's directory so the checksum lines carry the published basenames (`actions/download-artifact@v5` nests each artifact under `artifacts/<artifact-name>/` and the artifact name ends in `.tar.gz`), so `sha256sum -c SHA256SUMS` passes against a flat downloaded tarball. The shipped guarantee is *static + checksummed*, not bit-for-bit reproducible.
+
 ## mnemonic-gui [0.50.0] — 2026-06-23
 
 **SemVer-MINOR — schema-mirror lockstep for the constellation man-pages release.** The toolkit + the three sibling CLIs each shipped a new VISIBLE `gen-man` subcommand (emit roff man pages for the whole CLI tree into `--out <DIR>`). The lagging `schema_mirror` gate would FAIL the moment the GUI bumps its toolkit pin to `v0.73.0` until the hand-maintained clap-flag schema mirror adds `gen-man`. This cycle adds it across all four CLIs + bumps the four upstream pins in lockstep. New subcommand surface → MINOR (the concrete version is assigned at tag time).

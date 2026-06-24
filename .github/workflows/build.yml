@@ -68,6 +68,21 @@ jobs:
             runner: ubuntu-latest
             artifact_suffix: aarch64-linux.tar.gz
             cross: true
+          # Fully-static musl binaries for air-gapped / Alpine / musl boxes.
+          # `-musl` suffixes avoid colliding with the gnu `*-linux.tar.gz`
+          # asset names. crt-static is ON by default for musl; NEVER pass
+          # `-Ctarget-feature=-crt-static` (rust#135244 silently links host
+          # glibc). x86_64-musl builds natively (needs `musl-tools` +
+          # `CC_x86_64_unknown_linux_musl=musl-gcc` for the secp256k1-sys C);
+          # aarch64-musl reuses the existing `cross: true` machinery.
+          - target: x86_64-unknown-linux-musl
+            runner: ubuntu-latest
+            artifact_suffix: x86_64-linux-musl.tar.gz
+            musl_native: true
+          - target: aarch64-unknown-linux-musl
+            runner: ubuntu-latest
+            artifact_suffix: aarch64-linux-musl.tar.gz
+            cross: true
           - target: x86_64-pc-windows-msvc
             runner: windows-latest
             artifact_suffix: x86_64-windows.zip
@@ -102,12 +117,26 @@ jobs:
       - name: cargo-cache
         uses: Swatinem/rust-cache@v2
 
+      - name: install-musl-tools
+        # x86_64-musl builds natively; cc-rs needs `musl-gcc` to compile the
+        # secp256k1-sys vendored libsecp256k1 against musl (else it silently
+        # falls back to host gcc → glibc-linked). aarch64-musl uses `cross`
+        # (which bundles the musl cross C toolchain), so no apt step there.
+        if: ${{ matrix.musl_native }}
+        run: sudo apt-get update && sudo apt-get install -y musl-tools
+
       - name: install-cross
         if: ${{ matrix.cross }}
         run: cargo install --locked cross
 
       - name: build-native
         if: ${{ !matrix.cross }}
+        # `CC_x86_64_unknown_linux_musl` only affects the x86_64-musl target;
+        # it is harmless on the other native rows (gnu / darwin / windows).
+        # crt-static is ON by default for musl — no RUSTFLAGS needed; NEVER
+        # set `-Ctarget-feature=-crt-static` (rust#135244 links host glibc).
+        env:
+          CC_x86_64_unknown_linux_musl: musl-gcc
         run: cargo build --release --target ${{ matrix.target }}
 
       - name: build-cross
@@ -150,6 +179,25 @@ jobs:
         uses: actions/download-artifact@v5
         with:
           path: artifacts
+      - name: sha256sums
+        # Emit ONE combined SHA256SUMS over every release tarball (musl + gnu +
+        # darwin + windows), so an air-gapped user can verify a downloaded blob
+        # out-of-band — the integrity material the static custody binaries need.
+        # `actions/download-artifact@v5` nests each artifact under
+        # `artifacts/<artifact-name>/`, and the GUI artifact name ENDS in
+        # `.tar.gz` / `.zip`, so a naive `find . -name "*.tar.gz" | xargs
+        # sha256sum` would hit the WRAPPER DIRECTORIES (`Is a directory` hard
+        # fail under set -e) and emit nested `dir/file` paths. `-type f` plus a
+        # per-file `cd` into the tarball's directory makes each line carry the
+        # published BASENAME, so `sha256sum -c SHA256SUMS` passes against the
+        # flat downloaded tarball. Written under `artifacts/` so the existing
+        # `files: artifacts/**/*` glob uploads it. *static + checksummed* — not
+        # bit-for-bit reproducible.
+        run: |
+          cd artifacts
+          find . -type f -name "*.tar.gz" | while read -r f; do
+            ( cd "$(dirname "$f")" && sha256sum "$(basename "$f")" )
+          done | sort -k2 > SHA256SUMS
       - name: github-release
         uses: softprops/action-gh-release@v2
         with:
