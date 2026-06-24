@@ -3,7 +3,7 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
-## mnemonic-gui [Unreleased]
+## mnemonic-gui [0.50.0] — 2026-06-23
 
 **SemVer-MINOR — schema-mirror lockstep for the constellation man-pages release.** The toolkit + the three sibling CLIs each shipped a new VISIBLE `gen-man` subcommand (emit roff man pages for the whole CLI tree into `--out <DIR>`). The lagging `schema_mirror` gate would FAIL the moment the GUI bumps its toolkit pin to `v0.73.0` until the hand-maintained clap-flag schema mirror adds `gen-man`. This cycle adds it across all four CLIs + bumps the four upstream pins in lockstep. New subcommand surface → MINOR (the concrete version is assigned at tag time).
 
