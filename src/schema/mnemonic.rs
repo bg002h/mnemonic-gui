@@ -4132,6 +4132,29 @@ const BUILD_DESCRIPTOR_FLAGS: &[FlagSchema] = &[
     NO_AUTO_REPAIR_FLAG,
 ];
 
+// ─── gen-man ─────────────────────────────────────────────────────────────
+//
+// man-pages cycle (toolkit v0.73.0): emit roff man pages for the whole CLI
+// tree into a directory. Exactly one subcommand flag — the required `--out
+// <DIR>` directory path — plus the global `--no-auto-repair` flag that
+// clap-derive propagates to every mnemonic subcommand (gui-schema emits both
+// for `gen-man`). No conditional rules.
+const GEN_MAN_FLAGS: &[FlagSchema] = &[
+    FlagSchema {
+        name: "--out",
+        kind: FlagKind::Path { stdio_sentinel: false },
+        required: true,
+        repeating: false,
+        help: "Directory to write the `*.1` man pages into (created if \
+               absent). One page per (nested) subcommand, hyphen-joined \
+               parent→child (e.g. `mnemonic-seed-xor-split.1`).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    NO_AUTO_REPAIR_FLAG,
+];
+
 // Phase 5: wire the conditional-visibility fn pointers per subcommand.
 // v0.3: `derive-child` gained `--passphrase-stdin conflicts_with passphrase`
 // at toolkit v0.13.0; conditional flipped from `None` to
@@ -4422,6 +4445,16 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
         allows_slots: false,
         conditional: Some(crate::form::conditional::compare_cost),
     },
+    // man-pages cycle (toolkit v0.73.0): emit roff man pages for the whole
+    // CLI tree into `--out <DIR>`. No conditional rules.
+    SubcommandSchema {
+        name: "gen-man",
+        human_name: "Gen Man (emit roff man pages for the whole CLI tree)",
+        flags: GEN_MAN_FLAGS,
+        positional_args: NO_POSITIONALS,
+        allows_slots: false,
+        conditional: None,
+    },
 ];
 
 // `pinned_version` is rendered as a monospace label in the action-bar
@@ -4432,6 +4465,6 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
 // drift here is a cosmetic banner mismatch, not a functional error.
 pub const SCHEMA: Schema = Schema {
     cli_name: "mnemonic",
-    pinned_version: "mnemonic 0.59.0",
+    pinned_version: "mnemonic 0.73.0",
     subcommands: SUBCOMMANDS,
 };

@@ -887,6 +887,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c8d4a3bb8b1e0c1050499d1815f5ab16d04f0959b233085fb31653fbfc9d98f9"
 
 [[package]]
+name = "clap_mangen"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d82842b45bf9f6a3be090dd860095ac30728042c08e0d6261ca7259b5d850f07"
+dependencies = [
+ "clap",
+ "roff",
+]
+
+[[package]]
 name = "clipboard-win"
 version = "5.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -904,12 +914,6 @@ dependencies = [
  "termcolor",
  "unicode-width",
 ]
-
-[[package]]
-name = "codex32"
-version = "0.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d230935faa4d0521349d228f39aba4ff489cf2a8bcab4d84e31f4cbd6fe918e9"
 
 [[package]]
 name = "colorchoice"
@@ -2293,8 +2297,8 @@ dependencies = [
 
 [[package]]
 name = "mnemonic-toolkit"
-version = "0.70.0"
-source = "git+https://github.com/bg002h/mnemonic-toolkit?tag=mnemonic-toolkit-v0.70.0#423a4ad6a5a9062c50816530c5c87bca2f08d3c3"
+version = "0.73.0"
+source = "git+https://github.com/bg002h/mnemonic-toolkit?tag=mnemonic-toolkit-v0.73.0#00f47ab46808b963500c648dc6f8c9158b90c534"
 dependencies = [
  "aes",
  "base64 0.22.1",
@@ -2304,7 +2308,7 @@ dependencies = [
  "bitcoin",
  "cbc",
  "clap",
- "codex32",
+ "clap_mangen",
  "crypto-bigint",
  "ctr",
  "flate2",
@@ -2340,11 +2344,10 @@ dependencies = [
 
 [[package]]
 name = "ms-codec"
-version = "0.6.0"
+version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "835040e2e149aff7b3ccf014abd1466769275ef68889be852fb3d5dbb9682a9c"
+checksum = "7a249cc9a48f049ae3ac27abd642a20be1fc9a55cceb0c90b3c0014cdee44788"
 dependencies = [
- "codex32",
  "getrandom 0.3.4",
  "zeroize",
 ]
@@ -3171,6 +3174,12 @@ checksum = "bd124222d17ad93a644ed9d011a40f4fb64aa54275c08cc216524a9ea82fb09f"
 dependencies = [
  "digest",
 ]
+
+[[package]]
+name = "roff"
+version = "1.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "323c417e1d9665a65b263ec744ba09030cfb277e9daa0b018a4ab62e57bc8189"
 
 [[package]]
 name = "rustc-hash"
