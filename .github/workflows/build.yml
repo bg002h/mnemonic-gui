@@ -187,15 +187,17 @@ jobs:
         # `artifacts/<artifact-name>/`, and the GUI artifact name ENDS in
         # `.tar.gz` / `.zip`, so a naive `find . -name "*.tar.gz" | xargs
         # sha256sum` would hit the WRAPPER DIRECTORIES (`Is a directory` hard
-        # fail under set -e) and emit nested `dir/file` paths. `-type f` plus a
-        # per-file `cd` into the tarball's directory makes each line carry the
+        # fail under set -e) and emit nested `dir/file` paths. The find filter
+        # matches BOTH `*.tar.gz` (musl + gnu + darwin) AND `*.zip` (windows) so
+        # EVERY published release asset is checksummed. `-type f` plus a
+        # per-file `cd` into the asset's directory makes each line carry the
         # published BASENAME, so `sha256sum -c SHA256SUMS` passes against the
-        # flat downloaded tarball. Written under `artifacts/` so the existing
+        # flat downloaded asset. Written under `artifacts/` so the existing
         # `files: artifacts/**/*` glob uploads it. *static + checksummed* — not
         # bit-for-bit reproducible.
         run: |
           cd artifacts
-          find . -type f -name "*.tar.gz" | while read -r f; do
+          find . -type f \( -name "*.tar.gz" -o -name "*.zip" \) | while read -r f; do
             ( cd "$(dirname "$f")" && sha256sum "$(basename "$f")" )
           done | sort -k2 > SHA256SUMS
       - name: github-release
