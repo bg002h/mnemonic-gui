@@ -58,6 +58,8 @@ cargo install --locked --git https://github.com/bg002h/mnemonic-secret      --ta
 cargo install --locked --git https://github.com/bg002h/mnemonic-key         --tag mk-cli-v0.9.0                      mk-cli
 ```
 
+Each of those CLIs also ships **man pages** — the [constellation installer](https://github.com/bg002h/mnemonic-toolkit) installs them automatically (`man mnemonic`, `man md`, `man ms`, `man mk`); the GUI itself has none.
+
 Tabs for CLIs not present on `$PATH` are greyed at launch.
 
 ## Screenshots
