@@ -3,6 +3,16 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## mnemonic-gui [0.52.0] — 2026-06-26
+
+**SemVer-MINOR — schema-mirror lockstep for the toolkit `word-card` release.** `mnemonic-toolkit-v0.74.0` shipped a new VISIBLE `word-card` subcommand (encode a BIP-39 mnemonic into a steel-engravable word-card via the new `wc-codec` engine, or decode one back). The lagging `schema_mirror` gate would FAIL the moment the GUI bumps its toolkit pin to `v0.74.0` until the hand-maintained clap-flag schema mirror adds `word-card`. This cycle adds it + bumps the toolkit pin in lockstep. New subcommand surface → MINOR (the concrete version is assigned at tag time).
+
+This cycle is **pin-NEUTRAL for the three sibling CLIs** (`md-cli` / `ms-cli` / `mk-cli`): only the `mnemonic-toolkit` pin moves (`v0.73.0 → v0.74.0`). `word-card` is the SOLE accumulated `schema_mirror` delta since the schema was last synced at v0.73.0 — a full subcommand-by-subcommand diff of the v0.74.0 `gui-schema` against the GUI mirror found NO other flag drift (the v0.71–v0.73 surface was already mirrored).
+
+- **`word-card` SubcommandSchema added** (`src/schema/mnemonic.rs`). Nine flags, NO dropdown value-enums (every flag `choices: null`): `--decode` (bool), `--decode-plate` (text), `--from` (text), `--integrity-bits` (number, default 44), `--json` (bool), `--parity-pct` (number), `--parity-words` (number), `--raid` (number, default 0), plus the global `--no-auto-repair`. The decode path takes a repeating positional `<WORD>...` (`words`), mirrored in `WORD_CARD_POSITIONALS`. The toolkit's `gui-schema` emits `--from` and the `words` positional WITHOUT a `secret` bit (== false), so the GUI mirrors `secret: false` for both — strict-equality against the `schema_mirror_secret_drift` gate (flags) and the frozen `t4_secret_positional_census` (positionals, still exactly the 5 ms.rs entries). No conditional rules.
+- **Pin bump:** `mnemonic-toolkit-v0.73.0 → v0.74.0` across `pinned-upstream.toml`, the Cargo.toml toolkit dep tag + Cargo.lock, the README install line, and the schema `pinned_version` display string (`mnemonic 0.73.0 → 0.74.0`). Cargo.lock re-resolves to add the toolkit's new transitive `wc-codec 0.1.0`.
+- **Gates:** `schema_mirror` (mnemonic, against the v0.74.0 binary via `MNEMONIC_BIN`) GREEN incl. the new `word-card`; `schema_mirror_secret_drift`, `pin_coherence`, `readme_pin_coherence`, `gui_schema_conditional_drift`, `wire_shape_snapshot`, full `cargo test` GREEN; `cargo clippy --all-targets` clean. No `cargo fmt` (GUI has no fmt CI gate).
+
 ## mnemonic-gui [0.51.0] — 2026-06-23
 
 **SemVer-MINOR — fully-static musl GUI release binaries + a combined `SHA256SUMS` integrity asset.** The `build.yml` release matrix gains `x86_64-unknown-linux-musl` (native on `ubuntu-latest`) and `aarch64-unknown-linux-musl` (via `cross`) rows, so each `mnemonic-gui-v*` tag now also ships fully-static, dependency-free Linux GUI tarballs for air-gapped / Alpine / musl deployments alongside the existing gnu/darwin/windows assets. A new combined `SHA256SUMS` asset (emitted in the `release` job between artifact download and the GitHub-release publish) lets an air-gapped user verify any downloaded blob out-of-band. New user-visible release assets → MINOR.

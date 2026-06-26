@@ -2183,9 +2183,9 @@ dependencies = [
 
 [[package]]
 name = "md-codec"
-version = "0.39.0"
+version = "0.39.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4fe7832cf16a082573e8364d62a77e0f6071d07b6c6c05a8da08eed6913edabd"
+checksum = "41e2f36c814edf73353954509ec3316a7dba1498bc25f9db49703e0ffd75374d"
 dependencies = [
  "bip39",
  "bitcoin",
@@ -2255,9 +2255,9 @@ dependencies = [
 
 [[package]]
 name = "mk-codec"
-version = "0.4.0"
+version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1247d41a895c0fe1019aed8158610f57845521709ff8349f266e46c1c335f679"
+checksum = "c4e95ed4dcb3dd443322f18e2fbc312a865ecb9638820a64513f896da2aeeaa5"
 dependencies = [
  "bech32",
  "bitcoin",
@@ -2267,7 +2267,7 @@ dependencies = [
 
 [[package]]
 name = "mnemonic-gui"
-version = "0.51.0"
+version = "0.52.0"
 dependencies = [
  "clap",
  "ctrlc",
@@ -2297,8 +2297,8 @@ dependencies = [
 
 [[package]]
 name = "mnemonic-toolkit"
-version = "0.73.0"
-source = "git+https://github.com/bg002h/mnemonic-toolkit?tag=mnemonic-toolkit-v0.73.0#00f47ab46808b963500c648dc6f8c9158b90c534"
+version = "0.74.0"
+source = "git+https://github.com/bg002h/mnemonic-toolkit?tag=mnemonic-toolkit-v0.74.0#7a51d8b4a7471b59b956abfb13afde0d8a42af10"
 dependencies = [
  "aes",
  "base64 0.22.1",
@@ -2329,6 +2329,7 @@ dependencies = [
  "sha3",
  "similar",
  "unicode-normalization",
+ "wc-codec",
  "zeroize",
 ]
 
@@ -4249,6 +4250,15 @@ dependencies = [
  "log",
  "once_cell",
  "pkg-config",
+]
+
+[[package]]
+name = "wc-codec"
+version = "0.1.0"
+source = "git+https://github.com/bg002h/mnemonic-toolkit?tag=mnemonic-toolkit-v0.74.0#7a51d8b4a7471b59b956abfb13afde0d8a42af10"
+dependencies = [
+ "bip39",
+ "sha2",
 ]
 
 [[package]]

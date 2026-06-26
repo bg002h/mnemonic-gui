@@ -4155,6 +4155,144 @@ const GEN_MAN_FLAGS: &[FlagSchema] = &[
     NO_AUTO_REPAIR_FLAG,
 ];
 
+// ─── word-card ───────────────────────────────────────────────────────────
+//
+// word-card cycle (toolkit v0.74.0): encode a BIP-39 mnemonic into a
+// steel-engravable word-card (the wc-codec engine), or decode one back.
+// schema_mirror gates flag NAMES only, so the kind / secret bits below are
+// GUI-side ergonomics, not gate-checked by that test. No dropdown value-enums
+// on any flag (gui-schema reports every flag with `choices: null`).
+//
+// The decode path takes a repeating positional `<WORD>...` (`words`,
+// non-required, repeating). The toolkit's gui-schema emits it as a positional,
+// so it rides the `positional_args` slice (mirroring decode-address's
+// `<address>`). The toolkit emits `words` WITHOUT a `secret` bit (== false) —
+// the `t4_secret_positional_census_matches_frozen_literal` gate freezes the
+// secret-positional census at exactly the 5 ms.rs entries, so a `secret: true`
+// here would both diverge from the toolkit projection AND break that census
+// (it would also demand `secret_widgets["positional:words"]` assembler
+// plumbing). We mirror the toolkit's `false`; the seed-value secrecy is a
+// forms-intake concern (node-type classification + argv masking), not this
+// schema bit. Per the **Positional-arg policy** comment above, this entry is
+// the structured mirror; whether the GUI surfaces a positional intake widget
+// is an orthogonal forms concern.
+const WORD_CARD_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
+    name: "words",
+    required: false,
+    repeating: true,
+    help: "Decode path: the BIP-39 word-card words to decode (repeating).",
+    secret: false,
+}];
+const WORD_CARD_FLAGS: &[FlagSchema] = &[
+    FlagSchema {
+        name: "--decode",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Decode a word-card back to its BIP-39 mnemonic (inverse of \
+               the default encode direction).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--decode-plate",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "Decode from an engraved plate string (the steel-plate \
+               serialization) rather than the word list.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    // NOTE: the toolkit's gui-schema (v0.74.0) emits `--from` for word-card
+    // with `secret: false` — it is NOT in `mnemonic_toolkit::secrets`'
+    // hand-coded secret-flag list for this subcommand (the seed VALUE is
+    // entered via the same node-grammar that the convert `--from` composite
+    // already classifies per-node). The `schema_mirror_secret_drift` gate
+    // enforces strict set-equality of `secret == true` flags against the
+    // toolkit projection, so this MUST mirror the toolkit's `false`. (The
+    // secret HANDLING of the seed value rides node-type classification +
+    // argv masking, not this flag-level bool.)
+    FlagSchema {
+        name: "--from",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "Source BIP-39 mnemonic to encode into a word-card \
+               (phrase=/ms1=/entropy=/seedqr=; @env:VAR / - stdin).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--integrity-bits",
+        kind: FlagKind::Number {
+            min: 0,
+            max: NumberMax::Static(65535),
+        },
+        required: false,
+        repeating: false,
+        help: "Integrity-check bit budget for the card (default 44).",
+        secret: false,
+        default_value: Some("44"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--json",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Emit a JSON envelope instead of the human-readable card.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--parity-pct",
+        kind: FlagKind::Number {
+            min: 0,
+            max: NumberMax::Static(65535),
+        },
+        required: false,
+        repeating: false,
+        help: "Parity redundancy expressed as a percentage of the payload.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--parity-words",
+        kind: FlagKind::Number {
+            min: 0,
+            max: NumberMax::Static(65535),
+        },
+        required: false,
+        repeating: false,
+        help: "Parity redundancy expressed as an absolute number of parity \
+               words.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--raid",
+        kind: FlagKind::Number {
+            min: 0,
+            max: NumberMax::Static(65535),
+        },
+        required: false,
+        repeating: false,
+        help: "RAID redundancy level — split the card across N plates for \
+               loss tolerance (default 0 = single card).",
+        secret: false,
+        default_value: Some("0"),
+        global: false,
+    },
+    NO_AUTO_REPAIR_FLAG,
+];
+
 // Phase 5: wire the conditional-visibility fn pointers per subcommand.
 // v0.3: `derive-child` gained `--passphrase-stdin conflicts_with passphrase`
 // at toolkit v0.13.0; conditional flipped from `None` to
@@ -4455,6 +4593,18 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
         allows_slots: false,
         conditional: None,
     },
+    // word-card cycle (toolkit v0.74.0): encode a BIP-39 mnemonic into a
+    // steel-engravable word-card (wc-codec engine) or decode one back. The
+    // decode path takes a repeating positional `<WORD>...` (`words`); the
+    // gui-schema reports `conditional_rules: []` → conditional: None.
+    SubcommandSchema {
+        name: "word-card",
+        human_name: "Word Card (encode/decode a steel-engravable BIP-39 word-card)",
+        flags: WORD_CARD_FLAGS,
+        positional_args: WORD_CARD_POSITIONALS,
+        allows_slots: false,
+        conditional: None,
+    },
 ];
 
 // `pinned_version` is rendered as a monospace label in the action-bar
@@ -4465,6 +4615,6 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
 // drift here is a cosmetic banner mismatch, not a functional error.
 pub const SCHEMA: Schema = Schema {
     cli_name: "mnemonic",
-    pinned_version: "mnemonic 0.73.0",
+    pinned_version: "mnemonic 0.74.0",
     subcommands: SUBCOMMANDS,
 };
