@@ -1,6 +1,6 @@
 [package]
 name = "mnemonic-gui"
-version = "0.51.0"
+version = "0.52.0"
 edition = "2021"
 # The locked dependency graph (icu_*@2.2.0, idna_adapter@1.2.2, image@0.25.x,
 # pulled since v0.40.0) requires rustc >= 1.88. The prior "1.85" was wrong —
@@ -42,7 +42,7 @@ regex = "1"
 # sandboxes → BIP-39 phrases leaked to state.json). See toolkit
 # `secret-taxonomy-public-api-promotion` FOLLOWUP for the full
 # architectural rationale.
-mnemonic-toolkit = { git = "https://github.com/bg002h/mnemonic-toolkit", tag = "mnemonic-toolkit-v0.73.0" }
+mnemonic-toolkit = { git = "https://github.com/bg002h/mnemonic-toolkit", tag = "mnemonic-toolkit-v0.74.0" }
 
 [target.'cfg(unix)'.dependencies]
 signal-hook = "0.3"
