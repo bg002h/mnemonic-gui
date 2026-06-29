@@ -59,7 +59,8 @@ use egui_kittest::Harness;
 use mnemonic_gui::app::CliTab;
 use mnemonic_gui::form::widget::render_with_dispatch;
 use mnemonic_gui::schema::{
-    FlagKind, FlagSchema, FlagValue, FormState, Schema, SubcommandSchema, Visibility,
+    FlagKind, FlagSchema, FlagValue, FormState, Schema, SubcommandSchema, TaggedOrIndexedValue,
+    TimestampValue, Visibility,
 };
 
 // ─── §3 identity-kind classifier + enumerator ──────────────────────────────
@@ -329,4 +330,267 @@ pub fn drive(harness: &mut Harness<'static, FormState>, kind: IdentityKind, inje
         }
         _ => unreachable!("drive: kind/injected guard above is exhaustive"),
     }
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// P2 / I2 — whole-form render + conditional-effect machinery
+// ════════════════════════════════════════════════════════════════════════
+//
+// P1 (I1) renders ONE flag in isolation (its render→store→argv wiring). I2
+// must render the WHOLE subcommand form so the subcommand's `conditional(state)`
+// fn actually runs and GATES the fields (plan P2 m3 — the rule is applied at the
+// form loop, NOT inside the single-flag dispatch). These helpers are the I2
+// counterpart to P1's `render_one_flag`; P1's path is kept untouched.
+//
+// ## Per-flag targeting in the whole form (the egui no-label↔input problem)
+// egui attaches no association between a flag's name-label and its input
+// node, so many same-`Role` widgets (TextInput / ComboBox / SpinButton /
+// CheckBox) are NOT individually `get_by_role`-targetable in a full form.
+// The robust handle is the flag's **name LABEL**: the real per-flag renderer
+// always emits a node carrying the flag-name text —
+//   - scalar non-secret: `ui.label(flag.name)` (`widget.rs::render_row`),
+//   - secret Text:        `SecretLineEdit::show` → `ui.label(flag.name)`,
+//   - secret Boolean:     `Checkbox::new(_, flag.name)` (label IS the name),
+//   - repeating:          header `ui.label(flag.name)`.
+// `query_by_label(flag.name)` is an EXACT match (proved in the I2 cells:
+// `--descriptor` does not collide with `--descriptor-file`, nor `--passphrase`
+// with `--passphrase-stdin`), so it is a unique per-flag handle. A flag's
+// rendered visibility/enable state then reads off that node:
+//   - Hidden   → the name-label node is ABSENT (the form loop `continue`s it),
+//   - Disabled → present, `is_disabled() == true` (the `add_enabled_ui(false)`
+//                wrap propagates to the inner label — proved in the cells),
+//   - Visible / Required / PinValue → present, `is_disabled() == false`.
+//
+// ## Anti-tautology (stated, mirrors P1's note)
+// I2 asserts the RENDERER faithfully applies `conditional()` (catches a
+// renderer↔rule DESYNC + that egui→AccessKit actually yields the expected
+// absent/disabled states). It does NOT re-assert the rule's *correctness* —
+// a wrong rule is owned by `tests/conditional_visibility.rs` /
+// `gui_schema_conditional_drift.rs`.
+
+/// True iff the real form loop (`src/main.rs:624-647`) `continue`s `flag_name`
+/// out of the GENERIC render path for `state` — i.e. it is render-suppressed by
+/// a MODE mutex, not by the conditional's `Hidden`. Mirrors the three name-set
+/// `continue`s verbatim: the `--slot` SlotEditor handoff, build-descriptor
+/// tree-mode suppression, and build-descriptor archetype-mode suppression.
+pub fn is_render_suppressed(
+    sub: &'static SubcommandSchema,
+    flag_name: &str,
+    state: &FormState,
+) -> bool {
+    if flag_name == "--slot" && sub.allows_slots {
+        return true;
+    }
+    let tree_mode = sub.name == "build-descriptor"
+        && mnemonic_gui::form::tree_form::tree_enabled(state);
+    if tree_mode && mnemonic_gui::form::tree_form::suppressed_in_tree_mode(flag_name) {
+        return true;
+    }
+    let archetype_mode = sub.name == "build-descriptor"
+        && !tree_mode
+        && mnemonic_gui::form::archetype_form::active_archetype(state).is_some();
+    if archetype_mode
+        && mnemonic_gui::form::archetype_form::suppressed_in_archetype_mode(flag_name)
+    {
+        return true;
+    }
+    false
+}
+
+/// The body of `src/main.rs`'s per-flag render loop (`main.rs:601-686`),
+/// rendering the WHOLE subcommand form: compute the per-frame conditional
+/// visibility, apply the three mode `continue`s + the `Hidden → skip` +
+/// `DisableOptions` extraction + the `add_enabled_ui(!Disabled, …)` gate, and
+/// dispatch every flag through the real `render_with_dispatch`.
+///
+/// Deliberately omits the bespoke SUB-SURFACES (`SlotEditor`, the archetype
+/// param sub-form, the tree builder, positional widgets): those render
+/// ADDITIONAL widgets but do NOT change the per-flag visibility GATE that I2
+/// tests, and rendering the archetype sub-form would duplicate flag-name
+/// labels (breaking the exact-label handle). The per-flag gate reproduced here
+/// is byte-identical to the real loop. Positional-gated conditionals
+/// (`md_encode` / `md_address`) read `state.positionals` directly, which the
+/// caller seeds — no positional widget render is needed for the gate.
+pub fn render_whole_form(
+    ui: &mut egui::Ui,
+    tab: CliTab,
+    sub: &'static SubcommandSchema,
+    state: &mut FormState,
+) {
+    let vis: Vec<(&'static str, Visibility)> =
+        sub.conditional.map(|f| f(state)).unwrap_or_default();
+    let visibility_of = |name: &str| -> Visibility {
+        vis.iter()
+            .find(|(k, _)| *k == name)
+            .map(|(_, v)| v.clone())
+            .unwrap_or(Visibility::Visible)
+    };
+    for flag in sub.flags {
+        if is_render_suppressed(sub, flag.name, state) {
+            continue;
+        }
+        let v = visibility_of(flag.name);
+        if matches!(v, Visibility::Hidden) {
+            continue;
+        }
+        let disabled_options: Vec<String> = vis
+            .iter()
+            .filter(|(k, _)| *k == flag.name)
+            .filter_map(|(_, v)| match v {
+                Visibility::DisableOptions { values } => Some(values.clone()),
+                _ => None,
+            })
+            .flatten()
+            .collect();
+        ui.add_enabled_ui(!matches!(v, Visibility::Disabled), |ui| {
+            render_with_dispatch(ui, tab, sub.name, flag, state, &disabled_options);
+        });
+    }
+}
+
+/// Construct an `egui_kittest::Harness` rendering the whole `sub` form from
+/// `base` (the I2 counterpart to P1's `render_flag_harness`).
+pub fn render_whole_form_harness(
+    tab: CliTab,
+    sub: &'static SubcommandSchema,
+    base: FormState,
+) -> Harness<'static, FormState> {
+    Harness::new_ui_state(
+        move |ui, state: &mut FormState| {
+            render_whole_form(ui, tab, sub, state);
+        },
+        base,
+    )
+}
+
+/// The conditional EFFECT for `flag_name` under `state` (first-rule-wins via
+/// the find), defaulting to `Visible` when the conditional emits no override.
+/// Mirrors `main.rs::visibility_of` / `invocation.rs::visibility_of`.
+pub fn effect_of(
+    sub: &'static SubcommandSchema,
+    state: &FormState,
+    flag_name: &str,
+) -> Visibility {
+    sub.conditional
+        .map(|f| f(state))
+        .unwrap_or_default()
+        .iter()
+        .find(|(k, _)| *k == flag_name)
+        .map(|(_, v)| v.clone())
+        .unwrap_or(Visibility::Visible)
+}
+
+/// A coarse, comparable tag for one `Visibility` effect — the projection unit
+/// for the I2 toggle-round-trip equivalence (invariant 3). Captures the
+/// argv-relevant identity of the effect (incl. PinValue's pinned value /
+/// DisableOptions' set) while sidestepping `serde_json::Value`'s ordering.
+pub fn vis_tag(v: &Visibility) -> String {
+    match v {
+        Visibility::Visible => "visible".to_string(),
+        Visibility::Hidden => "hidden".to_string(),
+        Visibility::Required => "required".to_string(),
+        Visibility::Disabled => "disabled".to_string(),
+        Visibility::PinValue { value } => format!("pin:{value}"),
+        Visibility::DisableOptions { values } => {
+            let mut v = values.clone();
+            v.sort();
+            format!("disable_options:{v:?}")
+        }
+    }
+}
+
+/// The full **visibility-state projection** of `conditional(state)` over EVERY
+/// flag of `sub` — the explicit equivalence relation for the I2 toggle
+/// round-trip (spec §5 I2 IMP-6: equivalence is over the visibility projection,
+/// NOT the stored values, which a toggle may legitimately destroy). Two states
+/// are visibility-equivalent iff their projections compare equal.
+pub fn visibility_projection(
+    sub: &'static SubcommandSchema,
+    state: &FormState,
+) -> std::collections::BTreeMap<&'static str, String> {
+    sub.flags
+        .iter()
+        .map(|flag| (flag.name, vis_tag(&effect_of(sub, state, flag.name))))
+        .collect()
+}
+
+/// True iff `flag` renders a flag-name LABEL whose presence/`is_disabled()`
+/// faithfully reflects `conditional(state)`'s effect — i.e. it is eligible for
+/// the label-based render assertion. EXCLUDES:
+///   - flags MODE-suppressed out of the generic loop ([`is_render_suppressed`]),
+///   - **secret Boolean** `*-stdin` toggles, which render ALWAYS-disabled by the
+///     v0.37.0 grey-out (governed by the renderer, NOT the conditional —
+///     `tests/greyout_stdin_toggles_v0_37_0.rs`), so their disabled state would
+///     false-RED the conditional-faithfulness assertion.
+pub fn eligible_for_label_check(
+    sub: &'static SubcommandSchema,
+    flag: &'static FlagSchema,
+    state: &FormState,
+) -> bool {
+    if is_render_suppressed(sub, flag.name, state) {
+        return false;
+    }
+    if mnemonic_gui::secrets::flag_is_secret(flag) && matches!(flag.kind, FlagKind::Boolean) {
+        return false;
+    }
+    true
+}
+
+/// `query_by_label(flag_name).is_some()` — the flag's name-label node is present.
+pub fn label_present(harness: &Harness<'static, FormState>, flag_name: &str) -> bool {
+    harness.query_by_label(flag_name).is_some()
+}
+
+/// `Some(is_disabled)` when the flag's name-label node is present, else `None`.
+pub fn label_disabled(harness: &Harness<'static, FormState>, flag_name: &str) -> Option<bool> {
+    harness.query_by_label(flag_name).map(|n| n.is_disabled())
+}
+
+/// Construct a "present" `FlagValue` of the right variant for `flag`'s kind,
+/// carrying `payload`. Used to seed CONTEXT/GATING flags a conditional reads
+/// (`has_value` / `dropdown_value` / `text_value` / `has_positional`); the
+/// variant must match the kind so `render_with_dispatch` takes the real branch
+/// (not the value-shape-mismatch recovery).
+pub fn present_value(flag: &'static FlagSchema, payload: &str) -> FlagValue {
+    match flag.kind {
+        FlagKind::Text => FlagValue::Text(payload.to_string()),
+        FlagKind::Dropdown(_) => FlagValue::Dropdown(payload.to_string()),
+        FlagKind::Path { .. } => FlagValue::Path(payload.to_string()),
+        FlagKind::Boolean => FlagValue::Boolean(true),
+        FlagKind::Number { .. } => FlagValue::Number(payload.parse().unwrap_or(1)),
+        FlagKind::NodeValueComposite(opts) => FlagValue::NodeValueComposite {
+            node: opts.first().map(|s| (*s).to_string()).unwrap_or_default(),
+            value: payload.to_string(),
+        },
+        FlagKind::Range => FlagValue::Range(0, payload.parse().unwrap_or(1)),
+        FlagKind::Timestamp => FlagValue::Timestamp(TimestampValue::Now),
+        FlagKind::TaggedOrIndexed(tags) => FlagValue::TaggedOrIndexed(
+            TaggedOrIndexedValue::Tag(tags.first().map(|s| (*s).to_string()).unwrap_or_default()),
+        ),
+    }
+}
+
+/// Seed a context/gating flag into `state.values` with the right variant.
+pub fn seed(
+    state: &mut FormState,
+    sub: &'static SubcommandSchema,
+    flag_name: &str,
+    payload: &str,
+) {
+    let flag = flag_of(sub, flag_name);
+    state
+        .values
+        .push((flag_name.to_string(), present_value(flag, payload)));
+}
+
+/// Seed a `NodeValueComposite` flag with a specific `node` (the conditional
+/// reads it via `FormState::composite_node`, e.g. `slip39-split --from`).
+pub fn seed_composite(state: &mut FormState, flag_name: &str, node: &str, value: &str) {
+    state.values.push((
+        flag_name.to_string(),
+        FlagValue::NodeValueComposite {
+            node: node.to_string(),
+            value: value.to_string(),
+        },
+    ));
 }
