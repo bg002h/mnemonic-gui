@@ -975,3 +975,22 @@ on_exit signature for wgpu renderer, tracing filter for wgpu warnings).
 ## `gui-automated-ui-functionality-harness` — schema-enumerated egui_kittest UI-functionality test gate
 
 - **Status:** ✓ **RESOLVED (2026-06-29, PR #24 merged `afcd28ec`).** A schema-enumerated `egui_kittest` harness over all **61 subcommands** testing UI **functional correctness** + **conditional/state integrity** without manual clicking — now a permanent CI gate (runs in `schema-mirror.yml::cargo-test-full-suite`). Four invariant classes: **I1** form→argv wiring round-trip (render-via-kittest mandatory; identity-mapped kinds + AccessKit `SetValue` for Number); **I2** conditional/state over the 17 conditional subs (per the 6 `Visibility` effects; Hidden/Disabled suppression; toggle round-trip = visibility-state equivalence); **I3** classified-secret never-persist regression (64 secrets; through `redact_for_persistence`; FAKE fixtures, coordinate-only failure; complements, not replaces, `schema_mirror_secret_drift`/`secret_taxonomy_pin`); **I4** real pinned-CLI functional cells (env-gated). Layered anti-tautology oracle (names→`schema_mirror`, wiring→kittest round-trip, functional→real CLI). One-time proptest sweep (`#[ignore]`) found **0 functional bugs** (coverage win) + 1 filed usability item (`gui-prefilled-default-text-appends-on-type`). **Zero `src/` changes** — pure test addition. Built through the full R0-gated pipeline (architect consult + spec R0 ×2 + plan R0 + per-phase R0 + post-impl whole-diff, all GREEN); design trail in `design/{SPEC,IMPLEMENTATION_PLAN}_gui_ui_test_harness.md` + `design/agent-reports/gui-ui-test-harness-*`. **Tier:** `ci` / `test-infra`.
+
+## `gui-word-card-help-mislabels-public-input-as-secret` — RESOLVED 2026-06-29 (PR #26 `2914496c`)
+
+**Secret-hygiene fix.** The `word-card` subcommand's hand-maintained schema help
+(`src/schema/mnemonic.rs`) was a wrong-pasted copy of `convert`'s node-grammar:
+`--from` read "Source BIP-39 mnemonic … phrase=/ms1=/entropy=/seedqr=", inviting a
+user to paste a SECRET `ms1`/seed phrase into a `secret:false`, non-masked,
+no-run-confirm field. But `word-card` encodes **PUBLIC** material only — an `mk1`
+(xpub) or `md1` (descriptor) card; the secret `ms1` is excluded (the toolkit CLI
+help is correct). `secret:false` is itself correct (the input IS public) — the help
+was the bug. Fixed all three inaccurate strings to mirror the toolkit CLI: `--from`
+= PUBLIC `mk1`/`md1` (NOT a secret); `--decode` decodes to the `mk1`/`md1` card (not
+"a BIP-39 mnemonic"); `--decode-plate` is a RAID plate word list (not "an engraved
+plate-string serialization"). Help-text only — no flag-name/kind/`secret` change, so
+`schema_mirror` (flag-NAME parity) + `schema_mirror_secret_drift` unaffected; suite
+622/0. The GUI's `repeating:false` correctly mirrors the toolkit `gui-schema` (which
+reports these flags `repeating:null`). **Companion:** mnemonic-toolkit
+`docs/manual-gui/FOLLOWUPS.md` `gui-word-card-from-help-mislabels-secret-input`
+(RESOLVED). Surfaced by the generated-GUI-form-renders cycle's Leg-2 post-impl review.
