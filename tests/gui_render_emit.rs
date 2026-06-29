@@ -80,6 +80,43 @@ fn exact_render_mode_form_shows_subsurface_placeholder() {
 }
 
 #[test]
+fn exact_render_seeded_conditional_form_disables_multisig_only_flags() {
+    // `mnemonic export-wallet`: the emit seeds flag defaults BEFORE evaluating
+    // `conditional` (P3 R0 ruling A — the on-load steady state the GUI shows).
+    // With `--template` auto-seeded to its single-sig default `bip44`, the
+    // conditional (a) DISABLES `--descriptor` (template/descriptor mutex) and
+    // the multisig-only `--threshold` / `--multisig-path-family`, and (b) DROPS
+    // the spurious `(required)` markers on `--template` / `--descriptor` (the
+    // "either template or descriptor" pre-check is already satisfied by the
+    // seeded template). Pristine-fixture emit would falsely show all of these
+    // enabled + the pair Required — a screen the user never sees.
+    let expected = "\
+[ mnemonic > export-wallet ]
+  --template                dropdown[bip44,bip49,bip84,bip86,wsh-multi,wsh-sortedmulti,sh-wsh-multi,sh-wsh-sortedmulti,tr-multi-a,tr-sortedmulti-a]  -> bip44
+  --descriptor              text  -> <empty> [disabled]
+  --threshold               number  -> <unset> [disabled]
+  --multisig-path-family    dropdown[bip48,bip87]  -> bip48 [disabled]
+  --network                 dropdown[mainnet,testnet,signet,regtest]  -> mainnet
+  --language                dropdown[english,simplifiedchinese,traditionalchinese,czech,french,italian,japanese,korean,portuguese,spanish]  -> english
+  --account                 number  -> <unset>
+  --format                  dropdown[bitcoin-core,bip388,coldcard,coldcard-multisig,jade,sparrow,specter,electrum,green,bsms,descriptor]  -> bitcoin-core
+  --output                  path(stdio)  -> -
+  --range                   range  -> <unset>
+  --timestamp               timestamp  -> <unset>
+  --bitcoin-core-version    number  -> <unset>
+  --taproot-internal-key    tagged-or-indexed[nums]  -> <unset> [disabled]
+  --wallet-name             text  -> <empty>
+  --bsms-form               dropdown[2-line,4-line]  -> 4-line
+  --from-import-json        path(stdio)  -> <empty>
+  --from-import-json-index  number  -> <unset>
+  --no-auto-repair          checkbox  -> [ ] off
+  [ slot editor: 0 rows ]
+  [ Run ]
+";
+    assert_eq!(render(CliTab::Mnemonic, "export-wallet"), expected);
+}
+
+#[test]
 fn exact_render_plain_form() {
     // `mk inspect`: a plain form — one checkbox flag + one positional.
     let expected = "\
@@ -109,6 +146,14 @@ fn slot_form_renders_slot_editor_placeholder() {
         out.contains("--passphrase-stdin      checkbox  (secret) -> [ ] off [disabled]"),
         "{out}"
     );
+    // Seeded-conditional faithfulness (P3 R0 ruling A): the canonical fixture
+    // auto-seeds `--template -> bip44` (single-sig), so the conditional greys
+    // the multisig-only flags on load — exactly what the GUI shows.
+    assert!(
+        out.contains("--multisig-path-family  dropdown[bip48,bip87]  -> bip48 [disabled]"),
+        "{out}"
+    );
+    assert!(out.contains("--threshold             number  -> <unset> [disabled]"), "{out}");
 }
 
 // ─── secret hygiene ─────────────────────────────────────────────────────────

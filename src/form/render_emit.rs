@@ -64,9 +64,90 @@ pub fn all_forms() -> Vec<(CliTab, &'static SubcommandSchema)> {
     out
 }
 
-/// Render one form using the shared canonical [`render_fixture`].
+/// Render one form using the [`seeded_fixture`] on-load steady state.
 pub fn render_form(tab: CliTab, sub: &SubcommandSchema) -> String {
-    render_form_from_state(tab, sub, &render_fixture(tab, sub.name))
+    render_form_from_state(tab, sub, &seeded_fixture(tab, sub))
+}
+
+/// The **render-gated monotone fixed-point seed** — the on-load steady state the
+/// user actually sees, NOT the pristine `FormState::default()` (P3 R0 ruling A).
+///
+/// The GUI auto-seeds every CURRENTLY-RENDERED non-secret flag's schema default
+/// into `state.values` on each frame and re-evaluates `conditional` at the top
+/// of the next frame, so the screen the user sees on load is the FIXED POINT of
+/// that loop — e.g. `bundle` seeds `--template -> bip44` (single-sig), and the
+/// conditional then greys the multisig-only `--threshold`/`--multisig-path-family`.
+/// The emit MUST evaluate `conditional` over THIS seeded state, not the unseeded
+/// blank form, or the depicted `[disabled]` column contradicts the value column.
+///
+/// This mirrors `widget::render_with_dispatch` (`widget.rs:220-229`) and
+/// `render_repeating`'s required-row seed (`widget.rs:309-315`) EXACTLY — and
+/// deliberately does NOT over-seed:
+///   - **Non-secret, non-repeating** flags that are RENDERED (not mode-suppressed,
+///     not conditional-`Hidden`) seed `default_flag_value_for_flag` (all kinds;
+///     a numeric default is `Unset`, which `has_value` reads as ABSENT — no
+///     fabricated number). A `Disabled` flag IS still rendered (the GUI greys but
+///     still calls the widget), so it IS seeded.
+///   - **Required REPEATING** non-secret flags seed ONE row (the GUI's
+///     per-frame required-row seed); **optional repeating** flags seed NOTHING.
+///   - **Secret** flags are NEVER seeded (secret Text → `secret_widgets`, secret
+///     `*-stdin` Boolean → early return); **mode-suppressed** + conditional-`Hidden`
+///     flags are not rendered, hence not seeded.
+///
+/// `state.values` only GROWS (monotone — a flag that a later pass hides keeps its
+/// already-stored value), so the loop converges in ≤ `sub.flags.len()` passes.
+fn seeded_fixture(tab: CliTab, sub: &SubcommandSchema) -> FormState {
+    let mut state = render_fixture(tab, sub.name);
+    loop {
+        let vis_map = sub.conditional.map(|f| f(&state)).unwrap_or_default();
+        let visibility_of = |name: &str| -> Visibility {
+            vis_map
+                .iter()
+                .find(|(k, _)| *k == name)
+                .map(|(_, v)| v.clone())
+                .unwrap_or(Visibility::Visible)
+        };
+        let mut changed = false;
+        for flag in sub.flags {
+            // Mode-suppressed + conditional-`Hidden` flags are NOT rendered,
+            // hence NOT seeded (the GUI `continue`s them before the widget).
+            if is_render_suppressed(sub, flag.name, &state) {
+                continue;
+            }
+            if matches!(visibility_of(flag.name), Visibility::Hidden) {
+                continue;
+            }
+            // Secret flags (incl. secret REPEATING) never reach `state.values`
+            // — the secret check precedes the repeating check in the widget
+            // dispatch (`widget.rs:181`/`:202`).
+            if flag_is_secret(flag) {
+                continue;
+            }
+            let already = state.values.iter().any(|(k, _)| k == flag.name);
+            if already {
+                continue;
+            }
+            if flag.repeating {
+                // Required-repeating: seed ONE row; optional-repeating: nothing.
+                if flag.required {
+                    state
+                        .values
+                        .push((flag.name.to_string(), default_flag_value_for_flag(flag)));
+                    changed = true;
+                }
+                continue;
+            }
+            // Non-secret scalar: mirror the `widget.rs:220-229` None-arm push.
+            state
+                .values
+                .push((flag.name.to_string(), default_flag_value_for_flag(flag)));
+            changed = true;
+        }
+        if !changed {
+            break;
+        }
+    }
+    state
 }
 
 /// `<tab>-<sub>.gui` file name for a form (the committed-render naming the
@@ -310,15 +391,14 @@ pub enum Presence {
 pub struct FlagProjection {
     pub name: &'static str,
     pub presence: Presence,
-    /// The flag's PRISTINE-fixture disabled state — conditional `Disabled` on
-    /// the blank `FormState::default()`, or the always-greyed secret `*-stdin`
-    /// toggle. Mirrors the ASCII `[disabled]` markers (pinned by P2). It is a
-    /// ONE-SHOT (pre-auto-seed) value: the P3 faithfulness gate does NOT
-    /// cross-check it against the real render, because egui_kittest only
-    /// observes the post-auto-seed SETTLED state, where the conditional may
-    /// grey additional flags (the same conditional-sourced subtlety the m4
-    /// carve-out applies to the `(required)` marker; renderer↔conditional
-    /// disabled faithfulness is gated by `ui_harness_i2_conditional`).
+    /// The flag's disabled state over the [`seeded_fixture`] on-load steady
+    /// state — conditional `Disabled` under the seeded fixed point, or the
+    /// always-greyed secret `*-stdin` toggle. Mirrors the ASCII `[disabled]`
+    /// markers (pinned by P2). Because the emit now seeds defaults before
+    /// evaluating `conditional` (P3 R0 ruling A), this equals the SETTLED GUI's
+    /// per-flag `is_disabled()`, so the P3 faithfulness gate cross-checks it
+    /// against the real render — that re-gate self-guards the seed simulator
+    /// (a seed drifting from `widget.rs` REDs the disabled axis).
     pub disabled: bool,
     /// Meaningful only when `Present`.
     pub control: ControlClass,
@@ -376,7 +456,7 @@ fn control_class(flag: &FlagSchema) -> ControlClass {
 /// [`render_fixture`] — the projection the P3 faithfulness gate compares the
 /// real egui render against.
 pub fn project_form(tab: CliTab, sub: &SubcommandSchema) -> FormProjection {
-    let state = render_fixture(tab, sub.name);
+    let state = seeded_fixture(tab, sub);
     let elements = form_elements(sub, &state);
 
     // The flags the single pass actually RENDERS, with their per-frame

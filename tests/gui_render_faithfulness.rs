@@ -227,23 +227,20 @@ fn gui_render_emit_is_faithful_to_real_form_for_all_61_forms() {
         // ── (1a) presence + disabled + action bar: the REAL extended whole
         //         form ──
         //
-        // We read the CONSTRUCTION frame (no `run()`), NOT a settled multi-
-        // frame state. This is the apples-to-apples counterpart to the emit's
-        // model: `render_emit::project_form` evaluates `conditional(state)`
-        // ONCE over the pristine `render_fixture` (and the P2 ASCII is pinned
-        // on that one-shot). egui_kittest's `new_ui_state` likewise renders one
-        // frame whose visibility gate is `conditional(render_fixture)` — same
-        // input state, same single conditional evaluation, so the disabled axis
-        // compares like-for-like. Advancing a frame would instead read the
-        // GUI's multi-frame STEADY state, where the form loop has auto-seeded
-        // dropdown defaults (`--template` → its single-sig default on
-        // bundle/verify-bundle/export-wallet) that the conditional then reads to
-        // disable the multisig-only flags (`--threshold`/`--descriptor`/
-        // `--multisig-path-family`). That settled drift is a documented property
-        // of `conditional` subs (default is not a seed-loop fixed point —
-        // `tests/ui_harness_i2_conditional.rs`), NOT an emit-faithfulness gap:
-        // comparing the emit's render-of-default against egui's render-of-
-        // settled-state would compare two DIFFERENT input states.
+        // `egui_kittest::Harness` SETTLES in its constructor (`Harness::from_builder`
+        // → `run_ok()` loops `step()` until no immediate repaint is requested),
+        // so `wf` is the GUI's post-auto-seed STEADY state — the screen the user
+        // actually sees on load, NOT a single construction frame. The emit's
+        // `project_form` now mirrors that exactly: it evaluates `conditional`
+        // over the `seeded_fixture` render-gated MONOTONE FIXED POINT (P3 R0
+        // ruling A), which seeds every rendered non-secret flag's default the
+        // way the GUI's per-frame auto-seed does (`widget.rs:220-229`) and
+        // re-evaluates `conditional` to convergence. Both sides therefore reflect
+        // the same on-load fixed point, so presence AND disabled compare
+        // like-for-like — e.g. on bundle/verify-bundle/export-wallet the seeded
+        // single-sig `--template -> bip44` greys the multisig-only
+        // `--threshold`/`--multisig-path-family` (+ export-wallet `--descriptor`)
+        // on BOTH sides.
         let wf = render_extended_form_harness(tab, sub, render_fixture(tab, sub.name));
 
         // Action bar.
@@ -255,31 +252,20 @@ fn gui_render_emit_is_faithful_to_real_form_for_all_61_forms() {
             ));
         }
 
-        // Per-flag PRESENCE (structural — gated). A flag is `Present` in the
+        // Per-flag PRESENCE + DISABLED (both gated). A flag is `Present` in the
         // rendered grid iff its name-label node exists; `Absent` covers BOTH a
         // mode-suppressed flag (behind a sub-surface) and a conditional-`Hidden`
-        // one. Presence agrees between the emit's pristine model and the
-        // settled GUI for all 61 forms.
+        // one. When present, its settled `is_disabled()` (off the real label
+        // node, `ui_harness::label_disabled`) must equal the emit's
+        // `seeded_fixture` disabled prediction.
         //
-        // The conditional-sourced DISABLED DECORATION is deliberately NOT
-        // gated here — it is the same class the spec's m4 carve-out already
-        // excluded for the `(required)` marker. The emit models the pristine
-        // blank-form `FormState::default()` (fixtures.rs: "every flag Visible",
-        // the documented P2 canonical fixture) and evaluates `conditional`
-        // ONCE on it; egui_kittest's `Harness` instead always settles
-        // (`run_ok`) to the post-auto-seed steady state, where the form loop
-        // has seeded each flag's schema default (e.g. `--template -> bip44`,
-        // already DISPLAYED by the emit) and the conditional then greys the
-        // multisig-only flags (`--threshold`/`--descriptor`/
-        // `--multisig-path-family` on bundle/verify-bundle/export-wallet). The
-        // pristine emit thus depicts those flags ENABLED while the settled GUI
-        // shows them DISABLED. That gap (a) cannot be observed pristine-vs-
-        // pristine through `Harness` and (b) is already covered: the
-        // renderer-applies-`conditional`-`Disabled` faithfulness lives in
-        // `tests/ui_harness_i2_conditional.rs`, and the emit's pristine
-        // `[disabled]` markers are pinned by the P2 `gui_render_emit` ASCII
-        // snapshots. See the report's KEY FINDING for the 6 affected flags and
-        // the open question of whether the emit should model the settled state.
+        // The disabled re-gate is the ANTI-TAUTOLOGY GUARD on the seed simulator
+        // itself (R0 ruling A): if `seeded_fixture` ever drifts from the GUI's
+        // real per-frame auto-seed, the seeded `conditional` outcome diverges
+        // from the settled render and this axis REDs. (Secret `*-stdin` toggles
+        // render always-disabled by the renderer, not the conditional — the emit
+        // models that via `is_secret_bool`, and the settled label is likewise
+        // disabled, so they agree.)
         for fp in &proj.flags {
             let real_present = flag_label_present(&wf, fp.name);
             let emit_present = matches!(fp.presence, Presence::Present);
@@ -288,6 +274,17 @@ fn gui_render_emit_is_faithful_to_real_form_for_all_61_forms() {
                     "{bin}/{}: flag {} — real present={real_present}, emit present={emit_present}",
                     sub.name, fp.name
                 ));
+                continue;
+            }
+            if emit_present {
+                if let Some(real_disabled) = ui_harness::label_disabled(&wf, fp.name) {
+                    if real_disabled != fp.disabled {
+                        divergences.push(format!(
+                            "{bin}/{}: flag {} — real disabled={real_disabled}, emit disabled={}",
+                            sub.name, fp.name, fp.disabled
+                        ));
+                    }
+                }
             }
         }
 
