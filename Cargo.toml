@@ -75,3 +75,7 @@ quote = "1"
 proc-macro2 = "1"
 toml = "0.8"
 egui_kittest = "0.31"
+# P5 one-time UI-harness coverage sweep (tests/ui_harness_sweep.rs): bounded
+# proptest leaf-value + toggle-sequence variation atop the per-subcommand seed
+# table. Dev-only — never enters the shipped GUI binary's dependency graph.
+proptest = "1"
