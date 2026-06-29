@@ -28,31 +28,14 @@ use eframe::egui;
 
 use crate::app::CliTab;
 use crate::form::widget::{self, RepeatAnnotation};
-use crate::schema::archetypes::{self, ArchetypeParamSpec, ArchetypeSpec};
+use crate::schema::archetypes::{ArchetypeParamSpec, ArchetypeSpec};
 use crate::schema::{FlagKind, FlagSchema, FormState, NumberMax};
 
-/// True iff `flag_name` is suppressed from the generic flag loop in
-/// archetype mode: the 9 archetype param flags (rendered by [`render`]
-/// instead) + `--spec` (the conditional's `Disabled` ghost row is replaced
-/// by a cleaner mode switch — the conditional itself is UNCHANGED for
-/// `--spec`, R0-r1 M1). Full 18-flag accounting (R0-r1 I1): 9 params +
-/// `--spec` suppressed; the 8 mode-independent flags (`--archetype`,
-/// `--spec-schema`, `--emit-spec`, `--allow`, `--format`, `--network`,
-/// `--json`, `--no-auto-repair`) keep their generic widgets.
-pub fn suppressed_in_archetype_mode(flag_name: &str) -> bool {
-    flag_name == "--spec" || archetypes::ARCHETYPE_PARAM_FLAGS.contains(&flag_name)
-}
-
-/// The archetype-mode predicate: `Some(spec)` iff `--archetype` holds a
-/// non-empty value matching an `ARCHETYPE_SPECS` id ("" is the GUI-side
-/// UNSET sentinel — generic mode).
-pub fn active_archetype(state: &FormState) -> Option<&'static ArchetypeSpec> {
-    let id = state.dropdown_value("--archetype")?;
-    if id.is_empty() {
-        return None;
-    }
-    archetypes::find(id)
-}
+// P1 `gui`-feature split: the egui-free archetype-mode predicates moved to the
+// non-gated `mode_predicates` module; re-exported so existing
+// `archetype_form::active_archetype` / `suppressed_in_archetype_mode` paths +
+// this module's call sites keep resolving under the `gui` feature.
+pub use crate::form::mode_predicates::{active_archetype, suppressed_in_archetype_mode};
 
 /// Positional threshold↔key pairing convention from the toolkit registry:
 /// `--threshold` applies to `--key`, `--recovery-threshold` to

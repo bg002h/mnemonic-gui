@@ -11,10 +11,41 @@ repository = "https://github.com/bg002h/mnemonic-gui"
 description = "Cross-platform GUI overlay for the m-format constellation CLIs (mnemonic, md, ms, mk)"
 readme = "README.md"
 
+[features]
+# P1 `gui`-feature split (SPEC §3). Default-on so the GUI app + the full test
+# suite build unchanged. `--no-default-features` drops the egui graphics stack
+# (eframe/egui → wgpu/winit) AND the 5 gated form-widget modules + the
+# `mnemonic-gui` bin, leaving the egui-free form model + the headless
+# `gui-render` emit-mode (P2). Independent regeneration of the manual's form
+# renders is what makes the manual-gui `verify-examples-gui` gate real.
+default = ["gui"]
+gui = ["dep:eframe", "dep:egui"]
+
+# The GUI app binary requires the `gui` feature. Without this `required-features`
+# pin, gating `src/main.rs`'s egui deps would make `cargo build
+# --no-default-features` fail "main not found"; instead the bin is skipped
+# entirely when `gui` is off (P1 m1). Name/path mirror the prior auto-discovered
+# default bin so the binary name is unchanged.
+[[bin]]
+name = "mnemonic-gui"
+path = "src/main.rs"
+required-features = ["gui"]
+
+# P2 — the headless structural-form emit binary. NOT gated: builds + runs
+# under `--no-default-features` (the egui-free form model only). Hyphenated
+# name (`gui-render`); explicit `[[bin]]` so the name is stable regardless of
+# auto-discovery.
+[[bin]]
+name = "gui-render"
+path = "src/bin/gui_render.rs"
+
 [dependencies]
 clap = { version = "4", features = ["derive"] }
-eframe = { version = "0.31", default-features = false, features = ["wgpu", "default_fonts", "wayland", "x11", "accesskit"] }
-egui = "0.31"
+# P1: eframe + egui are OPTIONAL + enabled by the default-on `gui` feature —
+# NEVER list them under a non-`gui` path (that would re-pull the graphics stack
+# into the headless build). wgpu/winit arrive transitively through eframe.
+eframe = { version = "0.31", default-features = false, features = ["wgpu", "default_fonts", "wayland", "x11", "accesskit"], optional = true }
+egui = { version = "0.31", optional = true }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 directories = "5"

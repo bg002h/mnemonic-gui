@@ -134,7 +134,7 @@ const fn const_str_eq(a: &str, b: &str) -> bool {
 
 use zeroize::Zeroize;
 
-use crate::form::slot_editor::SlotSubkey;
+use crate::form::slot_model::SlotSubkey;
 use crate::schema::{FlagSchema, SubcommandSchema};
 
 /// Hard-coded flag names with no upstream is-secret accessor (SPEC §10
