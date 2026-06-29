@@ -4189,8 +4189,8 @@ const WORD_CARD_FLAGS: &[FlagSchema] = &[
         kind: FlagKind::Boolean,
         required: false,
         repeating: false,
-        help: "Decode a word-card back to its BIP-39 mnemonic (inverse of \
-               the default encode direction).",
+        help: "Decode a Word Card back to its source mk1/md1 card (inverse \
+               of the default encode direction).",
         secret: false,
         default_value: None,
         global: false,
@@ -4200,8 +4200,9 @@ const WORD_CARD_FLAGS: &[FlagSchema] = &[
         kind: FlagKind::Text,
         required: false,
         repeating: false,
-        help: "Decode from an engraved plate string (the steel-plate \
-               serialization) rather than the word list.",
+        help: "One RAID plate's word list for --decode reconstruction \
+               (supply the surviving plates of an n+r array to reconstruct \
+               a lost data plate).",
         secret: false,
         default_value: None,
         global: false,
@@ -4220,8 +4221,9 @@ const WORD_CARD_FLAGS: &[FlagSchema] = &[
         kind: FlagKind::Text,
         required: false,
         repeating: false,
-        help: "Source BIP-39 mnemonic to encode into a word-card \
-               (phrase=/ms1=/entropy=/seedqr=; @env:VAR / - stdin).",
+        help: "Source m*1 card to encode into a Word Card: an mk1 (xpub) \
+               or md1 (descriptor) card. PUBLIC material — NOT a secret, \
+               NOT a seed phrase. Use - for stdin.",
         secret: false,
         default_value: None,
         global: false,
