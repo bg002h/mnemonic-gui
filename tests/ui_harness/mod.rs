@@ -594,3 +594,141 @@ pub fn seed_composite(state: &mut FormState, flag_name: &str, node: &str, value:
         },
     ));
 }
+
+// ════════════════════════════════════════════════════════════════════════
+// P5 — the ALL-61-subcommand seed table (sweep coverage bug-finder)
+// ════════════════════════════════════════════════════════════════════════
+//
+// The plan-P1 `base_state` above hand-seeds only the P1 vertical-slice subs.
+// P5 forces the rest: this section is the seed-table extension to **all 61
+// subcommands** (mnemonic 32 + md 10 + ms 10 + mk 9). It feeds the I1 wiring
+// round-trip sweep in `tests/ui_harness_sweep.rs`.
+//
+// ## Why CANDIDATE bases (a Vec), not a single base — the coverage maximizer
+// The I1 round-trip can only be asserted for an identity flag that the form
+// renders **Visible or Required** (not Hidden / Disabled / PinValue, and not
+// mode-suppressed). For a `conditional: None` subcommand EVERY flag is always
+// Visible, so a single EMPTY base exposes them all. For a CONDITIONAL
+// subcommand, different flags are exposed under different gate states (e.g.
+// `compare-cost --descriptor` is Disabled once `--miniscript` is populated, and
+// vice-versa), so NO single base exposes every flag. `sweep_candidate_bases`
+// therefore returns one-or-more bases; the sweep tests each identity flag under
+// the FIRST candidate that renders it Visible/Required (a per-flag union over
+// the candidates), maximizing covered flags without ever asserting a round-trip
+// on a legitimately-suppressed flag.
+//
+// ## M1 (P1-R0 carry) — render-suppression discipline
+// `render_one_flag` (used by the sweep's per-flag isolation render) omits the
+// real form loop's three mode `continue`s. To stay byte-faithful under M1 the
+// sweep (a) keeps every candidate base **mode-free for `build-descriptor`** (no
+// `tree`, no archetype seeded) so no generic flag is mode-suppressed, and (b)
+// hard-guards every flag with [`is_render_suppressed`] before driving — a flag
+// the real form would `continue` is SKIPPED, never round-tripped. The empty /
+// lightly-seeded candidate bases here never activate tree or archetype mode.
+
+/// Build a `FormState` from `(flag_name, payload)` context seeds, using each
+/// flag's real kind to pick the right `FlagValue` variant (so the conditional
+/// reads it via the production accessor). Composite seeds use `node=value`.
+fn base_from(sub: &'static SubcommandSchema, seeds: &[(&str, &str)]) -> FormState {
+    let mut st = FormState::default();
+    for (name, payload) in seeds {
+        seed(&mut st, sub, name, payload);
+    }
+    st
+}
+
+/// One-or-more minimal-VALID candidate base `FormState`s for `sub_name`, the
+/// per-flag union the I1 sweep tests against (see the section doc). Covers ALL
+/// 61 subcommands: the 44 `conditional: None` subs fall through to the single
+/// EMPTY base (every flag Visible there — no context needed); the 17 conditional
+/// subs add seeded variants that expose gate-hidden flags. Context seeds are
+/// CONTEXT only — the sweep strips the under-test flag before injecting, so a
+/// seed never pre-fills the round-trip-asserted value.
+pub fn sweep_candidate_bases(tab: CliTab, sub_name: &str) -> Vec<FormState> {
+    let sub = sub_of(tab, sub_name);
+    // Empty base is always a candidate (the blank-form state).
+    let mut bases = vec![FormState::default()];
+    // Conditional subs: add seeded variants exposing the gate-hidden flags.
+    let extra: Vec<FormState> = match (tab, sub_name) {
+        (CliTab::Mnemonic, "bundle") => vec![
+            base_from(sub, &[("--descriptor", "wpkh(@0)")]), // canonical → account pin
+            base_from(sub, &[("--template", "bip84")]),      // single-sig
+        ],
+        (CliTab::Mnemonic, "verify-bundle") => {
+            vec![base_from(sub, &[("--bundle-json", "{}")])]
+        }
+        (CliTab::Mnemonic, "convert") => vec![
+            {
+                // --to address (no template): exposes --script-type + --path.
+                let mut st = FormState::default();
+                seed_composite(&mut st, "--from", "phrase", "x");
+                seed(&mut st, sub, "--to", "address");
+                seed(&mut st, sub, "--template", "");
+                st
+            },
+            {
+                // --from electrum-phrase: exposes --electrum-version/-language.
+                let mut st = FormState::default();
+                seed_composite(&mut st, "--from", "electrum-phrase", "x");
+                st
+            },
+            {
+                // --to xpub: exposes --xpub-prefix (+ --template via xpub deriv).
+                let mut st = FormState::default();
+                seed_composite(&mut st, "--from", "phrase", "x");
+                seed(&mut st, sub, "--to", "xpub");
+                st
+            },
+            {
+                let mut st = FormState::default();
+                seed_composite(&mut st, "--from", "phrase", "x");
+                seed(&mut st, sub, "--to", "phrase");
+                st
+            },
+        ],
+        (CliTab::Mnemonic, "export-wallet") => vec![
+            base_from(sub, &[("--descriptor", "wsh(sortedmulti(2,@0,@1))"), ("--template", "")]),
+            base_from(sub, &[("--template", "tr-multi-a")]),
+            base_from(sub, &[("--template", "bip84")]),
+        ],
+        (CliTab::Mnemonic, "restore") => {
+            vec![base_from(sub, &[("--md1", "md1xyz")])]
+        }
+        (CliTab::Mnemonic, "derive-child") => {
+            vec![base_from(sub, &[("--application", "dice")])]
+        }
+        (CliTab::Mnemonic, "slip39-split") => {
+            let mut st = FormState::default();
+            seed_composite(&mut st, "--from", "phrase", "abandon abandon");
+            vec![st]
+        }
+        (CliTab::Mnemonic, "slip39-combine") => {
+            vec![base_from(sub, &[("--to", "phrase")])]
+        }
+        (CliTab::Mnemonic, "compare-cost") => vec![
+            base_from(sub, &[("--miniscript", "pk(A)")]),
+            base_from(sub, &[("--descriptor", "wsh(pk(A))")]),
+        ],
+        (CliTab::Md, "encode") => vec![
+            base_from(sub, &[("--from-policy", "and(pk(A),pk(B))")]),
+            base_from(sub, &[("--from-policy", "and(pk(A),pk(B))"), ("--context", "segwitv0")]),
+        ],
+        (CliTab::Md, "compile") => {
+            vec![base_from(sub, &[("--context", "segwitv0")])]
+        }
+        (CliTab::Ms, "encode") => {
+            vec![base_from(sub, &[("--hex", "00ff")])]
+        }
+        (CliTab::Mk, "encode") => vec![
+            base_from(sub, &[("--origin-fingerprint", "deadbeef")]),
+            base_from(sub, &[("--privacy-preserving", "true")]),
+        ],
+        // build-descriptor: empty base only (generic mode; mode-free per M1).
+        // verify-bundle / repair / inspect / md address: empty base suffices
+        // (their conditional only marks Required / cross-disables on populated
+        // siblings — the empty blank-form exposes every flag Visible/Required).
+        _ => vec![],
+    };
+    bases.extend(extra);
+    bases
+}
