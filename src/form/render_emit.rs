@@ -117,10 +117,14 @@ fn seeded_fixture(tab: CliTab, sub: &SubcommandSchema) -> FormState {
             if matches!(visibility_of(flag.name), Visibility::Hidden) {
                 continue;
             }
-            // Secret flags (incl. secret REPEATING) never reach `state.values`
-            // — the secret check precedes the repeating check in the widget
-            // dispatch (`widget.rs:181`/`:202`).
-            if flag_is_secret(flag) {
+            // The widget dispatch routes only secret TEXT/BOOLEAN away from
+            // `state.values` (`widget.rs:181`/`:202`); a secret flag of any other
+            // kind (e.g. the secret Composite `seed-xor-combine --share`) falls
+            // through to `render_repeating` and IS seeded one row
+            // (`widget.rs:309-315`). Mirror that exactly — skip seeding ONLY
+            // secret Text/Boolean, not all secrets (P3-R0-r2 I1: a blanket skip
+            // under-seeds the secret Composite).
+            if flag_is_secret(flag) && matches!(flag.kind, FlagKind::Text | FlagKind::Boolean) {
                 continue;
             }
             let already = state.values.iter().any(|(k, _)| k == flag.name);
