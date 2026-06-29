@@ -3,6 +3,16 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## mnemonic-gui [0.53.0] — 2026-06-29
+
+**SemVer-MINOR — a headless `gui-render` binary + an egui_kittest faithfulness gate (Leg 1 of the GUI-manual form-renders cycle).** Adds `gui-render`, a headless binary that emits a deterministic ASCII **structural render** of every one of the 61 GUI subcommand forms (flag grid + positionals + action bar + sub-surface placeholders), derived from the GUI's own `schema/` + `conditional()` — so the downstream GUI manual (`mnemonic-toolkit/docs/manual-gui`) can regenerate + gate generated GUI output the way it gates CLI transcripts. The GUI app itself is **behavior-preserving** (`main.rs`/`app.rs`/`runner.rs` unchanged). **Pin-NEUTRAL** for the toolkit + four sibling CLIs (`gui-render` adds no clap-flag surface to the `mnemonic` CLI → `schema_mirror` unaffected).
+
+- **A default-on `gui` feature** gates the 5 egui form modules (`widget`/`tree_form`/`slot_editor`/`archetype_form`/`secret_widget`) + the GUI bin (`[[bin]] mnemonic-gui` gains `required-features = ["gui"]`). The form *model* is now **egui-free**: extracted `Slot{State,Subkey,Row}` → `slot_model`, `SecretLineEdit` (data + egui-free methods) → `secret_model`, `default_flag_value_for(_flag)` → `flag_defaults`, the 4 mode-predicates → `mode_predicates`, plus `render_fixture`/`render_emit`. `cargo build --bin gui-render --no-default-features` pulls **none** of eframe/egui/wgpu/winit.
+- **`gui-render`** (`--form <tab> <sub>` / `--emit-all <dir>`): the ASCII render seeds flag defaults via a render-gated monotone fixed point mirroring the GUI's on-load auto-seed, so it depicts the screen the user actually sees (a single-sig `--template` greys the multisig-only flags). Secret fields render `<masked>` (value never sourced from form state).
+- **Faithfulness gate** (`tests/gui_render_faithfulness.rs`): for all 61 forms, the emit's tree-observable projection (presence / control-class / secret-masking / positionals / action bar / disabled) is asserted against the *real* egui-rendered AccessKit tree — non-tautological (a Boolean→TextInput mutation fires 103 divergences).
+- **CI:** a new `headless` job (`build --no-default-features` + `clippy --no-default-features -D warnings`) guards the egui-free gate.
+- **Gates:** full `cargo test` GREEN (622/0/4); `clippy --all-targets` + `clippy --no-default-features` clean; `schema_mirror`, `secret_taxonomy_pin`, `persist_redaction`, `pin_coherence`, `readme_pin_coherence` GREEN. No `cargo fmt` (GUI has no fmt gate).
+
 ## mnemonic-gui [0.52.0] — 2026-06-26
 
 **SemVer-MINOR — schema-mirror lockstep for the toolkit `word-card` release.** `mnemonic-toolkit-v0.74.0` shipped a new VISIBLE `word-card` subcommand (encode a BIP-39 mnemonic into a steel-engravable word-card via the new `wc-codec` engine, or decode one back). The lagging `schema_mirror` gate would FAIL the moment the GUI bumps its toolkit pin to `v0.74.0` until the hand-maintained clap-flag schema mirror adds `word-card`. This cycle adds it + bumps the toolkit pin in lockstep. New subcommand surface → MINOR (the concrete version is assigned at tag time).
