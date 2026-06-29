@@ -105,20 +105,38 @@ enum Item {
     Raw(String),
 }
 
-/// Render `sub`'s form under `state`. The flag-grid GATE is byte-identical
-/// to `main.rs`'s per-flag render loop (mirrored by the PR-#24 harness
-/// `render_whole_form`): the `--slot` / mode `continue`s, the `Hidden → skip`,
-/// the `Disabled`/`PinValue`/`DisableOptions` projection. The bespoke
-/// sub-surfaces are single placeholder lines (out of the P3 faithfulness gate
-/// per SPEC §2).
-pub fn render_form_from_state(
-    tab: CliTab,
-    sub: &SubcommandSchema,
-    state: &FormState,
-) -> String {
-    let mut out = String::new();
-    out.push_str(&format!("[ {} > {} ]\n", tab.bin_name(), sub.name));
+/// One ordered structural element of a rendered form — the SINGLE pass
+/// [`form_elements`] both the ASCII renderer ([`render_form_from_state`]) and
+/// the P3 tree-observable projection ([`project_form`]) consume, so the
+/// documented render and the gated faithfulness check can never drift
+/// (plan P3: "ASCII and the test's projection must come from the one
+/// `render_emit` core, not a re-implementation").
+enum FormElement {
+    /// A flag the form RENDERS (not suppressed, not `Hidden`), carrying the
+    /// per-frame `Visibility` so the ASCII body + the projection's
+    /// disabled-state both read the same decision.
+    Flag {
+        flag: &'static FlagSchema,
+        vis: Visibility,
+    },
+    /// A positional argument (rendered unconditionally — no visibility gate,
+    /// main.rs:832).
+    Positional {
+        pos: &'static PositionalArgSchema,
+    },
+    /// A bespoke sub-surface / mode-selector placeholder line (out of the P3
+    /// faithfulness gate per SPEC §2 — a single labeled line, not field-level).
+    Raw(String),
+    /// The `[ Run ]` action bar (always last).
+    Run,
+}
 
+/// The single structural pass over `sub` under `state`. The flag-grid GATE is
+/// byte-identical to `main.rs`'s per-flag render loop (mirrored by the PR-#24
+/// harness `render_whole_form`): the `--slot` / mode `continue`s, the
+/// `Hidden → skip`, and the per-flag `Visibility`. The bespoke sub-surfaces
+/// are single placeholder lines.
+fn form_elements(sub: &SubcommandSchema, state: &FormState) -> Vec<FormElement> {
     let tree_mode =
         sub.name == "build-descriptor" && mode_predicates::tree_enabled(state);
     let archetype_mode = sub.name == "build-descriptor"
@@ -134,7 +152,7 @@ pub fn render_form_from_state(
             .unwrap_or(Visibility::Visible)
     };
 
-    let mut items: Vec<Item> = Vec::new();
+    let mut els: Vec<FormElement> = Vec::new();
 
     // The build-descriptor mode selector (Generic / Archetype / Tree) is a
     // bespoke sub-surface rendered ABOVE the flag grid (main.rs:601).
@@ -146,7 +164,7 @@ pub fn render_form_from_state(
         } else {
             "generic"
         };
-        items.push(Item::Raw(format!(
+        els.push(FormElement::Raw(format!(
             "[ build-descriptor mode selector: {mode} ]"
         )));
     }
@@ -160,20 +178,17 @@ pub fn render_form_from_state(
         if matches!(v, Visibility::Hidden) {
             continue;
         }
-        items.push(Item::Row(Row {
-            name: flag.name.to_string(),
-            body: flag_body(flag, &v),
-        }));
+        els.push(FormElement::Flag { flag, vis: v });
         // The archetype param sub-form renders inline directly under the
         // `--archetype` dropdown (main.rs:690), as a single placeholder line.
         if flag.name == "--archetype" && archetype_mode {
-            items.push(Item::Raw("[ archetype param form ]".to_string()));
+            els.push(FormElement::Raw("[ archetype param form ]".to_string()));
         }
     }
 
     // SlotEditor bespoke sub-surface (main.rs:718).
     if sub.allows_slots {
-        items.push(Item::Raw(format!(
+        els.push(FormElement::Raw(format!(
             "[ slot editor: {} rows ]",
             state.slot_count()
         )));
@@ -181,18 +196,45 @@ pub fn render_form_from_state(
 
     // Positionals (main.rs:832), after the slot editor.
     for pos in sub.positional_args {
-        items.push(Item::Row(Row {
-            name: pos.name.to_string(),
-            body: positional_body(pos),
-        }));
+        els.push(FormElement::Positional { pos });
     }
 
     // Tree-builder bespoke sub-surface (main.rs:886).
     if tree_mode {
-        items.push(Item::Raw("[ descriptor tree builder ]".to_string()));
+        els.push(FormElement::Raw("[ descriptor tree builder ]".to_string()));
     }
 
-    items.push(Item::Raw("[ Run ]".to_string()));
+    els.push(FormElement::Run);
+    els
+}
+
+/// Render `sub`'s form under `state` as the deterministic ASCII grid, derived
+/// from the single [`form_elements`] structural pass.
+pub fn render_form_from_state(
+    tab: CliTab,
+    sub: &SubcommandSchema,
+    state: &FormState,
+) -> String {
+    let mut out = String::new();
+    out.push_str(&format!("[ {} > {} ]\n", tab.bin_name(), sub.name));
+
+    // ASCII rows from the structured elements (the SAME pass the P3
+    // faithfulness projection reads via `project_form`).
+    let items: Vec<Item> = form_elements(sub, state)
+        .iter()
+        .map(|el| match el {
+            FormElement::Flag { flag, vis } => Item::Row(Row {
+                name: flag.name.to_string(),
+                body: flag_body(flag, vis),
+            }),
+            FormElement::Positional { pos } => Item::Row(Row {
+                name: pos.name.to_string(),
+                body: positional_body(pos),
+            }),
+            FormElement::Raw(s) => Item::Raw(s.clone()),
+            FormElement::Run => Item::Raw("[ Run ]".to_string()),
+        })
+        .collect();
 
     let name_w = items
         .iter()
@@ -212,6 +254,180 @@ pub fn render_form_from_state(
         }
     }
     out
+}
+
+// ─── P3 tree-observable projection (the faithfulness gate's emit side) ───────
+//
+// `project_form` reduces the SAME `form_elements` pass to the AccessKit-tree-
+// observable facets the P3 egui_kittest test reads off the REAL rendered form:
+// per-flag presence / disabled / control-class, positional presence + secret-
+// masking, and the action bar. The ASCII render and this projection are two
+// reductions of ONE structural pass — they cannot drift (plan P3). What the
+// projection deliberately OMITS (per SPEC §2 / plan m4, NOT AccessKit-
+// recoverable; covered by P5 regen-determinism + schema_mirror): path-vs-text,
+// the `(required)` marker, default/placeholder TEXT, and the sub-surface
+// placeholder INTERNALS.
+
+/// The tree-observable input-control class of a flag under the canonical
+/// fixture — the coarse AccessKit shape its widget presents. The emit side
+/// PREDICTS it from `(kind, secret, repeating)`; the P3 test reads the GROUND
+/// TRUTH off the real egui widget tree and asserts they agree.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ControlClass {
+    /// `Role::TextInput` — non-secret scalar `Text` / `Path`.
+    TextInput,
+    /// `Role::PasswordInput` (masked) — secret scalar `Text`.
+    Secret,
+    /// `Role::ComboBox` — scalar `Dropdown`.
+    ComboBox,
+    /// `Role::ComboBox` + an adjacent text/password field — scalar
+    /// `NodeValueComposite` (`<node> = <value>`).
+    Composite,
+    /// `Role::CheckBox` — `Boolean` (incl. the always-disabled secret
+    /// `*-stdin` toggle).
+    CheckBox,
+    /// A `"Set"` button (no value-bearing input yet) — a scalar
+    /// `Number` / `Range` / `Timestamp` / `TaggedOrIndexed` whose canonical
+    /// default is `Unset` (v0.6.0 click-to-seed UX).
+    SetButton,
+    /// The multi-row repeating widget — a header label + `"+ add"` button
+    /// (any repeating flag, regardless of inner kind / secret).
+    Repeating,
+}
+
+/// Whether a flag / positional is RENDERED in the canonical form (`Present`)
+/// or absent from it — either mode-`Suppressed` into a bespoke sub-surface or
+/// `Hidden` by the conditional. The P3 gate compares only Present-vs-Absent
+/// (both "absent from the rendered grid"), so the two absent reasons collapse.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Presence {
+    Present,
+    Absent,
+}
+
+/// The tree-observable projection of one flag.
+#[derive(Debug, Clone)]
+pub struct FlagProjection {
+    pub name: &'static str,
+    pub presence: Presence,
+    /// The flag's PRISTINE-fixture disabled state — conditional `Disabled` on
+    /// the blank `FormState::default()`, or the always-greyed secret `*-stdin`
+    /// toggle. Mirrors the ASCII `[disabled]` markers (pinned by P2). It is a
+    /// ONE-SHOT (pre-auto-seed) value: the P3 faithfulness gate does NOT
+    /// cross-check it against the real render, because egui_kittest only
+    /// observes the post-auto-seed SETTLED state, where the conditional may
+    /// grey additional flags (the same conditional-sourced subtlety the m4
+    /// carve-out applies to the `(required)` marker; renderer↔conditional
+    /// disabled faithfulness is gated by `ui_harness_i2_conditional`).
+    pub disabled: bool,
+    /// Meaningful only when `Present`.
+    pub control: ControlClass,
+}
+
+/// The tree-observable projection of one positional argument (always rendered).
+#[derive(Debug, Clone)]
+pub struct PositionalProjection {
+    pub name: &'static str,
+    /// Secret positionals render as a masked `PasswordInput`; non-secret as a
+    /// plain `TextInput`.
+    pub secret: bool,
+}
+
+/// The full tree-observable projection of a form: every schema flag (with its
+/// presence), the positionals, and whether the action bar renders.
+#[derive(Debug, Clone)]
+pub struct FormProjection {
+    pub flags: Vec<FlagProjection>,
+    pub positionals: Vec<PositionalProjection>,
+    pub has_run: bool,
+}
+
+/// Predict a flag's [`ControlClass`] under the canonical fixture, mirroring
+/// the `widget::render_with_dispatch` branch order: repeating flags route to
+/// the multi-row widget FIRST; a secret `*-stdin` Boolean is the disabled
+/// checkbox; a secret scalar `Text` is the masked field; otherwise the kind
+/// maps directly (the four `Unset`-default kinds render their `Set`
+/// affordance). This is the emit's PREDICTION — the P3 test verifies it
+/// against the real AccessKit tree, so it is not a self-fulfilling assertion.
+fn control_class(flag: &FlagSchema) -> ControlClass {
+    if flag.repeating {
+        return ControlClass::Repeating;
+    }
+    let secret = flag_is_secret(flag);
+    if secret && matches!(flag.kind, FlagKind::Boolean) {
+        return ControlClass::CheckBox;
+    }
+    if secret && matches!(flag.kind, FlagKind::Text) {
+        return ControlClass::Secret;
+    }
+    match flag.kind {
+        FlagKind::Text | FlagKind::Path { .. } => ControlClass::TextInput,
+        FlagKind::Dropdown(_) => ControlClass::ComboBox,
+        FlagKind::Boolean => ControlClass::CheckBox,
+        FlagKind::NodeValueComposite(_) => ControlClass::Composite,
+        FlagKind::Number { .. }
+        | FlagKind::Range
+        | FlagKind::Timestamp
+        | FlagKind::TaggedOrIndexed(_) => ControlClass::SetButton,
+    }
+}
+
+/// The emit-side [`FormProjection`] for `(tab, sub)` under the shared canonical
+/// [`render_fixture`] — the projection the P3 faithfulness gate compares the
+/// real egui render against.
+pub fn project_form(tab: CliTab, sub: &SubcommandSchema) -> FormProjection {
+    let state = render_fixture(tab, sub.name);
+    let elements = form_elements(sub, &state);
+
+    // The flags the single pass actually RENDERS, with their per-frame
+    // visibility (present-vs-absent is decided ONLY here, the one core).
+    let present: Vec<(&'static str, Visibility)> = elements
+        .iter()
+        .filter_map(|el| match el {
+            FormElement::Flag { flag, vis } => Some((flag.name, vis.clone())),
+            _ => None,
+        })
+        .collect();
+
+    let flags = sub
+        .flags
+        .iter()
+        .map(|flag| match present.iter().find(|(n, _)| *n == flag.name) {
+            Some((_, vis)) => {
+                let is_secret_bool =
+                    flag_is_secret(flag) && matches!(flag.kind, FlagKind::Boolean);
+                FlagProjection {
+                    name: flag.name,
+                    presence: Presence::Present,
+                    disabled: matches!(vis, Visibility::Disabled) || is_secret_bool,
+                    control: control_class(flag),
+                }
+            }
+            None => FlagProjection {
+                name: flag.name,
+                presence: Presence::Absent,
+                disabled: false,
+                control: control_class(flag),
+            },
+        })
+        .collect();
+
+    let positionals = sub
+        .positional_args
+        .iter()
+        .map(|pos| PositionalProjection {
+            name: pos.name,
+            secret: pos.secret,
+        })
+        .collect();
+
+    let has_run = elements.iter().any(|el| matches!(el, FormElement::Run));
+
+    FormProjection {
+        flags,
+        positionals,
+        has_run,
+    }
 }
 
 /// The render-suppression gate, mirroring `main.rs`'s three `continue`s +
