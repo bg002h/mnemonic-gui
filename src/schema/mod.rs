@@ -290,7 +290,7 @@ pub type FlagVisibility = Vec<(&'static str, Visibility)>;
 #[derive(Default, Debug, serde::Serialize, serde::Deserialize)]
 pub struct FormState {
     pub values: Vec<(String, FlagValue)>,
-    pub slots: crate::form::slot_editor::SlotState,
+    pub slots: crate::form::slot_model::SlotState,
     /// Positional args in `positional_args` declaration order. For
     /// repeating positionals, multiple entries may share the same
     /// schema index (the form widget renders multiple input rows).
@@ -319,7 +319,7 @@ pub struct FormState {
     /// `FormState::clone()`. See SPEC §3 R1 C-1 fold.
     #[serde(skip)]
     pub secret_widgets:
-        std::collections::BTreeMap<String, Vec<crate::form::secret_widget::SecretLineEdit>>,
+        std::collections::BTreeMap<String, Vec<crate::form::secret_model::SecretLineEdit>>,
 
     /// v0.32.0 (node-tree builder SPEC §1.3): the build-descriptor
     /// recursive tree-builder state. `None` = non-tree mode (and what a
@@ -350,7 +350,7 @@ impl FormState {
     {
         Self {
             values: iter.into_iter().map(|(k, v)| (k.into(), v)).collect(),
-            slots: crate::form::slot_editor::SlotState::new(),
+            slots: crate::form::slot_model::SlotState::new(),
             positionals: Vec::new(),
             secret_widgets: std::collections::BTreeMap::new(),
             tree: None,
@@ -360,7 +360,7 @@ impl FormState {
 
     pub fn with_slots(
         mut self,
-        slots: crate::form::slot_editor::SlotState,
+        slots: crate::form::slot_model::SlotState,
     ) -> Self {
         self.slots = slots;
         self

@@ -27,7 +27,7 @@ use std::path::Path;
 use serde::{Deserialize, Serialize};
 
 use crate::app::CliTab;
-use crate::form::slot_editor::SlotState;
+use crate::form::slot_model::SlotState;
 use crate::schema::{FlagValue, FormState};
 use crate::secrets::{SECRET_FLAG_NAMES, SECRET_NODE_TYPES_ARGV, SECRET_SLOT_SUBKEYS};
 

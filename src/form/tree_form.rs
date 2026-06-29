@@ -42,9 +42,15 @@ use crate::form::tree_model::{
 };
 use crate::form::widget::display_or;
 use crate::runner::{self, RunResult};
-use crate::schema::archetypes::{ArchetypeSpec, ARCHETYPE_PARAM_FLAGS};
+use crate::schema::archetypes::ArchetypeSpec;
 use crate::schema::nodes::{spec_for, PayloadShape, NODE_KIND_SPECS};
 use crate::schema::{FlagValue, FormState};
+
+// P1 `gui`-feature split: the egui-free tree-mode predicates moved to the
+// non-gated `mode_predicates` module; re-exported so existing
+// `tree_form::tree_enabled` / `tree_form::suppressed_in_tree_mode` paths +
+// this module's call sites keep resolving under the `gui` feature.
+pub use crate::form::mode_predicates::{suppressed_in_tree_mode, tree_enabled};
 
 const AMBER: egui::Color32 = egui::Color32::from_rgb(220, 165, 0);
 const RED: egui::Color32 = egui::Color32::from_rgb(220, 60, 60);
@@ -54,27 +60,6 @@ const GREEN: egui::Color32 = egui::Color32::from_rgb(60, 180, 75);
 pub const MODE_GENERIC_LABEL: &str = "Generic / spec file";
 pub const MODE_ARCHETYPE_LABEL: &str = "Archetype";
 pub const MODE_TREE_LABEL: &str = "Tree builder";
-
-/// The tree-mode predicate: `FormState.tree` exists AND its `enabled` bit
-/// is set (the ONLY stored mode state — R0-r1 I4).
-pub fn tree_enabled(state: &FormState) -> bool {
-    state.tree.as_ref().is_some_and(|t| t.enabled)
-}
-
-/// True iff `flag_name` is suppressed from the generic flag loop in TREE
-/// mode (SPEC §0 mode mutex render leg): `--spec` + `--archetype` (their
-/// argv suppression is the conditional's `Disabled`; their ROWS don't
-/// render — the mode selector + tree form replace them) + the 10
-/// `requires = "archetype"` flags (9 params + `--emit-spec`; argv-
-/// suppressed via the conditional's `Hidden`, listed here for the render
-/// dispatch). The 6 mode-independent flags (`--spec-schema`, `--allow`,
-/// `--format`, `--network`, `--json`, `--no-auto-repair`) render normally.
-pub fn suppressed_in_tree_mode(flag_name: &str) -> bool {
-    flag_name == "--spec"
-        || flag_name == "--archetype"
-        || flag_name == "--emit-spec"
-        || ARCHETYPE_PARAM_FLAGS.contains(&flag_name)
-}
 
 /// Structural completeness gaps for the CURRENT tree mode. Empty when not
 /// in tree mode (non-tree modes are never completeness-gated) — the host

@@ -381,16 +381,20 @@ pub fn is_render_suppressed(
     if flag_name == "--slot" && sub.allows_slots {
         return true;
     }
+    // P1 `gui`-feature split: the mode predicates now live in the non-gated
+    // `mode_predicates` module (the gated `tree_form`/`archetype_form` re-export
+    // them too, but use the canonical home here so this harness — reused by the
+    // P3 faithfulness test — points at the egui-free source of truth).
     let tree_mode = sub.name == "build-descriptor"
-        && mnemonic_gui::form::tree_form::tree_enabled(state);
-    if tree_mode && mnemonic_gui::form::tree_form::suppressed_in_tree_mode(flag_name) {
+        && mnemonic_gui::form::mode_predicates::tree_enabled(state);
+    if tree_mode && mnemonic_gui::form::mode_predicates::suppressed_in_tree_mode(flag_name) {
         return true;
     }
     let archetype_mode = sub.name == "build-descriptor"
         && !tree_mode
-        && mnemonic_gui::form::archetype_form::active_archetype(state).is_some();
+        && mnemonic_gui::form::mode_predicates::active_archetype(state).is_some();
     if archetype_mode
-        && mnemonic_gui::form::archetype_form::suppressed_in_archetype_mode(flag_name)
+        && mnemonic_gui::form::mode_predicates::suppressed_in_archetype_mode(flag_name)
     {
         return true;
     }
