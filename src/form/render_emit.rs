@@ -88,11 +88,14 @@ pub fn render_form(tab: CliTab, sub: &SubcommandSchema) -> String {
 ///     a numeric default is `Unset`, which `has_value` reads as ABSENT — no
 ///     fabricated number). A `Disabled` flag IS still rendered (the GUI greys but
 ///     still calls the widget), so it IS seeded.
-///   - **Required REPEATING** non-secret flags seed ONE row (the GUI's
-///     per-frame required-row seed); **optional repeating** flags seed NOTHING.
-///   - **Secret** flags are NEVER seeded (secret Text → `secret_widgets`, secret
-///     `*-stdin` Boolean → early return); **mode-suppressed** + conditional-`Hidden`
-///     flags are not rendered, hence not seeded.
+///   - **Required REPEATING** flags seed ONE row (the GUI's per-frame
+///     required-row seed) — including a secret repeating flag of a non-Text/Boolean
+///     kind (e.g. the secret Composite `seed-xor-combine --share`, which the widget
+///     dispatch routes to `render_repeating`); **optional repeating** flags seed NOTHING.
+///   - **Secret Text/Boolean** flags are NEVER seeded (secret Text → `secret_widgets`,
+///     secret `*-stdin` Boolean → early return) — but ONLY those two kinds, per the
+///     widget dispatch; **mode-suppressed** + conditional-`Hidden` flags are not
+///     rendered, hence not seeded.
 ///
 /// `state.values` only GROWS (monotone — a flag that a later pass hides keeps its
 /// already-stored value), so the loop converges in ≤ `sub.flags.len()` passes.
