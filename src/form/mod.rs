@@ -15,6 +15,7 @@ pub mod fixtures;
 pub mod flag_defaults;
 pub mod invocation;
 pub mod mode_predicates;
+pub mod render_emit;
 pub mod secret_model;
 pub mod slot_model;
 pub mod tree_model;

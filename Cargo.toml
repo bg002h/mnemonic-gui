@@ -31,6 +31,14 @@ name = "mnemonic-gui"
 path = "src/main.rs"
 required-features = ["gui"]
 
+# P2 — the headless structural-form emit binary. NOT gated: builds + runs
+# under `--no-default-features` (the egui-free form model only). Hyphenated
+# name (`gui-render`); explicit `[[bin]]` so the name is stable regardless of
+# auto-discovery.
+[[bin]]
+name = "gui-render"
+path = "src/bin/gui_render.rs"
+
 [dependencies]
 clap = { version = "4", features = ["derive"] }
 # P1: eframe + egui are OPTIONAL + enabled by the default-on `gui` feature —

@@ -29,6 +29,36 @@ jobs:
       - name: cargo clippy --all-targets -- -D warnings
         run: cargo clippy --all-targets -- -D warnings
 
+  headless:
+    # P2 (P1-R0 Minor-1): the load-bearing `--no-default-features` gate. The
+    # egui-free form model + the `gui-render` emit bin MUST build + lint clean
+    # WITHOUT the eframe/egui/wgpu/winit graphics stack — that headless build
+    # is what makes manual-gui's `verify-examples-gui` regeneration real. The
+    # default `clippy` job (above) only exercises `gui`-on; nothing else here
+    # stops a future PR from silently re-pulling egui into the headless
+    # closure. Clippy is run WITHOUT `--all-targets` on purpose (Nit-1): the
+    # egui_kittest test targets reference `egui::Ui` directly and only compile
+    # with `gui` on; the headless gate covers lib + the non-gated `gui-render`
+    # bin, which is exactly the surface the manual regenerates from.
+    name: headless (no-default-features)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: install-rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+
+      - name: cargo-cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: cargo build --no-default-features
+        run: cargo build -p mnemonic-gui --no-default-features
+
+      - name: cargo clippy --no-default-features -- -D warnings
+        run: cargo clippy --no-default-features -- -D warnings
+
   msrv:
     # gui-msrv-ci-tested-invariant: compile-at-MSRV gate. Cargo.toml declares
     # `rust-version = "1.88"` (the binding floor is `image@0.25.10`, whose
