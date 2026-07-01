@@ -1,0 +1,147 @@
+# P0 SPIKE workflow — visual-screenshot track feasibility laboratory.
+# **THROWAWAY: deleted in P1** (plan IMPLEMENTATION_PLAN_gui_visual_screenshot_track.md
+# — the proven rasterizer recipe is absorbed into build.yml's `snapshots` job).
+#
+# Trigger mechanics (plan I2/ruling-1): a branch-only workflow_dispatch is NOT
+# dispatchable (the workflow file must exist on the default branch), so the
+# spike runs via the pull_request event on a DRAFT PR. The ≥3-distinct-runner
+# samples come from "Re-run all jobs" / pushes.
+#
+# What each job proves (spec §3):
+#   spike-A  — (i) lavapipe-Vulkan headless render on a real ubuntu-latest
+#              runner (the ONE recon-unverified residual), and (ii) same-env
+#              byte-identity (the test runs TWICE in the job; the .new.png
+#              sets are sha256-compared). After the run-1 corpus is committed,
+#              every subsequent job instance is an (iii) fleet sample: 62
+#              comparisons at kittest's default 0.6 dify threshold.
+#   spike-C  — Plan C (llvmpipe-GL) always-run extra data: proves the GL
+#              fallback on a real runner AND (post-corpus) measures a full
+#              backend swap against the Vulkan-generated corpus at 0.6.
+#              continue-on-error — data, not a gate.
+
+name: spike-snapshots
+
+on:
+  pull_request:
+    branches: [master]
+
+jobs:
+  spike-A:
+    name: spike-A (lavapipe Vulkan)
+    runs-on: ubuntu-latest
+    env:
+      GUI_SNAPSHOTS: "1"
+      WGPU_BACKEND: vulkan
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: runner-info
+        run: |
+          echo "runner=${{ runner.name }} os=${{ runner.os }} arch=${{ runner.arch }} image=$ImageOS/$ImageVersion"
+          uname -a
+          grep -m1 'model name' /proc/cpuinfo || true
+          grep -o -E 'avx[0-9_]*|sse4_[0-9]' /proc/cpuinfo | sort -u | tr '\n' ' '; echo
+
+      - name: install-lavapipe
+        # Plan A: mesa-vulkan-drivers on noble ships the lavapipe software
+        # Vulkan driver (libvulkan_lvp.so + lvp_icd ICD json) — the CPU
+        # adapter kittest's selector is designed to prefer.
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mesa-vulkan-drivers
+          ls /usr/share/vulkan/icd.d/ || true
+          dpkg -s mesa-vulkan-drivers | grep -E '^Version' || true
+
+      - name: install-rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: cargo-cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: spike-run-1
+        run: |
+          cargo test --test spike_form_snapshots -- --nocapture
+          mkdir -p /tmp/spike-run1
+          cp tests/snapshots/spike/*.new.png /tmp/spike-run1/
+
+      - name: spike-run-2-same-env
+        run: |
+          cargo test --test spike_form_snapshots -- --nocapture
+          mkdir -p /tmp/spike-run2
+          cp tests/snapshots/spike/*.new.png /tmp/spike-run2/
+
+      - name: byte-identity-run1-vs-run2
+        # Item (ii): two renders in the SAME environment must be byte-identical.
+        run: |
+          (cd /tmp/spike-run1 && sha256sum *.new.png | sort -k2) > /tmp/hashes-run1.txt
+          (cd /tmp/spike-run2 && sha256sum *.new.png | sort -k2) > /tmp/hashes-run2.txt
+          test "$(wc -l < /tmp/hashes-run1.txt)" -eq 62
+          diff -u /tmp/hashes-run1.txt /tmp/hashes-run2.txt
+          echo "BYTE-IDENTITY: OK — 62/62 PNGs identical across run-1/run-2"
+
+      - name: corpus-size
+        run: |
+          du -sb /tmp/spike-run1
+          ls -lS /tmp/spike-run1
+
+      - name: collect-artifacts
+        if: always()
+        run: |
+          mkdir -p /tmp/spike-artifacts
+          cp /tmp/hashes-run1.txt /tmp/spike-artifacts/hashes.txt 2>/dev/null || true
+          cp /tmp/hashes-run2.txt /tmp/spike-artifacts/hashes-run2.txt 2>/dev/null || true
+          cp /tmp/spike-run1/*.new.png /tmp/spike-artifacts/ 2>/dev/null || true
+          cp tests/snapshots/spike/*.diff.png /tmp/spike-artifacts/ 2>/dev/null || true
+
+      - name: upload-artifacts
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: spike-pngs-vulkan-${{ github.run_id }}-${{ github.run_attempt }}
+          path: /tmp/spike-artifacts/
+
+  spike-C:
+    name: spike-C (llvmpipe GL, extra data)
+    # Always-run cheap extra data; the Plan-C fallback evidence if A fails.
+    # Post-corpus it measures a FULL backend swap (GL render vs the committed
+    # Vulkan corpus) at the 0.6 threshold — never a gate (continue-on-error).
+    needs: spike-A
+    if: always()
+    continue-on-error: true
+    runs-on: ubuntu-latest
+    env:
+      GUI_SNAPSHOTS: "1"
+      WGPU_BACKEND: gl
+      LIBGL_ALWAYS_SOFTWARE: "1"
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: runner-info
+        run: |
+          echo "runner=${{ runner.name }} os=${{ runner.os }} arch=${{ runner.arch }} image=$ImageOS/$ImageVersion"
+          grep -m1 'model name' /proc/cpuinfo || true
+
+      - name: install-gl
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libegl1 libgl1 mesa-utils libgl1-mesa-dri
+
+      - name: install-rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: cargo-cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: spike-run-gl
+        run: |
+          cargo test --test spike_form_snapshots -- --nocapture
+          mkdir -p /tmp/spike-gl
+          cp tests/snapshots/spike/*.new.png /tmp/spike-gl/
+          (cd /tmp/spike-gl && sha256sum *.new.png | sort -k2) > /tmp/spike-gl/hashes-gl.txt
+
+      - name: upload-artifacts
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: spike-pngs-gl-${{ github.run_id }}-${{ github.run_attempt }}
+          path: /tmp/spike-gl/
