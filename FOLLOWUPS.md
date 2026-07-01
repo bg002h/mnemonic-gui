@@ -994,3 +994,19 @@ plate-string serialization"). Help-text only — no flag-name/kind/`secret` chan
 reports these flags `repeating:null`). **Companion:** mnemonic-toolkit
 `docs/manual-gui/FOLLOWUPS.md` `gui-word-card-from-help-mislabels-secret-input`
 (RESOLVED). Surfaced by the generated-GUI-form-renders cycle's Leg-2 post-impl review.
+
+## `gui-branch-protection-scope` — open (governance discussion)
+
+- **Surfaced:** 2026-07-01 (visual/screenshot-track plan R0: master has NO branch
+  protection — verified live; every check is green-before-merge by convention only).
+- **What:** the visual track's `snapshots` CI job becomes the repo's FIRST
+  hard-required check (user decision 2026-07-01: require ONLY `snapshots` — minimal
+  footprint; its silent staleness would poison the GUI manual's screenshot
+  provenance chain, so convention isn't enough for that one). The OPEN question,
+  deferred by the same decision: should branch protection extend to the other
+  ~11 contexts (clippy / headless / msrv / build matrix / schema-mirror)?
+  Trade-off: strongest repo-wide discipline vs hard-blocking merges (incl.
+  autonomous-cycle merges) on any flaky/stuck check where today a human judgment
+  call suffices. Discuss + decide in a future session; if extended, update the
+  ruleset + note it here.
+- **Status:** open. **Tier:** `governance` / `ci`.
