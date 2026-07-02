@@ -59,7 +59,7 @@ use mnemonic_gui::form::invocation::{
 use mnemonic_gui::form::widget::render_with_dispatch;
 use mnemonic_gui::persistence::redact_for_persistence;
 use mnemonic_gui::schema::{
-    FlagKind, FlagSchema, FlagValue, FormState, SubcommandSchema, Visibility,
+    FlagKind, FlagSchema, FormState, SubcommandSchema, Visibility,
 };
 use mnemonic_gui::secrets::flag_is_secret;
 
@@ -157,24 +157,25 @@ enum Cell {
 
 /// The first candidate base under which `flag` renders Visible/Required and is
 /// NOT mode-suppressed, **prepared for injection**: the under-test flag is
-/// stripped (§5 IMP-3 — its value is solely widget-injected) and, for `Text` /
-/// `Path` kinds, re-seeded with an EMPTY starting buffer.
+/// stripped (§5 IMP-3 — its value is solely widget-injected).
 ///
-/// ## Why the empty re-seed (harness artifact fix, not a GUI behavior change)
-/// `render_with_dispatch` pre-fills an ABSENT Text/Path flag with its schema
-/// `default_value` (e.g. `--feerate` → "1.0", `--output` → "-"). `type_text`
-/// then APPENDS to that pre-filled text, so a naive strip+type yields
-/// "1.0SWEEP_FIXTURE…" — a HARNESS artifact (the production widget is correct;
-/// the assertion was simply not modeling a user clearing the default first).
-/// Seeding `Text("")` / `Path("")` starts the field empty (absent-equivalent
-/// for the conditional gate — `has_value` is false either way), so the injected
-/// value is asserted PURE. Number (Unset→Set→SetValue) and Dropdown (select)
-/// REPLACE rather than append, so they need no empty seed.
+/// ## Append-regression tripwire (hint-text-defaults cycle)
+/// The stripped flag seeds through the real production path on first render
+/// (`render_with_dispatch` → `default_flag_value_for_flag`), which post
+/// hint-text-defaults yields an EMPTY buffer for Text/Path — the schema
+/// default is a `hint_text` GHOST, never buffer content. `type_text` then
+/// lands the injected value PURE, exactly like a user typing without
+/// clearing. (Pre-fix, this sweep needed a `Text("")`/`Path("")` re-seed to
+/// dodge the pre-filled default that `type_text` APPENDED to — the very
+/// papercut this sweep surfaced as
+/// `gui-prefilled-default-text-appends-on-type`.) With the re-seed removed,
+/// every Text/Path I1 round-trip is a PERMANENT append-regression tripwire:
+/// a re-introduced pre-fill makes `type_text` append and fails the
+/// round-trip immediately.
 fn prepared_eligible_base(
     tab: CliTab,
     sub: &'static SubcommandSchema,
     flag: &'static FlagSchema,
-    kind: IdentityKind,
 ) -> Option<FormState> {
     for mut base in sweep_candidate_bases(tab, sub.name) {
         base.values.retain(|(k, _)| k != flag.name);
@@ -188,15 +189,6 @@ fn prepared_eligible_base(
         ) {
             continue;
         }
-        match kind {
-            IdentityKind::Text => base
-                .values
-                .push((flag.name.to_string(), FlagValue::Text(String::new()))),
-            IdentityKind::Path => base
-                .values
-                .push((flag.name.to_string(), FlagValue::Path(String::new()))),
-            _ => {}
-        }
         return Some(base);
     }
     None
@@ -208,7 +200,7 @@ fn prepared_eligible_base(
 fn i1_cell(tab: CliTab, sub: &'static SubcommandSchema, flag: &'static FlagSchema, kind: IdentityKind) -> Cell {
     let coord = format!("{}/{}/{}", tab.bin_name(), sub.name, flag.name);
 
-    let Some(base) = prepared_eligible_base(tab, sub, flag, kind) else {
+    let Some(base) = prepared_eligible_base(tab, sub, flag) else {
         return Cell::SkippedSuppressed;
     };
 
@@ -403,9 +395,9 @@ fn i1_leaf_value_proptest() {
             &(0..targets.len(), 0u32..1_000_000, "[A-Za-z0-9_]{1,24}"),
             |(idx, num_seed, text)| {
                 let (tab, sub, flag, kind) = targets[idx];
-                // The prepared base (stripped + Text/Path empty-seeded — same
-                // path i1_cell uses).
-                let Some(base) = prepared_eligible_base(tab, sub, flag, kind) else {
+                // The prepared base (under-test flag stripped; first render
+                // seeds it through the production path — same as i1_cell).
+                let Some(base) = prepared_eligible_base(tab, sub, flag) else {
                     return Ok(()); // raced out of eligibility — skip
                 };
 

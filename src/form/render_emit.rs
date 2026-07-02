@@ -605,7 +605,21 @@ fn flag_value_str(
         FlagValue::Boolean(b) => {
             if b { "[x] on".into() } else { "[ ] off".into() }
         }
-        FlagValue::Text(s) | FlagValue::Dropdown(s) | FlagValue::Path(s) => {
+        // Hint-text-defaults (SPEC §3.5): a defaulted-but-empty Text/Path
+        // renders `<hint:DEFAULT>` — the GHOST the user actually sees on
+        // load (the render charter is "the screen the user sees on load"),
+        // a grammar sibling of `<empty>`/`<unset>`/`<masked>`/`<pinned: …>`.
+        // All live hint payloads are ASCII (`1.0`, `all`, `0`, `-`).
+        FlagValue::Text(s) | FlagValue::Path(s) => {
+            if !s.is_empty() {
+                s
+            } else if let Some(d) = flag.default_value {
+                format!("<hint:{d}>")
+            } else {
+                "<empty>".into()
+            }
+        }
+        FlagValue::Dropdown(s) => {
             if s.is_empty() {
                 "<empty>".into()
             } else {
