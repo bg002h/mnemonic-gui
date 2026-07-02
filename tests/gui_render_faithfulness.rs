@@ -37,107 +37,33 @@
 //!
 //! ## How the render path was EXTENDED (plan P3 / spec m-R3-1)
 //! `render_whole_form` (PR #24) renders only the flag grid — no positionals,
-//! no action bar. This file adds the missing render surface:
-//!   - [`render_one_positional`] — the production positional widget (a
-//!     `text_edit_singleline` for non-secret, a masked `SecretLineEdit` for
+//! no action bar. The missing render surface lives in the SHARED harness
+//! module `tests/ui_harness/mod.rs` (promoted there from this file in the
+//! visual-track P1 — behavior-identical; the form-snapshot suite renders the
+//! same extended path):
+//!   - `ui_harness::render_one_positional` — the production positional widget
+//!     (a `text_edit_singleline` for non-secret, a masked `SecretLineEdit` for
 //!     secret), a byte-mirror of `src/main.rs:832`'s positional loop body.
-//!   - [`render_action_bar`] — the `[ Run ]` button, a mirror of
+//!   - `ui_harness::render_action_bar` — the `[ Run ]` button, a mirror of
 //!     `src/main.rs:1023` under the canonical (non-tree) fixture where
 //!     `run_enabled == true`.
 //!
-//! The extended whole-form harness ([`render_extended_form_harness`]) renders
-//! flags + positionals + the action bar, so the action bar sits in a faithful
-//! full-form context. Per-flag control-class and per-positional masking are
-//! read from ISOLATED production renders (the whole form surfaces many
-//! same-Role widgets with no per-flag AccessKit handle — the documented PR #24
-//! limitation — so role-class is targetable only one widget at a time).
+//! The extended whole-form harness (`ui_harness::render_extended_form_harness`)
+//! renders flags + positionals + the action bar, so the action bar sits in a
+//! faithful full-form context. Per-flag control-class and per-positional
+//! masking are read from ISOLATED production renders (the whole form surfaces
+//! many same-Role widgets with no per-flag AccessKit handle — the documented
+//! PR #24 limitation — so role-class is targetable only one widget at a time).
 
 use egui::accesskit::Role;
 use egui_kittest::kittest::Queryable;
 use egui_kittest::Harness;
 
-use mnemonic_gui::app::CliTab;
 use mnemonic_gui::form::fixtures::render_fixture;
 use mnemonic_gui::form::render_emit::{self, ControlClass, Presence};
-use mnemonic_gui::form::secret_widget::SecretLineEdit;
-use mnemonic_gui::schema::{FormState, PositionalArgSchema, SubcommandSchema};
+use mnemonic_gui::schema::{FormState, PositionalArgSchema};
 
 mod ui_harness;
-
-// ─── extended render path: positionals + action bar (plan P3 / m-R3-1) ──────
-
-/// Render ONE positional through the production widget path — a byte-mirror of
-/// `src/main.rs:832`'s positional loop body (minus the multi-row +/✕ chrome,
-/// which is not part of the presence/masking projection). Non-secret → a plain
-/// `text_edit_singleline` (`Role::TextInput`); secret → a masked
-/// `SecretLineEdit` (`Role::PasswordInput`).
-fn render_one_positional(
-    ui: &mut egui::Ui,
-    pos: &'static PositionalArgSchema,
-    idx: usize,
-    state: &mut FormState,
-) {
-    let label = format!(
-        "{} {}{}",
-        pos.name,
-        if pos.required { "*" } else { "" },
-        if pos.repeating { "..." } else { "" }
-    );
-    if pos.secret {
-        let key = format!("positional:{}", pos.name);
-        let rows = state
-            .secret_widgets
-            .entry(key)
-            .or_insert_with(|| vec![SecretLineEdit::new()]);
-        for row in rows.iter_mut() {
-            ui.horizontal(|ui| {
-                row.show(ui, &label, pos.help);
-            });
-        }
-        return;
-    }
-    ui.horizontal(|ui| {
-        ui.label(&label);
-        while state.positionals.len() <= idx {
-            state.positionals.push(String::new());
-        }
-        ui.text_edit_singleline(&mut state.positionals[idx]);
-    });
-}
-
-/// Render every positional (extends `render_whole_form`, which renders none).
-fn render_positionals(
-    ui: &mut egui::Ui,
-    sub: &'static SubcommandSchema,
-    state: &mut FormState,
-) {
-    for (i, pos) in sub.positional_args.iter().enumerate() {
-        render_one_positional(ui, pos, i, state);
-    }
-}
-
-/// Render the `[ Run ]` action bar — a mirror of `src/main.rs:1023`. Under the
-/// canonical (generic, non-tree) fixture `run_enabled == true`.
-fn render_action_bar(ui: &mut egui::Ui) {
-    ui.add_enabled(true, egui::Button::new("Run"));
-}
-
-/// The extended whole-form harness: the PR #24 flag-grid render PLUS the
-/// positionals and the action bar, over the canonical `base` state.
-fn render_extended_form_harness(
-    tab: CliTab,
-    sub: &'static SubcommandSchema,
-    base: FormState,
-) -> Harness<'static, FormState> {
-    Harness::new_ui_state(
-        move |ui, state: &mut FormState| {
-            ui_harness::render_whole_form(ui, tab, sub, state);
-            render_positionals(ui, sub, state);
-            render_action_bar(ui);
-        },
-        base,
-    )
-}
 
 /// Single-positional harness (the ISOLATED production render — exactly one
 /// input control, so its `Role` is unambiguously targetable).
@@ -147,7 +73,7 @@ fn render_one_positional_harness(
 ) -> Harness<'static, FormState> {
     Harness::new_ui_state(
         move |ui, state: &mut FormState| {
-            render_one_positional(ui, pos, 0, state);
+            ui_harness::render_one_positional(ui, pos, 0, state);
         },
         base,
     )
@@ -241,7 +167,7 @@ fn gui_render_emit_is_faithful_to_real_form_for_all_61_forms() {
         // single-sig `--template -> bip44` greys the multisig-only
         // `--threshold`/`--multisig-path-family` (+ export-wallet `--descriptor`)
         // on BOTH sides.
-        let wf = render_extended_form_harness(tab, sub, render_fixture(tab, sub.name));
+        let wf = ui_harness::render_extended_form_harness(tab, sub, render_fixture(tab, sub.name));
 
         // Action bar.
         let real_run = has_label(&wf, "Run");

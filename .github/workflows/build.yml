@@ -84,6 +84,68 @@ jobs:
       - name: cargo check --locked
         run: cargo check --locked
 
+  snapshots:
+    # Visual-screenshot track P1 (plan IMPLEMENTATION_PLAN_gui_visual_
+    # screenshot_track.md; recipe RATIFIED by the P0-R0 review): the permanent
+    # 61-form snapshot gate. Renders every GUI subcommand form headlessly on
+    # the lavapipe CPU Vulkan driver (mesa-vulkan-drivers — fleet-proven: 6
+    # distinct runner instances + a full GL backend swap all passed the
+    # committed corpus at kittest's default 0.6 dify threshold) and compares
+    # against tests/snapshots/forms/. NO path filter — the job fires on every
+    # PR / master push / tag push (the tag-push run is the manual-gui leg's
+    # provenance anchor).
+    #
+    # `--nocapture` is observability-only (adapter line + skip marker in the
+    # log); the ran-at-all CENSUS below is the enforcement: kittest writes
+    # `<name>.new.png` even on PASSING comparisons, so exactly 61 .new.png
+    # files prove the suite rendered every form (never silently skipped or
+    # subsetted). Corpus regeneration: any software rasterizer (locally:
+    # GUI_SNAPSHOTS=1 WGPU_BACKEND=gl LIBGL_ALWAYS_SOFTWARE=1
+    # UPDATE_SNAPSHOTS=1 cargo test --test gui_form_snapshots); this pinned
+    # job arbitrates. Drift remediation follows the spec-§5 ladder: inspect
+    # the uploaded .diff.png artifacts first — never blanket-raise the
+    # threshold.
+    name: snapshots
+    runs-on: ubuntu-latest
+    env:
+      GUI_SNAPSHOTS: "1"
+      WGPU_BACKEND: vulkan
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: install-lavapipe
+        # mesa-vulkan-drivers on noble ships the lavapipe software Vulkan
+        # driver (libvulkan_lvp.so + lvp_icd ICD json) — the CPU adapter
+        # kittest's selector prefers. The Mesa version floats with the runner
+        # image BY DESIGN (an image-bump drift is what the remediation ladder
+        # exists for; the pinned-tarball recipe is the rung-4 escalation).
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mesa-vulkan-drivers
+
+      - name: install-rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: cargo-cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: snapshot-suite
+        run: GUI_SNAPSHOTS=1 cargo test --test gui_form_snapshots -- --nocapture
+
+      - name: census-61
+        run: |
+          count="$(find tests/snapshots/forms -name '*.new.png' | wc -l)"
+          echo "census: ${count} .new.png rendered (expect 61)"
+          test "${count}" -eq 61
+
+      - name: upload-diffs
+        if: failure()
+        uses: actions/upload-artifact@v5
+        with:
+          name: snapshot-diffs-${{ github.run_id }}-${{ github.run_attempt }}
+          path: tests/snapshots/**/*.diff.png
+          if-no-files-found: ignore
+
   build:
     name: ${{ matrix.target }}
     runs-on: ${{ matrix.runner }}
