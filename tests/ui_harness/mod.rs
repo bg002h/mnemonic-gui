@@ -57,10 +57,11 @@ use egui_kittest::kittest::Queryable;
 use egui_kittest::Harness;
 
 use mnemonic_gui::app::CliTab;
+use mnemonic_gui::form::secret_widget::SecretLineEdit;
 use mnemonic_gui::form::widget::render_with_dispatch;
 use mnemonic_gui::schema::{
-    FlagKind, FlagSchema, FlagValue, FormState, Schema, SubcommandSchema, TaggedOrIndexedValue,
-    TimestampValue, Visibility,
+    FlagKind, FlagSchema, FlagValue, FormState, PositionalArgSchema, Schema, SubcommandSchema,
+    TaggedOrIndexedValue, TimestampValue, Visibility,
 };
 
 // ─── §3 identity-kind classifier + enumerator ──────────────────────────────
@@ -462,6 +463,90 @@ pub fn render_whole_form_harness(
     Harness::new_ui_state(
         move |ui, state: &mut FormState| {
             render_whole_form(ui, tab, sub, state);
+        },
+        base,
+    )
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// Extended render path — positionals + action bar (visual track P1 / I1)
+// ════════════════════════════════════════════════════════════════════════
+//
+// Promoted VERBATIM from `tests/gui_render_faithfulness.rs` (where they began
+// as private fns; plan `IMPLEMENTATION_PLAN_gui_visual_screenshot_track.md`
+// P1 item I1), so the P3 faithfulness gate and the permanent form-snapshot
+// suite (`tests/gui_form_snapshots.rs`) render THE SAME extended whole form
+// — flag grid + positionals + `[ Run ]` — through ONE shared code path.
+// Behavior-identical move: bodies unchanged, byte-for-byte.
+
+/// Render ONE positional through the production widget path — a byte-mirror of
+/// `src/main.rs:832`'s positional loop body (minus the multi-row +/✕ chrome,
+/// which is not part of the presence/masking projection). Non-secret → a plain
+/// `text_edit_singleline` (`Role::TextInput`); secret → a masked
+/// `SecretLineEdit` (`Role::PasswordInput`).
+pub fn render_one_positional(
+    ui: &mut egui::Ui,
+    pos: &'static PositionalArgSchema,
+    idx: usize,
+    state: &mut FormState,
+) {
+    let label = format!(
+        "{} {}{}",
+        pos.name,
+        if pos.required { "*" } else { "" },
+        if pos.repeating { "..." } else { "" }
+    );
+    if pos.secret {
+        let key = format!("positional:{}", pos.name);
+        let rows = state
+            .secret_widgets
+            .entry(key)
+            .or_insert_with(|| vec![SecretLineEdit::new()]);
+        for row in rows.iter_mut() {
+            ui.horizontal(|ui| {
+                row.show(ui, &label, pos.help);
+            });
+        }
+        return;
+    }
+    ui.horizontal(|ui| {
+        ui.label(&label);
+        while state.positionals.len() <= idx {
+            state.positionals.push(String::new());
+        }
+        ui.text_edit_singleline(&mut state.positionals[idx]);
+    });
+}
+
+/// Render every positional (extends `render_whole_form`, which renders none).
+pub fn render_positionals(
+    ui: &mut egui::Ui,
+    sub: &'static SubcommandSchema,
+    state: &mut FormState,
+) {
+    for (i, pos) in sub.positional_args.iter().enumerate() {
+        render_one_positional(ui, pos, i, state);
+    }
+}
+
+/// Render the `[ Run ]` action bar — a mirror of `src/main.rs:1023`. Under the
+/// canonical (generic, non-tree) fixture `run_enabled == true`.
+pub fn render_action_bar(ui: &mut egui::Ui) {
+    ui.add_enabled(true, egui::Button::new("Run"));
+}
+
+/// The extended whole-form harness: the PR #24 flag-grid render PLUS the
+/// positionals and the action bar, over the canonical `base` state.
+pub fn render_extended_form_harness(
+    tab: CliTab,
+    sub: &'static SubcommandSchema,
+    base: FormState,
+) -> Harness<'static, FormState> {
+    Harness::new_ui_state(
+        move |ui, state: &mut FormState| {
+            render_whole_form(ui, tab, sub, state);
+            render_positionals(ui, sub, state);
+            render_action_bar(ui);
         },
         base,
     )

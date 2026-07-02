@@ -105,7 +105,11 @@ syn = { version = "2", features = ["full", "extra-traits"] }
 quote = "1"
 proc-macro2 = "1"
 toml = "0.8"
-egui_kittest = "0.31"
+# Visual-screenshot track (P0 spike → P1 suite): `wgpu` + `snapshot` enable the
+# kittest offscreen render + dify threshold-diff path. DEV-graph only — the
+# shipped binary graph is untouched; the existing AccessKit-only harness tests
+# are unaffected (LazyRenderer defers all wgpu work until the first `render()`).
+egui_kittest = { version = "0.31", features = ["wgpu", "snapshot"] }
 # P5 one-time UI-harness coverage sweep (tests/ui_harness_sweep.rs): bounded
 # proptest leaf-value + toggle-sequence variation atop the per-subcommand seed
 # table. Dev-only — never enters the shipped GUI binary's dependency graph.
