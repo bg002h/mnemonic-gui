@@ -49,6 +49,7 @@ pub fn default_flag_value_for(kind: &FlagKind) -> FlagValue {
 /// it onto a concrete `FlagValue` per the FlagKind dispatch table. Falls
 /// back to `default_flag_value_for(&flag.kind)` for:
 ///   - flags without a schema-declared default (`default_value == None`),
+///   - Text / Path (hint-text-defaults, see below),
 ///   - the four Unset-default kinds (Number / Range / Timestamp /
 ///     TaggedOrIndexed) which keep their click-to-seed UX regardless of
 ///     the schema default (the schema default is consulted only by the
@@ -56,24 +57,37 @@ pub fn default_flag_value_for(kind: &FlagKind) -> FlagValue {
 ///     still requires user opt-in to emit anything).
 ///   - parse failures (defensive: bad schema would otherwise crash).
 ///
-/// Dropdown / Text / Path with a declared default use the schema string
-/// directly — eliminating the pre-v0.10.0 fragility where Dropdown
-/// widgets seeded `opts[0]` which only coincidentally matched the toolkit's
-/// default ordering.
+/// Dropdown with a declared default uses the schema string directly —
+/// eliminating the pre-v0.10.0 fragility where Dropdown widgets seeded
+/// `opts[0]` which only coincidentally matched the toolkit's default
+/// ordering.
+///
+/// Hint-text-defaults (SPEC_gui_hint_text_defaults.md §3.1): **Text/Path
+/// schema defaults are DISPLAY-ONLY (`hint_text` ghost) + emission-time
+/// (`is_at_default`); they never enter `state.values`.** Pre-fix these
+/// arms seeded the default as REAL editable text, so typing without
+/// clearing APPENDED (`--feerate` `1.0`+`5` → `1.05` — the
+/// `gui-prefilled-default-text-appends-on-type` papercut). The empty seed
+/// is argv-identical for an untouched field (D33 already omitted
+/// at-default values); the widget renders the default as a ghost that
+/// typing REPLACES. This one arm-change atomically moves ALL resolver
+/// consumers: the widget seed (`widget.rs`), the emit-side
+/// `seeded_fixture` + value column (`render_emit.rs`).
 pub fn default_flag_value_for_flag(flag: &FlagSchema) -> FlagValue {
     let Some(default_str) = flag.default_value else {
         return default_flag_value_for(&flag.kind);
     };
     match flag.kind {
-        FlagKind::Text => FlagValue::Text(default_str.to_string()),
         FlagKind::Dropdown(_) => FlagValue::Dropdown(default_str.to_string()),
-        FlagKind::Path { .. } => FlagValue::Path(default_str.to_string()),
+        // Text / Path: empty seed — the schema default is a hint_text ghost,
+        // never buffer content (see fn doc).
         // Boolean / NodeValueComposite: no meaningful default-value mapping;
         // fall through to the kind-only default (Boolean(false), empty
         // composite). Toolkit v5 doesn't emit defaults for these in practice.
-        FlagKind::Boolean | FlagKind::NodeValueComposite(_) => {
-            default_flag_value_for(&flag.kind)
-        }
+        FlagKind::Text
+        | FlagKind::Path { .. }
+        | FlagKind::Boolean
+        | FlagKind::NodeValueComposite(_) => default_flag_value_for(&flag.kind),
         // Unset-default kinds: keep the click-to-seed UX. The argv
         // assembler's `is_at_default` consults the schema default
         // separately at emission time; the widget initial state stays

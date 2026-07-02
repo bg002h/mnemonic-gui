@@ -100,7 +100,7 @@ fn exact_render_seeded_conditional_form_disables_multisig_only_flags() {
   --language                dropdown[english,simplifiedchinese,traditionalchinese,czech,french,italian,japanese,korean,portuguese,spanish]  -> english
   --account                 number  -> <unset>
   --format                  dropdown[bitcoin-core,bip388,coldcard,coldcard-multisig,jade,sparrow,specter,electrum,green,bsms,descriptor]  -> bitcoin-core
-  --output                  path(stdio)  -> -
+  --output                  path(stdio)  -> <hint:->
   --range                   range  -> <unset>
   --timestamp               timestamp  -> <unset>
   --bitcoin-core-version    number  -> <unset>
@@ -114,6 +114,27 @@ fn exact_render_seeded_conditional_form_disables_multisig_only_flags() {
   [ Run ]
 ";
     assert_eq!(render(CliTab::Mnemonic, "export-wallet"), expected);
+}
+
+#[test]
+fn exact_render_defaulted_text_flag_ghosts_hint() {
+    // `mnemonic compare-cost`: `--feerate` carries a schema default (`1.0`)
+    // on a Text widget. Post hint-text-defaults (SPEC §3.5) the value column
+    // depicts the GHOST the user actually sees on load — `<hint:1.0>`, a
+    // grammar sibling of `<empty>`/`<unset>`/`<masked>` — NOT a concrete
+    // pre-filled `1.0` (the buffer is empty; the widget-level AccessKit
+    // anchor lives in `tests/hint_text_defaults.rs`).
+    let expected = "\
+[ mnemonic > compare-cost ]
+  --miniscript      text  -> <empty>
+  --descriptor      text  -> <empty>
+  --feerate         text  -> <hint:1.0>
+  --max-conditions  number  -> <unset>
+  --json            checkbox  -> [ ] off
+  --no-auto-repair  checkbox  -> [ ] off
+  [ Run ]
+";
+    assert_eq!(render(CliTab::Mnemonic, "compare-cost"), expected);
 }
 
 #[test]

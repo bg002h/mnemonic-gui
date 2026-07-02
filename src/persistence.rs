@@ -28,7 +28,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::app::CliTab;
 use crate::form::slot_model::SlotState;
-use crate::schema::{FlagValue, FormState};
+use crate::schema::{FlagKind, FlagValue, FormState};
 use crate::secrets::{SECRET_FLAG_NAMES, SECRET_NODE_TYPES_ARGV, SECRET_SLOT_SUBKEYS};
 
 /// Current persistence schema version. Bump when the on-disk shape
@@ -338,7 +338,66 @@ pub fn load(path: &Path) -> Option<PersistedState> {
         let _ = fs::rename(path, &bak);
         return None;
     }
+    let mut parsed = parsed;
+    normalize_loaded_form_values(&mut parsed);
     Some(parsed)
+}
+
+/// Hint-text-defaults one-time migration (SPEC_gui_hint_text_defaults.md
+/// §3.4) — LOAD-TIME ONLY (never per-frame: a per-frame clear would fight
+/// the keyboard when a user types the literal default mid-session).
+///
+/// Pre-fix autosaves carry the seeded Text/Path schema defaults in the
+/// per-subcommand `values` (e.g. `("--output", Path("-"))`); post-fix the
+/// default is a `hint_text` ghost that never enters `state.values`, so a
+/// stale persisted default would re-materialize as REAL editable text —
+/// resurrecting the append papercut. Drop those entries on load.
+///
+/// Mechanics (all four spec-pinned):
+///   (a) per-subcommand schema lookup keyed by the persisted `"<cli>:<sub>"`
+///       map key;
+///   (b) FAIL-OPEN — an unknown tab, subcommand, or flag name keeps its
+///       entry verbatim (never destructive on a lookup miss);
+///   (c) kind-scoped to Text/Path entries ONLY — bundle's `--account`
+///       `Number(0)` hand-seed (main.rs) and every Number-kind default are
+///       untouched;
+///   (d) a persisted `Text("")`/`Path("")` (a legitimate post-fix autosave
+///       entry) does NOT equal the default and is NOT dropped.
+///
+/// Semantics-preserving: argv-identical by D33 (`is_at_default` suppresses
+/// both the stored-default and the absent forms) and visibility-identical
+/// (no conditional rule reads any defaulted Text/Path flag — spec §2.5).
+fn normalize_loaded_form_values(state: &mut PersistedState) {
+    for (key, form) in state.form_state_per_subcommand.iter_mut() {
+        let Some((tab_name, sub_name)) = key.split_once(':') else {
+            continue; // (b) malformed key → fail-open
+        };
+        let Some(tab) = CliTab::from_bin_name(tab_name) else {
+            continue; // (b) unknown tab → fail-open
+        };
+        let Some(sub) = schema_for(tab)
+            .subcommands
+            .iter()
+            .find(|s| s.name == sub_name)
+        else {
+            continue; // (b) unknown subcommand → fail-open
+        };
+        form.values.retain(|(name, value)| {
+            let Some(flag) = sub.flags.iter().find(|f| f.name == name.as_str()) else {
+                return true; // (b) unknown flag → keep
+            };
+            let Some(default_str) = flag.default_value else {
+                return true; // no schema default → keep
+            };
+            // (c) Text/Path-scoped; (d) equality only — `""` never matches a
+            // non-empty default. Any kind/value shape mismatch → keep.
+            match (&flag.kind, value) {
+                (FlagKind::Text, FlagValue::Text(s)) => s != default_str,
+                (FlagKind::Path { .. }, FlagValue::Path(s)) => s != default_str,
+                _ => true,
+            }
+        });
+    }
 }
 
 /// Convenience for the GUI's `directories::ProjectDirs`-based config-dir

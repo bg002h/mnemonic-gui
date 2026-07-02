@@ -450,7 +450,21 @@ fn render_row(
         }
         match (&flag.kind, &mut *value) {
             (FlagKind::Text, FlagValue::Text(s)) => {
-                ui.text_edit_singleline(s);
+                // Hint-text-defaults (SPEC §3.2): a schema-declared default
+                // renders as an egui `hint_text` GHOST (painted only while
+                // the buffer is empty — typing REPLACES, never appends; an
+                // empty field means "the CLI applies its own default"). The
+                // ghost is the LITERAL `default_value` string; the flag's
+                // help tooltip carries semantics. No-default Text fields are
+                // byte-unchanged. Precedent: `slot_editor.rs` path hint.
+                match flag.default_value {
+                    Some(d) => {
+                        ui.add(egui::TextEdit::singleline(s).hint_text(d));
+                    }
+                    None => {
+                        ui.text_edit_singleline(s);
+                    }
+                }
             }
             // v0.6.0 P3: Number / Range / Timestamp / TaggedOrIndexed
             // initial-Unset state — render a `Set` affordance that opts the
@@ -656,7 +670,18 @@ fn render_row(
                 }
             }
             (FlagKind::Path { stdio_sentinel }, FlagValue::Path(p)) => {
-                ui.text_edit_singleline(p);
+                // Hint-text-defaults (SPEC §3.2): same ghost as the Text arm
+                // (e.g. `--output`'s `-` stdout sentinel). The `stdio` button
+                // still writes a literal `-` — visible as real text,
+                // suppressed from argv by `is_at_default` (same net argv).
+                match flag.default_value {
+                    Some(d) => {
+                        ui.add(egui::TextEdit::singleline(p).hint_text(d));
+                    }
+                    None => {
+                        ui.text_edit_singleline(p);
+                    }
+                }
                 if *stdio_sentinel && ui.button("stdio").clicked() {
                     *p = "-".to_string();
                 }
