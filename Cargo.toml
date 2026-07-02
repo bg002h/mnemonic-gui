@@ -1,6 +1,6 @@
 [package]
 name = "mnemonic-gui"
-version = "0.53.0"
+version = "0.54.0"
 edition = "2021"
 # The locked dependency graph (icu_*@2.2.0, idna_adapter@1.2.2, image@0.25.x,
 # pulled since v0.40.0) requires rustc >= 1.88. The prior "1.85" was wrong —

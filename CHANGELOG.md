@@ -3,6 +3,17 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## mnemonic-gui [0.54.0] — 2026-07-02
+
+**SemVer-MINOR — a committed 61-form PNG snapshot corpus + the `snapshots` CI gate (Leg 1 of the visual/screenshot track).** Every GUI subcommand form now has a pixel-faithful PNG snapshot (dark theme — the on-launch default; `fit_contents()` @ `pixels_per_point 2.0`; secret fields masked/empty) committed under `tests/snapshots/forms/` (61 files, ~2.12 MiB, plain storage — no LFS), gated by a new **required** `snapshots` CI job: `egui_kittest` wgpu offscreen rendering on a **software rasterizer** (lavapipe-Vulkan via plain `apt mesa-vulkan-drivers` — no GPU), comparing all 61 forms against the committed corpus at kittest's default dify threshold (0.6) on every PR, master push, and tag push, plus a ran-at-all census (61 × `.new.png`). The downstream GUI manual (Leg 2, mnemonic-toolkit) embeds byte-verified copies of these PNGs. GUI app behavior unchanged; **pin-NEUTRAL** for the toolkit + 4 sibling CLIs.
+
+- **Corpus provenance:** the committed PNGs are the P0-spike corpus proven on the GitHub fleet — 6 distinct runner instances, 558/558 threshold comparisons incl. full GL↔Vulkan backend swaps at 0 diff pixels; same-env renders byte-identical.
+- **`tests/gui_form_snapshots.rs`:** all-61 enumeration over the blank canonical fixture; per-form Run-node assertion (no-clipping bar); an adapter guard (`device_type == Cpu` under `GUI_SNAPSHOTS=1`; backend vs `WGPU_BACKEND` when set — lavapipe self-reports as "llvmpipe", so names are never matched); env-gated early-return-skip off-CI; an ALWAYS-RUN secret-hygiene assertion (`secret ⇒ no schema default_value`, all 4 tabs).
+- **Refactor:** the positionals/action-bar render helpers promoted from `tests/gui_render_faithfulness.rs` into the shared `tests/ui_harness/mod.rs` (proven behavior-identical: old-vs-new renders 61/61 byte-identical); the faithfulness gate's assertions byte-for-byte unchanged.
+- **Dev-graph only:** `egui_kittest` gains `wgpu`+`snapshot` features (+12 dev-graph packages, incl. dify); the shipped binary graph is untouched; MSRV 1.88 verified incl. dev-deps (`cargo +1.88.0 check --locked --all-targets`).
+- **Repo governance:** master now carries a branch-protection rule requiring the `snapshots` check (scope: only this context — see `gui-branch-protection-scope` in FOLLOWUPS.md for the deferred broader discussion).
+- **Gates:** suite 624/0/4; clippy `--all-targets` + `--no-default-features` clean; all 13 checks green on the merge commit. Regeneration UX: `UPDATE_SNAPSHOTS=1` locally on any software rasterizer — CI's pinned threshold gate arbitrates.
+
 ## mnemonic-gui [0.53.0] — 2026-06-29
 
 **SemVer-MINOR — a headless `gui-render` binary + an egui_kittest faithfulness gate (Leg 1 of the GUI-manual form-renders cycle).** Adds `gui-render`, a headless binary that emits a deterministic ASCII **structural render** of every one of the 61 GUI subcommand forms (flag grid + positionals + action bar + sub-surface placeholders), derived from the GUI's own `schema/` + `conditional()` — so the downstream GUI manual (`mnemonic-toolkit/docs/manual-gui`) can regenerate + gate generated GUI output the way it gates CLI transcripts. The GUI app itself is **behavior-preserving** (`main.rs`/`app.rs`/`runner.rs` unchanged). **Pin-NEUTRAL** for the toolkit + four sibling CLIs (`gui-render` adds no clap-flag surface to the `mnemonic` CLI → `schema_mirror` unaffected).
