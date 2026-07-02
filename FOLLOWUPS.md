@@ -1010,3 +1010,30 @@ reports these flags `repeating:null`). **Companion:** mnemonic-toolkit
   call suffices. Discuss + decide in a future session; if extended, update the
   ruleset + note it here.
 - **Status:** open. **Tier:** `governance` / `ci`.
+
+## `gui-form-snapshot-corpus-manual-consumer` — RESOLVED 2026-07-01 (companion record)
+
+**The 61-PNG form-snapshot corpus is a cross-repo API.** The visual-screenshot
+track's Leg 2 (mnemonic-toolkit `docs/manual-gui/`, pin `mnemonic-gui-v0.54.0`)
+consumes `tests/snapshots/forms/<tab>-<sub>.png` BYTE-exactly: the manual commits a
+copy at `figures/gui/` and gates it with `verify-figures-gui` (lint phase 9/9) —
+byte-compare vs the pinned clone's corpus, census 61 BOTH directions, fail-closed.
+Consequences on this repo:
+
+- **The corpus is load-bearing beyond `snapshots`.** A regenerated corpus (theme /
+  spacing / font / egui-version drift accepted via `UPDATE_SNAPSHOTS`) is a
+  MANUAL-FACING change: the manual stays pinned to the old tag until its next GUI
+  pin bump re-copies the figures — bump the pin + re-copy in lockstep when cutting
+  a tag the manual is expected to adopt.
+- **Orphan-baseline tripwire lives downstream (leg-1 review m2):** the GUI-side
+  census counts rendered `.new.png`, not committed files, so a stray committed PNG
+  under `tests/snapshots/forms/` passes GUI CI — it is caught by the MANUAL's
+  both-direction census at the next pin bump. Don't park non-corpus PNGs there.
+- **Provenance anchor:** the manual's pin-bump step 0 verifies the tag-push
+  `snapshots` check-run concluded `success` before adopting a corpus
+  (v0.54.0 = `d67f5d68`, verified 2026-07-01).
+
+**Companion:** mnemonic-toolkit `docs/manual-gui/FOLLOWUPS.md`
+`manual-gui-visual-screenshot-track` (RESOLVED 2026-07-01). **Status:** resolved
+(record entry — documents the consumer contract; no GUI action open).
+**Tier:** `cross-repo`.
