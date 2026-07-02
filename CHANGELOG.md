@@ -3,6 +3,18 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## mnemonic-gui [0.55.0] — 2026-07-02
+
+**SemVer-MINOR (UX) — defaulted Text/Path fields now show their default as a `hint_text` GHOST instead of pre-filled editable text: typing REPLACES, never appends.** Fixes `gui-prefilled-default-text-appends-on-type` (the one usability defect the UI-harness sweep found): previously `--feerate` `1.0`+typing `5` yielded `1.05`, `--output` `-`+a path yielded `-/path`. Surface = exactly the **6** defaulted Text/Path flags (`compare-cost --feerate`, `import-wallet --select-descriptor`, `nostr --timestamp`, `ms derive --account`, `export-wallet --output`, `restore --output`); Dropdown/Number/Range/Timestamp defaults unchanged (Number's DragValue select-alls on edit — no papercut there).
+
+- **Zero argv change:** at-default values were ALREADY suppressed from argv (v0.10.0 D33), so an untouched field emitted nothing before and emits nothing now; typing the literal default is suppressed identically. Verified by census: emission changed for zero flags.
+- **One-resolver fix:** the `default_flag_value_for_flag` Text/Path arms stop seeding — the widget seed, `gui-render`'s `seeded_fixture`, and the `.gui` value column (now `-> <hint:DEFAULT>`) update atomically; the faithfulness gate is unaffected by charter.
+- **Persistence migration (load-time, in-memory, fail-open):** pre-fix autosaves carrying the seeded defaults are normalized on load (Text/Path-scoped; unknown sub/flag kept verbatim; `Text("")`/`Path("")` survive; no new write path).
+- **Snapshot corpus re-pinned:** exactly the 6 forms' PNGs changed — the required `snapshots` gate's first intentional-change arbitration, green at 0.6 on lavapipe.
+- **Harness hardened:** the sweep's `Text("")` seeding workaround removed — every Text/Path I1 round-trip is now a permanent append-regression tripwire. +11 tests (all red-proven against the pre-fix tree, incl. the literal `1.05` reproduction).
+- New FOLLOWUP filed (not fixed, argv-affecting → its own cycle): `gui-number-set-affordance-ignores-schema-default` (the Number `Set` affordance seeds `min`, not the schema default — e.g. `--gap-limit` 0 vs 20).
+- Pin-NEUTRAL for the toolkit + 4 sibling CLIs. Gates: suite 635/0 (73 binaries); clippy both configs clean; 12/12 checks.
+
 ## mnemonic-gui [0.54.0] — 2026-07-02
 
 **SemVer-MINOR — a committed 61-form PNG snapshot corpus + the `snapshots` CI gate (Leg 1 of the visual/screenshot track).** Every GUI subcommand form now has a pixel-faithful PNG snapshot (dark theme — the on-launch default; `fit_contents()` @ `pixels_per_point 2.0`; secret fields masked/empty) committed under `tests/snapshots/forms/` (61 files, ~2.12 MiB, plain storage — no LFS), gated by a new **required** `snapshots` CI job: `egui_kittest` wgpu offscreen rendering on a **software rasterizer** (lavapipe-Vulkan via plain `apt mesa-vulkan-drivers` — no GPU), comparing all 61 forms against the committed corpus at kittest's default dify threshold (0.6) on every PR, master push, and tag push, plus a ran-at-all census (61 × `.new.png`). The downstream GUI manual (Leg 2, mnemonic-toolkit) embeds byte-verified copies of these PNGs. GUI app behavior unchanged; **pin-NEUTRAL** for the toolkit + 4 sibling CLIs.
