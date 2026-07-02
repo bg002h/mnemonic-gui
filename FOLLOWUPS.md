@@ -1039,7 +1039,7 @@ Consequences on this repo:
   both-direction census at the next pin bump. Don't park non-corpus PNGs there.
 - **Provenance anchor:** the manual's pin-bump step 0 verifies the tag-push
   `snapshots` check-run concluded `success` before adopting a corpus
-  (v0.54.0 = `d67f5d68`, verified 2026-07-01).
+  (v0.54.0 = `d67f5d68`, verified 2026-07-01; v0.55.0 = `538d1a89`, verified 2026-07-01 — the hint-text-defaults manual leg re-exercised the contract).
 
 **Companion:** mnemonic-toolkit `docs/manual-gui/FOLLOWUPS.md`
 `manual-gui-visual-screenshot-track` (RESOLVED 2026-07-01). **Status:** resolved
