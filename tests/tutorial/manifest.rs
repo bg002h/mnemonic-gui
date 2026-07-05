@@ -1,7 +1,7 @@
 //! The tutorial step table (SPEC §5.3). Split from `mod.rs` for readability —
 //! `mod.rs` owns the types + censuses; this file is pure data.
 //!
-//! 25 shot-bearing steps / 51 shots (Ch 0 + J1–J5) plus `capture: false`
+//! 25 shot-bearing steps / 50 committed shots (51 nominal; 1 modal trimmed) (Ch 0 + J1–J5) plus `capture: false`
 //! transcript-only steps (J2 devices-1/2 converts, per-journey `bundle --json`
 //! chain feeds, the J4 NUMS bundle/restore). Every census reads this table.
 //!

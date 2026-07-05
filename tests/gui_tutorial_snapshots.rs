@@ -66,8 +66,9 @@ const MANIFEST_STEMS: &str = "tests/tutorial/manifest-stems.txt";
 /// HARD corpus ceiling. Originally 20 MiB (SPEC §5.3 ruling 4), set when the
 /// concern was a *committed* PDF. The 2026-07-05 user decision made the PDF
 /// RELEASE-ATTACH-ONLY (spec §3.2c), resolving that rationale; the full
-/// all-51-shots corpus measured 27.1 MiB (24 real populated-pane shots). USER
-/// DECISION 2026-07-05: raise the ceiling, keep all 51 shots. 32 MiB = ~18%
+/// all-shots corpus (50 committed; 51 nominal, 1 modal trimmed) measured
+/// 27.1 MiB (24 real populated-pane shots). USER DECISION 2026-07-05: raise the
+/// ceiling, keep all shots. 32 MiB = ~18%
 /// regen-drift headroom over the measured 27.1.
 const BUDGET_HARD_MIB: f64 = 32.0;
 /// Corpus target (report-only above this).

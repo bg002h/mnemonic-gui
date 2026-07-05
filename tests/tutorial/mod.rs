@@ -19,7 +19,7 @@
 //! under plain `cargo test`. Only the harness itself pulls the egui stack.
 //!
 //! **P1.5 scope = the FULL corpus** (Ch 0 orientation + J1–J5). Shot-bearing
-//! steps total 25 / 51 shots (§5.3); additional `capture: false` transcript-only
+//! steps total 25 / 50 committed shots (51 nominal; 1 modal trimmed, §5.3); additional `capture: false` transcript-only
 //! steps (J2 devices-1/2 converts, J3/J4 `bundle --json` chain feeds, the J4
 //! NUMS bundle/restore) run the identical GUI-driven Run path but capture no PNG.
 //! Every census reads THIS table; the counts grow from the data.
@@ -345,7 +345,7 @@ pub fn manifest_stems_txt() -> String {
     s
 }
 
-/// Total PNG shot count across the manifest (the "51-shot" number, but
+/// Total PNG shot count across the manifest (50 committed; the "51" nominal, but
 /// DERIVED — `capture: false` steps contribute zero).
 pub fn total_shots() -> usize {
     MANIFEST.iter().map(|s| s.figure_stems().len()).sum()
