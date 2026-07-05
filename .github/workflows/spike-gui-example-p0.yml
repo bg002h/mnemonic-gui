@@ -1,0 +1,78 @@
+# THROWAWAY — gui_example_tutorial P0 spike CI confirmation (SPEC §4).
+#
+# Purpose: runner proof for the NEW whole-window shot class ONLY. The
+# lavapipe rasterizer recipe is fleet-proven by the visual track; what needs
+# confirmation is that the whole-window + populated-pane + modal pilots
+# rendered on the llvmpipe-GL local env stay within kittest's default 0.6
+# dify threshold under the CI lavapipe-Vulkan adapter — i.e. the S1
+# cross-backend exit criterion, sampled on >=2 independent runners (matrix).
+#
+# The job also needs the PINNED CLI on $PATH (the spike's live Run clicks
+# spawn `mnemonic`): the spike tier is mnemonic-toolkit-v0.75.0 — the P1
+# pin-bump target, deliberately AHEAD of pinned-upstream.toml's v0.74.0
+# (the in-test pinned-tier-version-gate bite demo depends on that skew).
+#
+# DELETE THIS FILE when the P0 branch is folded into the real P1 work.
+
+name: spike-gui-example-p0
+
+on:
+  pull_request:
+    branches: [master]
+    paths:
+      - "tests/gui_example_p0_spike.rs"
+      - "tests/spike_fixtures/**"
+      - "tests/snapshots/spike/**"
+      - "src/app_window.rs"
+      - ".github/workflows/spike-gui-example-p0.yml"
+
+jobs:
+  spike:
+    name: spike-sample-${{ matrix.sample }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # >=2 independent runner samples (visual-track P0 pattern).
+        sample: [1, 2]
+    env:
+      GUI_TUTORIAL_SPIKE: "1"
+      WGPU_BACKEND: vulkan
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: install-lavapipe
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mesa-vulkan-drivers
+
+      - name: install-rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: cargo-cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: install-pinned-mnemonic
+        # Spike tier v0.75.0 (P1 target) — see the header comment.
+        run: |
+          cargo install --locked \
+            --git https://github.com/bg002h/mnemonic-toolkit \
+            --tag "mnemonic-toolkit-v0.75.0" \
+            mnemonic-toolkit
+
+      - name: spike-suite
+        run: cargo test --test gui_example_p0_spike -- --nocapture
+
+      - name: census-11
+        run: |
+          count="$(find tests/snapshots/spike -name '*.new.png' | wc -l)"
+          echo "census: ${count} .new.png rendered (expect 11)"
+          test "${count}" -eq 11
+
+      - name: upload-diffs
+        if: failure()
+        uses: actions/upload-artifact@v5
+        with:
+          name: spike-diffs-s${{ matrix.sample }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: tests/snapshots/spike/*.diff.png
+          if-no-files-found: ignore
