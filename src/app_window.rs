@@ -1198,6 +1198,20 @@ fn render_exit_badge(ui: &mut egui::Ui, exit_code: Option<i32>) {
 /// v0.32.0: `stdin` carries the tree-mode spec JSON for `--spec -` runs
 /// (`None` for every other subcommand/mode — byte-identical behavior via
 /// `run_with_stdin`'s `None` delegation path).
+///
+/// **SYNCHRONOUS-COMPLETION / populated-pane contract (SPEC §6.5,
+/// `gui_example_tutorial`).** This fn runs the subprocess to completion
+/// INSIDE the Run-click frame (`runner::run_with_stdin` blocks), so
+/// `app.last_run` / `app.last_run_error` is populated the same frame the
+/// click lands. The GUI tutorial book's snapshot corpus depends on this:
+/// its harness pins a per-step `SAME-FRAME-COMPLETION` assertion
+/// (`last_run.is_some()` right after the single Run-click `step()`,
+/// before any further frames). If you are making this runner ASYNC
+/// (spinner / cancel-button UX), STOP — weakening the populated-pane
+/// contract is a reserved USER decision, not an implementation choice
+/// (SPEC §4 STOP menu; the seeded-`last_run` "fix" in the harness is
+/// exactly the downgrade the user reserved). See
+/// `mnemonic-toolkit/docs/manual-gui/design/SPEC_gui_example_tutorial.md`.
 fn spawn_and_capture(
     app: &mut MnemonicGuiApp,
     argv: Vec<String>,
