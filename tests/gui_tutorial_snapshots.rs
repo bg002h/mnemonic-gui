@@ -21,10 +21,14 @@
 //!      pane shots, and byte-persists the transcripts. The `build.yml`
 //!      `tutorial-snapshots` job (P1.6) is the enforcing consumer.
 //!
-//! **P1.4 scope = PILOTS ONLY** (Chapter-0 orientation + J1 single-sig = 4
-//! shots). The machinery is generic over `tutorial::MANIFEST`; P1.5 grows the
-//! corpus by extending the manifest, not this harness.
+//! P1.5 grows the corpus to the FULL journey set (J1–J5) by EXTENDING both the
+//! manifest AND this harness: additive `Drive` interpreter arms (dropdown /
+//! text / path / composite / number / `+ Add slot` / `--md1` rows), the
+//! intra-journey md1 chain, and `capture: false` transcript-only steps — all
+//! over the SAME de-risked spine (whole-window `app.ui`, same-frame runner,
+//! secret masking, byte-reproducibility) proven at P1.4. No spine surgery.
 
+use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 
 use egui::accesskit::Role;
@@ -33,10 +37,18 @@ use egui_kittest::{Harness, SnapshotOptions};
 
 use mnemonic_gui::app::{AppState, CliTab};
 use mnemonic_gui::app_window::MnemonicGuiApp;
+use mnemonic_gui::form::slot_editor::SlotSubkey;
 use mnemonic_gui::path_detect::Detected;
 
 mod tutorial;
 use tutorial::{Drive, Step};
+
+/// The intra-journey chain carry: a source step's parsed md1 chunks, keyed by
+/// that step's stem. A `Drive::TypeMd1Chain { chain_from }` in a LATER step
+/// reads this (the `&'static` manifest can't hold runtime-derived text, so the
+/// carry lives here — R0 item 2 / m5). Populated after every run in
+/// [`execute_step`]; read by [`apply_drive`].
+type ChainStore = HashMap<&'static str, Vec<String>>;
 
 // ─── shared constants ────────────────────────────────────────────────────────
 
@@ -287,6 +299,7 @@ fn gui_tutorial_snapshots() {
 
     adapter_guard();
     run_pinned_tier_version_gate();
+    assert_demo_seed_baseline();
 
     // ── cwd pinned to the fixture dir for the whole test (SPEC §6.6) ──
     let fixture_dir = manifest_path(FIXTURE_DIR);
@@ -295,9 +308,10 @@ fn gui_tutorial_snapshots() {
     let update = std::env::var("UPDATE_SNAPSHOTS").is_ok();
     let opts = SnapshotOptions::new().output_path(manifest_path(TUTORIAL_SNAPSHOT_DIR));
     let mut failures: Vec<String> = Vec::new();
+    let mut chain: ChainStore = HashMap::new();
 
     for step in tutorial::MANIFEST {
-        execute_step(step, &opts, update, &mut failures);
+        execute_step(step, &opts, update, &mut failures, &mut chain);
     }
 
     // ── corpus-budget report over the just-captured shots (the always-run
@@ -316,9 +330,61 @@ fn gui_tutorial_snapshots() {
     );
 }
 
+// ─── the demo-seed baseline (m1 / SPEC §6.3) ─────────────────────────────────
+
+/// Assert the fresh headless app's determinism baseline EXPLICITLY (not just
+/// implicitly via the ch0 snapshot byte-compare + row-0 drive dependency): the
+/// active subcommand is `mnemonic:bundle`, and its form carries the demo seed —
+/// `--template=bip84`, `--network=mainnet`, and exactly ONE (empty, Xpub) slot
+/// row. A future demo-seed change then breaks HERE by name, not as an
+/// undiagnosed pixel diff or a `slots.rows[occ]` index panic (R0 m1;
+/// `src/app_window.rs` `new_headless` demo-seed block).
+fn assert_demo_seed_baseline() {
+    let h = app_harness();
+    let st = h.state();
+    assert_eq!(
+        st.active_subcommand
+            .get(&CliTab::Mnemonic)
+            .map(String::as_str),
+        Some("bundle"),
+        "demo-seed baseline: the fresh app must open on mnemonic:bundle (SPEC §6.3)"
+    );
+    let form = &st.form_state["mnemonic:bundle"];
+    assert_eq!(
+        form.dropdown_value("--template"),
+        Some("bip84"),
+        "demo-seed baseline: bundle --template must pre-fill bip84 (SPEC §6.3)"
+    );
+    assert_eq!(
+        form.dropdown_value("--network"),
+        Some("mainnet"),
+        "demo-seed baseline: bundle --network must pre-fill mainnet (SPEC §6.3)"
+    );
+    assert_eq!(
+        form.slots.rows.len(),
+        1,
+        "demo-seed baseline: bundle must seed exactly one slot row (SPEC §6.3)"
+    );
+    assert_eq!(
+        form.slots.rows[0].subkey,
+        SlotSubkey::Xpub,
+        "demo-seed baseline: the seeded slot row must default to the Xpub subkey (SPEC §6.3)"
+    );
+    assert!(
+        form.slots.rows[0].value.is_empty(),
+        "demo-seed baseline: the seeded slot row must be empty (SPEC §6.3)"
+    );
+}
+
 // ─── the generic step executor ───────────────────────────────────────────────
 
-fn execute_step(step: &Step, opts: &SnapshotOptions, update: bool, failures: &mut Vec<String>) {
+fn execute_step(
+    step: &Step,
+    opts: &SnapshotOptions,
+    update: bool,
+    failures: &mut Vec<String>,
+    chain: &mut ChainStore,
+) {
     let mut h = app_harness();
 
     // (1) subcommand selection — `None` rides the fresh-app default.
@@ -339,31 +405,21 @@ fn execute_step(step: &Step, opts: &SnapshotOptions, update: bool, failures: &mu
 
     // (2) apply the drives.
     for drive in step.drives {
-        apply_drive(&mut h, step, drive);
+        apply_drive(&mut h, step, drive, chain);
     }
 
-    // (3) driven-field visibility (SPEC §5.4): each driven slot row must
-    //     intersect the viewport at the base offset (pilots are single-shot;
-    //     P1.5 extends this across recorded scroll offsets).
-    for drive in step.drives {
-        if let Some((anchor, occ)) = drive.slot_target() {
-            let role = slot_value_role(drive);
-            let r = on_row_of(&h, anchor, role, occ)
-                .raw_bounds()
-                .expect("driven slot row has bounds");
-            assert!(
-                r.y1 > 0.0 && r.y0 < WINDOW_SIZE[1] as f64,
-                "{}: driven slot row (anchor {anchor:?}) is clipped out of the base form \
-                 shot (rect y0={} y1={}); SPEC §5.4 driven-field-visibility",
-                step.stem,
-                r.y0,
-                r.y1
-            );
-        }
+    // (3) driven-field visibility (SPEC §5.4): each driven field must intersect
+    //     the viewport in AT LEAST ONE captured offset (base + recorded
+    //     scrolls) — m4 extends the pilot's base-only check. Skipped for
+    //     `capture: false` transcript-only steps (no shot → visibility moot).
+    if step.capture {
+        assert_driven_fields_visible(&mut h, step);
     }
 
     // (4) secret-hygiene pre-run guards (SPEC §7): masked-by-construction +
-    //     whole-tree no-plaintext for every secret value driven.
+    //     whole-tree no-plaintext for every secret value driven (held for
+    //     `capture: false` secret steps too — masking must hold with or without
+    //     a shot).
     if step.is_secret() {
         assert!(
             has_mask_sentinel(&h),
@@ -378,11 +434,20 @@ fn execute_step(step: &Step, opts: &SnapshotOptions, update: bool, failures: &mu
         }
     }
 
-    // (5) the base filled-form shot (+ recorded scroll offsets → -formN).
-    snapshot(&mut h, &format!("{}-form", step.stem), opts, failures);
-    for (i, &delta) in step.scroll.iter().enumerate() {
-        wheel_scroll_form(&mut h, delta);
-        snapshot(&mut h, &format!("{}-form{}", step.stem, i + 2), opts, failures);
+    // (5) the base filled-form shot (+ recorded scroll offsets → -formN). A
+    //     `capture: false` step skips PNG capture but still runs + transcripts.
+    if step.capture {
+        snapshot(&mut h, &format!("{}-form", step.stem), opts, failures);
+        for (i, &delta) in step.scroll.iter().enumerate() {
+            wheel_scroll_form(&mut h, delta);
+            snapshot(&mut h, &format!("{}-form{}", step.stem, i + 2), opts, failures);
+        }
+        // Restore the base scroll offset before the Run so the `-run` pane is
+        // captured at a stable, top-anchored position regardless of the
+        // `-formN` scroll excursions above.
+        if !step.scroll.is_empty() {
+            reset_scroll(&mut h);
+        }
     }
 
     // (6) Run (if any) — direct one-click, or the secret-confirm two-click.
@@ -440,8 +505,21 @@ fn execute_step(step: &Step, opts: &SnapshotOptions, update: bool, failures: &mu
         }
     }
 
-    // The populated-pane shot ↔ its transcript, from the SAME RunResult.
-    snapshot(&mut h, &format!("{}-run", step.stem), opts, failures);
+    // Capture the chain payload: parse this run's md1 chunks and store them
+    // keyed by the step stem, so a LATER step's `TypeMd1Chain { chain_from }`
+    // can type them into the `--md1` rows (SPEC §3.1b). Every run contributes
+    // (empty for non-bundle runs) — the sink names its source stem.
+    {
+        let run = h.state().last_run.as_ref().expect("last_run");
+        chain.insert(step.stem, tutorial::parse_md1_chunks(&run.stdout));
+    }
+
+    // The populated-pane shot ↔ its transcript, from the SAME RunResult. A
+    // `capture: false` transcript-only step skips the PNG but still byte-gates
+    // its transcript.
+    if step.capture {
+        snapshot(&mut h, &format!("{}-run", step.stem), opts, failures);
+    }
     if let Err(e) = persist_transcripts(&h, step, update) {
         failures.push(e);
     }
@@ -495,7 +573,7 @@ fn run_via_modal(
             assert_no_plaintext(h, word, &format!("{} confirm modal", step.stem));
         }
     }
-    if step.modal_shot {
+    if step.capture && step.modal_shot {
         snapshot(h, &format!("{}-modal", step.stem), opts, failures);
     }
     // Modal-Run — single-`step()` semantics through the modal path.
@@ -505,11 +583,19 @@ fn run_via_modal(
     h.run();
 }
 
-/// Interpret one drive against the whole window.
-fn apply_drive(h: &mut Harness<'static, MnemonicGuiApp>, step: &Step, drive: &Drive) {
+/// Interpret one drive against the whole window — the additive P1.5 interpreter
+/// arms over the P1.4 slot spine. Each reuses the proven AccessKit-lookup
+/// discipline (row-anchored on the flag-name label for scalar flags; the
+/// `render_repeating` "+ add" for md1 rows).
+fn apply_drive(
+    h: &mut Harness<'static, MnemonicGuiApp>,
+    step: &Step,
+    drive: &Drive,
+    chain: &ChainStore,
+) {
     match *drive {
         Drive::FlipSlotSubkey { anchor, occ, to } => {
-            on_row_of(h, anchor, Role::ComboBox, occ).click();
+            slot_row_widget(h, anchor, occ, Role::ComboBox).click();
             h.run();
             h.get_by_label(to.as_str()).click();
             h.run();
@@ -528,7 +614,7 @@ fn apply_drive(h: &mut Harness<'static, MnemonicGuiApp>, step: &Step, drive: &Dr
             value,
         } => {
             let role = slot_value_role(drive);
-            on_row_of(h, anchor, role, occ).type_text(value);
+            slot_row_widget(h, anchor, occ, role).type_text(value);
             h.run();
             h.run(); // settle write-back (buffer lands at frame end)
             let row = &h.state().form_state[&step.form_key()].slots.rows[occ];
@@ -543,7 +629,409 @@ fn apply_drive(h: &mut Harness<'static, MnemonicGuiApp>, step: &Step, drive: &Dr
                 step.stem
             );
         }
+        Drive::AddSlots { count } => {
+            for _ in 0..count {
+                h.get_by_label("+ Add slot").click();
+                h.run();
+            }
+        }
+        Drive::SetSlotIndex { occ, index } => {
+            let id = slot_row_widget(h, "@", occ, Role::SpinButton).id();
+            set_value_action(h, id, index);
+            let got = h.state().form_state[&step.form_key()].slots.rows[occ].index;
+            assert_eq!(
+                got as i64, index,
+                "{}: slot row {occ} index must be {index}",
+                step.stem
+            );
+        }
+        Drive::SelectDropdown { flag, value } => {
+            // Row-anchored open (a per-flag combo is unlabeled — the flag-name
+            // label sits to its left). Guard the open (egui ComboBox does not
+            // auto-close on a `selectable_value` click).
+            let display = if value.is_empty() { "(none)" } else { value };
+            if h.query_all_by_label(display).next().is_none() {
+                on_row_of(h, flag, Role::ComboBox, 0).click();
+                h.run();
+                h.run();
+            }
+            h.get_by_label(display).click();
+            h.run();
+            close_popup(h);
+            assert_eq!(
+                h.state().form_state[&step.form_key()].dropdown_value(flag),
+                Some(value),
+                "{}: SelectDropdown {flag} must land {value:?}",
+                step.stem
+            );
+        }
+        Drive::SelectRowDropdown {
+            flag,
+            next_flag,
+            value,
+        } => {
+            if h.query_all_by_label(value).next().is_none() {
+                block_row_combo(h, flag, next_flag)
+                    .unwrap_or_else(|| panic!("{}: no row combo in the {flag} block", step.stem))
+                    .click();
+                h.run();
+                h.run();
+            }
+            h.get_by_label(value).click();
+            h.run();
+            close_popup(h);
+        }
+        Drive::ToggleBoolean { flag } => {
+            on_row_of(h, flag, Role::CheckBox, 0).click();
+            h.run();
+            h.run();
+            let form = &h.state().form_state[&step.form_key()];
+            assert!(
+                form.has_value(flag),
+                "{}: ToggleBoolean {flag} must set the flag true",
+                step.stem
+            );
+        }
+        Drive::TypeText { flag, value } => {
+            type_into_text_flag(h, flag, value);
+            assert_eq!(
+                h.state().form_state[&step.form_key()].text_value(flag),
+                Some(value),
+                "{}: TypeText {flag} value must land",
+                step.stem
+            );
+        }
+        Drive::TypeTextFromFixture { flag, fixture } => {
+            // cwd is the fixture dir (SPEC §6.6); read the committed watch-only
+            // descriptor and type it as `--descriptor` TEXT (the F2 route-around
+            // — ballooned argv echo is viewport-faithful, F7).
+            let text = std::fs::read_to_string(fixture)
+                .unwrap_or_else(|e| panic!("{}: read fixture {fixture:?}: {e}", step.stem));
+            let text = text.trim_end_matches(['\n', '\r']);
+            type_into_text_flag(h, flag, text);
+            assert_eq!(
+                h.state().form_state[&step.form_key()].text_value(flag),
+                Some(text),
+                "{}: TypeTextFromFixture {flag} value must land",
+                step.stem
+            );
+        }
+        Drive::TypePath { flag, value } => {
+            on_row_of(h, flag, Role::TextInput, 0).type_text(value);
+            h.run();
+            h.run();
+        }
+        Drive::TypeComposite { flag, node, value } => {
+            // Select the node type in the composite combo (row-anchored), then
+            // type the value (masked PasswordInput for a secret node such as
+            // `phrase`; plain TextInput for a public node).
+            if h.query_all_by_label(node).next().is_none() {
+                on_row_of(h, flag, Role::ComboBox, 0).click();
+                h.run();
+                h.run();
+            }
+            h.get_by_label(node).click();
+            h.run();
+            close_popup(h);
+            let role = if drive.secret_value().is_some() {
+                Role::PasswordInput
+            } else {
+                Role::TextInput
+            };
+            on_row_of(h, flag, role, 0).type_text(value);
+            h.run();
+            h.run();
+            let form = &h.state().form_state[&step.form_key()];
+            assert_eq!(
+                form.composite_node(flag),
+                Some(node),
+                "{}: TypeComposite {flag} node must land {node:?}",
+                step.stem
+            );
+            assert_eq!(
+                composite_value(form, flag).as_deref(),
+                Some(value),
+                "{}: TypeComposite {flag} value must land",
+                step.stem
+            );
+        }
+        Drive::SetNumber { flag, value } => {
+            set_number_flag(h, flag, value);
+            assert_eq!(
+                h.state().form_state[&step.form_key()].number_value(flag),
+                Some(value),
+                "{}: SetNumber {flag} must land {value}",
+                step.stem
+            );
+        }
+        Drive::TypeMd1Chain { flag, chain_from } => {
+            let chunks = chain.get(chain_from).unwrap_or_else(|| {
+                panic!(
+                    "{}: TypeMd1Chain source {chain_from:?} has no captured md1 chunks — \
+                     the chain-source step must run BEFORE this step",
+                    step.stem
+                )
+            });
+            assert!(
+                !chunks.is_empty(),
+                "{}: chain source {chain_from:?} produced ZERO md1 chunks",
+                step.stem
+            );
+            for (i, chunk) in chunks.iter().enumerate() {
+                // Append a row via the repeating-flag header "+ add", then type
+                // the chunk into the newly-created (last) row.
+                add_row_button_of(h, flag).click();
+                h.run();
+                h.run();
+                let node = md1_row_inputs(h).into_iter().last().unwrap_or_else(|| {
+                    panic!("{}: no --md1 row TextInput after + add", step.stem)
+                });
+                node.type_text(chunk);
+                h.run();
+                h.run();
+                let rows: Vec<String> = md1_row_values(h, flag);
+                assert_eq!(
+                    rows.get(i).map(String::as_str),
+                    Some(chunk.as_str()),
+                    "{}: md1 chunk {i} did not land in its row",
+                    step.stem
+                );
+            }
+            let rows = md1_row_values(h, flag);
+            assert_eq!(
+                rows.len(),
+                chunks.len(),
+                "{}: expected {} --md1 rows, got {}",
+                step.stem,
+                chunks.len(),
+                rows.len()
+            );
+        }
     }
+}
+
+/// Type into a scalar `Text`/`Path` flag's input (row-anchored on the flag-name
+/// label). Two `run()`s settle the buffer write-back.
+fn type_into_text_flag(h: &mut Harness<'static, MnemonicGuiApp>, flag: &'static str, value: &str) {
+    on_row_of(h, flag, Role::TextInput, 0).type_text(value);
+    h.run();
+    h.run();
+}
+
+/// Set a `Number` flag: click its `Set` affordance if present (initial state is
+/// `Unset`), then push an AccessKit `SetValue` action onto the SpinButton (the
+/// DragValue gotcha — kittest `Node` has no `SetValue` helper).
+fn set_number_flag(h: &mut Harness<'static, MnemonicGuiApp>, flag: &'static str, value: i64) {
+    if let Some(set) = on_row_of_opt(h, flag, Role::Button, "Set") {
+        set.click();
+        h.run();
+        h.run();
+    }
+    let id = on_row_of(h, flag, Role::SpinButton, 0).id();
+    set_value_action(h, id, value);
+}
+
+/// Push an AccessKit `SetValue` numeric action at `id` (the DragValue gotcha —
+/// kittest `Node` exposes no `SetValue` helper). Read `id` BEFORE `input_mut()`.
+fn set_value_action(h: &mut Harness<'static, MnemonicGuiApp>, id: egui::accesskit::NodeId, value: i64) {
+    h.input_mut()
+        .events
+        .push(egui::Event::AccessKitActionRequest(
+            egui::accesskit::ActionRequest {
+                action: egui::accesskit::Action::SetValue,
+                target: id,
+                data: Some(egui::accesskit::ActionData::NumericValue(value as f64)),
+            },
+        ));
+    h.run();
+    h.run();
+}
+
+/// The `+ add` button belonging to `flag`'s repeating-row header (row-anchored
+/// on the flag-name label so the correct header is picked among several).
+fn add_row_button_of<'t>(
+    h: &'t Harness<'static, MnemonicGuiApp>,
+    flag: &'static str,
+) -> Node<'t> {
+    on_row_of_opt(h, flag, Role::Button, "+ add")
+        .unwrap_or_else(|| panic!("no '+ add' button on the {flag} header row"))
+}
+
+/// The `--md1` repeating-row `TextInput` nodes, in top-to-bottom order. Bounded
+/// below by the sibling `--cosigner` repeating flag (0 seeded rows) so no other
+/// flag's input is mistaken for an md1 row.
+fn md1_row_inputs<'t>(h: &'t Harness<'static, MnemonicGuiApp>) -> Vec<Node<'t>> {
+    let top = label_y(h, "--md1").expect("--md1 header label present");
+    let bottom = label_y(h, "--cosigner").unwrap_or(f64::INFINITY);
+    let mut hits: Vec<Node<'t>> = h
+        .query_all(by().role(Role::TextInput))
+        .filter(|n| {
+            n.raw_bounds()
+                .map(|r| {
+                    let c = (r.y0 + r.y1) / 2.0;
+                    c > top && c < bottom
+                })
+                .unwrap_or(false)
+        })
+        .collect();
+    hits.sort_by(|a, b| {
+        a.raw_bounds()
+            .unwrap()
+            .y0
+            .partial_cmp(&b.raw_bounds().unwrap().y0)
+            .unwrap()
+    });
+    hits
+}
+
+/// The first row `ComboBox` of a repeating Dropdown flag (e.g. convert `--to`),
+/// sitting BELOW the `flag` header and ABOVE the `next_flag` label.
+fn block_row_combo<'t>(
+    h: &'t Harness<'static, MnemonicGuiApp>,
+    flag: &'static str,
+    next_flag: &'static str,
+) -> Option<Node<'t>> {
+    let top = label_y(h, flag)?;
+    let bottom = label_y(h, next_flag).unwrap_or(f64::INFINITY);
+    let mut hits: Vec<Node<'t>> = h
+        .query_all(by().role(Role::ComboBox))
+        .filter(|n| {
+            n.raw_bounds()
+                .map(|r| {
+                    let c = (r.y0 + r.y1) / 2.0;
+                    c > top && c < bottom
+                })
+                .unwrap_or(false)
+        })
+        .collect();
+    hits.sort_by(|a, b| {
+        a.raw_bounds()
+            .unwrap()
+            .y0
+            .partial_cmp(&b.raw_bounds().unwrap().y0)
+            .unwrap()
+    });
+    hits.into_iter().next()
+}
+
+/// The current `--md1` row values from form-state (assertion oracle).
+fn md1_row_values(h: &Harness<'static, MnemonicGuiApp>, flag: &str) -> Vec<String> {
+    h.state()
+        .form_state
+        .values()
+        .find_map(|f| {
+            let rows: Vec<String> = f
+                .values
+                .iter()
+                .filter(|(k, _)| k == flag)
+                .filter_map(|(_, v)| match v {
+                    mnemonic_gui::schema::FlagValue::Text(s) => Some(s.clone()),
+                    _ => None,
+                })
+                .collect();
+            if rows.is_empty() {
+                None
+            } else {
+                Some(rows)
+            }
+        })
+        .unwrap_or_default()
+}
+
+/// The value string of a `NodeValueComposite` flag from form-state.
+fn composite_value(form: &mnemonic_gui::schema::FormState, flag: &str) -> Option<String> {
+    form.values.iter().find_map(|(k, v)| match v {
+        mnemonic_gui::schema::FlagValue::NodeValueComposite { value, .. } if k == flag => {
+            Some(value.clone())
+        }
+        _ => None,
+    })
+}
+
+/// The y-center of a label node (first match), if present.
+fn label_y(h: &Harness<'static, MnemonicGuiApp>, label: &str) -> Option<f64> {
+    h.query_all_by_label(label)
+        .next()
+        .and_then(|n| n.raw_bounds())
+        .map(|r| (r.y0 + r.y1) / 2.0)
+}
+
+/// Like [`on_row_of`] but returns `None` instead of panicking, and matches a
+/// widget of `role` on the anchor's row that ALSO carries `want_label`.
+fn on_row_of_opt<'t>(
+    h: &'t Harness<'static, MnemonicGuiApp>,
+    anchor: &'static str,
+    role: Role,
+    want_label: &'static str,
+) -> Option<Node<'t>> {
+    let a = h.query_all_by_label(anchor).next()?;
+    let (ax0, ay0, _ax1, ay1) = rect_of(&a);
+    h.query_all(by().role(role).label(want_label)).find(|n| {
+        n.raw_bounds()
+            .map(|r| {
+                let c = (r.y0 + r.y1) / 2.0;
+                c >= ay0 - 4.0 && c <= ay1 + 4.0 && r.x0 >= ax0
+            })
+            .unwrap_or(false)
+    })
+}
+
+/// SPEC §5.4 driven-field visibility (m4): each drive's representative field
+/// must intersect the viewport in AT LEAST ONE captured offset. Checks the base
+/// offset first; if clipped, wheel-scrolls through each recorded offset looking
+/// for it. Restores the base offset afterwards. Slot value drives use the slot
+/// row rect; scalar/repeating flag drives use the flag-name label rect (which
+/// sits on the field's row; for the `--md1` chain it is the header, whose
+/// visibility means "the user sees WHERE chunks are entered" — the full chunk
+/// list rides the gated transcript, §5.4 viewport-faithful contract).
+fn assert_driven_fields_visible(h: &mut Harness<'static, MnemonicGuiApp>, step: &Step) {
+    for drive in step.drives {
+        let visible_at_base = driven_field_visible(h, drive);
+        if visible_at_base {
+            continue;
+        }
+        // Not visible at base — scan the recorded scroll offsets.
+        let mut found = false;
+        for &delta in step.scroll {
+            wheel_scroll_form(h, delta);
+            if driven_field_visible(h, drive) {
+                found = true;
+                break;
+            }
+        }
+        if !step.scroll.is_empty() {
+            reset_scroll(h);
+        }
+        assert!(
+            found,
+            "{}: driven field for {drive:?} is clipped out of EVERY captured offset \
+             (SPEC §5.4 driven-field-visibility) — add a scroll offset",
+            step.stem
+        );
+    }
+}
+
+/// True iff the drive's representative field rect intersects the viewport.
+fn driven_field_visible(h: &Harness<'static, MnemonicGuiApp>, drive: &Drive) -> bool {
+    let rect = if let Some((anchor, occ)) = drive.slot_target() {
+        let role = slot_value_role(drive);
+        slot_row_widget(h, anchor, occ, role).raw_bounds()
+    } else if let Some(label) = drive.label_anchor() {
+        h.query_all_by_label(label).next().and_then(|n| n.raw_bounds())
+    } else {
+        // AddSlots / FlipSlotSubkey: no distinct field to keep visible.
+        return true;
+    };
+    match rect {
+        Some(r) => r.y1 > 0.0 && r.y0 < WINDOW_SIZE[1] as f64,
+        None => false,
+    }
+}
+
+/// Reset the central form `ScrollArea` to the top by wheel-scrolling up by a
+/// large delta (deterministic clamp at offset 0).
+fn reset_scroll(h: &mut Harness<'static, MnemonicGuiApp>) {
+    wheel_scroll_form(h, 100_000.0);
 }
 
 /// The expected value-editor role for a slot drive: `PasswordInput` for a
@@ -623,6 +1111,55 @@ fn on_row_of<'t>(
             "on_row_of({anchor:?}, {role:?}, occ={occ}): only {} match(es) on the row",
             hits.len()
         )
+    })
+}
+
+/// Slot-row lookup: the widget of `role` on the `occ`-th slot row. Each slot
+/// row carries exactly ONE `anchor` (`@`) label, so rows are distinguished by
+/// the `occ`-th `anchor` (top-to-bottom), THEN the first `role` widget on that
+/// row (`on_row_of` anchors on the FIRST label only, which collapses multi-row
+/// slot grids — this variant selects the row first).
+fn slot_row_widget<'t>(
+    h: &'t Harness<'static, MnemonicGuiApp>,
+    anchor: &'static str,
+    occ: usize,
+    role: Role,
+) -> Node<'t> {
+    let mut anchors: Vec<Node<'t>> = h.query_all_by_label(anchor).collect();
+    anchors.sort_by(|a, b| {
+        a.raw_bounds()
+            .unwrap()
+            .y0
+            .partial_cmp(&b.raw_bounds().unwrap().y0)
+            .unwrap()
+    });
+    let a = anchors.get(occ).unwrap_or_else(|| {
+        panic!(
+            "slot_row_widget({anchor:?}, occ={occ}, {role:?}): only {} slot row(s)",
+            anchors.len()
+        )
+    });
+    let (ax0, ay0, _ax1, ay1) = rect_of(a);
+    let mut hits: Vec<Node<'t>> = h
+        .query_all(by().role(role))
+        .filter(|n| {
+            n.raw_bounds()
+                .map(|r| {
+                    let c = (r.y0 + r.y1) / 2.0;
+                    c >= ay0 - 2.0 && c <= ay1 + 2.0 && r.x0 >= ax0
+                })
+                .unwrap_or(false)
+        })
+        .collect();
+    hits.sort_by(|a, b| {
+        a.raw_bounds()
+            .unwrap()
+            .x0
+            .partial_cmp(&b.raw_bounds().unwrap().x0)
+            .unwrap()
+    });
+    hits.into_iter().next().unwrap_or_else(|| {
+        panic!("slot_row_widget({anchor:?}, occ={occ}, {role:?}): no {role:?} on row {occ}")
     })
 }
 
