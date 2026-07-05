@@ -1080,3 +1080,10 @@ Consequences on this repo:
   `--template` (mirror the export-wallet A1-APPEND fix), OR a paired toolkit conditional
   projection. Cross-repo assessment needed (which is why it's deferred, not done here).
 - **Status:** open. **Tier:** `ux` / `gui`.
+
+### `gui-path-flag-no-file-picker` — GUI Path flags are bare text inputs with no Browse… dialog (LOW / deferred)
+- **Surfaced:** 2026-07-05, gui_example tutorial-workaround audit (`mnemonic-toolkit/docs/manual-gui/design/agent-reports/tutorial-workaround-audit.md`, finding B1). The tutorial routes around it by typing exact paths / feeding `--descriptor` as TEXT.
+- **Where:** `src/form/widget.rs:672-688` — Path flags render as a bare `TextEdit`; no `rfd`/native-dialog dependency. Affects `--descriptor-file`, `--spec`, `--output`, `--passphrase-candidates-file`.
+- **What:** Path/file flags have no "Browse…" file-picker; the user must type an exact filesystem path. Real UX friction, but plausibly intentional — the GUI is a deliberately thin, dialog-free, headless-testable argv builder (a native file dialog pulls in `rfd` and is hard to drive in the kittest harness).
+- **Status:** open — **DEFERRED (user 2026-07-05: file as LOW, do NOT batch with the tutorial-surfaced fixes).** Decide on its own merits: add `rfd` + a Browse button (with a headless-test story) vs accept the thin-argv-builder posture as intentional (→ WONTFIX-doc).
+- **Tier:** `ux` / `gui`.
