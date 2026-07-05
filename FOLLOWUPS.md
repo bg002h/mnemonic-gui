@@ -1060,3 +1060,23 @@ Consequences on this repo:
 - **What (this repo's leg, plan-P1):** (1) toolkit pin bump v0.74.0 → v0.75.0 FIRST (F6 pin-before-capture; zero-flag schema delta verified); (2) app-shell extraction — `MnemonicGuiApp` lifted into lib module `src/app_window.rs` (pure relocation, cherry-pick of spike `29777ee`); (3) F1: export-wallet `--template` unset/"(none)" render-scoped affordance (own mini-R0; the cycle's ONLY src-behavior change); (4) the tutorial harness `tests/gui_tutorial_snapshots.rs` — whole-window, real `ui()`, real Run clicks, 25 shot-bearing steps / 51 shots (+ `shots: 0` runs), corpus committed under `tests/snapshots/tutorial/` (HARD ≤ 20 MiB); (5) `tutorial-snapshots` CI job; ship as v0.56.0 + tag. The toolkit leg (P2+) consumes the tagged corpus into `docs/manual-gui/` and builds `gui_example.pdf` (release-attach-only).
 - **Status:** open (flips to RESOLVED in this repo's shipping commit, status-flip discipline). **Tier:** `cross-repo` (paired legs; GUI tag BEFORE toolkit pin).
 - **Companion:** mnemonic-toolkit `design/FOLLOWUPS.md::gui-example-tutorial-book` + `docs/manual-gui/FOLLOWUPS.md::gui-example-tutorial-book` (both filed at the toolkit leg's P2.1 — the forward-reference is inherent to cross-repo lockstep; each repo's FOLLOWUPS.md is only editable from its own leg).
+
+## `restore-form-single-sig-template-leaks-in-md1-mode` — open (GUI papercut)
+
+- **Surfaced:** 2026-07-05 (gui_example tutorial P1.5 build).
+- **Where:** `src/schema/mnemonic.rs` (restore `--template`) + `src/form/conditional.rs::restore`.
+- **What:** the restore form materializes a single-sig `--template=bip44` default
+  (`default_value: None` → `opts[0]`), which the toolkit REJECTS in `--md1` mode.
+  Unlike export-wallet (fixed in F1), restore's `--template` has NO `(none)` unset
+  option, and restore's conditional deliberately does NOT model the md1-mode mutex
+  (un-projected — modeling it GUI-side would diverge from the toolkit projection and
+  trip `gui_schema_conditional_drift`, an out-of-scope src change). So a user driving
+  restore in `--md1` mode with the default single-sig template gets an exit-2 refusal.
+  The tutorial routes around it by selecting the wallet's MULTISIG template
+  (`wsh-sortedmulti`/`tr-sortedmulti-a`) — inert in md1 mode, output byte-identical to
+  a clean `restore --md1 …` (verified; restore's schema lacks `--threshold`/
+  `--multisig-path-family` so the multisig hook seeds nothing).
+- **Fix:** an F1-style GUI-render-scoped `(none)` unset affordance on restore's
+  `--template` (mirror the export-wallet A1-APPEND fix), OR a paired toolkit conditional
+  projection. Cross-repo assessment needed (which is why it's deferred, not done here).
+- **Status:** open. **Tier:** `ux` / `gui`.

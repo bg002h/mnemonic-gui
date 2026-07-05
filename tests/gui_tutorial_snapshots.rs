@@ -63,10 +63,15 @@ const TUTORIAL_SNAPSHOT_DIR: &str = "tests/snapshots/tutorial";
 const FIXTURE_DIR: &str = "tests/tutorial/fixtures";
 /// The committed corpus census (regenerated + diffed by the census gate).
 const MANIFEST_STEMS: &str = "tests/tutorial/manifest-stems.txt";
-/// HARD corpus ceiling (SPEC §5.3 ruling 4).
-const BUDGET_HARD_MIB: f64 = 20.0;
+/// HARD corpus ceiling. Originally 20 MiB (SPEC §5.3 ruling 4), set when the
+/// concern was a *committed* PDF. The 2026-07-05 user decision made the PDF
+/// RELEASE-ATTACH-ONLY (spec §3.2c), resolving that rationale; the full
+/// all-51-shots corpus measured 27.1 MiB (24 real populated-pane shots). USER
+/// DECISION 2026-07-05: raise the ceiling, keep all 51 shots. 32 MiB = ~18%
+/// regen-drift headroom over the measured 27.1.
+const BUDGET_HARD_MIB: f64 = 32.0;
 /// Corpus target (report-only above this).
-const BUDGET_TARGET_MIB: f64 = 15.0;
+const BUDGET_TARGET_MIB: f64 = 28.0;
 
 fn manifest_path(rel: &str) -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join(rel)
