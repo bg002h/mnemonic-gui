@@ -3,6 +3,17 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## mnemonic-gui [0.56.0] — 2026-07-05
+
+**SemVer-MINOR — the `gui_example.pdf` tutorial capture harness + a 50-shot whole-window corpus (Leg 1 of the GUI-tutorial cycle).** Adds a headless capture harness (`tests/gui_tutorial_snapshots.rs` + the `tutorial/` manifest) that drives the REAL full window — tab bar, subcommand list, filled form, and the output panel POPULATED by a genuine pinned-CLI run — to produce a gated, byte-deterministic corpus of **50 whole-window screenshots** (25 shot-bearing steps across Ch-0 + the 5 Examples journeys: single-sig → 2-of-3 multisig → the pathological 4-tier wsh vault → its taproot twin → watch-only export). The downstream toolkit book (Leg 2) embeds byte-verified copies into `gui_example.pdf` (release-attach-only). App behavior is unchanged except the one F1 fix below; **pin-NEUTRAL** for the sibling CLIs.
+
+- **App-shell extraction:** `MnemonicGuiApp` lifted from `src/main.rs` into a `gui`-gated lib module `src/app_window.rs` (pure relocation, `new_headless`/`ui` seams for the harness); `main.rs` is now an 82-line bootstrap. Behavior-preserving (the `update`→`ui` body diffs empty).
+- **F1 — export-wallet `--template` `(none)` unset affordance:** the template dropdown auto-materialized `bip44` and the mutex locked `--descriptor` unreachable; a `(none)` sentinel is now APPENDED (opts[0] stays `bip44`, virgin default unchanged) so a user can clear the template to reach the descriptor path — the tutorial's watch-only-export step needs it. GUI-render-scoped (no shared-`TEMPLATES` edit, no toolkit-projection divergence — mini-R0 A1-APPEND ruling); `schema_mirror`/`gui_schema_conditional_drift` inert; the 61-form corpus byte-stable.
+- **Named gates:** `pinned-tier-version-gate` (hard-fails a wrong-tier local regen before any render) + `SAME-FRAME-COMPLETION` (per-run single-`step()` tripwire; the synchronous runner makes the populated pane deterministic) — both with suite-pinned negatives. Secret fields render `••••` end-to-end (masking proven real on a live secret); the demo data is the 3 world-known test phrases + watch-only material, machine-allowlisted.
+- **`tutorial-snapshots` CI job** (lavapipe recipe + pinned `mnemonic` install + a manifest-derived dual census: 50 shots / 33 runs). Toolkit pin bumped `v0.74.0 → v0.75.0` (verified zero-flag delta). Corpus budget: HARD ≤ 32 MiB (user decision — keep all shots; 27.1 MiB actual).
+- New FOLLOWUP filed (not fixed): `restore-form-single-sig-template-leaks-in-md1-mode` (a restore-`--template` papercut the build surfaced; routed around).
+- **Gates:** full suite green; clippy both configs; all 14 checks green on the merge commit.
+
 ## mnemonic-gui [0.55.0] — 2026-07-02
 
 **SemVer-MINOR (UX) — defaulted Text/Path fields now show their default as a `hint_text` GHOST instead of pre-filled editable text: typing REPLACES, never appends.** Fixes `gui-prefilled-default-text-appends-on-type` (the one usability defect the UI-harness sweep found): previously `--feerate` `1.0`+typing `5` yielded `1.05`, `--output` `-`+a path yielded `-/path`. Surface = exactly the **6** defaulted Text/Path flags (`compare-cost --feerate`, `import-wallet --select-descriptor`, `nostr --timestamp`, `ms derive --account`, `export-wallet --output`, `restore --output`); Dropdown/Number/Range/Timestamp defaults unchanged (Number's DragValue select-alls on edit — no papercut there).
