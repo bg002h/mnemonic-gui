@@ -1415,7 +1415,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "39cab71617ae0d63f51a36d69f866391735b51691dbda63cf6f96d042b63efeb"
 dependencies = [
  "libc",
- "windows-sys 0.61.2",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -2264,9 +2264,9 @@ dependencies = [
 
 [[package]]
 name = "md-codec"
-version = "0.39.1"
+version = "0.40.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "41e2f36c814edf73353954509ec3316a7dba1498bc25f9db49703e0ffd75374d"
+checksum = "cd0a75b506b04d7941593509331db98e5cd366538b906d3923d634d69065605d"
 dependencies = [
  "bip39",
  "bitcoin",
@@ -2379,8 +2379,8 @@ dependencies = [
 
 [[package]]
 name = "mnemonic-toolkit"
-version = "0.74.0"
-source = "git+https://github.com/bg002h/mnemonic-toolkit?tag=mnemonic-toolkit-v0.74.0#7a51d8b4a7471b59b956abfb13afde0d8a42af10"
+version = "0.75.0"
+source = "git+https://github.com/bg002h/mnemonic-toolkit?tag=mnemonic-toolkit-v0.75.0#bb86eef7e7b3c8ec02c320d75d28652790e6d8c7"
 dependencies = [
  "aes",
  "base64 0.22.1",
@@ -2533,7 +2533,7 @@ version = "0.50.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7957b9740744892f114936ab4a57b3f487491bbeafaf8083688b16841a4240e5"
 dependencies = [
- "windows-sys 0.61.2",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]
@@ -3403,7 +3403,7 @@ dependencies = [
  "errno",
  "libc",
  "linux-raw-sys 0.12.1",
- "windows-sys 0.61.2",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -3849,7 +3849,7 @@ dependencies = [
  "getrandom 0.4.2",
  "once_cell",
  "rustix 1.1.4",
- "windows-sys 0.61.2",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -4465,7 +4465,7 @@ dependencies = [
 [[package]]
 name = "wc-codec"
 version = "0.1.0"
-source = "git+https://github.com/bg002h/mnemonic-toolkit?tag=mnemonic-toolkit-v0.74.0#7a51d8b4a7471b59b956abfb13afde0d8a42af10"
+source = "git+https://github.com/bg002h/mnemonic-toolkit?tag=mnemonic-toolkit-v0.75.0#bb86eef7e7b3c8ec02c320d75d28652790e6d8c7"
 dependencies = [
  "bip39",
  "sha2",
@@ -4644,7 +4644,7 @@ version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c2a7b1c03c876122aa43f3020e6c3c3ee5c05081c9a00739faf7503aeba10d22"
 dependencies = [
- "windows-sys 0.61.2",
+ "windows-sys 0.48.0",
 ]
 
 [[package]]
