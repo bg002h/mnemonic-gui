@@ -146,6 +146,116 @@ jobs:
           path: tests/snapshots/**/*.diff.png
           if-no-files-found: ignore
 
+  tutorial-snapshots:
+    # gui_example_tutorial cycle (plan P1.6): the permanent tutorial-corpus
+    # gate. Drives the REAL whole-window app headlessly on the same ratified
+    # lavapipe recipe as `snapshots` above (mesa-vulkan-drivers + lavapipe CPU
+    # Vulkan + WGPU_BACKEND=vulkan) across the 25 shot-bearing / 50-shot
+    # manifest (Ch 0 + J1-J5, `tests/tutorial/`), byte-comparing every filled-
+    # form / modal / populated-pane shot AND every RunResult transcript. Unlike
+    # the form gallery, each Run SPAWNS the pinned `mnemonic` CLI, so the
+    # schema-mirror pinned-CLI install recipe is folded in below (tag sourced
+    # from pinned-upstream.toml [mnemonic].tag; bare `mnemonic` on $PATH). NO
+    # path filter — fires on every PR / master push / tag push (the tag-push
+    # run is the manual-gui leg's provenance anchor).
+    #
+    # `--nocapture` is observability-only (adapter line + version-gate + budget
+    # markers in the log); the DUAL manifest-derived census below is the
+    # enforcement, and it NEVER hardcodes the shot total:
+    #   * kittest writes `<stem>.new.png` for every shot even on a PASSING
+    #     compare, so the `.new.png` count proves the suite rendered every shot.
+    #     It is checked against the shot total grepped from the committed
+    #     tests/tutorial/manifest-stems.txt — which the always-run
+    #     `manifest_stems_regen_diff` test (part of the same `cargo test`
+    #     invocation) byte-verifies against the manifest, so a passing test step
+    #     guarantees that census source is authoritative.
+    #   * the committed run-transcript count (`*.exit.txt`, exactly one per Run)
+    #     is checked against the manifest's run count (same manifest-stems.txt
+    #     source). Transcript BYTE-identity is asserted INSIDE the harness
+    #     (persist_transcripts byte-compares vs committed, writing `<name>.new`
+    #     and failing on any drift); this census is the completeness half.
+    # Red-corpus remediation follows the snapshots ladder: inspect the uploaded
+    # .diff.png artifacts first; a genuine environment re-pin is a temporary
+    # `UPDATE_SNAPSHOTS=1 GUI_TUTORIAL_SNAPSHOTS=1 ... cargo test` regen + commit
+    # — never blanket-raise a threshold, never merge red.
+    name: tutorial-snapshots
+    runs-on: ubuntu-latest
+    env:
+      GUI_TUTORIAL_SNAPSHOTS: "1"
+      WGPU_BACKEND: vulkan
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: install-lavapipe
+        # Same software-Vulkan driver the `snapshots` job pins — the CPU adapter
+        # the harness's adapter_guard requires (device_type == Cpu + honors
+        # WGPU_BACKEND=vulkan).
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mesa-vulkan-drivers
+
+      - name: install-rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: cargo-cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: parse-pinned-upstream
+        # Single source of truth for the pinned toolkit tag: pinned-upstream.toml
+        # [mnemonic].tag, parsed via python3 stdlib tomllib (the schema-mirror.yml
+        # pattern). The tutorial manifest spawns ONLY `mnemonic` — every journey
+        # is `mnemonic <subcommand>` (harness `spawned_clis()` == ["mnemonic"]);
+        # md/ms/mk are LIBRARY deps of the toolkit, never subprocesses — so only
+        # the toolkit CLI is installed (the pinned-tier-version-gate probes and
+        # every Run spawns just `mnemonic`).
+        id: pins
+        run: |
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import tomllib
+          with open("pinned-upstream.toml", "rb") as f:
+              d = tomllib.load(f)
+          print(f"mnemonic_tag={d['mnemonic']['tag']}")
+          PY
+
+      - name: install-mnemonic-toolkit
+        # The pinned `mnemonic` binary on $PATH (bare name). The harness's
+        # pinned-tier-version-gate probes `mnemonic --version` against the
+        # schema's pinned_version BEFORE any render or spawn, then every Run
+        # spawns it — a wrong tier HARD-fails the suite by name.
+        env:
+          TAG: ${{ steps.pins.outputs.mnemonic_tag }}
+        run: |
+          cargo install --locked \
+            --git https://github.com/bg002h/mnemonic-toolkit \
+            --tag "$TAG" \
+            mnemonic-toolkit
+
+      - name: tutorial-snapshot-suite
+        run: GUI_TUTORIAL_SNAPSHOTS=1 cargo test --test gui_tutorial_snapshots -- --nocapture
+
+      - name: census
+        # Fail-closed + manifest-derived (NEVER a hardcoded 50/51). The prior
+        # step passing guarantees manifest-stems.txt matches the manifest (the
+        # always-run `manifest_stems_regen_diff` test), so the grepped counts
+        # below are the authoritative manifest totals — a wrong count fails.
+        run: |
+          expected_shots="$(grep -c '\.png$' tests/tutorial/manifest-stems.txt)"
+          new_count="$(find tests/snapshots/tutorial -name '*.new.png' | wc -l)"
+          echo "census(shots): ${new_count} .new.png rendered (expect ${expected_shots} per manifest-stems.txt)"
+          test "${new_count}" -eq "${expected_shots}"
+          expected_runs="$(grep -c '\.exit\.txt$' tests/tutorial/manifest-stems.txt)"
+          run_count="$(find tests/snapshots/tutorial -name '*.exit.txt' | wc -l)"
+          echo "census(runs): ${run_count} committed run transcript(s) (expect ${expected_runs} per manifest-stems.txt)"
+          test "${run_count}" -eq "${expected_runs}"
+
+      - name: upload-diffs
+        if: failure()
+        uses: actions/upload-artifact@v5
+        with:
+          name: tutorial-snapshot-diffs-${{ github.run_id }}-${{ github.run_attempt }}
+          path: tests/snapshots/tutorial/**/*.diff.png
+          if-no-files-found: ignore
+
   build:
     name: ${{ matrix.target }}
     runs-on: ${{ matrix.runner }}

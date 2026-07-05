@@ -79,6 +79,41 @@ const TEMPLATES: &[&str] = &[
     "tr-sortedmulti-a",
 ];
 
+// gui_example P1.3 (F1, mini-R0 A1-APPEND ruling — persisted at
+// mnemonic-toolkit `docs/manual-gui/design/agent-reports/
+// gui-example-f1-mini-r0.md`): export-wallet's `--template` opts — the 10
+// shared `TEMPLATES` values IN ORDER plus a trailing `""` UNSET sentinel
+// (renders "(none)" via `display_or`, the `--archetype` precedent).
+// Selecting it clears `--template` (`Dropdown("")` ⇒ `has_value` false) so
+// the template/descriptor mutex releases and the `--descriptor` arm becomes
+// reachable from the GUI — pre-F1 the virgin `opts[0]` materialization kept
+// it permanently Disabled.
+//
+// APPENDED, never prepended: virgin materialization takes `opts[0]`
+// (`flag_defaults.rs`), which must stay `bip44` — a prepend would flip the
+// virgin default to unset, rewrite the on-load steady state and move the
+// 61-form gallery PNG. Pinned by `tests/export_wallet_template_none.rs::
+// virgin_default_stability_append_pin` + the exact-ASCII export-wallet pin
+// in `tests/gui_render_emit.rs`.
+//
+// DISTINCT from the shared `TEMPLATES` const above, which keeps feeding
+// bundle/verify-bundle + the SINGLE_SIG/MULTISIG partition consts and must
+// NOT carry the sentinel (the bundle 10 vs export-wallet 11 asymmetry is
+// intended and scoped).
+const EXPORT_WALLET_TEMPLATES: &[&str] = &[
+    "bip44",
+    "bip49",
+    "bip84",
+    "bip86",
+    "wsh-multi",
+    "wsh-sortedmulti",
+    "sh-wsh-multi",
+    "sh-wsh-sortedmulti",
+    "tr-multi-a",
+    "tr-sortedmulti-a",
+    "",
+];
+
 const LANGUAGES: &[&str] = &[
     "english",
     "simplifiedchinese",
@@ -1382,7 +1417,12 @@ const CONVERT_FLAGS: &[FlagSchema] = &[
 const EXPORT_WALLET_FLAGS: &[FlagSchema] = &[
     FlagSchema {
         name: "--template",
-        kind: FlagKind::Dropdown(TEMPLATES),
+        // F1 (gui_example P1.3): per-flag opts WITH the trailing "" unset
+        // sentinel — see `EXPORT_WALLET_TEMPLATES`. `default_value` STAYS
+        // `None`: `Some("bip44")` would trip `is_at_default` suppression and
+        // drop `--template` from a virgin run's argv (both-required refusal);
+        // the virgin default comes from `opts[0]` materialization instead.
+        kind: FlagKind::Dropdown(EXPORT_WALLET_TEMPLATES),
         required: false,
         repeating: false,
         help: "Pre-built template. Mutually-required-one-of with --descriptor.",
@@ -4617,6 +4657,6 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
 // drift here is a cosmetic banner mismatch, not a functional error.
 pub const SCHEMA: Schema = Schema {
     cli_name: "mnemonic",
-    pinned_version: "mnemonic 0.74.0",
+    pinned_version: "mnemonic 0.75.0",
     subcommands: SUBCOMMANDS,
 };

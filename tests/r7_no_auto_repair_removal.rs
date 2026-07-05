@@ -171,26 +171,32 @@ fn r7_removal_no_auto_repair_absent_state_omits() {
 #[test]
 fn r7_removal_action_bar_checkbox_source_text_absent() {
     // Source-text anchor: the v0.9.0 action-bar checkbox text MUST NOT
-    // appear in main.rs anymore. Catches accidental re-introduction in a
-    // future cycle.
-    let main_rs = std::fs::read_to_string(
-        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("src/main.rs"),
-    )
-    .expect("read src/main.rs");
+    // appear in the app-shell source anymore. Catches accidental
+    // re-introduction in a future cycle. gui_example_tutorial P0: the app
+    // shell relocated verbatim from main.rs into src/app_window.rs — scan
+    // BOTH so the anchor keeps guarding the surface wherever it lives.
+    let manifest = std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
+    let mut shell_src = std::fs::read_to_string(manifest.join("src/main.rs"))
+        .expect("read src/main.rs");
+    shell_src.push_str(
+        &std::fs::read_to_string(manifest.join("src/app_window.rs"))
+            .expect("read src/app_window.rs"),
+    );
     assert!(
-        !main_rs.contains("No auto-repair (--no-auto-repair)"),
-        "src/main.rs MUST NOT contain the pre-v0.10.0 R7 action-bar \
-         checkbox label `No auto-repair (--no-auto-repair)`; it was \
+        !shell_src.contains("No auto-repair (--no-auto-repair)"),
+        "the app shell (main.rs + app_window.rs) MUST NOT contain the \
+         pre-v0.10.0 R7 action-bar checkbox label \
+         `No auto-repair (--no-auto-repair)`; it was \
          deleted in lockstep with toolkit v5 schema emission. \
          A drift-equivalent label would silently re-introduce the \
          deleted UI surface; update this anchor only when the new label \
          is explicitly approved."
     );
     assert!(
-        !main_rs.contains("self.no_auto_repair"),
-        "src/main.rs MUST NOT carry a `no_auto_repair` field on \
-         MnemonicGuiApp; the field was deleted in lockstep with the \
-         action-bar checkbox removal."
+        !shell_src.contains("self.no_auto_repair"),
+        "the app shell (main.rs + app_window.rs) MUST NOT carry a \
+         `no_auto_repair` field on MnemonicGuiApp; the field was deleted \
+         in lockstep with the action-bar checkbox removal."
     );
 }
 

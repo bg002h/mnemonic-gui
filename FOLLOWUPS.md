@@ -1045,3 +1045,38 @@ Consequences on this repo:
 `manual-gui-visual-screenshot-track` (RESOLVED 2026-07-01). **Status:** resolved
 (record entry — documents the consumer contract; no GUI action open).
 **Tier:** `cross-repo`.
+
+## `ui-harness-mirror-vs-real-window` — form-only suites still render via hand-copied mirrors, not the extracted real `ui()`
+
+- **Surfaced:** 2026-07-05, `gui_example_tutorial` cycle spec §11 (recon-A app-shell + P0 spike). Filed at cycle P1.1 (pin bump v0.74.0 → v0.75.0). Source: `tests/ui_harness/mod.rs` @ `master@0d4429d` (v0.55.0).
+- **What:** the P1 app-shell extraction lifts `MnemonicGuiApp` (struct + `ui()` + `spawn_and_capture` + `render_exit_badge`) into a `gui`-gated lib module `src/app_window.rs`, making the REAL window loop drivable from tests (the tutorial harness uses it). But the EXISTING form-only suites (`gui_form_snapshots`, the PR #24 UI-functionality harness, emit/faithfulness cells) still render via the hand-copied mirror helpers in `tests/ui_harness/mod.rs:419-536` — `render_whole_form` (a byte-identical copy of the per-flag gate), `render_positionals`, and `render_action_bar` (a DEAD `[Run]` button mirror of `src/main.rs:1023`, `:533-536`); there is no pane mirror at all. Mirror copies drift silently when the real loop changes.
+- **Action:** evaluate re-basing the form-only suites on the extracted real `ui()` (post-extraction it is available headless via `MnemonicGuiApp::new_headless`), which would retire the mirror-drift class entirely. Weigh against the 61-PNG corpus re-pin such a re-base would force (the corpus is a cross-repo API — see `gui-form-snapshot-corpus-manual-consumer`).
+- **Status:** open (catalog only; explicitly NOT this cycle — spec §11). **Tier:** `test-infra`.
+- **Companion:** mnemonic-toolkit `docs/manual-gui/design/SPEC_gui_example_tutorial.md` §11 (the filing mandate); the extraction itself ships in the `gui_example_tutorial` cycle (see `gui-example-tutorial-book`).
+
+## `gui-example-tutorial-book` — GUI leg of the `gui_example.pdf` tutorial-book cycle (tracking companion)
+
+- **Surfaced:** 2026-07-05, cycle `gui_example_tutorial` (toolkit `docs/manual-gui/design/SPEC_gui_example_tutorial.md`, R0-GREEN ×2 + `IMPLEMENTATION_PLAN_gui_example_tutorial.md`, plan-R0 GREEN round 2). Filed at P1.1 per spec §11.
+- **What (this repo's leg, plan-P1):** (1) toolkit pin bump v0.74.0 → v0.75.0 FIRST (F6 pin-before-capture; zero-flag schema delta verified); (2) app-shell extraction — `MnemonicGuiApp` lifted into lib module `src/app_window.rs` (pure relocation, cherry-pick of spike `29777ee`); (3) F1: export-wallet `--template` unset/"(none)" render-scoped affordance (own mini-R0; the cycle's ONLY src-behavior change); (4) the tutorial harness `tests/gui_tutorial_snapshots.rs` — whole-window, real `ui()`, real Run clicks, 25 shot-bearing steps / 50 committed shots (51 nominal; 1 modal trimmed for budget) (+ `shots: 0` runs), corpus committed under `tests/snapshots/tutorial/` (HARD ≤ 20 MiB); (5) `tutorial-snapshots` CI job; ship as v0.56.0 + tag. The toolkit leg (P2+) consumes the tagged corpus into `docs/manual-gui/` and builds `gui_example.pdf` (release-attach-only).
+- **Status:** open (flips to RESOLVED in this repo's shipping commit, status-flip discipline). **Tier:** `cross-repo` (paired legs; GUI tag BEFORE toolkit pin).
+- **Companion:** mnemonic-toolkit `design/FOLLOWUPS.md::gui-example-tutorial-book` + `docs/manual-gui/FOLLOWUPS.md::gui-example-tutorial-book` (both filed at the toolkit leg's P2.1 — the forward-reference is inherent to cross-repo lockstep; each repo's FOLLOWUPS.md is only editable from its own leg).
+
+## `restore-form-single-sig-template-leaks-in-md1-mode` — open (GUI papercut)
+
+- **Surfaced:** 2026-07-05 (gui_example tutorial P1.5 build).
+- **Where:** `src/schema/mnemonic.rs` (restore `--template`) + `src/form/conditional.rs::restore`.
+- **What:** the restore form materializes a single-sig `--template=bip44` default
+  (`default_value: None` → `opts[0]`), which the toolkit REJECTS in `--md1` mode.
+  Unlike export-wallet (fixed in F1), restore's `--template` has NO `(none)` unset
+  option, and restore's conditional deliberately does NOT model the md1-mode mutex
+  (un-projected — modeling it GUI-side would diverge from the toolkit projection and
+  trip `gui_schema_conditional_drift`, an out-of-scope src change). So a user driving
+  restore in `--md1` mode with the default single-sig template gets an exit-2 refusal.
+  The tutorial routes around it by selecting the wallet's MULTISIG template
+  (`wsh-sortedmulti`/`tr-sortedmulti-a`) — inert in md1 mode, output byte-identical to
+  a clean `restore --md1 …` (verified; restore's schema lacks `--threshold`/
+  `--multisig-path-family` so the multisig hook seeds nothing).
+- **Fix:** an F1-style GUI-render-scoped `(none)` unset affordance on restore's
+  `--template` (mirror the export-wallet A1-APPEND fix), OR a paired toolkit conditional
+  projection. Cross-repo assessment needed (which is why it's deferred, not done here).
+- **Status:** open. **Tier:** `ux` / `gui`.
