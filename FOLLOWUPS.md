@@ -1079,7 +1079,13 @@ Consequences on this repo:
 - **Fix:** an F1-style GUI-render-scoped `(none)` unset affordance on restore's
   `--template` (mirror the export-wallet A1-APPEND fix), OR a paired toolkit conditional
   projection. Cross-repo assessment needed (which is why it's deferred, not done here).
-- **Status:** open. **Tier:** `ux` / `gui`.
+- **Status:** **FIX IN FLIGHT (this cycle)** — the F1-style render-scoped `(none)` A1-APPEND
+  is the chosen path, landing in the batched `tutorial_surfaced_fixes_batch` cycle (spec
+  `mnemonic-toolkit/design/SPEC_restore_template_none_affordance.md`, R0-GREEN; plan
+  `IMPLEMENTATION_PLAN_tutorial_surfaced_fixes_batch.md` P1.3). Flips to RESOLVED in the
+  `mnemonic-gui-v0.57.0` release commit (status-flip discipline). The md1-mode mutex
+  PROJECTION variant is split off as a separate deferred slug
+  `restore-md1-template-mutex-projection` (below). **Tier:** `ux` / `gui`.
 
 ### `gui-path-flag-no-file-picker` — GUI Path flags are bare text inputs with no Browse… dialog (LOW / deferred)
 - **Surfaced:** 2026-07-05, gui_example tutorial-workaround audit (`mnemonic-toolkit/docs/manual-gui/design/agent-reports/tutorial-workaround-audit.md`, finding B1). The tutorial routes around it by typing exact paths / feeding `--descriptor` as TEXT.
@@ -1087,3 +1093,35 @@ Consequences on this repo:
 - **What:** Path/file flags have no "Browse…" file-picker; the user must type an exact filesystem path. Real UX friction, but plausibly intentional — the GUI is a deliberately thin, dialog-free, headless-testable argv builder (a native file dialog pulls in `rfd` and is hard to drive in the kittest harness).
 - **Status:** open — **DEFERRED (user 2026-07-05: file as LOW, do NOT batch with the tutorial-surfaced fixes).** Decide on its own merits: add `rfd` + a Browse button (with a headless-test story) vs accept the thin-argv-builder posture as intentional (→ WONTFIX-doc).
 - **Tier:** `ux` / `gui`.
+
+## `gui-secret-reveal-toggle` — secret-field reveal (👁) toggle (cycle tracking)
+
+- **Surfaced:** 2026-07-05, batched cycle `tutorial_surfaced_fixes_batch` (spec `mnemonic-toolkit/design/SPEC_gui_secret_reveal_toggle.md`, R0-GREEN 0C/0I `reveal-toggle-spec-r0-round-1.md`; plan `IMPLEMENTATION_PLAN_tutorial_surfaced_fixes_batch.md`, plan-R0 GREEN). Filed at P1.1.
+- **What (this repo's leg, plan-P1.2):** a deliberate secret-exposure affordance — a 👁 reveal toggle beside every on-load-masked secret field. Hygiene model (R0-ruled, load-bearing): **hold-to-reveal (pointer) primary + bounded-latch (keyboard/AccessKit/capture) fallback**, both feeding ONE per-frame `.password(!reveal)` predicate; **single-revealed-field invariant** = one Context-transient `Option<egui::Id>` (NEVER a `FormState` field, so the I3 never-persist net is structurally unaffected); **auto-hide** on Run dispatch / field blur / window-focus-loss (`ctx.input(|i| i.focused)`) / tab-or-subcommand switch; **NO timeout v1**; a pointer **tap does NOT latch** (reveal-R0 M-1). **Display-ONLY:** run-confirm modal, argv echo / copy-command, paste-warn, persistence, exit sweep ALL stay masked/redacted UNCONDITIONALLY regardless of reveal. Scope = sites #1 `secret_widget.rs` + #2 `slot_editor.rs` (secret arm) + #3 `widget.rs` composite (∧ `is_secret_node`); tree sites #4/#5 DEFERRED (`gui-secret-reveal-tree-key-sites`). Structural render depicts the eye as an ASCII ` [reveal]` marker on the 28 masked-on-load `.gui` rows; the faithfulness gate models the adjacent `Role::Button` (👁) on both sides + a non-vacuity negative.
+- **Status:** open (flips to RESOLVED in this repo's `mnemonic-gui-v0.57.0` shipping commit, status-flip discipline). **Tier:** `ux` / `gui` / `secret-hygiene`.
+- **Companion:** mnemonic-toolkit `docs/manual-gui/FOLLOWUPS.md::gui-secret-reveal-toggle` + `design/FOLLOWUPS.md::gui-secret-reveal-toggle` (the re-pin / tutorial-re-drive obligation — filed at the toolkit leg's P2.1, discharged there; the forward-reference is inherent to cross-repo lockstep, each repo's FOLLOWUPS.md is only editable from its own leg).
+
+## `gui-secret-reveal-tree-key-sites` — reveal (👁) toggle deferred on the build-descriptor tree key sites #4/#5 (fast-follow)
+
+- **Surfaced:** 2026-07-05, cycle `tutorial_surfaced_fixes_batch` — reveal-toggle spec R0 OQ-2 ruling (option (b): PRIMARY sites #1/#2/#3 now, DEFER #4/#5).
+- **Where:** `src/form/tree_form.rs` — the build-descriptor tree node single `key` (`:687`) and `keys[i]` (KeyQuorum, `:711`), each masked on `is_xprv_like(...)` (value-shaped, dynamic).
+- **What:** the reveal toggle covers the three PRIMARY masking sites but NOT the two tree-key sites, so a masked xprv-shaped tree key has no eye. **No hygiene regression** (default-masked still holds at every site) — only a bounded UX inconsistency. Deferral is defensible: the tree-key mask is *value-conditional* (`is_xprv_like`), the shipped tutorial's tree journey (J3 "4-tier wsh vault") uses **public xpubs** (never masked → nothing to reveal there), and — the decisive technical reason — the faithfulness gate's emit-side `control_class(flag)` is a *static per-flag* projection; a value-conditional eye would force **fixture-VALUE coupling** into the faithfulness gate (the same reason site #3's eye is carved out to a dedicated kittest cell rather than the faithfulness gate). Sites #1/#2 render the eye *unconditionally* on secret fields → trivially faithfulness-modellable; the tree sites are not.
+- **Fix (when picked up):** thread the reveal predicate + per-key `egui::Id` through `tree_form.rs`'s node-recursive `key` / `keys[i]` render, mirroring the site-#1/#2 pattern; the eye is value-conditional (only when `is_xprv_like`), tested by a dedicated kittest cell (NOT the faithfulness gate) to avoid the fixture-coupling. Rides the next tree-touching cycle or a manual re-pin window.
+- **Status:** open (deferred). **Tier:** `ux` / `gui` / `secret-hygiene`.
+
+## `gui-secret-reveal-latch-timeout` — reveal (👁) latch has no wall-clock timeout; tap-does-not-latch fallback tracking (capture-gated fast-follow)
+
+- **Surfaced:** 2026-07-05, cycle `tutorial_surfaced_fixes_batch` — reveal-toggle spec R0 finding M-1 (OQ-4 residual), delegated to the plan.
+- **Where:** `src/form/secret_widget.rs` — the reveal latch (the Context-transient `Option<egui::Id>` + `reveal_toggle`).
+- **What:** v1 ships with **NO wall-clock timeout** on the bounded latch (OQ-4 ruling — a timer is a non-determinism source that would have to be gated out of every faithfulness / tutorial-capture path anyway; the latch is bounded by the four §4.5 auto-hide triggers instead). The one residual: a keyboard/AccessKit latch (or, under the fallback below, a pointer tap) that the user leaves with BOTH the field and the window focused persists the plaintext until an eventual defocus/Run/blur/tab-switch. Narrow, user-initiated, strictly inside the already-accepted OS-snapshot posture (macOS `NSWindowSharingNone` / Windows `WDA_EXCLUDEFROMCAPTURE` / Linux documented-unmitigated `gui-os-snapshot-secret-occlusion`).
+- **Tap-does-NOT-latch ruling (reveal-R0 M-1, ratified in the plan):** a pointer TAP does NOT arm the latch — the latch arms ONLY on keyboard activation or AccessKit `Click`. Mechanism (as built): egui's `Response::clicked()` is true for pointer AND FAKE_PRIMARY (accesskit/keyboard) clicks, while `clicked_by(PointerButton::Primary)` is true ONLY for pointer clicks — so the latch arms iff `clicked() && !clicked_by(Primary)`. A pointer press-and-hold reveals only while held (`is_pointer_button_down_on()`), re-masking on release. **Bounded fallback (recorded, NOT a user STOP):** if the discriminator ever proves unreliable under kittest + real-window testing, tap-latches is accepted (it stays inside the R0-accepted §4.5-bounded latch posture); record the downgrade here + in the phase report. (As of the P1.2 build the discriminator is reliable — the egui built-in `clicked_by(Primary)` split needs no input-event sniffing; no downgrade taken.)
+- **Fix (when picked up):** a capture-gated wall-clock timeout auto-hide (must be gated OUT of every byte-reproducible capture path — faithfulness + tutorial), OR any other bound on the walk-away window.
+- **Status:** open (deferred fast-follow). **Tier:** `ux` / `gui` / `secret-hygiene`.
+
+## `restore-md1-template-mutex-projection` — grey `--template` in `--md1` mode (paired toolkit-projection nicety, deferred)
+
+- **Surfaced:** 2026-07-05, cycle `tutorial_surfaced_fixes_batch` — restore `(none)` spec R0 finding m6 (SHOULD-file).
+- **Where:** `src/form/conditional.rs::restore` + `src/schema/mnemonic.rs` (restore `--template`) + a paired toolkit `src/cmd/restore.rs` conditional projection.
+- **What:** the restore `(none)` fix (`restore-form-single-sig-template-leaks-in-md1-mode`) gives the user a clean way to DROP the single-sig template in `--md1` mode, but the residual UX nicety — greying/hiding `--template` ENTIRELY while `--md1` is populated (single-sig templates are inert/refused there) — is REJECTED for this cycle. Modeling the md1-mode mutex GUI-side (a `("restore", 1) → 2` conditional-rule bump) would diverge from the toolkit's conditional projection and trip `gui_schema_conditional_drift` unless the toolkit ships a matching `src/` rule in lockstep. It is therefore a future **PAIRED** cross-repo change (GUI conditional + toolkit `gui_schema.rs` projection), not a render-scoped GUI-only fix.
+- **Fix (when picked up):** author the paired toolkit conditional projection for restore's `--template` md1-mode mutex, then land the GUI `conditional.rs::restore` rule + the `gui_schema_conditional_drift` floor bump in the same lockstep window.
+- **Status:** open (deferred; explicitly NOT this cycle). **Tier:** `ux` / `gui` / `cross-repo`.
