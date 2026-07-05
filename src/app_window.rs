@@ -546,6 +546,10 @@ impl MnemonicGuiApp {
 
             // Compute conditional visibility once per frame.
             let key = Self::form_key(active_tab, &active_sub_name);
+            // v0.57.0 reveal auto-hide §4.5-4: a tab / subcommand switch abandons
+            // the field context — force-mask any latched secret reveal on the
+            // form we just left (before the new form's widgets render).
+            crate::form::secret_widget::clear_reveal_on_form_change(ctx, &key);
             // v0.6.0 P4: snapshot last-frame's --template BEFORE the
             // `form_state` mutable borrow, so the post-render hook can
             // compare without a second `self.last_template` borrow conflict.
@@ -1019,6 +1023,11 @@ impl MnemonicGuiApp {
                 }
             }
             if run_clicked {
+                // v0.57.0 reveal auto-hide §4.5-1: a secret is about to be passed
+                // to the child (the confirm modal opens masked) — force-mask any
+                // latched reveal on Run dispatch so nothing stays revealed
+                // behind/around the modal.
+                crate::form::secret_widget::clear_revealed_field(ctx);
                 if needs_confirm {
                     self.pending_confirm_argv = Some(PendingConfirm {
                         argv,

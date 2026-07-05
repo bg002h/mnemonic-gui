@@ -150,9 +150,11 @@ fn t6_composite_masking_gate_is_a_single_hoisted_source_with_paste_warn() {
          gate from the paste-warn gate"
     );
     assert!(
-        flat.contains(".password(is_secret_node)"),
+        flat.contains(".password(is_secret_node&&!reveal)"),
         "the hoisted is_secret_node gate must drive the composite value \
-         `.password(..)` mask"
+         `.password(..)` mask (v0.57.0: ANDed with the reveal predicate — the \
+         eye only ever un-masks a field that IS secret-masked; the hoisted \
+         `is_secret_node` gate still solely decides maskedness)"
     );
     // Value-level floor: the gate the impl masks on IS the argv-secret
     // predicate, with BOTH branches exercised across the composite's nodes (a
