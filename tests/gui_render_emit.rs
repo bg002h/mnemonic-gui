@@ -90,9 +90,16 @@ fn exact_render_seeded_conditional_form_disables_multisig_only_flags() {
     // "either template or descriptor" pre-check is already satisfied by the
     // seeded template). Pristine-fixture emit would falsely show all of these
     // enabled + the pair Required — a screen the user never sees.
+    //
+    // gui_example P1.3 (F1, mini-R0 A1-APPEND): the `--template` opts carry a
+    // trailing `(none)` — the `""` UNSET sentinel APPENDED to the per-flag
+    // `EXPORT_WALLET_TEMPLATES` const. This exact-ASCII pin doubles as the
+    // PLACEMENT guard: a prepend would read `dropdown[(none),bip44,…]` and
+    // flip the virgin `opts[0]` materialization off `-> bip44`, so this
+    // assert catches it.
     let expected = "\
 [ mnemonic > export-wallet ]
-  --template                dropdown[bip44,bip49,bip84,bip86,wsh-multi,wsh-sortedmulti,sh-wsh-multi,sh-wsh-sortedmulti,tr-multi-a,tr-sortedmulti-a]  -> bip44
+  --template                dropdown[bip44,bip49,bip84,bip86,wsh-multi,wsh-sortedmulti,sh-wsh-multi,sh-wsh-sortedmulti,tr-multi-a,tr-sortedmulti-a,(none)]  -> bip44
   --descriptor              text  -> <empty> [disabled]
   --threshold               number  -> <unset> [disabled]
   --multisig-path-family    dropdown[bip48,bip87]  -> bip48 [disabled]
