@@ -96,13 +96,17 @@ fn t_b4_three_direct_secretlineedit_show_sites() {
     // chokepoint covering every site (the 3 direct + every transitive
     // archetype path through render_with_dispatch → widget.rs). These are the
     // 3 DIRECT call sites: widget.rs:110 (scalar), widget.rs:153 (repeating),
-    // main.rs:843 (positional). A 4th is still bus-covered, but is a
-    // deliberate surface change — this tripwire documents it.
+    // app_window.rs (positional — relocated VERBATIM from main.rs:843 in the
+    // gui_example_tutorial P0 app-shell extraction; main.rs stays in the scan
+    // set so a re-added direct site there is still caught). A 4th is still
+    // bus-covered, but is a deliberate surface change — this tripwire
+    // documents it.
     //
     // SecretLineEdit::show calls pass STRING args (`.show(ui, label, help)`);
     // egui Window/ScrollArea/CollapsingHeader pass an `|ui|` closure
     // (`.show(ui, |ui| ...)`) or a `ctx` (`.show(ctx, ...)`) — excluded.
     let widget = include_str!("../src/form/widget.rs");
+    let app_window = include_str!("../src/app_window.rs");
     let main = include_str!("../src/main.rs");
     let non_closure_show_ui = |src: &str| {
         // Collapse ALL whitespace first so a future multi-line call
@@ -111,11 +115,12 @@ fn t_b4_three_direct_secretlineedit_show_sites() {
         let flat: String = src.split_whitespace().collect();
         flat.matches(".show(ui,").count() - flat.matches(".show(ui,|").count()
     };
-    let total = non_closure_show_ui(widget) + non_closure_show_ui(main);
+    let total =
+        non_closure_show_ui(widget) + non_closure_show_ui(app_window) + non_closure_show_ui(main);
     assert_eq!(
         total, 3,
         "expected exactly 3 direct SecretLineEdit::show sites (widget.rs scalar+repeating, \
-         main.rs positional); found {total} — a 4th direct site was added (still bus-covered, \
-         but review the surface + update this tripwire)"
+         app_window.rs positional); found {total} — a 4th direct site was added (still \
+         bus-covered, but review the surface + update this tripwire)"
     );
 }
