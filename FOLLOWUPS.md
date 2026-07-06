@@ -1061,7 +1061,7 @@ Consequences on this repo:
 - **Status:** open (flips to RESOLVED in this repo's shipping commit, status-flip discipline). **Tier:** `cross-repo` (paired legs; GUI tag BEFORE toolkit pin).
 - **Companion:** mnemonic-toolkit `design/FOLLOWUPS.md::gui-example-tutorial-book` + `docs/manual-gui/FOLLOWUPS.md::gui-example-tutorial-book` (both filed at the toolkit leg's P2.1 — the forward-reference is inherent to cross-repo lockstep; each repo's FOLLOWUPS.md is only editable from its own leg).
 
-## `restore-form-single-sig-template-leaks-in-md1-mode` — open (GUI papercut)
+## `restore-form-single-sig-template-leaks-in-md1-mode` — RESOLVED mnemonic-gui-v0.57.0 (GUI papercut)
 
 - **Surfaced:** 2026-07-05 (gui_example tutorial P1.5 build).
 - **Where:** `src/schema/mnemonic.rs` (restore `--template`) + `src/form/conditional.rs::restore`.
@@ -1079,11 +1079,11 @@ Consequences on this repo:
 - **Fix:** an F1-style GUI-render-scoped `(none)` unset affordance on restore's
   `--template` (mirror the export-wallet A1-APPEND fix), OR a paired toolkit conditional
   projection. Cross-repo assessment needed (which is why it's deferred, not done here).
-- **Status:** **FIX IN FLIGHT (this cycle)** — the F1-style render-scoped `(none)` A1-APPEND
-  is the chosen path, landing in the batched `tutorial_surfaced_fixes_batch` cycle (spec
-  `mnemonic-toolkit/design/SPEC_restore_template_none_affordance.md`, R0-GREEN; plan
-  `IMPLEMENTATION_PLAN_tutorial_surfaced_fixes_batch.md` P1.3). Flips to RESOLVED in the
-  `mnemonic-gui-v0.57.0` release commit (status-flip discipline). The md1-mode mutex
+- **Status:** **RESOLVED mnemonic-gui-v0.57.0** — the F1-style render-scoped `(none)` A1-APPEND
+  landed (new `RESTORE_TEMPLATES` const, `opts[0]` stays `bip44`, `default_value` None; P1.3,
+  spec `mnemonic-toolkit/design/SPEC_restore_template_none_affordance.md` R0-GREEN + plan
+  `IMPLEMENTATION_PLAN_tutorial_surfaced_fixes_batch.md` P1.3 R0-GREEN). The tutorial's 6
+  md1-restore steps now drive the clean `(none)` path (P1.4). The md1-mode mutex
   PROJECTION variant is split off as a separate deferred slug
   `restore-md1-template-mutex-projection` (below). **Tier:** `ux` / `gui`.
 
@@ -1098,7 +1098,7 @@ Consequences on this repo:
 
 - **Surfaced:** 2026-07-05, batched cycle `tutorial_surfaced_fixes_batch` (spec `mnemonic-toolkit/design/SPEC_gui_secret_reveal_toggle.md`, R0-GREEN 0C/0I `reveal-toggle-spec-r0-round-1.md`; plan `IMPLEMENTATION_PLAN_tutorial_surfaced_fixes_batch.md`, plan-R0 GREEN). Filed at P1.1.
 - **What (this repo's leg, plan-P1.2):** a deliberate secret-exposure affordance — a 👁 reveal toggle beside every on-load-masked secret field. Hygiene model (R0-ruled, load-bearing): **hold-to-reveal (pointer) primary + bounded-latch (keyboard/AccessKit/capture) fallback**, both feeding ONE per-frame `.password(!reveal)` predicate; **single-revealed-field invariant** = one Context-transient `Option<egui::Id>` (NEVER a `FormState` field, so the I3 never-persist net is structurally unaffected); **auto-hide** on Run dispatch / field blur / window-focus-loss (`ctx.input(|i| i.focused)`) / tab-or-subcommand switch; **NO timeout v1**; a pointer **tap does NOT latch** (reveal-R0 M-1). **Display-ONLY:** run-confirm modal, argv echo / copy-command, paste-warn, persistence, exit sweep ALL stay masked/redacted UNCONDITIONALLY regardless of reveal. Scope = sites #1 `secret_widget.rs` + #2 `slot_editor.rs` (secret arm) + #3 `widget.rs` composite (∧ `is_secret_node`); tree sites #4/#5 DEFERRED (`gui-secret-reveal-tree-key-sites`). Structural render depicts the eye as an ASCII ` [reveal]` marker on the 28 masked-on-load `.gui` rows; the faithfulness gate models the adjacent `Role::Button` (👁) on both sides + a non-vacuity negative.
-- **Status:** open (flips to RESOLVED in this repo's `mnemonic-gui-v0.57.0` shipping commit, status-flip discipline). **Tier:** `ux` / `gui` / `secret-hygiene`.
+- **Status:** **RESOLVED mnemonic-gui-v0.57.0** — the 👁 reveal toggle shipped (sites #1/#2/#3; hold+latch; single Context-transient revealed-field Id; auto-hide on Run/blur/focus-loss/tab; no-timeout; tap-no-latch; display-only). P1.2 + Leg-1 post-impl R0-GREEN; 32-form gallery re-pin + the tutorial re-drive (4 steps reveal the public demo phrase, P1.4) landed. **Tier:** `ux` / `gui` / `secret-hygiene`.
 - **Companion:** mnemonic-toolkit `docs/manual-gui/FOLLOWUPS.md::gui-secret-reveal-toggle` + `design/FOLLOWUPS.md::gui-secret-reveal-toggle` (the re-pin / tutorial-re-drive obligation — filed at the toolkit leg's P2.1, discharged there; the forward-reference is inherent to cross-repo lockstep, each repo's FOLLOWUPS.md is only editable from its own leg).
 
 ## `gui-secret-reveal-tree-key-sites` — reveal (👁) toggle deferred on the build-descriptor tree key sites #4/#5 (fast-follow)
@@ -1125,3 +1125,9 @@ Consequences on this repo:
 - **What:** the restore `(none)` fix (`restore-form-single-sig-template-leaks-in-md1-mode`) gives the user a clean way to DROP the single-sig template in `--md1` mode, but the residual UX nicety — greying/hiding `--template` ENTIRELY while `--md1` is populated (single-sig templates are inert/refused there) — is REJECTED for this cycle. Modeling the md1-mode mutex GUI-side (a `("restore", 1) → 2` conditional-rule bump) would diverge from the toolkit's conditional projection and trip `gui_schema_conditional_drift` unless the toolkit ships a matching `src/` rule in lockstep. It is therefore a future **PAIRED** cross-repo change (GUI conditional + toolkit `gui_schema.rs` projection), not a render-scoped GUI-only fix.
 - **Fix (when picked up):** author the paired toolkit conditional projection for restore's `--template` md1-mode mutex, then land the GUI `conditional.rs::restore` rule + the `gui_schema_conditional_drift` floor bump in the same lockstep window.
 - **Status:** open (deferred; explicitly NOT this cycle). **Tier:** `ux` / `gui` / `cross-repo`.
+
+## `tutorial-assert-no-plaintext-value-equality-skip` — filled-form allowlist skip is value-equality, not field-scoped (hardening)
+- **Surfaced:** 2026-07-05, batched cycle P1.4 R0 (M-1) + Leg-1 post-impl (ruled: file, not fold).
+- **Where:** `tests/gui_tutorial_snapshots.rs` — the filled-form `assert_no_plaintext` checkpoint (`~:566`), parameterized for reveal-marked steps.
+- **What:** the checkpoint permits a reveal-marked step's revealed allowlisted value by VALUE-equality. A hypothetical FUTURE tutorial step that revealed a phrase which ALSO appears (masked) in a second field of the same shot would skip the masked twin's word-probe. **Inert today:** no reveal step repeats a phrase; the single-revealed-field invariant is core-enforced; the pane/modal checkpoints stay unconditionally strict; and the 61-gallery + faithfulness net would catch a real leak. A proper fix scopes the skip to the revealed field's Id/index, and needs a red-proven twin-phrase test (which is why it's a follow-up, not a P1.5 code change).
+- **Status:** open (hardening; inert). **Tier:** `test-oracle` / `secret-hygiene`.
