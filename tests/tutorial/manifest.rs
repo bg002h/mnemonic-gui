@@ -5,13 +5,17 @@
 //! transcript-only steps (J2 devices-1/2 converts, per-journey `bundle --json`
 //! chain feeds, the J4 NUMS bundle/restore). Every census reads this table.
 //!
-//! Two route-arounds worth flagging (documented at their steps):
+//! One route-around worth flagging (documented at its steps):
 //!   - **F2**: engrave-shape bundle + export-wallet descriptor inputs ride
 //!     `--descriptor` TEXT, not `--descriptor-file` (ruling 6).
-//!   - **restore-form single-sig `--template` leak** (a real GUI papercut found
-//!     at P1.5): the restore form materializes single-sig `--template=bip44`,
-//!     rejected in md1 mode; we select the wallet's MULTISIG template (inert in
-//!     md1 mode, output byte-identical) to route around it.
+//!
+//! The restore-form single-sig `--template` leak (a real GUI papercut found at
+//! P1.5) is now FIXED (P1.3 `RESTORE_TEMPLATES` A1-APPEND `(none)`): the six
+//! restore steps set **Template → `(none)`** (the `""` sentinel), which the CLI
+//! accepts in `--md1` mode by dropping the refused single-sig template. This is
+//! the clean md1 restore the tutorial now teaches. Output is byte-identical to
+//! the old MULTISIG-`--template` route-around (P1.3-verified: the multisig
+//! template was inert in md1 mode), so the restore transcripts do NOT move.
 
 use super::{
     Drive, Step, COMPARE_FOLDED, MULTISIG_DESC, S0, S1, S2, TAPROOT_MULTI_DESC,
@@ -48,6 +52,7 @@ const fn run_step(
         capture: true,
         expect_exit: Some(0),
         expect_stderr: true,
+        reveal: false,
     }
 }
 
@@ -74,6 +79,7 @@ const fn feed_step(
         capture: false,
         expect_exit: Some(0),
         expect_stderr,
+        reveal: false,
     }
 }
 
@@ -97,6 +103,7 @@ const fn refusal_step(
         capture: true,
         expect_exit: Some(2),
         expect_stderr: true,
+        reveal: false,
     }
 }
 
@@ -133,7 +140,12 @@ macro_rules! convert_drives {
     };
 }
 
-/// restore-from-md1 drives (multisig-`--template` route-around + md1 chain).
+/// restore-from-md1 drives: `--template` set to `(none)` (the `""` sentinel) +
+/// the md1 chain. P1.4: the papercut is FIXED (P1.3 `RESTORE_TEMPLATES`
+/// A1-APPEND), so the tutorial teaches the CLEAN md1 restore — `(none)` drops the
+/// single-sig template the CLI refuses in `--md1` mode. Output is byte-identical
+/// to the old multisig-`--template` route-around (P1.3-verified: the multisig
+/// template was inert in md1 mode), so the transcripts do NOT move.
 macro_rules! restore_drives {
     ($template:expr, $feed:expr) => {
         &[
@@ -158,6 +170,7 @@ pub const MANIFEST: &[Step] = &[
         capture: true,
         expect_exit: None,
         expect_stderr: false,
+        reveal: false,
     },
     // ══ Journey 1 — single-sig card set (§2): bundle bip84 + masked S0. ══
     Step {
@@ -176,6 +189,7 @@ pub const MANIFEST: &[Step] = &[
         capture: true,
         expect_exit: Some(0),
         expect_stderr: true,
+        reveal: true,
     },
     // ══ Journey 2 — conventional 2-of-3 multisig (§3, §3.4). ══
     // 02. per-device fingerprint (device 0 / S0) — secret phrase, no modal shot.
@@ -192,6 +206,7 @@ pub const MANIFEST: &[Step] = &[
         capture: true,
         expect_exit: Some(0),
         expect_stderr: true,
+        reveal: true,
     },
     // 03. per-device xpub (device 0 / S0).
     Step {
@@ -207,6 +222,7 @@ pub const MANIFEST: &[Step] = &[
         capture: true,
         expect_exit: Some(0),
         expect_stderr: true,
+        reveal: true,
     },
     // devices 1/2 converts (S1, S2) — transcript-only (identical interaction).
     feed_step("tut-j2-dev1-convert-fingerprint", "convert", Some(HN_CONVERT),
@@ -258,6 +274,7 @@ pub const MANIFEST: &[Step] = &[
         capture: true,
         expect_exit: Some(0),
         expect_stderr: true,
+        reveal: true,
     },
     // chain feed for the J2 restore (multisig md1).
     feed_step("tut-j2-restore-feed-bundle-json", "bundle", None,
@@ -265,7 +282,7 @@ pub const MANIFEST: &[Step] = &[
           Drive::ToggleBoolean { flag: "--json" }], false, true),
     // 08. restore the 2-of-3 from its md1 card alone (default text form).
     run_step("tut-j2-08-restore", "restore", Some(HN_RESTORE),
-        restore_drives!("wsh-sortedmulti", "tut-j2-restore-feed-bundle-json")),
+        restore_drives!("", "tut-j2-restore-feed-bundle-json")),
 
     // ══ Journey 3 — pathological 4-tier degrading wsh vault (§5). ══
     // 09. the guided builder REFUSES the 11-key policy (--spec file path).
@@ -286,7 +303,7 @@ pub const MANIFEST: &[Step] = &[
           Drive::ToggleBoolean { flag: "--json" }], false, true),
     // 13. restore round-trip — reconstructs the same first address.
     run_step("tut-j3-13-restore", "restore", Some(HN_RESTORE),
-        restore_drives!("wsh-sortedmulti", "tut-j3-restore-feed-bundle-json")),
+        restore_drives!("", "tut-j3-restore-feed-bundle-json")),
 
     // ══ Journey 4 — taproot twin (§6). ══
     // 14. depth-2 taptree REFUSAL (the PR-#953 guard).
@@ -304,7 +321,7 @@ pub const MANIFEST: &[Step] = &[
           Drive::ToggleBoolean { flag: "--json" }], false, true),
     // 17. restore + first address (proves the real internal key round-trips).
     run_step("tut-j4-17-restore", "restore", Some(HN_RESTORE),
-        restore_drives!("tr-sortedmulti-a", "tut-j4-restore-feed-bundle-json")),
+        restore_drives!("", "tut-j4-restore-feed-bundle-json")),
     // 18. Bitcoin Core importdescriptors payload.
     run_step("tut-j4-18-core-export", "export-wallet", Some(HN_EXPORT),
         export_descriptor_fixture!("taproot.desc", "bitcoin-core")),
@@ -325,6 +342,7 @@ pub const MANIFEST: &[Step] = &[
         capture: true,
         expect_exit: Some(0),
         expect_stderr: false,
+        reveal: false,
     },
     // 21. NUMS taproot multisig — canonicalise (§6.6).
     run_step("tut-j4-21-nums-export", "export-wallet", Some(HN_EXPORT),
@@ -334,7 +352,7 @@ pub const MANIFEST: &[Step] = &[
         &[Drive::TypeText { flag: "--descriptor", value: TAPROOT_MULTI_DESC },
           Drive::ToggleBoolean { flag: "--json" }], false, true),
     feed_step("tut-j4-nums-restore", "restore", Some(HN_RESTORE),
-        restore_drives!("tr-sortedmulti-a", "tut-j4-nums-feed-bundle-json"), false, true),
+        restore_drives!("", "tut-j4-nums-feed-bundle-json"), false, true),
 
     // ══ Journey 5 — watch-only export (§4): the md1 chain, shot-bearing. ══
     // 22. bundle --json (multisig) → produces the md1 the restores consume.
@@ -343,12 +361,12 @@ pub const MANIFEST: &[Step] = &[
           Drive::ToggleBoolean { flag: "--json" }]),
     // 23. restore --format descriptor (chained md1 → bare canonical descriptor).
     run_step("tut-j5-23-restore-descriptor", "restore", Some(HN_RESTORE),
-        &[Drive::SelectDropdown { flag: "--template", value: "wsh-sortedmulti" },
+        &[Drive::SelectDropdown { flag: "--template", value: "" },
           Drive::SelectDropdown { flag: "--format", value: "descriptor" },
           Drive::TypeMd1Chain { flag: "--md1", chain_from: "tut-j5-22-bundle-json" }]),
     // 24. restore --format bitcoin-core (chained md1 → importdescriptors array).
     run_step("tut-j5-24-restore-core", "restore", Some(HN_RESTORE),
-        &[Drive::SelectDropdown { flag: "--template", value: "wsh-sortedmulti" },
+        &[Drive::SelectDropdown { flag: "--template", value: "" },
           Drive::SelectDropdown { flag: "--format", value: "bitcoin-core" },
           Drive::TypeMd1Chain { flag: "--md1", chain_from: "tut-j5-22-bundle-json" }]),
 ];

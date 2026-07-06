@@ -254,6 +254,17 @@ pub struct Step {
     /// `RunResult` at runtime, and governs whether a `.stderr.txt` transcript
     /// is committed).
     pub expect_stderr: bool,
+    /// **Reveal marker (P1.4, RULING 1).** When `true`, the harness actuates the
+    /// LAST-driven secret field's reveal (👁) eye (AccessKit `Click` = the LATCH
+    /// arm) AFTER all field drives and BEFORE the `-form` capture, so the filled
+    /// `-form` teaching shot shows the PUBLIC demo phrase (the reader sees what
+    /// to type). Under the single-revealed-field invariant exactly ONE field
+    /// reveals; the Run click auto-hides it before the `-modal`/`-run` shots.
+    /// RULE-derived + census-enforced: a `capture: true` step carries this IFF it
+    /// drives ≥1 secret value (`Drive::secret_value().is_some()`) — see
+    /// [`reveal_marker_violations`]. The six restore steps type a PUBLIC `--md1`
+    /// card (`TypeMd1Chain` ⇒ `secret_value()==None`) → NO marker.
+    pub reveal: bool,
 }
 
 impl Step {
@@ -266,6 +277,18 @@ impl Step {
     /// widget, or its Run is gated by the secret-confirm modal).
     pub fn is_secret(&self) -> bool {
         self.secret_modal || self.drives.iter().any(|d| d.secret_value().is_some())
+    }
+
+    /// The secret value the reveal marker exposes in the `-form` shot — the
+    /// LAST-driven secret-class value (the field whose eye the harness clicks).
+    /// `None` when the step is not reveal-marked (the filled-form
+    /// `assert_no_plaintext` stays fully strict there). Only this ONE value is
+    /// permitted at the filled-form checkpoint; every OTHER secret stays strict.
+    pub fn revealed_value(&self) -> Option<&'static str> {
+        if !self.reveal {
+            return None;
+        }
+        self.drives.iter().rev().find_map(Drive::secret_value)
     }
 
     /// The PNG figure basenames (no extension) this step commits, in capture
@@ -377,13 +400,16 @@ pub fn spawned_clis() -> Vec<&'static str> {
 
 // ─── secret-allowlist checker (SPEC §7) ──────────────────────────────────────
 
-/// Every value the manifest routes to a secret-classified widget MUST be in
+/// Every value routed to a secret-classified widget across `steps` MUST be in
 /// [`SECRET_ALLOWLIST`]. Returns the list of violations (empty = clean).
 /// Classification rides the `SECRET_SLOT_SUBKEYS` / `SECRET_NODE_TYPES_ARGV`
-/// taxonomies (recon C; NOT the I3 flag census).
-pub fn secret_allowlist_violations() -> Vec<String> {
+/// taxonomies (recon C; NOT the I3 flag census) — the SAME predicates the
+/// widget masks on, so anything CAPTURABLE-while-revealed is allowlist-gated
+/// (the ⊆-agreement). Parameterized over `steps` so the P1.4 negative can feed a
+/// synthetic manifest and prove the checker BITES.
+pub fn check_allowlist(steps: &[Step]) -> Vec<String> {
     let mut v = Vec::new();
-    for step in MANIFEST {
+    for step in steps {
         for drive in step.drives {
             if let Some(val) = drive.secret_value() {
                 if !SECRET_ALLOWLIST.contains(&val) {
@@ -395,6 +421,44 @@ pub fn secret_allowlist_violations() -> Vec<String> {
                     ));
                 }
             }
+        }
+    }
+    v
+}
+
+/// The whole-manifest allowlist check (the always-run gate's consumer).
+pub fn secret_allowlist_violations() -> Vec<String> {
+    check_allowlist(MANIFEST)
+}
+
+// ─── reveal-marker census (P1.4 RULING 1) ────────────────────────────────────
+
+/// The reveal-marked step stems (the `-form` shots that show the demo phrase).
+pub fn reveal_marked_stems() -> Vec<&'static str> {
+    MANIFEST.iter().filter(|s| s.reveal).map(|s| s.stem).collect()
+}
+
+/// Census: the reveal marker is RULE-derived — a `capture: true` step carries it
+/// IFF it drives ≥1 secret value (`Drive::secret_value().is_some()`, NOT
+/// `Step::is_secret()` which ORs `secret_modal` and would over-select). Returns
+/// the violations (empty = clean); fail-closed BOTH ways. `capture: false`
+/// secret-value steps (the J2 devices-1/2 converts) capture nothing → NO marker.
+pub fn reveal_marker_violations() -> Vec<String> {
+    let mut v = Vec::new();
+    for s in MANIFEST {
+        let has_secret_drive = s.drives.iter().any(|d| d.secret_value().is_some());
+        let should_mark = s.capture && has_secret_drive;
+        if s.reveal && !should_mark {
+            v.push(format!(
+                "{}: carries a reveal marker but is not a capture:true secret-value step",
+                s.stem
+            ));
+        }
+        if !s.reveal && should_mark {
+            v.push(format!(
+                "{}: is a capture:true secret-value step but LACKS the reveal marker",
+                s.stem
+            ));
         }
     }
     v
