@@ -114,6 +114,44 @@ const EXPORT_WALLET_TEMPLATES: &[&str] = &[
     "",
 ];
 
+// batch `tutorial_surfaced_fixes_batch` P1.3 (restore-R0 A1-APPEND): restore's
+// `--template` opts — the 10 shared `TEMPLATES` values IN ORDER + a trailing
+// `""` UNSET sentinel (renders "(none)" via `display_or`; mirrors
+// `EXPORT_WALLET_TEMPLATES`). Selecting it clears `--template`
+// (`Dropdown("")` ⇒ `has_value` false) so no `--template` token emits.
+//
+// APPENDED, never prepended: virgin materialization takes `opts[0]`
+// (`flag_defaults.rs`), which must stay `bip44` — a prepend would flip the
+// virgin default to unset, rewrite the on-load steady state and move the
+// gallery PNG. Pinned by `tests/restore_template_none.rs::
+// restore_templates_append_census`.
+//
+// Restore semantics (distinct from export-wallet's — restore has NO
+// template/descriptor mutex; its conditional keys ONLY on `--md1`):
+//   - single-sig `(none)` → the CLI emits all four `bip44/49/84/86`
+//     (`crates/mnemonic-toolkit` restore emit-all default);
+//   - `--md1` mode `(none)` → DROPS the single-sig template the CLI REFUSES in
+//     `--md1` mode (exit 2) — the clean md1 restore the tutorial teaches
+//     (closes `restore-form-single-sig-template-leaks-in-md1-mode`).
+//
+// DISTINCT from the shared `TEMPLATES` const (10 values), which keeps feeding
+// bundle / verify-bundle / convert + the SINGLE_SIG/MULTISIG partition consts
+// and must NOT carry the sentinel. The 11-vs-10 asymmetry is intended and now
+// export-wallet ∪ restore-scoped.
+const RESTORE_TEMPLATES: &[&str] = &[
+    "bip44",
+    "bip49",
+    "bip84",
+    "bip86",
+    "wsh-multi",
+    "wsh-sortedmulti",
+    "sh-wsh-multi",
+    "sh-wsh-sortedmulti",
+    "tr-multi-a",
+    "tr-sortedmulti-a",
+    "",
+];
+
 const LANGUAGES: &[&str] = &[
     "english",
     "simplifiedchinese",
@@ -536,10 +574,17 @@ const RESTORE_FLAGS: &[FlagSchema] = &[
     },
     FlagSchema {
         name: "--template",
-        kind: FlagKind::Dropdown(TEMPLATES),
+        // P1.3 (restore-R0 A1-APPEND): the per-flag `RESTORE_TEMPLATES` (10
+        // shared values + a trailing `""` "(none)" sentinel). `default_value`
+        // STAYS `None` so the virgin form-loop still materializes `opts[0]`
+        // (`bip44`) — selecting "(none)" writes `Dropdown("")` ⇒ no `--template`.
+        kind: FlagKind::Dropdown(RESTORE_TEMPLATES),
         required: false,
         repeating: false,
-        help: "Pre-built descriptor template for the restored wallet.",
+        help: "Pre-built descriptor template for the restored wallet. \
+               (none) drops it — the CLI emits all four bip44/49/84/86 for a \
+               single-sig restore, and drops the single-sig template it refuses \
+               in --md1 mode.",
         secret: false,
         default_value: None,
         global: false,
