@@ -602,8 +602,27 @@ fn render_row(
                 // form (NOT a `.show(ui)` that buries the Response) so the
                 // paste-warn `response.changed()` read is preserved (M3).
                 let is_secret_node = crate::secrets::node_type_is_argv_secret(node.as_str());
-                let response =
-                    ui.add(egui::TextEdit::singleline(value).password(is_secret_node));
+                // v0.57.0: the composite value cell (site #3) gets the reveal
+                // (👁) eye ONLY when the current node is secret-masked — reveal
+                // never un-masks a non-secret (watch-only) node. When the node
+                // switches secret→non-secret the eye disappears AND any stale
+                // latch for this field is cleared (composite gating, test #8).
+                let ctx = ui.ctx().clone();
+                let field_id = ui.unique_id().with("composite_secret_reveal");
+                let reveal = if is_secret_node {
+                    crate::form::secret_widget::reveal_toggle(ui, &ctx, field_id)
+                } else {
+                    if crate::form::secret_widget::revealed_field(&ctx) == Some(field_id) {
+                        crate::form::secret_widget::clear_revealed_field(&ctx);
+                    }
+                    false
+                };
+                let response = ui.add(
+                    egui::TextEdit::singleline(value)
+                        .id(field_id)
+                        .password(is_secret_node && !reveal),
+                );
+                crate::form::secret_widget::clear_reveal_on_blur(&ctx, field_id, &response);
                 let pasted_len = ui.input(|i| {
                     i.events.iter().find_map(|e| match e {
                         egui::Event::Paste(s) => Some(s.chars().count()),

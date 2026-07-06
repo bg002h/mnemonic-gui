@@ -37,6 +37,7 @@ use egui_kittest::{Harness, SnapshotOptions};
 
 use mnemonic_gui::app::{AppState, CliTab};
 use mnemonic_gui::app_window::MnemonicGuiApp;
+use mnemonic_gui::form::secret_widget::{revealed_field, REVEAL_EYE_GLYPH};
 use mnemonic_gui::form::slot_editor::SlotSubkey;
 use mnemonic_gui::path_detect::Detected;
 
@@ -148,6 +149,122 @@ fn secret_values_are_allowlisted() {
     assert!(
         tutorial::node_secret_taxonomy_nonempty(),
         "the SECRET_NODE_TYPES_ARGV / SECRET_FLAG_NAMES taxonomies must be reachable"
+    );
+}
+
+/// P1.4 RULING 1 — the reveal marker set is RULE-derived (`Drive::secret_value()
+/// .is_some()` over `capture: true` steps), fail-closed both ways, and is
+/// EXACTLY the four designated steps.
+#[test]
+fn reveal_markers_are_rule_derived() {
+    let violations = tutorial::reveal_marker_violations();
+    assert!(
+        violations.is_empty(),
+        "reveal-marker census violation(s) ({}):\n{}",
+        violations.len(),
+        violations.join("\n")
+    );
+    let mut marked = tutorial::reveal_marked_stems();
+    marked.sort();
+    assert_eq!(
+        marked,
+        vec![
+            "tut-j1-01-bundle-single-sig",
+            "tut-j2-02-convert-fingerprint",
+            "tut-j2-03-convert-xpub",
+            "tut-j2-07-bundle-all-seeds",
+        ],
+        "the reveal-marked set must be EXACTLY the four capture:true secret-value steps \
+         (the six restore steps type a PUBLIC md1 card → no marker; the J2 devices-1/2 \
+         converts are capture:false → no marker)"
+    );
+}
+
+/// P1.4 RULING 2 — the ⊆-agreement: any field the widget masks (hence CAN reveal)
+/// is classified secret by the allowlist checker's taxonomy, so nothing
+/// revealable escapes the allowlist gate.
+#[test]
+fn reveal_in_scope_fields_are_checker_classified() {
+    // Every reveal-marked step reveals a checker-classified secret value.
+    for s in tutorial::MANIFEST.iter().filter(|s| s.reveal) {
+        assert!(
+            s.revealed_value().is_some(),
+            "{}: a reveal-marked step must reveal a checker-classified secret value",
+            s.stem
+        );
+    }
+    // Slots: the widget-mask gate (`is_secret_bearing`) EQUALS the checker
+    // taxonomy (`slot_subkey_is_secret`) for EVERY subkey. Composites mask on
+    // `node_type_is_argv_secret` — the SAME fn `Drive::secret_value` classifies
+    // on — so agreement there is by construction.
+    for sk in SlotSubkey::ALL {
+        assert_eq!(
+            sk.is_secret_bearing(),
+            mnemonic_gui::secrets::slot_subkey_is_secret(*sk),
+            "slot subkey {sk:?}: widget-mask gate != checker taxonomy — a revealable field \
+             could escape the allowlist"
+        );
+    }
+}
+
+/// A minimal synthetic step for the allowlist-checker negative.
+fn synthetic_step(stem: &'static str, drives: &'static [Drive]) -> Step {
+    Step {
+        stem,
+        tab: CliTab::Mnemonic,
+        subcommand: "convert",
+        select: None,
+        drives,
+        scroll: &[],
+        runs: false,
+        secret_modal: false,
+        modal_shot: false,
+        capture: true,
+        expect_exit: None,
+        expect_stderr: false,
+        reveal: false,
+    }
+}
+
+/// P1.4 RULING 2 negative — the allowlist checker BITES: a NON-allowlisted secret
+/// value routed to a secret widget is RED-flagged (whether or not the step is
+/// reveal-marked), and an allowlisted one is clean.
+#[test]
+fn allowlist_checker_bites_on_non_allowlisted_secret() {
+    const LEAK: &str = "not a real seed but classified secret via the phrase node abc";
+    const BAD_DRIVES: &[Drive] = &[Drive::TypeComposite {
+        flag: "--from",
+        node: "phrase",
+        value: LEAK,
+    }];
+    const OK_DRIVES: &[Drive] = &[Drive::TypeSlot {
+        anchor: "@",
+        occ: 0,
+        subkey: SlotSubkey::Phrase,
+        value: tutorial::S0,
+    }];
+
+    // Negative: a non-allowlisted secret drive is flagged (proves the gate BITES).
+    let bad = synthetic_step("synthetic-leak", BAD_DRIVES);
+    let v = tutorial::check_allowlist(std::slice::from_ref(&bad));
+    assert!(
+        v.iter().any(|m| m.contains("synthetic-leak")),
+        "the allowlist checker must RED-flag a non-allowlisted secret drive: {v:?}"
+    );
+    // A reveal-marked step with a non-allowlisted revealed value is caught by the
+    // SAME checker (the filled-form parameterization permits ONLY the field's own
+    // value, which check_allowlist gates first — so the reveal opens no hole).
+    let bad_reveal = Step { reveal: true, ..bad };
+    assert!(
+        !tutorial::check_allowlist(std::slice::from_ref(&bad_reveal)).is_empty(),
+        "a reveal-marked step with a non-allowlisted revealed value must still RED"
+    );
+
+    // Positive control: an allowlisted secret (S0) is clean.
+    let ok = synthetic_step("synthetic-ok", OK_DRIVES);
+    assert!(
+        tutorial::check_allowlist(std::slice::from_ref(&ok)).is_empty(),
+        "an allowlisted secret value must NOT be flagged"
     );
 }
 
@@ -422,17 +539,35 @@ fn execute_step(
         assert_driven_fields_visible(&mut h, step);
     }
 
+    // (3.5) reveal marker (P1.4 RULING 1): actuate the LAST-driven secret field's
+    //       eye (AccessKit Click = the LATCH arm) so the `-form` teaching shot
+    //       shows the PUBLIC demo phrase. After the drives + visibility, BEFORE
+    //       the filled-form hygiene checkpoint + capture. The Run click (step 6)
+    //       auto-hides it, so the `-modal`/`-run` shots stay masked.
+    if step.reveal {
+        reveal_last_secret_field(&mut h, step);
+    }
+
     // (4) secret-hygiene pre-run guards (SPEC §7): masked-by-construction +
     //     whole-tree no-plaintext for every secret value driven (held for
     //     `capture: false` secret steps too — masking must hold with or without
-    //     a shot).
+    //     a shot). PARAMETERIZED at the FILLED-FORM checkpoint (RULING 2): for a
+    //     reveal-marked step the revealed field's OWN allowlisted value is
+    //     permitted HERE (the deliberate teaching reveal); every OTHER secret
+    //     stays strict (word-disjointness of S0/S1/S2 keeps the other probes
+    //     from false-matching the revealed text). The populated-pane (step 7) and
+    //     confirm-modal (`run_via_modal`) checkpoints stay UNCONDITIONALLY strict.
     if step.is_secret() {
         assert!(
             has_mask_sentinel(&h),
             "{}: a secret step must render the •••• mask sentinel before Run",
             step.stem
         );
+        let revealed = step.revealed_value();
         for val in step.drives.iter().filter_map(Drive::secret_value) {
+            if Some(val) == revealed {
+                continue; // the deliberately-revealed field's own allowlisted value
+            }
             assert_no_plaintext(&h, val, &format!("{} filled form", step.stem));
             if let Some(word) = val.split_whitespace().next() {
                 assert_no_plaintext(&h, word, &format!("{} filled form (word probe)", step.stem));
@@ -587,6 +722,55 @@ fn run_via_modal(
     modal_run.click();
     step_once_same_frame(h, &format!("{} (modal path)", step.stem));
     h.run();
+}
+
+/// P1.4 reveal marker (RULING 1): actuate the LAST-driven secret field's reveal
+/// (👁) eye via an AccessKit `Click` (the LATCH arm — the only harness-drivable
+/// reveal path). Under the single-revealed-field invariant exactly ONE field
+/// reveals; the eye persists (no blur — the AccessKit click does not steal the
+/// field's focus, verified) until the Run click auto-hides it. The target is the
+/// last drive whose `secret_value()` is `Some` — a masked slot row (its eye is
+/// the leftmost Button on the row) or the composite value field (its eye is the
+/// `👁`-labelled Button on the flag row).
+fn reveal_last_secret_field(h: &mut Harness<'static, MnemonicGuiApp>, step: &Step) {
+    let last = step
+        .drives
+        .iter()
+        .rev()
+        .find(|d| d.secret_value().is_some())
+        .unwrap_or_else(|| panic!("{}: reveal-marked step has no secret-value drive", step.stem));
+    {
+        let eye = match *last {
+            Drive::TypeSlot { anchor, occ, .. } => {
+                // Slot row layout: `@ N . combo = 👁 field ✕` — the eye is the
+                // leftmost Button; assert the label so a layout drift fails loud.
+                let btn = slot_row_widget(h, anchor, occ, Role::Button);
+                assert_eq!(
+                    btn.label().as_deref(),
+                    Some(REVEAL_EYE_GLYPH),
+                    "{}: the slot row's leftmost Button must be the reveal eye",
+                    step.stem
+                );
+                btn
+            }
+            Drive::TypeComposite { flag, .. } => {
+                on_row_of_opt(h, flag, Role::Button, REVEAL_EYE_GLYPH).unwrap_or_else(|| {
+                    panic!("{}: no reveal eye (👁) on the {flag} composite row", step.stem)
+                })
+            }
+            other => panic!(
+                "{}: reveal marker on an unsupported drive {other:?} — extend reveal_last_secret_field",
+                step.stem
+            ),
+        };
+        eye.click();
+    }
+    h.run();
+    assert!(
+        revealed_field(&h.ctx).is_some(),
+        "{}: the reveal marker must latch a revealed secret field",
+        step.stem
+    );
 }
 
 /// Interpret one drive against the whole window — the additive P1.5 interpreter

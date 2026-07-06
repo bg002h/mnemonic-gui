@@ -459,6 +459,19 @@ fn control_class(flag: &FlagSchema) -> ControlClass {
     }
 }
 
+/// v0.57.0: does `flag`'s widget render the reveal (👁) eye button adjacent to
+/// its input? True for a scalar secret `Text` field ([`ControlClass::Secret`],
+/// masking site #1) — the ALWAYS-eye case the faithfulness gate models on both
+/// sides (emit predicts it here; the real render exposes the adjacent
+/// `Role::Button` labelled [`crate::form::secret_widget::REVEAL_EYE_GLYPH`]).
+/// Value-conditional eyes (the secret Composite site #3, the deferred tree-key
+/// sites #4/#5) are covered by dedicated kittest cells, NOT this gate — a
+/// value-conditional projection would force fixture-value coupling into the
+/// faithfulness gate (reveal-R0 rulings 3/4).
+pub fn flag_has_reveal_eye(flag: &FlagSchema) -> bool {
+    matches!(control_class(flag), ControlClass::Secret)
+}
+
 /// The emit-side [`FormProjection`] for `(tab, sub)` under the shared canonical
 /// [`render_fixture`] — the projection the P3 faithfulness gate compares the
 /// real egui render against.
@@ -572,6 +585,17 @@ fn flag_body(flag: &FlagSchema, vis: &Visibility) -> String {
 
     let value = flag_value_str(flag, vis, is_secret, is_secret_bool);
 
+    // v0.57.0: a value-bearing masked secret row carries the reveal (👁) eye —
+    // depicted as the strictly-ASCII ` [reveal]` marker (OQ-3 DEPICT ruling;
+    // determinism contract §6). Exactly the `<masked>` rows (site #1), so the
+    // marker set == the `<masked>` census (the 28 masked-on-load forms). A
+    // secret `*-stdin` Boolean has no value payload → no eye → no marker.
+    let reveal_marker = if is_secret && !is_secret_bool {
+        " [reveal]"
+    } else {
+        ""
+    };
+
     let mut state_suffix = String::new();
     if matches!(vis, Visibility::Disabled) || is_secret_bool {
         state_suffix.push_str(" [disabled]");
@@ -582,7 +606,7 @@ fn flag_body(flag: &FlagSchema, vis: &Visibility) -> String {
         state_suffix.push_str(&format!(" [disabled-options: {}]", v.join(", ")));
     }
 
-    format!("{kind}  {markers_str}-> {value}{state_suffix}")
+    format!("{kind}  {markers_str}-> {value}{reveal_marker}{state_suffix}")
 }
 
 /// The rendered value for a flag under the canonical fixture. Secrets are
@@ -665,7 +689,10 @@ fn positional_body(pos: &PositionalArgSchema) -> String {
         format!("({}) ", markers.join(", "))
     };
     let value = if pos.secret { MASKED } else { "<empty>" };
-    format!("{kind}  {markers_str}-> {value}")
+    // v0.57.0: a secret positional renders via `SecretLineEdit::show` → carries
+    // the reveal (👁) eye; depicted as ` [reveal]` (same ASCII marker as flags).
+    let reveal_marker = if pos.secret { " [reveal]" } else { "" };
+    format!("{kind}  {markers_str}-> {value}{reveal_marker}")
 }
 
 /// ASCII kind label per `FlagKind`. Booleans render as `checkbox` (the

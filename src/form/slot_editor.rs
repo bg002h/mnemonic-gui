@@ -49,7 +49,20 @@ pub fn render(ui: &mut egui::Ui, state: &mut SlotState, path_hint: Option<&str>)
                     // mutually exclusive (.password never combines with
                     // hint_text).
                     if row.subkey.is_secret_bearing() {
-                        ui.add(egui::TextEdit::singleline(&mut row.value).password(true));
+                        // v0.57.0: secret slot rows get the reveal (👁) eye
+                        // (site #2, secret arm ONLY — the `(Path, hint)` arm
+                        // below stays eye-free). Per-row stable id via this
+                        // row's `ui.id()`.
+                        let ctx = ui.ctx().clone();
+                        let field_id = ui.unique_id().with("slot_secret_reveal");
+                        let reveal =
+                            crate::form::secret_widget::reveal_toggle(ui, &ctx, field_id);
+                        let resp = ui.add(
+                            egui::TextEdit::singleline(&mut row.value)
+                                .id(field_id)
+                                .password(!reveal),
+                        );
+                        crate::form::secret_widget::clear_reveal_on_blur(&ctx, field_id, &resp);
                     } else {
                         match (row.subkey, path_hint) {
                             (SlotSubkey::Path, Some(hint)) if row.value.is_empty() => {

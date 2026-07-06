@@ -32,9 +32,11 @@ fn render(tab: CliTab, name: &str) -> String {
 fn exact_render_secret_bearing_form_masks_secret() {
     // `mnemonic inspect`: a secret Text flag (`--ms1`) + checkboxes. The
     // secret value is the fixed `<masked>` sentinel — NEVER cleartext.
+    // v0.57.0: the masked secret row carries the reveal (👁) eye — depicted as
+    // the strictly-ASCII ` [reveal]` marker appended after `<masked>` (OQ-3).
     let expected = "\
 [ mnemonic > inspect ]
-  --ms1             text  (required, secret) -> <masked>
+  --ms1             text  (required, secret) -> <masked> [reveal]
   --mk1             text  (required, repeating) -> <empty>
   --md1             text  (required, repeating) -> <empty>
   --json            checkbox  -> [ ] off
@@ -167,9 +169,10 @@ fn slot_form_renders_slot_editor_placeholder() {
         !out.lines().any(|l| l.trim_start().starts_with("--slot ")),
         "--slot must not render in the flag grid:\n{out}"
     );
-    // A secret Text flag masks; a secret `*-stdin` Boolean stays a disabled
-    // checkbox (no secret payload), NOT masked.
-    assert!(out.contains("--passphrase            text  (secret) -> <masked>"), "{out}");
+    // A secret Text flag masks + carries the reveal (👁) ` [reveal]` marker; a
+    // secret `*-stdin` Boolean stays a disabled checkbox (no secret payload, no
+    // eye), NOT masked.
+    assert!(out.contains("--passphrase            text  (secret) -> <masked> [reveal]"), "{out}");
     assert!(
         out.contains("--passphrase-stdin      checkbox  (secret) -> [ ] off [disabled]"),
         "{out}"
@@ -188,9 +191,10 @@ fn slot_form_renders_slot_editor_placeholder() {
 
 #[test]
 fn secret_positional_is_masked() {
-    // `ms inspect`'s positional `ms1` is secret → `<masked>`, never a value.
+    // `ms inspect`'s positional `ms1` is secret → `<masked>`, never a value, and
+    // carries the reveal (👁) ` [reveal]` marker (renders via SecretLineEdit::show).
     let out = render(CliTab::Ms, "inspect");
-    assert!(out.contains("ms1     positional  (secret) -> <masked>"), "{out}");
+    assert!(out.contains("ms1     positional  (secret) -> <masked> [reveal]"), "{out}");
 }
 
 #[test]

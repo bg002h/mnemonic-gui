@@ -59,8 +59,10 @@ use egui::accesskit::Role;
 use egui_kittest::kittest::Queryable;
 use egui_kittest::Harness;
 
+use mnemonic_gui::app::CliTab;
 use mnemonic_gui::form::fixtures::render_fixture;
 use mnemonic_gui::form::render_emit::{self, ControlClass, Presence};
+use mnemonic_gui::form::secret_widget::REVEAL_EYE_GLYPH;
 use mnemonic_gui::schema::{FormState, PositionalArgSchema};
 
 mod ui_harness;
@@ -127,6 +129,13 @@ fn observe_control(h: &Harness<'static, FormState>) -> Option<ControlClass> {
     } else {
         None
     }
+}
+
+/// v0.57.0: does the isolated render expose the reveal (👁) eye button? The eye
+/// is queried by its EXACT label glyph (not `Role::Button`, which a `?` help
+/// icon / `Set` button would also match), so it specifically detects the eye.
+fn observe_reveal_eye(h: &Harness<'static, FormState>) -> bool {
+    has_label(h, REVEAL_EYE_GLYPH)
 }
 
 // ─── the faithfulness gate ───────────────────────────────────────────────────
@@ -244,6 +253,29 @@ fn gui_render_emit_is_faithful_to_real_form_for_all_61_forms() {
                     sub.name, fp.name, fp.control
                 )),
             }
+
+            // ── v0.57.0: the reveal (👁) eye — modelled on BOTH sides for the
+            //    ALWAYS-eye case (scalar secret Text → ControlClass::Secret,
+            //    site #1). The emit predicts `flag_has_reveal_eye`; the real
+            //    isolated render must expose the adjacent `Role::Button` labelled
+            //    `👁` (a scalar secret Text has no `?` help icon, so the eye is
+            //    the only Button — `has_label(👁)` is unambiguous). The
+            //    value-CONDITIONAL eyes (the composite site #3, whose default
+            //    node may or may not be secret) are NOT modelled here — that
+            //    would force fixture-value coupling into the gate (reveal-R0
+            //    ruling 4); they are covered by the dedicated kittest cell
+            //    `secret_reveal_toggle::cell8b`. The non-vacuity negative for the
+            //    modelled case lives in a dedicated test below.
+            if matches!(fp.control, ControlClass::Secret) {
+                let real_eye = observe_reveal_eye(&h);
+                let emit_eye = render_emit::flag_has_reveal_eye(flag);
+                if real_eye != emit_eye {
+                    divergences.push(format!(
+                        "{bin}/{}: flag {} — real reveal-eye={real_eye}, emit reveal-eye={emit_eye}",
+                        sub.name, fp.name
+                    ));
+                }
+            }
         }
 
         // ── (1c) positional presence + secret-masking: the REAL isolated
@@ -273,5 +305,50 @@ fn gui_render_emit_is_faithful_to_real_form_for_all_61_forms() {
         "GUI-render faithfulness divergences ({} — emit depiction != real render):\n{}",
         divergences.len(),
         divergences.join("\n")
+    );
+}
+
+/// v0.57.0 — the reveal-eye faithfulness NON-VACUITY negative (spec §8 test #7).
+///
+/// Proves the eye cross-check above has teeth: a secret scalar Text field's REAL
+/// isolated render carries the 👁 button, so an emit projection that OMITTED the
+/// eye (predicted `false`) would DIVERGE from the real render → the gate REDs.
+/// Plus a discrimination arm: a non-secret flag carries NO eye on either side,
+/// so `observe_reveal_eye` / `flag_has_reveal_eye` are not vacuously always-true.
+#[test]
+fn reveal_eye_faithfulness_is_non_vacuous() {
+    let tab = CliTab::Mnemonic;
+    let sub = ui_harness::sub_of(tab, "inspect");
+
+    // A scalar secret Text flag (ControlClass::Secret, site #1).
+    let ms1 = ui_harness::flag_of(sub, "--ms1");
+    let h = ui_harness::render_flag_harness(tab, sub, ms1, render_fixture(tab, sub.name));
+    let real_eye = observe_reveal_eye(&h);
+    assert!(
+        real_eye,
+        "a scalar secret Text field's real render MUST carry the reveal (👁) eye"
+    );
+    assert!(
+        render_emit::flag_has_reveal_eye(ms1),
+        "emit MUST predict the eye for a ControlClass::Secret flag"
+    );
+    // NON-VACUITY: an emit projection omitting the eye (false) would RED against
+    // the real render (which has it).
+    let projection_omitting_eye = false;
+    assert_ne!(
+        projection_omitting_eye, real_eye,
+        "a projection omitting the eye must diverge from the real render (non-vacuous)"
+    );
+
+    // DISCRIMINATION: a non-secret flag has NO eye on either side.
+    let json = ui_harness::flag_of(sub, "--json");
+    let hj = ui_harness::render_flag_harness(tab, sub, json, render_fixture(tab, sub.name));
+    assert!(
+        !observe_reveal_eye(&hj),
+        "a non-secret flag must NOT render the reveal eye"
+    );
+    assert!(
+        !render_emit::flag_has_reveal_eye(json),
+        "emit must NOT predict the eye for a non-secret flag"
     );
 }
