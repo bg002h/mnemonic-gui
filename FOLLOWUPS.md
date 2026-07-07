@@ -7,6 +7,12 @@ mirrors it.
 
 ## Active
 
+### `toolkit-v0.77.0-import-wallet-internal-nullable` — toolkit `import-wallet --json` `source_metadata.internal` is now nullable + Core receive/change entries collapse 2→1
+
+- **Surfaced:** 2026-07-06, toolkit Cycle B (`mnemonic-toolkit-v0.77.0`, follow-up `bitcoin-core-receive-change-pair-merge`). The toolkit now auto-recombines a Bitcoin Core same-key receive/change split pair (`/0/*`+`/1/*`) into ONE `<0;1>/*` multipath bundle on `import-wallet --format bitcoin-core`. Two `--json` wire-shape effects: (1) `source_metadata.internal` can now be `null` (a merged entry — previously always `true`/`false`); (2) a Core `listdescriptors` blob that used to yield two bundles now yields one merged bundle.
+- **Status:** ✓ **NO GUI CODE CHANGE NEEDED (verified 2026-07-06).** mnemonic-gui does NOT deserialize `source_metadata.internal` (zero refs in `src/`); its only import-adjacent `--json` parse is untyped `serde_json::Value` (tolerant of `null`). The GUI is pinned at `mnemonic-toolkit-v0.75.0`, so its tests run against the pre-merge binary regardless. No `schema_mirror` impact (the toolkit cycle added NO clap flag/subcommand/dropdown). **Action at the NEXT GUI toolkit-pin bump (→ v0.76.0/v0.77.0+):** re-verify the untyped envelope parse still tolerates the merged shape (`internal: null`, 2→1 entry count). Subsumed by the existing `json-envelope-wire-shape-ungated-stale-fixtures` obs.
+- **Tier:** cross-repo (wire-shape). **Companion:** `mnemonic-toolkit/design/FOLLOWUPS.md` → `bitcoin-core-receive-change-pair-merge` (RESOLVED v0.77.0).
+
 ### `audit-2026-06-10-backlog` — verified findings from the first independent Fable constellation audit
 
 - **Surfaced:** 2026-06-10, the 23-agent read-only architecture audit (find → adversarial-verify → synthesize). 48 verified findings constellation-wide (0 critical); this repo's share below. **Full report + per-finding detail (claim/evidence/fix/disposition):** `../../mnemonic-toolkit/design/agent-reports/constellation-architecture-audit-2026-06-10.md` (committed in the toolkit repo). Promote any line to its own `### <id>` entry when worked; resolve here as fixed.
