@@ -435,3 +435,154 @@ fn secret_widgets_round_trip_never_persists_both_directions() {
     );
     assert!(new_form.values.iter().any(|(k, _)| k == "--network"));
 }
+
+// ════════════════════════════════════════════════════════════════════════
+// F6 (I-3) — address-of-xpub inference-dropdown load-time migration
+// ════════════════════════════════════════════════════════════════════════
+//
+// Any user who ever opened `xpub-search-address-of-xpub` on ≤ v0.57.0 has
+// `("--address-type", Dropdown("p2pkh"))` + `("--network", Dropdown("mainnet"))`
+// persisted (the pre-F6 materialized opts[0]). The load-time migration DROPS
+// exactly those two stale values under EXACTLY the flattened key
+// `"mnemonic:xpub-search-address-of-xpub"` so a rehydrated form re-materializes
+// the F6 inference sentinel `Dropdown("")` → emits nothing → the toolkit infers
+// (else a funds false-negative "no match" persists post-upgrade). It preserves a
+// deliberately-chosen non-default, is idempotent, and never touches other forms.
+
+fn addr_form(values: Vec<(&str, FlagValue)>) -> FormState {
+    FormState::from_pairs(values.into_iter().map(|(k, v)| (k.to_string(), v)))
+}
+
+fn persisted_with(key: &str, form: FormState) -> PersistedState {
+    let mut map = BTreeMap::new();
+    map.insert(key.to_string(), form);
+    PersistedState {
+        schema_version: SCHEMA_VERSION,
+        last_cli_tab: "mnemonic".into(),
+        last_subcommand_per_tab: BTreeMap::new(),
+        window_size: None,
+        window_position: None,
+        show_cmdline: true,
+        show_stdout: true,
+        show_stderr: true,
+        form_state_per_subcommand: map,
+    }
+}
+
+/// The persisted `Dropdown` value string for `name`, or `None` if absent /
+/// a different variant.
+fn dropdown_of(form: &FormState, name: &str) -> Option<String> {
+    form.values.iter().find_map(|(k, v)| match v {
+        FlagValue::Dropdown(s) if k == name => Some(s.clone()),
+        _ => None,
+    })
+}
+
+const ADDR_KEY: &str = "mnemonic:xpub-search-address-of-xpub";
+
+#[test]
+fn f6_migration_drops_stale_p2pkh_and_mainnet_under_exact_key() {
+    let dir = tempfile::TempDir::new().unwrap();
+    let path = dir.path().join("state.json");
+    let form = addr_form(vec![
+        ("--address-type", FlagValue::Dropdown("p2pkh".into())),
+        ("--network", FlagValue::Dropdown("mainnet".into())),
+        // an unrelated non-secret context value must be untouched
+        ("--xpub", FlagValue::Text("xpub6C...".into())),
+    ]);
+    save(&persisted_with(ADDR_KEY, form), &path).unwrap();
+
+    let loaded = load(&path).expect("load");
+    let form = loaded.form_state_per_subcommand.get(ADDR_KEY).unwrap();
+    assert_eq!(
+        dropdown_of(form, "--address-type"),
+        None,
+        "stale materialized --address-type p2pkh must be dropped → re-infers"
+    );
+    assert_eq!(
+        dropdown_of(form, "--network"),
+        None,
+        "stale materialized --network mainnet must be dropped → re-infers"
+    );
+    assert!(
+        form.values.iter().any(|(k, _)| k == "--xpub"),
+        "the unrelated --xpub context value must survive the migration"
+    );
+}
+
+#[test]
+fn f6_migration_preserves_deliberate_non_default_selection() {
+    let dir = tempfile::TempDir::new().unwrap();
+    let path = dir.path().join("state.json");
+    let form = addr_form(vec![
+        ("--address-type", FlagValue::Dropdown("p2tr".into())),
+        ("--network", FlagValue::Dropdown("signet".into())),
+    ]);
+    save(&persisted_with(ADDR_KEY, form), &path).unwrap();
+
+    let loaded = load(&path).expect("load");
+    let form = loaded.form_state_per_subcommand.get(ADDR_KEY).unwrap();
+    assert_eq!(
+        dropdown_of(form, "--address-type"),
+        Some("p2tr".into()),
+        "a deliberately-chosen p2tr (≠ the stale p2pkh) must be PRESERVED"
+    );
+    assert_eq!(
+        dropdown_of(form, "--network"),
+        Some("signet".into()),
+        "a deliberately-chosen signet (≠ the stale mainnet) must be PRESERVED"
+    );
+}
+
+#[test]
+fn f6_migration_is_idempotent_on_the_inference_sentinel() {
+    // A form already carrying the post-fix Dropdown("") sentinel must survive
+    // load unchanged (post-fix "" ≠ "p2pkh"/"mainnet").
+    let dir = tempfile::TempDir::new().unwrap();
+    let path = dir.path().join("state.json");
+    let form = addr_form(vec![
+        ("--address-type", FlagValue::Dropdown(String::new())),
+        ("--network", FlagValue::Dropdown(String::new())),
+    ]);
+    save(&persisted_with(ADDR_KEY, form), &path).unwrap();
+
+    let loaded = load(&path).expect("load");
+    let form = loaded.form_state_per_subcommand.get(ADDR_KEY).unwrap();
+    assert_eq!(
+        dropdown_of(form, "--address-type"),
+        Some(String::new()),
+        "the Dropdown(\"\") sentinel must survive (idempotent)"
+    );
+    assert_eq!(
+        dropdown_of(form, "--network"),
+        Some(String::new()),
+        "the Dropdown(\"\") sentinel must survive (idempotent)"
+    );
+}
+
+#[test]
+fn f6_migration_never_touches_other_forms() {
+    // The SAME (flag, value) that IS dropped under the address-of-xpub key must
+    // be PRESERVED under a different real subcommand key — proving the migration
+    // is gated on the EXACT flattened key, not the flag/value alone.
+    // (`path-of-xpub` also carries a Dropdown `--network`.)
+    let dir = tempfile::TempDir::new().unwrap();
+    let path = dir.path().join("state.json");
+    let form = addr_form(vec![("--network", FlagValue::Dropdown("mainnet".into()))]);
+    save(
+        &persisted_with("mnemonic:xpub-search-path-of-xpub", form),
+        &path,
+    )
+    .unwrap();
+
+    let loaded = load(&path).expect("load");
+    let form = loaded
+        .form_state_per_subcommand
+        .get("mnemonic:xpub-search-path-of-xpub")
+        .unwrap();
+    assert_eq!(
+        dropdown_of(form, "--network"),
+        Some("mainnet".into()),
+        "another form's persisted --network mainnet must NOT be touched by the F6 migration"
+    );
+}

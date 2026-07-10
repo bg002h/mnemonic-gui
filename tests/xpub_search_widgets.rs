@@ -75,7 +75,14 @@ fn cell_path_of_xpub_argv_assembles() {
         subcommand("xpub-search-path-of-xpub"),
         harness.state(),
     );
-    assert!(argv.contains(&"xpub-search-path-of-xpub".to_string()));
+    // F5: the nested subcommand emits the `[parent, child]` argv PAIR
+    // (`mnemonic xpub-search path-of-xpub …`), never the flattened token.
+    assert!(
+        argv.windows(2)
+            .any(|w| w == ["xpub-search", "path-of-xpub"]),
+        "expected nested pair [xpub-search, path-of-xpub]; got {argv:?}"
+    );
+    assert!(!argv.contains(&"xpub-search-path-of-xpub".to_string()));
     assert!(argv.contains(&"--target-xpub".to_string()));
     assert!(argv.contains(&"xpub-probe-canned".to_string()));
     assert!(argv.contains(&"--phrase".to_string()));
@@ -151,7 +158,12 @@ fn cell_account_of_descriptor_argv_assembles() {
         subcommand("xpub-search-account-of-descriptor"),
         harness.state(),
     );
-    assert!(argv.contains(&"xpub-search-account-of-descriptor".to_string()));
+    assert!(
+        argv.windows(2)
+            .any(|w| w == ["xpub-search", "account-of-descriptor"]),
+        "expected nested pair [xpub-search, account-of-descriptor]; got {argv:?}"
+    );
+    assert!(!argv.contains(&"xpub-search-account-of-descriptor".to_string()));
     assert!(argv.contains(&"--descriptor".to_string()));
     assert!(argv.contains(&"--phrase".to_string()));
     assert!(argv.contains(&"--json".to_string()));
@@ -221,7 +233,12 @@ fn cell_address_of_xpub_argv_assembles() {
         subcommand("xpub-search-address-of-xpub"),
         harness.state(),
     );
-    assert!(argv.contains(&"xpub-search-address-of-xpub".to_string()));
+    assert!(
+        argv.windows(2)
+            .any(|w| w == ["xpub-search", "address-of-xpub"]),
+        "expected nested pair [xpub-search, address-of-xpub]; got {argv:?}"
+    );
+    assert!(!argv.contains(&"xpub-search-address-of-xpub".to_string()));
     assert!(argv.contains(&"--xpub".to_string()));
     assert!(argv.contains(&"xpub-probe-canned".to_string()));
     // --target-address is repeating; expect 2 emissions in order.
@@ -303,7 +320,12 @@ fn cell_passphrase_of_xpub_argv_assembles() {
         subcommand("xpub-search-passphrase-of-xpub"),
         harness.state(),
     );
-    assert!(argv.contains(&"xpub-search-passphrase-of-xpub".to_string()));
+    assert!(
+        argv.windows(2)
+            .any(|w| w == ["xpub-search", "passphrase-of-xpub"]),
+        "expected nested pair [xpub-search, passphrase-of-xpub]; got {argv:?}"
+    );
+    assert!(!argv.contains(&"xpub-search-passphrase-of-xpub".to_string()));
     assert!(argv.contains(&"--target-xpub".to_string()));
     assert!(argv.contains(&"--phrase".to_string()));
     assert!(argv.contains(&"--number-of-accounts".to_string()));

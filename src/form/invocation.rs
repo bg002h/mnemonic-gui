@@ -14,6 +14,35 @@ use crate::schema::{
     TimestampValue, Visibility,
 };
 
+/// F5 — the 5 nested `#[command(subcommand)]` parents in the toolkit's
+/// `mnemonic` CLI. The toolkit's `gui-schema` FLATTENS every nested
+/// subcommand as `format!("{parent}-{child}")`, but clap parses the NESTED
+/// grammar (`mnemonic seed-xor combine …`, NOT `mnemonic seed-xor-combine …`
+/// — the latter is an "unrecognized subcommand", clap exit 64). Both parent
+/// AND child names contain hyphens, so no naive hyphen-split works; the ONLY
+/// reliable discriminator is this CLOSED set of complete-token prefixes.
+/// A future 6th nested parent MUST be added here (the tripwire unit test fires
+/// if a schema subcommand flattens under an unlisted parent).
+const NESTED_PARENTS: &[&str] = &["seed-xor", "seedqr", "slip39", "ms-shares", "xpub-search"];
+
+/// Reverse the toolkit's `{parent}-{child}` gui-schema flattening: a flattened
+/// `name` is nested IFF it begins with `"<parent>-"` for one of the 5 known
+/// [`NESTED_PARENTS`]. Returns the argv token sequence for the subcommand — a
+/// `[parent, child]` pair for a nested name (e.g. `["seed-xor", "combine"]`),
+/// else the flat name unsplit (`import-wallet`/`export-wallet`/`verify-bundle`/
+/// `decode-address` etc. begin with none of the complete-token prefixes and
+/// pass through as `[name]`).
+fn subcommand_argv_tokens(name: &str) -> Vec<&str> {
+    for p in NESTED_PARENTS {
+        // `p` is `&&str`; deref to `*p` so `strip_prefix`/the returned token
+        // are `&str`, not `&&str`.
+        if let Some(child) = name.strip_prefix(*p).and_then(|r| r.strip_prefix('-')) {
+            return vec![*p, child];
+        }
+    }
+    vec![name]
+}
+
 /// v0.10.0 B.3 (D33) — compare the user-typed `value` against the flag's
 /// schema-declared `default_value` per the D33 per-FlagKind compare-predicate
 /// table. Returns `true` iff the value equals the schema default; in that
@@ -113,7 +142,10 @@ pub enum ShellFlavor {
 ///
 /// Invariants per SPEC §6:
 ///   1. `argv[0]` = `schema.cli_name`. No absolute path.
-///   2. `argv[1]` = `subcommand.name`.
+///   2. `argv[1..]` (before flags) = the NESTED token sequence for
+///      `subcommand.name` per [`subcommand_argv_tokens`] — a `[parent, child]`
+///      pair for the 5 nested `#[command(subcommand)]` parents (F5), else the
+///      flat name as a single token.
 ///   3. Flag emission order = `subcommand.flags` declaration order.
 ///   4. Repeating flags emit one argv pair per FormState entry in form-
 ///      state order (slot-index ascending is the SlotEditor's responsibility;
@@ -158,8 +190,14 @@ pub fn assemble_argv_with_secret_mask(
     let mut mask: Vec<bool> = Vec::new();
     argv.push(schema.cli_name.to_string());
     mask.push(false);
-    argv.push(subcommand.name.to_string());
-    mask.push(false);
+    // F5: emit the NESTED token sequence (`[parent, child]` for the 5 nested
+    // `#[command(subcommand)]` parents, else the flat name). One
+    // `mask.push(false)` per token — both tokens are non-secret, so mask/argv
+    // parallelism is preserved.
+    for token in subcommand_argv_tokens(subcommand.name) {
+        argv.push(token.to_string());
+        mask.push(false);
+    }
 
     // v0.16.0 SPEC §6.10 visibility gate. Compute the per-frame visibility
     // override map once. `subcommand.conditional` is `Option<fn(&FormState)
@@ -627,4 +665,71 @@ fn cmd_quote(s: &str) -> String {
     }
     out.push('"');
     out
+}
+
+#[cfg(test)]
+mod nested_argv_tests {
+    use super::{subcommand_argv_tokens, NESTED_PARENTS};
+
+    /// F5 tripwire: the 5 nested parents split into a `[parent, child]` pair,
+    /// and flat subcommands pass through UNSPLIT. Guards the closed-prefix
+    /// split rule against a naive hyphen-split regression and against a
+    /// future 6th nested parent being added to the schema without being
+    /// registered in `NESTED_PARENTS`.
+    #[test]
+    fn nested_parents_split_flat_subcommands_pass_through() {
+        // All 12 nested subcommands → the exact nested pair.
+        let nested: &[(&str, [&str; 2])] = &[
+            ("seed-xor-split", ["seed-xor", "split"]),
+            ("seed-xor-combine", ["seed-xor", "combine"]),
+            ("seedqr-encode", ["seedqr", "encode"]),
+            ("seedqr-decode", ["seedqr", "decode"]),
+            ("slip39-split", ["slip39", "split"]),
+            ("slip39-combine", ["slip39", "combine"]),
+            ("ms-shares-split", ["ms-shares", "split"]),
+            ("ms-shares-combine", ["ms-shares", "combine"]),
+            ("xpub-search-path-of-xpub", ["xpub-search", "path-of-xpub"]),
+            (
+                "xpub-search-account-of-descriptor",
+                ["xpub-search", "account-of-descriptor"],
+            ),
+            ("xpub-search-address-of-xpub", ["xpub-search", "address-of-xpub"]),
+            (
+                "xpub-search-passphrase-of-xpub",
+                ["xpub-search", "passphrase-of-xpub"],
+            ),
+        ];
+        for (flat, pair) in nested {
+            assert_eq!(
+                subcommand_argv_tokens(flat),
+                pair.to_vec(),
+                "nested `{flat}` must split into {pair:?}"
+            );
+        }
+        // Flat subcommands (begin with none of the complete-token prefixes)
+        // pass through unsplit — the anti-corruption pin.
+        for flat in [
+            "import-wallet",
+            "export-wallet",
+            "verify-bundle",
+            "decode-address",
+            "bundle",
+            "restore",
+        ] {
+            assert_eq!(
+                subcommand_argv_tokens(flat),
+                vec![flat],
+                "flat `{flat}` must pass through unsplit"
+            );
+        }
+        // A bare parent token (no child) is NOT split (defensive — no such
+        // flattened leaf exists, but the rule must not corrupt one).
+        for &p in NESTED_PARENTS {
+            assert_eq!(
+                subcommand_argv_tokens(p),
+                vec![p],
+                "bare parent `{p}` (no trailing `-<child>`) must pass unsplit"
+            );
+        }
+    }
 }

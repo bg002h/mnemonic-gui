@@ -367,6 +367,22 @@ pub fn load(path: &Path) -> Option<PersistedState> {
 /// Semantics-preserving: argv-identical by D33 (`is_at_default` suppresses
 /// both the stored-default and the absent forms) and visibility-identical
 /// (no conditional rule reads any defaulted Text/Path flag — spec §2.5).
+///
+/// ## F6 (I-3) — the address-of-xpub inference-dropdown migration (funds-safety)
+/// A SECOND, INDEPENDENT drop rule rides this load-time pass. Any user who ever
+/// opened `xpub-search-address-of-xpub` on ≤ v0.57.0 has
+/// `("--address-type", Dropdown("p2pkh"))` + `("--network", Dropdown("mainnet"))`
+/// PERSISTED (the pre-F6 materialized `opts[0]`). The F6 consts-only fix leaves
+/// those emitting, so the funds false-negative ("not my key") persists
+/// post-upgrade for exactly the affected users. This migration DROPS the two
+/// stale values (so a rehydrated form re-materializes the F6 inference sentinel
+/// `Dropdown("")` → emits nothing → the toolkit infers). It is INDEPENDENT of
+/// the `default_value else keep` gate below because BOTH flags are `None`-default
+/// (they never reach that gate's Text/Path arm). It is gated on the EXACT
+/// flattened persisted key so no other form's persisted dropdowns are touched, on
+/// the two flag NAMES, and on the two old VALUES — a deliberately-chosen
+/// non-default (e.g. `p2tr`) is PRESERVED, and it is idempotent (post-fix
+/// `""` ≠ `"p2pkh"`/`"mainnet"`).
 fn normalize_loaded_form_values(state: &mut PersistedState) {
     for (key, form) in state.form_state_per_subcommand.iter_mut() {
         let Some((tab_name, sub_name)) = key.split_once(':') else {
@@ -382,10 +398,24 @@ fn normalize_loaded_form_values(state: &mut PersistedState) {
         else {
             continue; // (b) unknown subcommand → fail-open
         };
+        // F6 (I-3): the migration is scoped to EXACTLY this persisted key (the
+        // flattened `<cli>:<sub.name>`, UNCHANGED by the F5 assembler split).
+        let is_address_of_xpub = key.as_str() == "mnemonic:xpub-search-address-of-xpub";
         form.values.retain(|(name, value)| {
             let Some(flag) = sub.flags.iter().find(|f| f.name == name.as_str()) else {
                 return true; // (b) unknown flag → keep
             };
+            // F6 (I-3): drop the stale materialized inference-dropdown values
+            // (BEFORE the default_value gate — both flags are None-default).
+            if is_address_of_xpub {
+                if let FlagValue::Dropdown(s) = value {
+                    if (name == "--address-type" && s == "p2pkh")
+                        || (name == "--network" && s == "mainnet")
+                    {
+                        return false; // drop → re-materializes Dropdown("") on render
+                    }
+                }
+            }
             let Some(default_str) = flag.default_value else {
                 return true; // no schema default → keep
             };
