@@ -7,6 +7,12 @@ mirrors it.
 
 ## Active
 
+### `word-card-json-verify-advisory-field` — toolkit `word-card --decode --json` gains a `verify_advisory` field + `schema_version "1"→"2"` (F2)
+
+- **Surfaced:** 2026-07-10, toolkit F2 (`mnemonic-toolkit-v0.84.0`, `wc-codec-raid-array-id-same-quorum-collision`). The RAID-decode `--json` envelope gains a per-plate `verify_advisory: Option<String>` (present only on an MDS-solved `*recovered` plate) and bumps `schema_version` `"1"`→`"2"`; a loud `*recovered` verify-this-xpub advisory also prints in text mode + stderr.
+- **Status:** ✓ **NO GUI CODE CHANGE NEEDED (verified 2026-07-10).** mnemonic-gui does NOT typed-parse word-card `--decode --json` — its only word-card-output handling is generic `serde_json::Value` display (`src/form/tree_form.rs`), which tolerates the added field + bumped schema. No `schema_mirror` impact (F2 added no clap flag/subcommand/dropdown). **Action at the NEXT GUI toolkit-pin bump (→ ≥ v0.84.0):** optionally surface the `verify_advisory` text in the RAID-decode output pane (it's a funds-safety hint worth showing), but nothing breaks if left as generic display.
+- **Tier:** cross-repo (informational `--json` wire-shape). **Companion:** `mnemonic-toolkit/design/FOLLOWUPS.md` → `wc-codec-raid-array-id-same-quorum-collision` (RESOLVED v0.84.0).
+
 ### `network-dropdown-default-forces-explicit-mainnet` — the `--network` dropdown seeds explicit `mainnet` (`default_value:None`), defeating toolkit version-byte inference
 
 - **Surfaced:** 2026-07-09, toolkit Cycle H (`mnemonic-toolkit-v0.83.0`, eval-F3 network-fail-open closure). The toolkit now fail-closes (exit 2 `NetworkMismatch`) when an asserted `--network` disagrees with a key's version bytes, across `convert`/`xpub-search`/`silent-payment`/`export-wallet`. The GUI `--network` dropdown seeds "mainnet" with `default_value:None`, so every untouched GUI `convert`/`export-wallet` passes an EXPLICIT `--network mainnet` and defeats the toolkit's version-byte inference.
