@@ -27,6 +27,17 @@ const NO_POSITIONALS: &[PositionalArgSchema] = &[];
 // ─── Shared dropdown option lists ───────────────────────────────────────
 
 const NETWORKS: &[&str] = &["mainnet", "testnet", "signet", "regtest"];
+/// F6 — the `""`-PREPENDED inference variant of [`NETWORKS`], used ONLY by
+/// `xpub-search-address-of-xpub --network`. The leading `""` is the inference
+/// sentinel: it materializes as the virgin default (opts[0]), stores as
+/// `Dropdown("")`, DISPLAYS as `(none)` (`widget::display_or`), and emits
+/// NOTHING (`emit_one` guards `!v.is_empty()`) — so a virgin form lets the
+/// toolkit INFER the network from the xpub's SLIP-0132 version byte rather than
+/// forcing `mainnet` (which would flip an inference exit-0 match into a
+/// false-negative "no match"). Contrast the shared `NETWORKS` (15 sites) whose
+/// concrete `mainnet` default is correct; this const is address-of-xpub-only.
+/// PREPEND (not append) is load-bearing — the virgin form materializes opts[0].
+const NETWORKS_INFER: &[&str] = &["", "mainnet", "testnet", "signet", "regtest"];
 // mstring display-grouping (toolkit v0.56.0): `--separator` keyword values.
 // SPEC §I7 — the GUI MUST emit a KEYWORD (space|hyphen|comma), never a
 // literal space, to avoid argv/whitespace ambiguity through the GUI→argv
@@ -2843,7 +2854,23 @@ const IMPORT_WALLET_FORMATS: &[&str] = &[
 /// `xpub-search-address-of-xpub --address-type`. Mirrors the toolkit's
 /// `address_of_xpub.rs:55-58` clap-derive doc-comment + the kebab-case
 /// `ScriptType` JSON tag enumeration at `address_of_xpub.rs:104-114`.
+// F6: retained as the canonical non-inference address-type list (byte-identical
+// to pre-F6). Its sole consumer, `address-of-xpub --address-type`, now points at
+// the `_INFER` variant below, so this const is currently unreferenced — kept
+// (not deleted) as the documented base of `XPUB_SEARCH_ADDRESS_TYPES_INFER` and
+// for any future non-inference consumer. `#[allow(dead_code)]` per the GUI
+// clippy `-D warnings` gate.
+#[allow(dead_code)]
 const XPUB_SEARCH_ADDRESS_TYPES: &[&str] = &["p2pkh", "p2sh-p2wpkh", "p2wpkh", "p2tr"];
+/// F6 — the `""`-PREPENDED inference variant of [`XPUB_SEARCH_ADDRESS_TYPES`],
+/// used ONLY by `xpub-search-address-of-xpub --address-type`. Same inference
+/// sentinel mechanics as [`NETWORKS_INFER`]: opts[0] == `""` so a virgin form
+/// stores `Dropdown("")` → displays `(none)` → emits nothing → the toolkit
+/// infers the script-type from the xpub's SLIP-0132 prefix. Without this, a
+/// virgin form emits `--address-type p2pkh`, overriding a correct inferred
+/// `p2wpkh` and turning an ownership MATCH into a false-negative "no match".
+const XPUB_SEARCH_ADDRESS_TYPES_INFER: &[&str] =
+    &["", "p2pkh", "p2sh-p2wpkh", "p2wpkh", "p2tr"];
 
 const XPUB_SEARCH_PATH_OF_XPUB_FLAGS: &[FlagSchema] = &[
     FlagSchema {
@@ -3241,7 +3268,10 @@ const XPUB_SEARCH_ADDRESS_OF_XPUB_FLAGS: &[FlagSchema] = &[
     },
     FlagSchema {
         name: "--address-type",
-        kind: FlagKind::Dropdown(XPUB_SEARCH_ADDRESS_TYPES),
+        // F6: the `""`-PREPENDED inference variant — a virgin form emits NO
+        // `--address-type` so the toolkit infers the script-type from the
+        // xpub's SLIP-0132 prefix (a forced `p2pkh` would false-negative).
+        kind: FlagKind::Dropdown(XPUB_SEARCH_ADDRESS_TYPES_INFER),
         required: false,
         repeating: false,
         help: "Explicit script-type for address rendering. Required when the \
@@ -3254,7 +3284,9 @@ const XPUB_SEARCH_ADDRESS_OF_XPUB_FLAGS: &[FlagSchema] = &[
     },
     FlagSchema {
         name: "--network",
-        kind: FlagKind::Dropdown(NETWORKS),
+        // F6: the `""`-PREPENDED inference variant — a virgin form emits NO
+        // `--network` so the toolkit infers it from the xpub version byte.
+        kind: FlagKind::Dropdown(NETWORKS_INFER),
         required: false,
         repeating: false,
         help: "Network selector. Defaults to network inferred from the xpub \

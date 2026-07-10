@@ -97,10 +97,33 @@ struct GuiSchemaSubcommand {
 #[derive(Debug, Deserialize)]
 struct GuiSchemaFlag {
     name: String,
-    // Other fields (required, kind, choices) intentionally not
-    // deserialized — C.1 only needs the flag-name set for the
-    // schema-mirror invariant. The bootstrap-import code path (which
-    // does consume kind/choices) is a separate concern.
+    // eval §2 #13 (defaults-drift gate): the toolkit v5 per-flag
+    // `default_value` and dropdown `choices` (array or null). `default_value`
+    // is emitted TYPED — a JSON number for Number-kind flags (`--account: 0`),
+    // a string for Dropdown/Text, or absent — so it is captured as a raw
+    // `serde_json::Value` and canonicalized to a string by
+    // `value_to_default_string` (the hand-mirror stores every default as a
+    // `&str`). `#[serde(default)]` keeps pre-v5 docs (which lack these) parsing
+    // cleanly. The flag-name extractor is unaffected (still reads only `name`).
+    #[serde(default)]
+    default_value: serde_json::Value,
+    #[serde(default)]
+    choices: Option<Vec<String>>,
+}
+
+/// eval §2 #13 — canonicalize a JSON `default_value` to the string form the
+/// hand-mirror stores (`--account`'s numeric `0` → `"0"`; a string default
+/// passes through; `null`/absent → `None`). Object/array defaults have no
+/// scalar string form → `None`.
+fn value_to_default_string(v: &serde_json::Value) -> Option<String> {
+    match v {
+        serde_json::Value::String(s) => Some(s.clone()),
+        serde_json::Value::Number(n) => Some(n.to_string()),
+        serde_json::Value::Bool(b) => Some(b.to_string()),
+        serde_json::Value::Null
+        | serde_json::Value::Object(_)
+        | serde_json::Value::Array(_) => None,
+    }
 }
 
 /// SPEC §6.10 ConditionalRule — projection of a single CLI mutex / conditional
@@ -349,4 +372,86 @@ pub fn json_flag_names(
     }
     let stdout = String::from_utf8(output.stdout).ok()?;
     parse_gui_schema_json(&stdout, subcommand_name)
+}
+
+// ── eval §2 #13 — defaults/choices drift accessors ──────────────────────
+
+/// Shared shell-out for the #13 defaults/choices accessors: run
+/// `<cli> gui-schema` (gui-schema-capable CLIs only) and return its stdout
+/// JSON. `None` when the CLI is not gui-schema-capable, absent from
+/// `pinned-upstream.toml`, the binary can't be invoked, or it exits non-zero.
+/// Binary lookup mirrors `json_flag_names`: `<CLI>_BIN` env wins, else the
+/// `pinned-upstream.toml` `bin` through `$PATH`.
+fn run_gui_schema_json(cli_name: &str) -> Option<String> {
+    let pinned = load_pinned_upstream()?;
+    let entry = pinned.entry(cli_name)?;
+    if !entry.gui_schema_capable {
+        return None;
+    }
+    let bin_env = format!("{}_BIN", cli_name.to_uppercase());
+    let bin = std::env::var(&bin_env).unwrap_or_else(|_| entry.bin.clone());
+    let output = Command::new(&bin).arg("gui-schema").output().ok()?;
+    if !output.status.success() {
+        return None;
+    }
+    String::from_utf8(output.stdout).ok()
+}
+
+/// eval §2 #13 — the per-flag `default_value` map for `subcommand_name`
+/// (`name -> Option<default_str>`). Pure; testable with synthetic JSON.
+pub fn parse_gui_schema_defaults(
+    json: &str,
+    subcommand_name: &str,
+) -> Option<BTreeMap<String, Option<String>>> {
+    let root: GuiSchemaRoot = serde_json::from_str(json).ok()?;
+    if root.version < 1 {
+        return None;
+    }
+    let sub = root.subcommands.iter().find(|s| s.name == subcommand_name)?;
+    Some(
+        sub.flags
+            .iter()
+            .map(|f| (f.name.clone(), value_to_default_string(&f.default_value)))
+            .collect(),
+    )
+}
+
+/// eval §2 #13 — the per-flag `choices` map for `subcommand_name`
+/// (`name -> Option<Vec<choice>>`; `None` for non-dropdown/text-kind flags).
+/// Pure; testable with synthetic JSON.
+pub fn parse_gui_schema_choices(
+    json: &str,
+    subcommand_name: &str,
+) -> Option<BTreeMap<String, Option<Vec<String>>>> {
+    let root: GuiSchemaRoot = serde_json::from_str(json).ok()?;
+    if root.version < 1 {
+        return None;
+    }
+    let sub = root.subcommands.iter().find(|s| s.name == subcommand_name)?;
+    Some(
+        sub.flags
+            .iter()
+            .map(|f| (f.name.clone(), f.choices.clone()))
+            .collect(),
+    )
+}
+
+/// eval §2 #13 — shell-out variant of [`parse_gui_schema_defaults`] (mirrors
+/// [`json_flag_names`]). `None` when the CLI is not gui-schema-capable / the
+/// binary is unavailable (caller LOUD-SKIPs).
+pub fn json_flag_defaults(
+    cli_name: &str,
+    subcommand_name: &str,
+) -> Option<BTreeMap<String, Option<String>>> {
+    let json = run_gui_schema_json(cli_name)?;
+    parse_gui_schema_defaults(&json, subcommand_name)
+}
+
+/// eval §2 #13 — shell-out variant of [`parse_gui_schema_choices`].
+pub fn json_flag_choices(
+    cli_name: &str,
+    subcommand_name: &str,
+) -> Option<BTreeMap<String, Option<Vec<String>>>> {
+    let json = run_gui_schema_json(cli_name)?;
+    parse_gui_schema_choices(&json, subcommand_name)
 }

@@ -3,6 +3,16 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## mnemonic-gui [0.58.0] — 2026-07-10
+
+**SemVer-MINOR — funds-safety fixes for the recovery-form run surface (constellation-eval F5 + F6). Pin-NEUTRAL for the sibling CLIs (no clap-surface change; `schema_mirror` unchanged); no toolkit-pin bump.**
+
+- **F5 — nested recovery subcommands are now runnable/copyable.** The GUI pushed the flattened `SubcommandSchema.name` (e.g. `seed-xor-combine`) as one argv token, but the toolkit CLI is nested — so all 12 nested-mode recovery forms (`seed-xor`/`slip39`/`ms-shares` split+combine, `seedqr` encode/decode, all 4 `xpub-search` modes) emitted a command clap rejects (`exit 64`), breaking both **Run** and **Copy command**. The assembler now splits the name into its nested tokens via the closed 5-parent-prefix set (`seed-xor, seedqr, slip39, ms-shares, xpub-search`) — flat subcommands (`import-wallet`, `export-wallet`, …) pass through unchanged (no flat name begins with a nested-parent prefix).
+- **F6 — `xpub-search address-of-xpub` no longer emits a false-negative ownership verdict.** A virgin form materialized `--address-type p2pkh --network mainnet` (the first option of two `default_value:None` dropdowns), overriding the toolkit's SLIP-0132/version-byte inference → an exit-0 `p2wpkh` MATCH became exit-4 "no match" (a user could read "not my key" and discard the correct backup). The two dropdowns now prepend a `(none)` inference sentinel at `opts[0]`, so a virgin form emits neither flag and the toolkit infers. **A load-time migration** also resets already-persisted `p2pkh`/`mainnet` values on that form (from any prior ≤ v0.57.0 session) to inference, so upgraded users are protected too (a deliberately-chosen non-default is preserved).
+- **schema defaults/choices drift gate** (eval §2 #13): a new `schema_mirror_defaults_drift` test asserts the hand-mirror's per-flag `default_value`/`choices` match the pinned toolkit's `gui-schema` JSON — closing the drift class that made F6's silent flag materialization possible (the existing `schema_mirror` gates flag NAMES only).
+
+Full R0 pipeline GREEN (recon + Fable SPEC ×2, plan ×2, post-impl whole-diff — the split rule proven collision-free across all 4 tab schemas, the migration proven to fully close the false-negative for already-affected users, the drift gate mutation-proven). `cargo test` 684/0; clippy `-D warnings` clean (default + `--no-default-features`). Follow-up: `gui-dropdown-none-opts0-materialization-audit` (the broader `Dropdown+None` class; top target `verify-bundle --template`).
+
 ## mnemonic-gui [0.57.0] — 2026-07-05
 
 **SemVer-MINOR — two tutorial-surfaced fixes + the combined tutorial re-drive (Leg 1 of the batched `tutorial_surfaced_fixes_batch` cycle).** Driving the `gui_example.pdf` tutorial as a usability-testing instrument surfaced two real defects; both are fixed here and the tutorial is re-driven to demonstrate the *fixed* flows (replacing the workarounds). **Pin-NEUTRAL** for the sibling CLIs (no `--help`/flag-name/enum change; `schema_mirror` + `gui_schema_conditional_drift` unchanged).

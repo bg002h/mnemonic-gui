@@ -284,7 +284,12 @@ fn cell_v0_3_slip39_split_argv_assembles() {
         subcommand("slip39-split"),
         harness.state(),
     );
-    assert!(argv.contains(&"slip39-split".to_string()));
+    // F5: nested subcommand emits the `[parent, child]` argv pair.
+    assert!(
+        argv.windows(2).any(|w| w == ["slip39", "split"]),
+        "expected nested pair [slip39, split]; got {argv:?}"
+    );
+    assert!(!argv.contains(&"slip39-split".to_string()));
     assert!(argv.contains(&"--from".to_string()));
     assert!(argv.contains(&"phrase=abandon abandon ...".to_string()));
     assert!(argv.contains(&"--group-threshold".to_string()));
@@ -332,7 +337,11 @@ fn cell_v0_3_slip39_combine_argv_assembles() {
         subcommand("slip39-combine"),
         harness.state(),
     );
-    assert!(argv.contains(&"slip39-combine".to_string()));
+    assert!(
+        argv.windows(2).any(|w| w == ["slip39", "combine"]),
+        "expected nested pair [slip39, combine]; got {argv:?}"
+    );
+    assert!(!argv.contains(&"slip39-combine".to_string()));
     // Two --share emissions in order.
     let share_indices: Vec<_> = argv
         .iter()
@@ -378,7 +387,11 @@ fn cell_v0_3_seed_xor_split_argv_assembles() {
         subcommand("seed-xor-split"),
         harness.state(),
     );
-    assert!(argv.contains(&"seed-xor-split".to_string()));
+    assert!(
+        argv.windows(2).any(|w| w == ["seed-xor", "split"]),
+        "expected nested pair [seed-xor, split]; got {argv:?}"
+    );
+    assert!(!argv.contains(&"seed-xor-split".to_string()));
     assert!(argv.contains(&"--from".to_string()));
     assert!(argv.contains(&"phrase=abandon abandon ...".to_string()));
     assert!(argv.contains(&"--shares".to_string()));
@@ -429,7 +442,11 @@ fn cell_v0_3_seed_xor_combine_argv_assembles() {
         subcommand("seed-xor-combine"),
         harness.state(),
     );
-    assert!(argv.contains(&"seed-xor-combine".to_string()));
+    assert!(
+        argv.windows(2).any(|w| w == ["seed-xor", "combine"]),
+        "expected nested pair [seed-xor, combine]; got {argv:?}"
+    );
+    assert!(!argv.contains(&"seed-xor-combine".to_string()));
     assert!(argv.contains(&"--shares".to_string()));
     let share_indices: Vec<_> = argv
         .iter()
