@@ -7,6 +7,12 @@ mirrors it.
 
 ## Active
 
+### `network-dropdown-default-forces-explicit-mainnet` — the `--network` dropdown seeds explicit `mainnet` (`default_value:None`), defeating toolkit version-byte inference
+
+- **Surfaced:** 2026-07-09, toolkit Cycle H (`mnemonic-toolkit-v0.83.0`, eval-F3 network-fail-open closure). The toolkit now fail-closes (exit 2 `NetworkMismatch`) when an asserted `--network` disagrees with a key's version bytes, across `convert`/`xpub-search`/`silent-payment`/`export-wallet`. The GUI `--network` dropdown seeds "mainnet" with `default_value:None`, so every untouched GUI `convert`/`export-wallet` passes an EXPLICIT `--network mainnet` and defeats the toolkit's version-byte inference.
+- **Status:** OPEN (deferred companion; toolkit fix ships independently). After a GUI toolkit-pin bump to ≥ v0.83.0, a testnet key under the default-mainnet dropdown will surface a `NetworkMismatch` refusal (exit 2) instead of a wrong-network address — the CORRECT funds-safe outcome (louder, not wrong), but a UX regression (the user must flip the dropdown). **Fix (if pursued):** default the `--network` dropdown to inference (a `(none)`/unset sentinel, `default_value` NOT materialized into argv) so an untouched form omits `--network` and lets the toolkit infer from the key's version bytes — the same `(none)`-sentinel pattern shipped for other dropdowns in GUI v0.57.0 (F6-adjacent; couples with the `gui-number-set-affordance-ignores-schema-default` / dropdown-materialization family). **Severity:** LOW (UX; the toolkit fix already closes the funds risk).
+- **Tier:** `mnemonic-gui`. **Companion:** `mnemonic-toolkit/design/FOLLOWUPS.md` → `gui-network-dropdown-default-forces-explicit-mainnet` (+ eval-F3, toolkit `network-fail-open` v0.83.0).
+
 ### `toolkit-v0.77.0-import-wallet-internal-nullable` — toolkit `import-wallet --json` `source_metadata.internal` is now nullable + Core receive/change entries collapse 2→1
 
 - **Surfaced:** 2026-07-06, toolkit Cycle B (`mnemonic-toolkit-v0.77.0`, follow-up `bitcoin-core-receive-change-pair-merge`). The toolkit now auto-recombines a Bitcoin Core same-key receive/change split pair (`/0/*`+`/1/*`) into ONE `<0;1>/*` multipath bundle on `import-wallet --format bitcoin-core`. Two `--json` wire-shape effects: (1) `source_metadata.internal` can now be `null` (a merged entry — previously always `true`/`false`); (2) a Core `listdescriptors` blob that used to yield two bundles now yields one merged bundle.
