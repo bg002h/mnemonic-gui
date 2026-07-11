@@ -143,6 +143,50 @@ fn no_descriptor_no_account_pin() {
 }
 
 #[test]
+fn h_notation_canonical_descriptor_pins_account_to_zero() {
+    // T5 #14b (i) — h-notation CANONICAL descriptor ⇒ the pin FIRES. This is
+    // the both-directions consequence check for the S1 h-notation grid
+    // (`tests/canonicity_drift.rs`): it isn't enough that the raw
+    // `Canonicity` verdict agrees — the *consuming* `bundle()` pin-lift
+    // logic must agree too. This is the funds-relevant direction: a
+    // canonical h-descriptor misclassified NonCanonical would LIFT the pin,
+    // letting a stale user-typed `--account N` reach the toolkit, which
+    // hard-errors on `DESCRIPTOR_WITH_NONZERO_ACCOUNT` for a valid input
+    // (the L12 bug class, see `suffix_form_origin_descriptor_pins_account_
+    // to_zero` above). Descriptor mirrors the S1 origin-fingerprint-h row
+    // (empirically `canonical` via `mnemonic gui-schema
+    // --classify-descriptor`).
+    let state = state_with_descriptor("pkh([deadbeef/44h/0h/0h]@0/<0;1>/*)");
+    let vis = bundle(&state);
+    let pinned = vis.iter().any(|(k, v)| {
+        *k == "--account"
+            && matches!(v, Visibility::PinValue { value } if value == &serde_json::json!(0))
+    });
+    assert!(
+        pinned,
+        "h-notation canonical descriptor should pin --account to 0; got vis: {vis:?}"
+    );
+}
+
+#[test]
+fn h_notation_non_canonical_descriptor_lifts_account_pin() {
+    // T5 #14b (ii) — h-notation NON-CANONICAL descriptor ⇒ the pin LIFTS.
+    // Legacy `sh(sortedmulti(...))` (no `wsh` wrap) is non-canonical
+    // regardless of notation; this instance carries h-notation origin
+    // brackets to exercise the h path specifically (empirically
+    // `non-canonical` via `mnemonic gui-schema --classify-descriptor`).
+    let state = state_with_descriptor("sh(sortedmulti(2,[deadbeef/45h/0h]@0,@1))");
+    let vis = bundle(&state);
+    let has_account_pin = vis
+        .iter()
+        .any(|(k, v)| *k == "--account" && matches!(v, Visibility::PinValue { .. }));
+    assert!(
+        !has_account_pin,
+        "h-notation non-canonical descriptor should NOT pin --account; got vis: {vis:?}"
+    );
+}
+
+#[test]
 fn descriptor_other_disables_still_fire_regardless_of_canonicity() {
     // `--template`, `--threshold`, `--multisig-path-family` disables fire
     // for ANY `--descriptor` presence, canonical or not — they have no
