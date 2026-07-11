@@ -117,6 +117,17 @@ const FIXTURES: &[(&str, Expect)] = &[
     // prefix-only corpus let GUI + toolkit happen to agree) that let the
     // drift gate miss L12.
     ("wpkh(@0[deadbeef/84'/0'/0']/<0;1>/*)", Expect::Canonical),
+    // FOLLOWUP `gui-canonicity-suffix-origin-h-fixture`: the h-notation
+    // twin of the L12 row above — SUFFIX-origin `@N[fp/path]` with
+    // h-notation (`84h/0h/0h`) instead of apostrophes. The T5 h-notation
+    // grid below covers PREFIX-origin h-notation
+    // (`[deadbeef/44h/0h/0h]@0/...`) but no fixture exercised the SUFFIX
+    // bracket group's `h?` support until now — a residual blind spot in
+    // the suffix-origin classifier path. Empirically `canonical` at the
+    // pinned `mnemonic 0.75.0` (`mnemonic gui-schema
+    // --classify-descriptor "wpkh(@0[deadbeef/84h/0h/0h]/<0;1>/*)"` →
+    // exit 0, stdout `canonical`).
+    ("wpkh(@0[deadbeef/84h/0h/0h]/<0;1>/*)", Expect::Canonical),
     // tr keypath-only shapes (BIP-86).
     ("tr(@0)", Expect::Canonical),
     ("tr(@0/<0;1>/*)", Expect::Canonical),
@@ -173,7 +184,7 @@ const FIXTURES: &[(&str, Expect)] = &[
         Expect::Canonical,
     ),
 ];
-// 17 Canonical + 4 NonCanonical + 4 ParseFails = 25 (21 classify, 4 parse-fail).
+// 18 Canonical + 4 NonCanonical + 4 ParseFails = 26 (22 classify, 4 parse-fail).
 
 #[test]
 fn gui_classifier_matches_toolkit_for_all_fixtures() {
