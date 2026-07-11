@@ -133,8 +133,47 @@ const FIXTURES: &[(&str, Expect)] = &[
     // Non-canonical: sh(sortedmulti(...)) / sh(multi(...)) legacy P2SH (no wsh wrap).
     ("sh(sortedmulti(2,@0,@1))", Expect::NonCanonical),
     ("sh(multi(2,@0,@1))", Expect::NonCanonical),
+    // ── T5 #14a: h-notation shape grid ──────────────────────────────────
+    // The GUI classifier regex claims h-support (`conditional.rs`'s
+    // `(?:/\d+'?h?)*` origin-path group + `/\*+'?h?` wildcard-suffix group)
+    // but until T5 no fixture exercised that claim against the toolkit's
+    // real parser (every pre-existing row above uses apostrophe notation
+    // only). Every `Expect` below is empirically captured against the
+    // CI-pinned toolkit binary via `mnemonic gui-schema
+    // --classify-descriptor <STR>` (verified at authoring time against
+    // `mnemonic 0.75.0`).
+    //
+    // Origin-fingerprint h: all three origin-path components use `h`.
+    ("pkh([deadbeef/44h/0h/0h]@0/<0;1>/*)", Expect::Canonical),
+    // Use-site h: the trailing wildcard carries the `h` suffix marker.
+    ("wpkh(@0/<0;1>/*h)", Expect::Canonical),
+    // tr(@0) h-origin.
+    ("tr([deadbeef/86h/0h/0h]@0)", Expect::Canonical),
+    // Mixed apostrophe + h within a single origin path.
+    ("wpkh([deadbeef/84'/0h/0']@0/<0;1>/*)", Expect::Canonical),
+    // Double-marker `44'h` (both apostrophe AND h on the same child
+    // number): the GUI's `'?h?` group is TWO independently-optional
+    // markers, so it structurally over-claims and would match this as
+    // Canonical — but the toolkit's lexer rejects the double marker
+    // outright (exit 2, "invalid child number format"). Safe fixture:
+    // ParseFails rows never assert the GUI verdict (see `Expect` doc).
+    (
+        "pkh([deadbeef/44'h/0'/0']@0/<0;1>/*)",
+        Expect::ParseFails,
+    ), // → toolkit exit 2 ("invalid child number format")
+    // wsh(multi(...)) h-origin: toolkit-DIFFERENTIAL coverage only — the
+    // GUI's wsh(multi)/sh(wsh(multi)) regexes (4-5) are wrapper-PREFIX
+    // matches with no `'?h?` group, so they classify Canonical regardless
+    // of what's inside. This row pins that the toolkit ALSO accepts
+    // h-notation origins here; it does not exercise the GUI's own h
+    // handling (see the mutation-teeth note on the RED-proof at the top
+    // of this file's test fn / T5 spec §S1).
+    (
+        "wsh(multi(2,[deadbeef/48h/0h/0h/2h]@0,@1,@2))",
+        Expect::Canonical,
+    ),
 ];
-// 12 Canonical + 4 NonCanonical + 3 ParseFails = 19 (16 classify, 3 parse-fail).
+// 17 Canonical + 4 NonCanonical + 4 ParseFails = 25 (21 classify, 4 parse-fail).
 
 #[test]
 fn gui_classifier_matches_toolkit_for_all_fixtures() {
