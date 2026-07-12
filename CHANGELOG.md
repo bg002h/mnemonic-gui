@@ -3,6 +3,16 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## mnemonic-gui [0.59.0] — 2026-07-12
+
+**SemVer-MINOR — a distinct amber VERIFY-ME badge for the toolkit's exit-4 class (the pathless/dead-card partial-decode verdict + every other exit-4), plus test-hardening. Pin-NEUTRAL for the sibling CLIs (no clap-surface change; `schema_mirror` flag-names unchanged); no toolkit-pin bump.**
+
+- **Distinct exit-4 "VERIFY-ME" badge (#35).** `render_exit_badge()` (`src/app_window.rs`) gains a `Some(4)` arm rendering an amber `exit: 4 — VERIFY-ME (confirm the result out-of-band before trusting)` badge — matching the toolkit's project-wide exit-4 class (SPEC §4: a bundle/seed mismatch, a bounded-distance BCH repair candidate, or — new in `mnemonic-toolkit` v0.88.0 — a pathless/dead-card PARTIAL decode whose origin is unspecified). Amber (220,165,0) distinguishes it from success (default label) and exit-5 Repair-Applied (green); the specific `result: partial`/`mismatch` verdict + note still render verbatim in the stdout/stderr panes below (no fragile `--json` wire-shape parsing). The GUI already surfaced exit 4 safely (non-zero exits are `Ok(RunResult)` rendered verbatim — never a false "verified OK"); this adds the distinct visual state. Closes the paired FOLLOWUP `verify-bundle-json-partial-result`.
+- **Test-hardening — h-notation canonicity + bundle→restore oracle (#33, constellation-eval §2 #14/#15)** and **the md/ms/mk `gui-schema` choices-drift gate + suffix-origin h-fixture (#34).** Test-only; no runtime behavior change.
+- **FOLLOWUP docs:** companion entry for `canonical-origin-sh-wpkh-toolkit-mirror-divergence` (mirrors the toolkit v0.87.0 sh(wpkh) canonical flip).
+
+No clap flag/schema change → `schema_mirror` (flag-NAME parity) unaffected. `cargo test` green (default + `--no-default-features`); clippy `-D warnings` clean.
+
 ## mnemonic-gui [0.58.0] — 2026-07-10
 
 **SemVer-MINOR — funds-safety fixes for the recovery-form run surface (constellation-eval F5 + F6). Pin-NEUTRAL for the sibling CLIs (no clap-surface change; `schema_mirror` unchanged); no toolkit-pin bump.**
