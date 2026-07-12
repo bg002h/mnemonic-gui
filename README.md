@@ -12,16 +12,26 @@ beyond display. The CLI remains the byte-exact source of truth.
 
 ## Status
 
-Released `mnemonic-gui-v0.3.0` on 2026-05-15. v0.3 catches the GUI
-up to `mnemonic-toolkit-v0.13.0` with 5 new `mnemonic` subcommand
-surfaces (`slip39-split` / `slip39-combine` / `seed-xor-split` /
-`seed-xor-combine` / `final-word`), a v0.10..v0.13 toolkit drift
-correction for `bundle` / `verify-bundle` / `convert` /
-`derive-child`, and 2 latent v0.2 bug fixes (repeating-secret argv
-routing; `gui-schema`-JSON-preferred schema-mirror gate). See
-[`design/agent-reports/`](design/agent-reports/) for the
-phase-by-phase build logs and [`CHANGELOG.md`](CHANGELOG.md) for
-the full release notes.
+Latest release: `mnemonic-gui-v0.59.0` (2026-07-12), tracking
+`mnemonic-toolkit-v0.89.0`. The GUI is a mature cross-platform overlay for
+all four constellation CLIs (`mnemonic` / `md` / `ms` / `mk`): every
+subcommand is form-driven from a hand-maintained `gui-schema` mirror, guarded
+on every push by a schema flag-name/defaults/choices drift gate plus
+`egui_kittest` render-snapshot tests across the form surface.
+
+Recent releases:
+
+- **v0.59.0** — a distinct amber **VERIFY-ME** badge for the toolkit's exit-4
+  class (a bundle/seed mismatch, a bounded-distance BCH repair candidate, or a
+  pathless/dead-card partial decode whose origin is unspecified) + test-hardening.
+- **v0.58.0** — constellation-eval funds-safety fixes for the recovery-form run
+  surface: nested-subcommand argv routing (F5) and an inference-dropdown
+  false-negative on `xpub-search address-of-xpub` (F6).
+- **v0.57.0** — secret reveal-toggle, `restore --template (none)`, and a tutorial
+  re-drive.
+
+See [`CHANGELOG.md`](CHANGELOG.md) for full release notes and
+[`design/agent-reports/`](design/agent-reports/) for phase-by-phase build logs.
 
 ## Install
 
