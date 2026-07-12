@@ -1177,12 +1177,34 @@ impl eframe::App for MnemonicGuiApp {
 ///
 /// Cases:
 /// - `Some(0)` → plain `exit: 0` label.
+/// - `Some(4)` → amber VERIFY-ME badge. Exit 4 is the toolkit's project-wide
+///   VERIFY-ME class (SPEC §4): a result with no self-oracle the user must
+///   confirm out-of-band — a bundle/seed mismatch, a bounded-distance BCH
+///   repair candidate, or (v0.88.0) a pathless/dead-card PARTIAL decode whose
+///   origin is unspecified. The specific verdict renders verbatim below.
 /// - `Some(5)` → green badge with explanatory message.
-/// - `Some(n)` for `n != 0 && n != 5` → plain `exit: <n>` label
+/// - `Some(n)` for `n != 0 && n != 4 && n != 5` → plain `exit: <n>` label
 ///   (subprocess error path; stderr already renders below).
 /// - `None` → plain `exit: (killed)` label (signal / no exit code).
 fn render_exit_badge(ui: &mut egui::Ui, exit_code: Option<i32>) {
     match exit_code {
+        Some(4) => {
+            // exit 4 is the toolkit's project-wide VERIFY-ME class (SPEC §4): a
+            // result with NO self-oracle that the user MUST confirm out-of-band
+            // before trusting — a bundle/seed mismatch, a bounded-distance BCH
+            // repair candidate, or (v0.88.0) a pathless/dead-card PARTIAL decode
+            // whose origin is unspecified. Amber (220, 165, 0) — the warning
+            // colour already used at archetype_form.rs:186 / slot_editor.rs:103
+            // — distinguishes it from success (default label) and exit-5
+            // Repair-Applied (green). The specific verdict (`result: partial`
+            // vs `mismatch`, or the "origin unspecified — VERIFY-ME" note)
+            // renders verbatim in the stdout/stderr panes below.
+            ui.colored_label(
+                egui::Color32::from_rgb(220, 165, 0),
+                "exit: 4 — VERIFY-ME (confirm the result out-of-band before \
+                 trusting; see stdout/stderr below)",
+            );
+        }
         Some(5) => {
             // Saturated green chosen to match the project's existing colour
             // palette (warning amber at form/slot_editor.rs:233 uses (220,
