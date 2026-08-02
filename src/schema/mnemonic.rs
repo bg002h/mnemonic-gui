@@ -4734,6 +4734,6 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
 // drift here is a cosmetic banner mismatch, not a functional error.
 pub const SCHEMA: Schema = Schema {
     cli_name: "mnemonic",
-    pinned_version: "mnemonic 0.75.0",
+    pinned_version: "mnemonic 0.91.0",
     subcommands: SUBCOMMANDS,
 };
