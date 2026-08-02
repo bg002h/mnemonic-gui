@@ -98,20 +98,23 @@ impl Expect {
 /// which pins the banner-suppression invariant. Do NOT add an empty-string
 /// fixture here.
 ///
-/// NOTE: the `@N/**` rows are `ParseFails`, NOT Canonical — the GUI regex
-/// *does* class them canonical, but this table records the *toolkit*
-/// expectation. Group comments below deliberately omit "Canonical" so they
-/// can't be read as labelling a ParseFails row.
+/// NOTE: the `@N/**` rows were `ParseFails` while the GUI pinned toolkit
+/// v0.75.0 and are `Canonical` from the v0.91.0 re-pin onward — the BIP-388
+/// `@N/**` shorthand began parsing upstream somewhere in v0.76..v0.90, and
+/// this gate is what caught it (re-captured via
+/// `mnemonic gui-schema --classify-descriptor`). The GUI regex already
+/// classed them canonical, so GUI and toolkit now agree where they used to
+/// diverge.
 const FIXTURES: &[(&str, Expect)] = &[
     // pkh single-key shapes.
     ("pkh(@0)", Expect::Canonical),
     ("pkh(@0/<0;1>/*)", Expect::Canonical),
-    ("pkh(@0/**)", Expect::ParseFails), // → toolkit exit 2 (`/**` shorthand)
+    ("pkh(@0/**)", Expect::Canonical), // `/**` shorthand parses since the v0.91.0 re-pin
     ("pkh([deadbeef/44'/0'/0']@0/<0;1>/*)", Expect::Canonical),
     // wpkh single-key shapes.
     ("wpkh(@0)", Expect::Canonical),
     ("wpkh(@0/<0;1>/*)", Expect::Canonical),
-    ("wpkh(@0/**)", Expect::ParseFails), // → toolkit exit 2 (`/**` shorthand)
+    ("wpkh(@0/**)", Expect::Canonical), // `/**` shorthand parses since the v0.91.0 re-pin
     // L12 (cycle-11a): SUFFIX-origin form `@N[fp/path]` — the toolkit
     // classifies it Canonical; this fixture closes the corpus gap (the
     // prefix-only corpus let GUI + toolkit happen to agree) that let the
@@ -131,7 +134,7 @@ const FIXTURES: &[(&str, Expect)] = &[
     // tr keypath-only shapes (BIP-86).
     ("tr(@0)", Expect::Canonical),
     ("tr(@0/<0;1>/*)", Expect::Canonical),
-    ("tr([deadbeef/86'/0'/0']@0/**)", Expect::ParseFails), // → toolkit exit 2 (`/**` shorthand)
+    ("tr([deadbeef/86'/0'/0']@0/**)", Expect::Canonical), // `/**` shorthand parses since the v0.91.0 re-pin
     // wsh-multi / sh-wsh-multi shapes (BIP-48).
     ("wsh(multi(2,@0,@1,@2))", Expect::Canonical),
     ("wsh(sortedmulti(2,@0,@1))", Expect::Canonical),

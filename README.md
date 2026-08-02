@@ -12,8 +12,8 @@ beyond display. The CLI remains the byte-exact source of truth.
 
 ## Status
 
-Latest release: `mnemonic-gui-v0.59.0` (2026-07-12), tracking
-`mnemonic-toolkit-v0.89.0`. The GUI is a mature cross-platform overlay for
+Latest release: `mnemonic-gui-v0.60.0` (2026-08-02), tracking
+`mnemonic-toolkit-v0.91.0`. The GUI is a mature cross-platform overlay for
 all four constellation CLIs (`mnemonic` / `md` / `ms` / `mk`): every
 subcommand is form-driven from a hand-maintained `gui-schema` mirror, guarded
 on every push by a schema flag-name/defaults/choices drift gate plus
@@ -21,6 +21,10 @@ on every push by a schema flag-name/defaults/choices drift gate plus
 
 Recent releases:
 
+- **v0.60.0** — **SECURITY**: re-pins the toolkit `v0.75.0` → `v0.91.0`, which
+  fixes a BIP-322 signature-verification flaw where `verify-message` reported
+  VALID for a key that does not control the challenged address. The GUI was
+  exposed transitively via the old pin (`bip322` 0.0.10, now yanked upstream).
 - **v0.59.0** — a distinct amber **VERIFY-ME** badge for the toolkit's exit-4
   class (a bundle/seed mismatch, a bounded-distance BCH repair candidate, or a
   pathless/dead-card partial decode whose origin is unspecified) + test-hardening.
@@ -54,7 +58,7 @@ rather than failing the whole install.
 To install just the GUI from source at the pinned tag:
 
 ```sh
-cargo install --locked --git https://github.com/bg002h/mnemonic-gui --tag mnemonic-gui-v0.59.0 mnemonic-gui
+cargo install --locked --git https://github.com/bg002h/mnemonic-gui --tag mnemonic-gui-v0.60.0 mnemonic-gui
 ```
 
 The GUI subprocess-runs the four sibling CLIs. If you skip the
@@ -62,7 +66,7 @@ constellation installer, install each one separately (pinned tags
 match [`pinned-upstream.toml`](pinned-upstream.toml)):
 
 ```sh
-cargo install --locked --git https://github.com/bg002h/mnemonic-toolkit     --tag mnemonic-toolkit-v0.75.0            mnemonic-toolkit
+cargo install --locked --git https://github.com/bg002h/mnemonic-toolkit     --tag mnemonic-toolkit-v0.91.0            mnemonic-toolkit
 cargo install --locked --git https://github.com/bg002h/descriptor-mnemonic  --tag descriptor-mnemonic-md-cli-v0.11.0  md-cli
 cargo install --locked --git https://github.com/bg002h/mnemonic-secret      --tag ms-cli-v0.13.0                      ms-cli
 cargo install --locked --git https://github.com/bg002h/mnemonic-key         --tag mk-cli-v0.11.0                      mk-cli
