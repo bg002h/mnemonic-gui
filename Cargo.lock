@@ -2354,7 +2354,7 @@ dependencies = [
 
 [[package]]
 name = "mnemonic-gui"
-version = "0.60.0"
+version = "0.61.0"
 dependencies = [
  "clap",
  "ctrlc",
@@ -2385,8 +2385,8 @@ dependencies = [
 
 [[package]]
 name = "mnemonic-toolkit"
-version = "0.91.0"
-source = "git+https://github.com/bg002h/mnemonic-toolkit?tag=mnemonic-toolkit-v0.91.0#8051af16cd7b14d142cb3ef4aadd60d0b5b7dfa5"
+version = "0.97.0"
+source = "git+https://github.com/bg002h/mnemonic-toolkit?tag=mnemonic-toolkit-v0.97.0#c14b1e21dba83f1052e84e90254724002c3d951c"
 dependencies = [
  "aes",
  "base64 0.22.1",
@@ -4471,7 +4471,7 @@ dependencies = [
 [[package]]
 name = "wc-codec"
 version = "0.1.1"
-source = "git+https://github.com/bg002h/mnemonic-toolkit?tag=mnemonic-toolkit-v0.91.0#8051af16cd7b14d142cb3ef4aadd60d0b5b7dfa5"
+source = "git+https://github.com/bg002h/mnemonic-toolkit?tag=mnemonic-toolkit-v0.97.0#c14b1e21dba83f1052e84e90254724002c3d951c"
 dependencies = [
  "bip39",
  "sha2",
