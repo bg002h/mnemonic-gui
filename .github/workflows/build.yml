@@ -231,7 +231,12 @@ jobs:
             mnemonic-toolkit
 
       - name: tutorial-snapshot-suite
-        run: GUI_TUTORIAL_SNAPSHOTS=1 cargo test --test gui_tutorial_snapshots -- --nocapture
+        # --include-ignored, NOT --ignored: the two harness tests are
+        # #[ignore]d so a plain `cargo test` reports them as ignored rather than
+        # passed, and this job is the explicit consumer. --ignored alone would
+        # run ONLY those two and silently drop the always-run tests in the same
+        # file (manifest_stems_regen_diff, the allowlist checkers, the census).
+        run: GUI_TUTORIAL_SNAPSHOTS=1 cargo test --test gui_tutorial_snapshots -- --include-ignored --nocapture
 
       - name: census
         # Fail-closed + manifest-derived (NEVER a hardcoded 50/51). The prior

@@ -367,10 +367,16 @@ fn corpus_budget_under_ceiling() {
 #[test]
 fn corpus_png_count_matches_manifest() {
     let (_, count) = tutorial_png_total();
-    if count == 0 {
-        eprintln!("TUTORIAL-COUNT: no committed PNGs yet (pre-capture); harness census is authoritative");
-        return;
-    }
+    // Was an early return for a "pre-capture" bootstrap that no longer exists:
+    // 50 PNGs are committed, so count == 0 means they were DELETED, and the
+    // test would have reported success for exactly that. The manifest is the
+    // authority on whether any are expected.
+    assert!(
+        count > 0 || tutorial::total_shots() == 0,
+        "no committed tutorial PNGs found, but the manifest expects {} — \
+         they were deleted, not un-captured",
+        tutorial::total_shots()
+    );
     assert_eq!(
         count,
         tutorial::total_shots(),
@@ -409,16 +415,39 @@ fn tutorial_png_total() -> (u64, usize) {
 //  THE CAPTURE HARNESS (GUI_TUTORIAL_SNAPSHOTS=1; software rasterizer + pinned CLI)
 // ═════════════════════════════════════════════════════════════════════════════
 
-#[test]
-fn gui_tutorial_snapshots() {
+/// An explicitly-requested tutorial test that cannot reach its environment is a
+/// FAILURE, never a silent pass.
+///
+/// These tests are `#[ignore]`d, so the only way either runs is an explicit
+/// `--include-ignored`. That is a request for the tutorial suite; a request that
+/// cannot be served must be red.
+fn require_tutorial_env(which: &str) {
     if std::env::var("GUI_TUTORIAL_SNAPSHOTS").as_deref() != Ok("1") {
-        eprintln!(
-            "TUTORIAL-SKIP: GUI_TUTORIAL_SNAPSHOTS != 1 — gui_tutorial_snapshots skipped \
-             (needs a software rasterizer + the pinned CLIs on $PATH; the build.yml \
-             `tutorial-snapshots` job is the enforcing consumer)"
+        panic!(
+            "{which} was run explicitly but GUI_TUTORIAL_SNAPSHOTS != 1. These \
+             tests need a software rasterizer (lavapipe; WGPU_BACKEND=vulkan) \
+             and the pinned CLIs on $PATH. See the `tutorial-snapshots` job in \
+             .github/workflows/build.yml for the exact provisioning."
         );
-        return;
     }
+}
+
+#[test]
+// `#[ignore]` is the "do not run me by default" mechanism, NOT the env var
+// (changed 2026-08-19, P1 of the constellation journey recon).
+//
+// This used to early-return when GUI_TUTORIAL_SNAPSHOTS != 1, so a plain
+// `cargo test` reported it as PASSED having done nothing -- and, worse, an env
+// var was what ENABLED the check, so if build.yml ever stopped exporting it the
+// tutorial suite would keep reporting success while running no step at all.
+//
+// With `#[ignore]` the harness reports it as *ignored* rather than *passed*
+// (honest accounting in the default summary), and CI opts in explicitly with
+// `--include-ignored` -- which also keeps the always-run tests in this file
+// running, as `--ignored` alone would not.
+#[ignore = "needs a software rasterizer + the pinned CLIs on $PATH; run with --include-ignored and GUI_TUTORIAL_SNAPSHOTS=1 (build.yml `tutorial-snapshots` is the enforcing consumer)"]
+fn gui_tutorial_snapshots() {
+    require_tutorial_env("gui_tutorial_snapshots");
 
     adapter_guard();
     run_pinned_tier_version_gate();
@@ -1584,13 +1613,9 @@ const PUBLIC_BIP84_XPUB: &str =
 /// census). Env-gated like the corpus harness (needs a rasterizer + the pinned
 /// CLI; the version gate machine-guards the tier).
 #[test]
+#[ignore = "needs a software rasterizer + the pinned CLIs on $PATH; run with --include-ignored and GUI_TUTORIAL_SNAPSHOTS=1"]
 fn same_frame_completion_direct_click_class() {
-    if std::env::var("GUI_TUTORIAL_SNAPSHOTS").as_deref() != Ok("1") {
-        eprintln!(
-            "TUTORIAL-SKIP: GUI_TUTORIAL_SNAPSHOTS != 1 — direct-click SAME-FRAME demo skipped"
-        );
-        return;
-    }
+    require_tutorial_env("same_frame_completion_direct_click_class");
     adapter_guard();
     run_pinned_tier_version_gate();
 
