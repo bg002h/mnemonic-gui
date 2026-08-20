@@ -267,10 +267,24 @@ const DERIVE_FLAGS: &[FlagSchema] = &[
     },
     FlagSchema {
         name: "--template",
-        kind: FlagKind::Dropdown(&["bip44", "bip49", "bip84", "bip86"]),
+        // Order is upstream's, verified against `ms gui-schema` (the CLI's own
+        // JSON) rather than its --help prose. The three bip48-* entries are
+        // MULTISIG account paths at depth 4; the first four are single-sig at
+        // depth 3.
+        kind: FlagKind::Dropdown(&[
+            "bip44",
+            "bip49",
+            "bip84",
+            "bip86",
+            "bip48-p2wsh",
+            "bip48-p2sh-p2wsh",
+            "bip48",
+        ]),
         required: false,
         repeating: false,
-        help: "Account-path template; emits an account xpub.",
+        help: "Account-path template; emits an account xpub. bip44/49/84/86 are \
+               single-sig account paths; the bip48-* variants are multisig \
+               account paths (m/48'/coin'/account'/script').",
         secret: false,
         default_value: None,
         global: false,

@@ -39,7 +39,8 @@ const INSPECT_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
 // ─── encode ──────────────────────────────────────────────────────────────
 
 // `mk encode --xpub --origin-path [--origin-fingerprint|--privacy-preserving]
-//            [--policy-id-stub]... [--from-md1]... [--force-chunked]
+//            [--policy-id-stub]... [--from-md1]... [--chunk-set-id]
+//            [--force-chunked]
 //            [--force-long-code] [--json]`
 //
 // Upstream mutual-exclusion: `--origin-fingerprint` ↔ `--privacy-preserving`,
@@ -130,6 +131,22 @@ const ENCODE_FLAGS: &[FlagSchema] = &[
         required: false,
         repeating: false,
         help: "Omit master fingerprint from the mk1. Conflicts with --origin-fingerprint.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--chunk-set-id",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        // Upstream (mk-cli) help, condensed: "Pin the 20-bit `chunk_set_id`
+        // (hex, `0x` prefix optional) instead of deriving it from the payload.
+        // Chunked output only — single-string encodings carry no such field."
+        help: "Pin the 20-bit chunk_set_id (hex, 0x prefix optional) instead of \
+               deriving it from the payload. Chunked output only. For vector \
+               regeneration and conformance fixtures — the derived default is \
+               already deterministic, so ordinary encoding never needs this.",
         secret: false,
         default_value: None,
         global: false,
