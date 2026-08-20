@@ -2,7 +2,18 @@ name: schema-mirror
 
 on:
   push:
-    branches: [master]
+    # `ci/**` is the STAGING ref the push ritual uses. A branch-protection
+    # status check binds to a COMMIT SHA, not a branch, so a commit pushed
+    # straight to master carries no check when the rule is evaluated, reports
+    # "expected", and is BYPASSED. The ritual pushes the SHA to `ci/staging`
+    # first so it can EARN its contexts, then pushes master — which requires
+    # this workflow to actually run for `ci/**`.
+    #
+    # Added 2026-08-19: without it the staging push produced no run at all and
+    # push-master.sh refused with "no CI run appeared" — correctly, rather than
+    # pushing unverified. mnemonic-engrave and descriptor-mnemonic already
+    # build `ci/**` for exactly this reason.
+    branches: [master, 'ci/**']
     # Audit I7 (2026-06-10): also fire the full drift/pin/secret gate
     # suite on release tags — build.yml alone fires on a tag (clippy +
     # build + publish), so a re-tag / hotfix-branch tag / force-push
