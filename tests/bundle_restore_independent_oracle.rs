@@ -70,6 +70,21 @@ const MASTER_FINGERPRINT_ALL_ZERO: &str = "73c5da0a";
 /// and the pinned binary's own bundle→restore round-trip all agree.
 const BIP84_FIRST_RECEIVE_ADDRESS_ALL_ZERO: &str = "bc1qcr8te4kr609gcawutmrza0j4xv80jy8z306fyu";
 
+/// BIP-84 (`m/84'/0'/0'/1/0`) FIRST CHANGE address for the all-zero seed.
+///
+/// Quoted from bip-0084.mediawiki's own test-vector section, fetched from
+/// the bitcoin/bips repository on 2026-08-19 — not from memory, and not from
+/// this toolchain (an oracle produced by the code under test is not an oracle).
+///
+/// WHY IT IS HERE (P2, constellation journey recon): **no journey anywhere in
+/// the constellation asserted a chain-1 address.** The definition names this
+/// exactly — "receive-only is the check that passes while a policy mismatch
+/// quietly loses money on the change chain". The restored descriptor is
+/// MULTIPATH (`<0;1>`), so chain 1 was being derived and never checked, and
+/// `restore --count` is documented as "first-RECEIVE addresses per wallet
+/// type" — the JSON has no change field at all.
+const BIP84_FIRST_CHANGE_ADDRESS_ALL_ZERO: &str = "bc1q8c6fshw2dlwun7ekn9qwf37cu2rn755upcp6el";
+
 fn mnemonic_bin() -> Option<String> {
     if let Ok(p) = std::env::var("MNEMONIC_BIN") {
         if !p.trim().is_empty() {
@@ -197,6 +212,55 @@ fn bundle_bip84_all_zero_then_restore_matches_external_oracles() {
          (m/84'/0'/0'/0/0) test vector for the all-zero seed (external oracle, \
          independent of the GUI's bundle encode + restore decode paths)"
     );
+    // ── THE CHANGE CHAIN ──────────────────────────────────────────────────
+    //
+    // Derived from the RESTORED descriptor's own xpub, not from the seed: the
+    // point is that the wallet this restore produced controls the right change
+    // addresses, and re-deriving from the phrase would prove only that the
+    // toolkit agrees with itself.
+    //
+    // `restore --json` exposes no change address (its `--count` is
+    // first-receive only), so the chain-1 half is reached through `addresses
+    // --chain change` on the descriptor's xpub. Verified by hand before being
+    // written: the same xpub through `addresses` and the same seed through
+    // `addresses --from phrase=` agree, and both agree with the BIP.
+    let restored_descriptor = restore_json["wallets"][0]["descriptor"]
+        .as_str()
+        .expect("restore --json carries wallets[0].descriptor");
+    let restored_xpub = restored_descriptor
+        .split(['(', ')', ']', '/'])
+        .find(|t| t.starts_with("xpub"))
+        .unwrap_or_else(|| {
+            panic!("no xpub in the restored descriptor: {restored_descriptor}")
+        });
+
+    let change_state = FormState::from_pairs(vec![
+        ("--from", FlagValue::Text(format!("xpub={restored_xpub}"))),
+        ("--address-type", FlagValue::Text("p2wpkh".to_string())),
+        // Dropdown and Number, NOT Text. assemble_argv matches FlagKind to
+        // FlagValue and SILENTLY DROPS a mismatch — a Text here left --chain
+        // unset, the CLI defaulted to receive, and the assertion compared the
+        // receive address against the change vector. Caught because the failure
+        // named both addresses; a weaker assertion would have passed.
+        ("--chain", FlagValue::Dropdown("change".to_string())),
+        ("--count", FlagValue::Number(1)),
+        ("--json", FlagValue::Boolean(true)),
+    ]);
+    let change_json = run_and_parse_json(&bin, "addresses", &change_state);
+    let change_address = change_json["addresses"][0]["address"]
+        .as_str()
+        .or_else(|| change_json["addresses"][0].as_str())
+        .unwrap_or_else(|| {
+            panic!("addresses --chain change --json shape unexpected: {change_json}")
+        });
+    assert_eq!(
+        change_address, BIP84_FIRST_CHANGE_ADDRESS_ALL_ZERO,
+        "the RESTORED wallet's first change address (m/84'/0'/0'/1/0) must equal \
+         BIP-84's published vector. The descriptor is multipath <0;1>, so this \
+         chain was always derived — it was simply never checked, which is the \
+         failure that loses money quietly rather than loudly"
+    );
+
     // v0.75.0 `restore --json` emits NO recovered-entropy field — do NOT
     // assert one here (R0 C1, empirically confirmed against the pinned
     // binary; see SPEC_test_hardening_T5_gui.md §T5-S3).

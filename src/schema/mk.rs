@@ -41,6 +41,13 @@ const INSPECT_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
 // `mk encode --xpub --origin-path [--origin-fingerprint|--privacy-preserving]
 //            [--policy-id-stub]... [--from-md1]... [--chunk-set-id]
 //            [--force-chunked]
+//
+// MIRRORED SINCE THE PIN MOVED TO mk-cli-v0.13.0. It exists in mk-cli 0.13.0 but this repo
+// pins mk-cli-v0.11.0 (pinned-upstream.toml), and this schema mirrors the
+// PINNED CLI, not whatever is on the developer's PATH. Adding it made
+// `mk_schema_flag_names_match_help_text` pass locally against a 0.13.0 build
+// and FAIL in CI with the drift inverted ("only in schema"). Re-add it in the
+// same commit that moves the pin to >= 0.13.0.
 //            [--force-long-code] [--json]`
 //
 // Upstream mutual-exclusion: `--origin-fingerprint` ↔ `--privacy-preserving`,
@@ -140,9 +147,10 @@ const ENCODE_FLAGS: &[FlagSchema] = &[
         kind: FlagKind::Text,
         required: false,
         repeating: false,
-        // Upstream (mk-cli) help, condensed: "Pin the 20-bit `chunk_set_id`
-        // (hex, `0x` prefix optional) instead of deriving it from the payload.
-        // Chunked output only — single-string encodings carry no such field."
+        // Arrived in mk-cli 0.13.0. This schema mirrors the PINNED CLI, so it
+        // could not be carried until pinned-upstream.toml moved off v0.11.0 --
+        // adding it early made the mirror test pass against a local 0.13.0
+        // build and FAIL in CI with the drift inverted ("only in schema").
         help: "Pin the 20-bit chunk_set_id (hex, 0x prefix optional) instead of \
                deriving it from the payload. Chunked output only. For vector \
                regeneration and conformance fixtures — the derived default is \
