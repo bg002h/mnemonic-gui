@@ -42,7 +42,12 @@ gui-schema-capable = true
 
 [ms]
 url = "https://github.com/bg002h/mnemonic-secret"
-tag = "ms-cli-v0.13.0"
+# Bumped v0.13.0 -> v0.16.0 (2026-08-19): the hand mirror lists `ms derive
+# --template`'s bip48 arms (bip48-p2wsh, bip48-p2sh-p2wsh, bip48) and the pinned
+# v0.13.0 has NONE of them, so the schema-mirror gate was red on a mirror that
+# described a RELEASED ms the pin had not caught up to. v0.16.0 is tagged
+# upstream; the mirror is right and this pin was stale.
+tag = "ms-cli-v0.16.0"
 bin = "ms"
 workspace-member-path = "crates/ms-cli"
 gui-schema-capable = true
