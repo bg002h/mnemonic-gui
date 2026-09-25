@@ -429,3 +429,35 @@ fn private_channel_sentinels_in_secret_fields_need_no_opt_in() {
     let run = assemble_argv_for_run(&schema::mnemonic::SCHEMA, x, &state);
     assert!(run.iter().any(|t| t == ALLOW_ARGV_SECRET), "{run:?}");
 }
+
+/// F-679 fold 2 (review I1): `ms verify <ms1> --phrase <P>` — both secrets in
+/// the GUI's secret widgets, so the Run path admits them. ms 0.19.0 rewrote
+/// each admitted value to `-` and then refused "cannot read both ms1 and
+/// --phrase from stdin" (exit 1) with nothing on stdin; ms 0.19.1 (tag
+/// ms-cli-v0.19.1, mnemonic-secret 91d1fd7) fixes that. Pins the fix.
+#[test]
+fn real_ms_verify_phrase_and_positional_ms1() {
+    let Some(bin) = pinned_bin("MS_BIN") else {
+        return;
+    };
+    let mut state = FormState::default();
+    state
+        .secret_widgets
+        .insert("--phrase".into(), vec![SecretLineEdit::from_text(ABANDON)]);
+    state.secret_widgets.insert(
+        "positional:ms1".into(),
+        vec![SecretLineEdit::from_text(MS1_ALL_ZERO)],
+    );
+    let r = run_for(&schema::ms::SCHEMA, "verify", bin, &state);
+    assert!(
+        r.argv.iter().any(|t| t == ALLOW_ARGV_SECRET),
+        "{:?}",
+        r.argv.len()
+    );
+    assert_eq!(
+        r.exit_code,
+        Some(0),
+        "stderr: {}",
+        String::from_utf8_lossy(&r.stderr)
+    );
+}
