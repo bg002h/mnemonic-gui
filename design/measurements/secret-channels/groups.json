@@ -1,11 +1,13 @@
 {
  "ms combine <shares>": [
   {
-   "kind": "StdinMulti"
+   "kind": "StdinMulti",
+   "terminator": "\n"
   },
   {
    "kind": "InFile",
-   "flag": "--in"
+   "flag": "--in",
+   "terminator": "\n"
   }
  ]
 }

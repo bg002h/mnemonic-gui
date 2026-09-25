@@ -21,3 +21,11 @@ echo "reading 2 on silent-payment: --passphrase @env:MY_PW (MY_PW=hunter2) vs ar
 a=$($S silent-payment $A --secret "$P" --passphrase hunter2 2>/dev/null | grep -m1 address)
 b=$(MY_PW=hunter2 $S silent-payment $A --secret "$P" --passphrase @env:MY_PW 2>/dev/null | grep -m1 address)
 [ "$a" = "$b" ] && echo "  same" || echo "  DIFFERENT: the @env: text is taken literally"
+echo "Copy spelling for a stdin-bound value from \$MY_PW (R1 Nm7), MY_PW=\$'hunter2\\n' (trailing newline):"
+echo "  argv with the exact bytes 'hunter2\\n'                          : $($M restore $A --from "phrase=$P" --template bip84 --passphrase $'hunter2\n' 2>/dev/null | fp)"
+for sh in bash zsh fish; do
+  if command -v $sh >/dev/null; then
+    out=$(MY_PW=$'hunter2\n' PHR="$P" M="$M" $sh -c 'printf '"'"'%s\r\n'"'"' "$MY_PW" | $M restore --from phrase=@env:PHR --template bip84 --passphrase-stdin' 2>/dev/null | fp)
+    printf "  %-5s printf '%%s\\\\r\\\\n' \"\$MY_PW\" | … --passphrase-stdin         : %s\n" "$sh" "$out"
+  fi
+done

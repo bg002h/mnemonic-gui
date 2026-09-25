@@ -9,3 +9,8 @@ DESIGN (GUI resolves $MY_PW itself), bytes via @env:MNEMONIC_GUI_S1 : ca2c62d2
 DESIGN (GUI resolves $MY_PW itself), bytes via --passphrase-stdin   : ca2c62d2
 reading 2 on silent-payment: --passphrase @env:MY_PW (MY_PW=hunter2) vs argv hunter2:
   DIFFERENT: the @env: text is taken literally
+Copy spelling for a stdin-bound value from $MY_PW (R1 Nm7), MY_PW=$'hunter2\n' (trailing newline):
+  argv with the exact bytes 'hunter2\n'                          : 762fff19
+  bash  printf '%s\r\n' "$MY_PW" | … --passphrase-stdin         : 762fff19
+  zsh   printf '%s\r\n' "$MY_PW" | … --passphrase-stdin         : 762fff19
+  fish  printf '%s\r\n' "$MY_PW" | … --passphrase-stdin         : 762fff19

@@ -1,15 +1,19 @@
-"""Assert DESIGN_secret_channels_and_new_forms.md carries every generated block verbatim:
-table.md (§A2), missing_sources.md (§A2b), c1_evidence.out (§A3a), and both halves of
-plans.md (§A5 plans, §A9 T3' evidence). Exit 1 names the stale block. With --fill TEMPLATE,
-write the document from a template holding {{A2_TABLE}} etc. instead."""
-import os, sys
+"""The design's gate (no binaries needed):
+  1. §A5 is REGENERATED from plan.py + channel_table.json + channel_policy.json right now
+     (gen_plans.py) and must appear verbatim in the document (R1 Nm3);
+  2. test_plan.py (the pure refusal / per-OS / permutation legs) must pass;
+  3. every MEASURED block — table.md (§A2), missing_sources.md (§A2b), c1_evidence.out (§A3a),
+     bytes.md (§A3c), t3.md (§A9) — must appear verbatim.
+With --fill TEMPLATE it first writes the document from a template holding {{A2_TABLE}} etc."""
+import os, subprocess, sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 DOC = os.path.join(HERE, "..", "..", "DESIGN_secret_channels_and_new_forms.md")
+sys.path.insert(0, HERE)
+import gen_plans
 def rd(f): return open(os.path.join(HERE, f)).read().rstrip("\n")
-plans = rd("plans.md")
-a5, t3 = plans.split("\n\n", 1)
-BLOCKS = {"A2_TABLE": rd("table.md"), "NO_ENTRY": rd("missing_sources.md"),
-          "C1_EVIDENCE": rd("c1_evidence.out"), "A5_PLANS": a5, "T3_EVIDENCE": t3}
+a5 = gen_plans.a5_markdown(gen_plans.generate()).rstrip("\n")
+BLOCKS = {"A2_TABLE": rd("table.md"), "NO_ENTRY": rd("missing_sources.md"), "C1_EVIDENCE": rd("c1_evidence.out"),
+          "BYTES": rd("bytes.md"), "A5_PLANS": a5, "T3_EVIDENCE": rd("t3.md")}
 if len(sys.argv) == 3 and sys.argv[1] == "--fill":
     doc = open(sys.argv[2]).read()
     for k, v in BLOCKS.items():
@@ -17,5 +21,8 @@ if len(sys.argv) == 3 and sys.argv[1] == "--fill":
     open(DOC, "w").write(doc)
 doc = open(DOC).read()
 stale = [k for k, v in BLOCKS.items() if v not in doc]
-print("stale blocks:", stale if stale else "none")
-sys.exit(1 if stale else 0)
+if "{{" in doc:
+    stale.append("unfilled placeholder")
+t = subprocess.run([sys.executable, os.path.join(HERE, "test_plan.py")], capture_output=True, text=True, cwd=HERE)
+print("stale blocks:", stale if stale else "none", "| test_plan.py:", t.stdout.strip().splitlines()[-1])
+sys.exit(1 if stale or t.returncode else 0)

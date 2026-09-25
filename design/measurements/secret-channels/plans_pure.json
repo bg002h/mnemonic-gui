@@ -1,0 +1,2073 @@
+[
+ {
+  "name": "addresses phrase+passphrase",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic addresses --from phrase=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic addresses --passphrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic addresses --from phrase=",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic addresses --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic addresses --from phrase=",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic addresses --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic addresses --from phrase=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic addresses --passphrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "name": "restore phrase+passphrase",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic restore --from phrase=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic restore --passphrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic restore --from phrase=",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic restore --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic restore --from phrase=",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic restore --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic restore --from phrase=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic restore --passphrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "name": "restore ms1+passphrase",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic restore --from ms1=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic restore --passphrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic restore --from ms1=",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic restore --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic restore --from ms1=",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic restore --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic restore --from ms1=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic restore --passphrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "name": "derive-child phrase+passphrase",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic derive-child --from phrase=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic derive-child --passphrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic derive-child --from phrase=",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic derive-child --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic derive-child --from phrase=",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic derive-child --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic derive-child --from phrase=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic derive-child --passphrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "name": "bundle slot+passphrase",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic bundle --slot @N.phrase=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic bundle --passphrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic bundle --slot @N.phrase=",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic bundle --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic bundle --slot @N.phrase=",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic bundle --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic bundle --slot @N.phrase=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic bundle --passphrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "name": "bundle wsh-multi 2 slots",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic bundle --slot @N.phrase=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic bundle --slot @N.phrase=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic bundle --slot @N.phrase=",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic bundle --slot @N.phrase=",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic bundle --slot @N.phrase=",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic bundle --slot @N.phrase=",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic bundle --slot @N.phrase=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic bundle --slot @N.phrase=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "name": "bundle wsh-multi 2 slots+passphrase",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic bundle --slot @N.phrase=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic bundle --slot @N.ms1=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     },
+     {
+      "source": 2,
+      "key": "mnemonic bundle --passphrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic bundle --slot @N.phrase=",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic bundle --slot @N.ms1=",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 2,
+      "key": "mnemonic bundle --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic bundle --slot @N.phrase=",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic bundle --slot @N.ms1=",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 2,
+      "key": "mnemonic bundle --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic bundle --slot @N.phrase=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic bundle --slot @N.ms1=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     },
+     {
+      "source": 2,
+      "key": "mnemonic bundle --passphrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "name": "convert phrase+passphrase",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic convert --from phrase=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic convert --passphrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic convert --from phrase=",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic convert --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic convert --from phrase=",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic convert --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic convert --from phrase=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic convert --passphrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "name": "convert wif+bip38-passphrase",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic convert --from wif=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic convert --bip38-passphrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--bip38-passphrase-stdin"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic convert --from wif=",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic convert --bip38-passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic convert --from wif=",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic convert --bip38-passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic convert --from wif=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic convert --bip38-passphrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--bip38-passphrase-stdin"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "name": "convert bip38+bip38-passphrase",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic convert --from bip38=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic convert --bip38-passphrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--bip38-passphrase-stdin"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic convert --from bip38=",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic convert --bip38-passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic convert --from bip38=",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic convert --bip38-passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic convert --from bip38=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic convert --bip38-passphrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--bip38-passphrase-stdin"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "name": "xpub-search path-of-xpub phrase+passphrase",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search path-of-xpub --phrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--phrase-stdin"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search path-of-xpub --passphrase",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search path-of-xpub --phrase",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search path-of-xpub --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search path-of-xpub --phrase",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search path-of-xpub --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search path-of-xpub --phrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--phrase-stdin"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search path-of-xpub --passphrase",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "name": "xpub-search path-of-xpub ms1+passphrase",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search path-of-xpub --ms1",
+      "kind": "StdinToggle",
+      "terminator": "",
+      "flag": "--ms1-stdin"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search path-of-xpub --passphrase",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search path-of-xpub --ms1",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search path-of-xpub --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search path-of-xpub --ms1",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search path-of-xpub --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search path-of-xpub --ms1",
+      "kind": "StdinToggle",
+      "terminator": "",
+      "flag": "--ms1-stdin"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search path-of-xpub --passphrase",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "name": "xpub-search passphrase-of-xpub phrase+passphrase",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search passphrase-of-xpub --phrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--phrase-stdin"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search passphrase-of-xpub --passphrase",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search passphrase-of-xpub --phrase",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search passphrase-of-xpub --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search passphrase-of-xpub --phrase",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search passphrase-of-xpub --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search passphrase-of-xpub --phrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--phrase-stdin"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search passphrase-of-xpub --passphrase",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "name": "xpub-search passphrase-of-xpub ms1+passphrase",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search passphrase-of-xpub --ms1",
+      "kind": "StdinToggle",
+      "terminator": "",
+      "flag": "--ms1-stdin"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search passphrase-of-xpub --passphrase",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search passphrase-of-xpub --ms1",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search passphrase-of-xpub --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search passphrase-of-xpub --ms1",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search passphrase-of-xpub --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search passphrase-of-xpub --ms1",
+      "kind": "StdinToggle",
+      "terminator": "",
+      "flag": "--ms1-stdin"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search passphrase-of-xpub --passphrase",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "name": "xpub-search account-of-descriptor phrase+passphrase",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search account-of-descriptor --phrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--phrase-stdin"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search account-of-descriptor --passphrase",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search account-of-descriptor --phrase",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search account-of-descriptor --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search account-of-descriptor --phrase",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search account-of-descriptor --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search account-of-descriptor --phrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--phrase-stdin"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search account-of-descriptor --passphrase",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "name": "xpub-search account-of-descriptor ms1+passphrase",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search account-of-descriptor --ms1",
+      "kind": "StdinToggle",
+      "terminator": "",
+      "flag": "--ms1-stdin"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search account-of-descriptor --passphrase",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search account-of-descriptor --ms1",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search account-of-descriptor --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search account-of-descriptor --ms1",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search account-of-descriptor --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search account-of-descriptor --ms1",
+      "kind": "StdinToggle",
+      "terminator": "",
+      "flag": "--ms1-stdin"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search account-of-descriptor --passphrase",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "name": "silent-payment secret+passphrase",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic silent-payment --secret",
+      "kind": "FileFlag",
+      "terminator": "\r\n",
+      "flag": "--secret-file",
+      "fd": 3
+     },
+     {
+      "source": 1,
+      "key": "mnemonic silent-payment --passphrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic silent-payment --secret",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic silent-payment --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic silent-payment --secret",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic silent-payment --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "refusal": "fd-not-on-platform",
+    "detail": "fd-not-on-platform: mnemonic silent-payment --secret + mnemonic silent-payment --passphrase: needs a pipe fd; not enabled on macos"
+   }
+  }
+ },
+ {
+  "name": "slip39 split phrase+passphrase",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic slip39 split --from phrase=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic slip39 split --passphrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic slip39 split --from phrase=",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic slip39 split --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic slip39 split --from phrase=",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic slip39 split --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic slip39 split --from phrase=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic slip39 split --passphrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "name": "slip39 combine 2 shares+passphrase",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic slip39 combine --share",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic slip39 combine --share",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     },
+     {
+      "source": 2,
+      "key": "mnemonic slip39 combine --passphrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic slip39 combine --share",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic slip39 combine --share",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 2,
+      "key": "mnemonic slip39 combine --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic slip39 combine --share",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic slip39 combine --share",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 2,
+      "key": "mnemonic slip39 combine --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic slip39 combine --share",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic slip39 combine --share",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     },
+     {
+      "source": 2,
+      "key": "mnemonic slip39 combine --passphrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "name": "slip39 combine 2 shares",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic slip39 combine --share",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic slip39 combine --share",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic slip39 combine --share",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic slip39 combine --share",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic slip39 combine --share",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic slip39 combine --share",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic slip39 combine --share",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic slip39 combine --share",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "name": "seed-xor combine 2 shares",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic seed-xor combine --share phrase=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic seed-xor combine --share phrase=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic seed-xor combine --share phrase=",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic seed-xor combine --share phrase=",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic seed-xor combine --share phrase=",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic seed-xor combine --share phrase=",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic seed-xor combine --share phrase=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic seed-xor combine --share phrase=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "name": "ms-shares combine 2 shares",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic ms-shares combine --share",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic ms-shares combine --share",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic ms-shares combine --share",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic ms-shares combine --share",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic ms-shares combine --share",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic ms-shares combine --share",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic ms-shares combine --share",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic ms-shares combine --share",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "name": "import-wallet 2 cosigner ms1",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic import-wallet --ms1",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic import-wallet --ms1",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic import-wallet --ms1",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic import-wallet --ms1",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic import-wallet --ms1",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic import-wallet --ms1",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic import-wallet --ms1",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic import-wallet --ms1",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "name": "verify-bundle ms1+slot+passphrase",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic verify-bundle --ms1",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic verify-bundle --slot @N.phrase=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     },
+     {
+      "source": 2,
+      "key": "mnemonic verify-bundle --passphrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic verify-bundle --ms1",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic verify-bundle --slot @N.phrase=",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 2,
+      "key": "mnemonic verify-bundle --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic verify-bundle --ms1",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic verify-bundle --slot @N.phrase=",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 2,
+      "key": "mnemonic verify-bundle --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic verify-bundle --ms1",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic verify-bundle --slot @N.phrase=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     },
+     {
+      "source": 2,
+      "key": "mnemonic verify-bundle --passphrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "name": "ms combine share group",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "ms combine <shares>",
+      "kind": "StdinMulti",
+      "terminator": "\n"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "ms combine <shares>",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "ms combine <shares>",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "ms combine <shares>",
+      "kind": "StdinMulti",
+      "terminator": "\n"
+     }
+    ]
+   }
+  }
+ },
+ {
+  "name": "ms verify phrase+ms1",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "ms verify --phrase",
+      "kind": "DashValue",
+      "terminator": "\r\n"
+     },
+     {
+      "source": 1,
+      "key": "ms verify <ms1>",
+      "kind": "InFile",
+      "terminator": "\r\n",
+      "flag": "--in",
+      "fd": 3
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "ms verify --phrase",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "ms verify <ms1>",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "ms verify --phrase",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "ms verify <ms1>",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "refusal": "fd-not-on-platform",
+    "detail": "fd-not-on-platform: ms verify --phrase + ms verify <ms1>: needs a pipe fd; not enabled on macos"
+   }
+  }
+ },
+ {
+  "name": "ms derive ms1+passphrase",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "ms derive --passphrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--passphrase-stdin"
+     },
+     {
+      "source": 1,
+      "key": "ms derive <ms1>",
+      "kind": "InFile",
+      "terminator": "\r\n",
+      "flag": "--in",
+      "fd": 3
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "ms derive --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "ms derive <ms1>",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "ms derive --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "ms derive <ms1>",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "refusal": "fd-not-on-platform",
+    "detail": "fd-not-on-platform: ms derive --passphrase + ms derive <ms1>: needs a pipe fd; not enabled on macos"
+   }
+  }
+ },
+ {
+  "name": "ms derive phrase+passphrase",
+  "plans": {
+   "linux": {
+    "refusal": "two-stdin",
+    "detail": "two-stdin: ms derive --phrase + ms derive --passphrase: each has stdin as its only channel"
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "ms derive --phrase",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "ms derive --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "ms derive --phrase",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "ms derive --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "refusal": "two-stdin",
+    "detail": "two-stdin: ms derive --phrase + ms derive --passphrase: each has stdin as its only channel"
+   }
+  }
+ },
+ {
+  "name": "ms derive hex+passphrase",
+  "plans": {
+   "linux": {
+    "refusal": "two-stdin",
+    "detail": "two-stdin: ms derive --hex + ms derive --passphrase: each has stdin as its only channel"
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "ms derive --hex",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "ms derive --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "ms derive --hex",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "ms derive --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "refusal": "two-stdin",
+    "detail": "two-stdin: ms derive --hex + ms derive --passphrase: each has stdin as its only channel"
+   }
+  }
+ }
+]

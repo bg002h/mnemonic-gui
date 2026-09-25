@@ -1,4 +1,4 @@
-set -u; cd "$(dirname "$0")/fixtures"
+set -u; cd "$(dirname "$0")/fixtures"; trap 'rm -f f.ms1 f.sec' EXIT
 B=${BIN_DIR:?set BIN_DIR}; M=$B/mnemonic; P="abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"; P2="zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"; MS1=ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f; PW=hunter2-passphrase; A=--allow-argv-secret
 cmp_() { if [ "$1" = "$2" ]; then echo "  SAME"; else echo "  DIFFERENT"; fi; }
 echo "a. bundle multisig two phrase slots via two @env vars"

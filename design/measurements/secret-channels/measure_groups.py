@@ -12,9 +12,9 @@ assert base.returncode==0 and other.returncode==0 and base.stdout!=other.stdout,
 ok=[]
 r=run([B+"ms","combine","--","-"],stdin="\n".join(SH))
 print("StdinMulti:", "OK" if (r.returncode==0 and r.stdout==base.stdout) else f"no ({r.returncode}) {r.stderr[:120]}")
-if r.returncode==0 and r.stdout==base.stdout: ok.append({"kind":"StdinMulti"})
+if r.returncode==0 and r.stdout==base.stdout: ok.append({"kind":"StdinMulti","terminator":"\n"})   # group: one share per line
 rd,wr=os.pipe(); os.write(wr,("\n".join(SH)+"\n").encode()); os.close(wr)
 r=run([B+"ms","combine","--in",f"/dev/fd/{rd}"],fds=(rd,)); os.close(rd)
 print("InFile (pipe fd):", "OK" if (r.returncode==0 and r.stdout==base.stdout) else f"no ({r.returncode}) {r.stderr[:120]}")
-if r.returncode==0 and r.stdout==base.stdout: ok.append({"kind":"InFile","flag":"--in"})
+if r.returncode==0 and r.stdout==base.stdout: ok.append({"kind":"InFile","flag":"--in","terminator":"\n"})
 json.dump({"ms combine <shares>":ok},open("groups.json","w"),indent=1)

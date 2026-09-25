@@ -10,12 +10,14 @@
       "source": 0,
       "key": "mnemonic addresses --from phrase=",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S0"
      },
      {
       "source": 1,
       "key": "mnemonic addresses --passphrase",
       "kind": "StdinToggle",
+      "terminator": "\r\n",
       "flag": "--passphrase-stdin"
      }
     ]
@@ -25,14 +27,14 @@
      {
       "source": 0,
       "key": "mnemonic addresses --from phrase=",
-      "kind": "EnvRef",
-      "env": "MNEMONIC_GUI_S0"
+      "kind": "Argv",
+      "terminator": ""
      },
      {
       "source": 1,
       "key": "mnemonic addresses --passphrase",
-      "kind": "StdinToggle",
-      "flag": "--passphrase-stdin"
+      "kind": "Argv",
+      "terminator": ""
      }
     ]
    },
@@ -41,49 +43,42 @@
      {
       "source": 0,
       "key": "mnemonic addresses --from phrase=",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic addresses --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic addresses --from phrase=",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S0"
      },
      {
       "source": 1,
       "key": "mnemonic addresses --passphrase",
       "kind": "StdinToggle",
+      "terminator": "\r\n",
       "flag": "--passphrase-stdin"
      }
     ]
    }
   },
-  "c1_failures": [],
   "t1_problems": [],
-  "planned_argv": [
-   "mnemonic",
-   "addresses",
-   "--address-type",
-   "p2wpkh",
-   "--count",
-   "1",
-   "--from",
-   "phrase=@env:MNEMONIC_GUI_S0",
-   "--passphrase-stdin"
-  ],
   "base_exit": 0,
   "plan_exit": 0,
   "base_effect": "0  bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv",
-  "plan_effect": "0  bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv",
   "equal": true,
   "plan_err": "",
-  "c1_env_runs": [
-   {
-    "source": 0,
-    "provenance": "$USER_SECRET_0",
-    "equal_baseline": true
-   },
-   {
-    "source": 1,
-    "provenance": "$USER_SECRET_1",
-    "equal_baseline": true
-   }
-  ],
   "swaps": [
    {
     "pair": [
@@ -92,8 +87,119 @@
     ],
     "same_as_baseline": false,
     "expected_same": false,
+    "exit": 1
+   }
+  ],
+  "env_endings": [
+   {
+    "source": 0,
+    "ending": "",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "0  bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "0  bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv"
+   },
+   {
+    "source": 0,
+    "ending": "\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "0  bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "0  bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv"
+   },
+   {
+    "source": 0,
+    "ending": "\r\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "0  bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "0  bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv"
+   },
+   {
+    "source": 0,
+    "ending": "\nX",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
     "exit": 1,
-    "effect": ""
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 0,
+    "ending": "  ",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "0  bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "0  bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv"
+   },
+   {
+    "source": 1,
+    "ending": "",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "0  bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "0  bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv"
+   },
+   {
+    "source": 1,
+    "ending": "\n",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "0  bc1qzr4ec5jpay24amf5t7l508l4yak028qnerelv7",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "0  bc1qzr4ec5jpay24amf5t7l508l4yak028qnerelv7"
+   },
+   {
+    "source": 1,
+    "ending": "\r\n",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "0  bc1q525j9ez5twzlwjzqfv23p3044ed4jsdkkt9ega",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "0  bc1q525j9ez5twzlwjzqfv23p3044ed4jsdkkt9ega"
+   },
+   {
+    "source": 1,
+    "ending": "\nX",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "0  bc1qm05s783nuu0euz8qte62xdfp3346ymhfxkky3w",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "0  bc1qm05s783nuu0euz8qte62xdfp3346ymhfxkky3w"
+   },
+   {
+    "source": 1,
+    "ending": "  ",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "0  bc1qqul54nnz3ae38947p56n67y827mvf0u654xg2a",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "0  bc1qqul54nnz3ae38947p56n67y827mvf0u654xg2a"
    }
   ]
  },
@@ -108,12 +214,14 @@
       "source": 0,
       "key": "mnemonic restore --from phrase=",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S0"
      },
      {
       "source": 1,
       "key": "mnemonic restore --passphrase",
       "kind": "StdinToggle",
+      "terminator": "\r\n",
       "flag": "--passphrase-stdin"
      }
     ]
@@ -123,14 +231,14 @@
      {
       "source": 0,
       "key": "mnemonic restore --from phrase=",
-      "kind": "EnvRef",
-      "env": "MNEMONIC_GUI_S0"
+      "kind": "Argv",
+      "terminator": ""
      },
      {
       "source": 1,
       "key": "mnemonic restore --passphrase",
-      "kind": "StdinToggle",
-      "flag": "--passphrase-stdin"
+      "kind": "Argv",
+      "terminator": ""
      }
     ]
    },
@@ -139,47 +247,42 @@
      {
       "source": 0,
       "key": "mnemonic restore --from phrase=",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic restore --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic restore --from phrase=",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S0"
      },
      {
       "source": 1,
       "key": "mnemonic restore --passphrase",
       "kind": "StdinToggle",
+      "terminator": "\r\n",
       "flag": "--passphrase-stdin"
      }
     ]
    }
   },
-  "c1_failures": [],
   "t1_problems": [],
-  "planned_argv": [
-   "mnemonic",
-   "restore",
-   "--template",
-   "bip84",
-   "--from",
-   "phrase=@env:MNEMONIC_GUI_S0",
-   "--passphrase-stdin"
-  ],
   "base_exit": 0,
   "plan_exit": 0,
   "base_effect": "master fingerprint: 45fbfbe6  (passphrase: applied)",
-  "plan_effect": "master fingerprint: 45fbfbe6  (passphrase: applied)",
   "equal": true,
   "plan_err": "",
-  "c1_env_runs": [
-   {
-    "source": 0,
-    "provenance": "$USER_SECRET_0",
-    "equal_baseline": true
-   },
-   {
-    "source": 1,
-    "provenance": "$USER_SECRET_1",
-    "equal_baseline": true
-   }
-  ],
   "swaps": [
    {
     "pair": [
@@ -188,8 +291,119 @@
     ],
     "same_as_baseline": false,
     "expected_same": false,
+    "exit": 1
+   }
+  ],
+  "env_endings": [
+   {
+    "source": 0,
+    "ending": "",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "master fingerprint: 45fbfbe6  (passphrase: applied)",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "master fingerprint: 45fbfbe6  (passphrase: applied)"
+   },
+   {
+    "source": 0,
+    "ending": "\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "master fingerprint: 45fbfbe6  (passphrase: applied)",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "master fingerprint: 45fbfbe6  (passphrase: applied)"
+   },
+   {
+    "source": 0,
+    "ending": "\r\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "master fingerprint: 45fbfbe6  (passphrase: applied)",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "master fingerprint: 45fbfbe6  (passphrase: applied)"
+   },
+   {
+    "source": 0,
+    "ending": "\nX",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
     "exit": 1,
-    "effect": ""
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 0,
+    "ending": "  ",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "master fingerprint: 45fbfbe6  (passphrase: applied)",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "master fingerprint: 45fbfbe6  (passphrase: applied)"
+   },
+   {
+    "source": 1,
+    "ending": "",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "master fingerprint: 45fbfbe6  (passphrase: applied)",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "master fingerprint: 45fbfbe6  (passphrase: applied)"
+   },
+   {
+    "source": 1,
+    "ending": "\n",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "master fingerprint: 5d5b0e1a  (passphrase: applied)",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "master fingerprint: 5d5b0e1a  (passphrase: applied)"
+   },
+   {
+    "source": 1,
+    "ending": "\r\n",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "master fingerprint: eadf4a6c  (passphrase: applied)",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "master fingerprint: eadf4a6c  (passphrase: applied)"
+   },
+   {
+    "source": 1,
+    "ending": "\nX",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "master fingerprint: eecfa1a7  (passphrase: applied)",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "master fingerprint: eecfa1a7  (passphrase: applied)"
+   },
+   {
+    "source": 1,
+    "ending": "  ",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "master fingerprint: 220717b3  (passphrase: applied)",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "master fingerprint: 220717b3  (passphrase: applied)"
    }
   ]
  },
@@ -204,12 +418,14 @@
       "source": 0,
       "key": "mnemonic restore --from ms1=",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S0"
      },
      {
       "source": 1,
       "key": "mnemonic restore --passphrase",
       "kind": "StdinToggle",
+      "terminator": "\r\n",
       "flag": "--passphrase-stdin"
      }
     ]
@@ -219,14 +435,14 @@
      {
       "source": 0,
       "key": "mnemonic restore --from ms1=",
-      "kind": "EnvRef",
-      "env": "MNEMONIC_GUI_S0"
+      "kind": "Argv",
+      "terminator": ""
      },
      {
       "source": 1,
       "key": "mnemonic restore --passphrase",
-      "kind": "StdinToggle",
-      "flag": "--passphrase-stdin"
+      "kind": "Argv",
+      "terminator": ""
      }
     ]
    },
@@ -235,47 +451,42 @@
      {
       "source": 0,
       "key": "mnemonic restore --from ms1=",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic restore --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic restore --from ms1=",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S0"
      },
      {
       "source": 1,
       "key": "mnemonic restore --passphrase",
       "kind": "StdinToggle",
+      "terminator": "\r\n",
       "flag": "--passphrase-stdin"
      }
     ]
    }
   },
-  "c1_failures": [],
   "t1_problems": [],
-  "planned_argv": [
-   "mnemonic",
-   "restore",
-   "--template",
-   "bip84",
-   "--from",
-   "ms1=@env:MNEMONIC_GUI_S0",
-   "--passphrase-stdin"
-  ],
   "base_exit": 0,
   "plan_exit": 0,
   "base_effect": "master fingerprint: 45fbfbe6  (passphrase: applied)",
-  "plan_effect": "master fingerprint: 45fbfbe6  (passphrase: applied)",
   "equal": true,
   "plan_err": "",
-  "c1_env_runs": [
-   {
-    "source": 0,
-    "provenance": "$USER_SECRET_0",
-    "equal_baseline": true
-   },
-   {
-    "source": 1,
-    "provenance": "$USER_SECRET_1",
-    "equal_baseline": true
-   }
-  ],
   "swaps": [
    {
     "pair": [
@@ -284,8 +495,119 @@
     ],
     "same_as_baseline": false,
     "expected_same": false,
+    "exit": 1
+   }
+  ],
+  "env_endings": [
+   {
+    "source": 0,
+    "ending": "",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "master fingerprint: 45fbfbe6  (passphrase: applied)",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "master fingerprint: 45fbfbe6  (passphrase: applied)"
+   },
+   {
+    "source": 0,
+    "ending": "\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "master fingerprint: 45fbfbe6  (passphrase: applied)",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "master fingerprint: 45fbfbe6  (passphrase: applied)"
+   },
+   {
+    "source": 0,
+    "ending": "\r\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "master fingerprint: 45fbfbe6  (passphrase: applied)",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "master fingerprint: 45fbfbe6  (passphrase: applied)"
+   },
+   {
+    "source": 0,
+    "ending": "\nX",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
     "exit": 1,
-    "effect": ""
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 0,
+    "ending": "  ",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "master fingerprint: 45fbfbe6  (passphrase: applied)",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "master fingerprint: 45fbfbe6  (passphrase: applied)"
+   },
+   {
+    "source": 1,
+    "ending": "",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "master fingerprint: 45fbfbe6  (passphrase: applied)",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "master fingerprint: 45fbfbe6  (passphrase: applied)"
+   },
+   {
+    "source": 1,
+    "ending": "\n",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "master fingerprint: 5d5b0e1a  (passphrase: applied)",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "master fingerprint: 5d5b0e1a  (passphrase: applied)"
+   },
+   {
+    "source": 1,
+    "ending": "\r\n",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "master fingerprint: eadf4a6c  (passphrase: applied)",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "master fingerprint: eadf4a6c  (passphrase: applied)"
+   },
+   {
+    "source": 1,
+    "ending": "\nX",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "master fingerprint: eecfa1a7  (passphrase: applied)",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "master fingerprint: eecfa1a7  (passphrase: applied)"
+   },
+   {
+    "source": 1,
+    "ending": "  ",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "master fingerprint: 220717b3  (passphrase: applied)",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "master fingerprint: 220717b3  (passphrase: applied)"
    }
   ]
  },
@@ -300,12 +622,14 @@
       "source": 0,
       "key": "mnemonic derive-child --from phrase=",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S0"
      },
      {
       "source": 1,
       "key": "mnemonic derive-child --passphrase",
       "kind": "StdinToggle",
+      "terminator": "\r\n",
       "flag": "--passphrase-stdin"
      }
     ]
@@ -315,14 +639,14 @@
      {
       "source": 0,
       "key": "mnemonic derive-child --from phrase=",
-      "kind": "EnvRef",
-      "env": "MNEMONIC_GUI_S0"
+      "kind": "Argv",
+      "terminator": ""
      },
      {
       "source": 1,
       "key": "mnemonic derive-child --passphrase",
-      "kind": "StdinToggle",
-      "flag": "--passphrase-stdin"
+      "kind": "Argv",
+      "terminator": ""
      }
     ]
    },
@@ -331,51 +655,42 @@
      {
       "source": 0,
       "key": "mnemonic derive-child --from phrase=",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic derive-child --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic derive-child --from phrase=",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S0"
      },
      {
       "source": 1,
       "key": "mnemonic derive-child --passphrase",
       "kind": "StdinToggle",
+      "terminator": "\r\n",
       "flag": "--passphrase-stdin"
      }
     ]
    }
   },
-  "c1_failures": [],
   "t1_problems": [],
-  "planned_argv": [
-   "mnemonic",
-   "derive-child",
-   "--application",
-   "bip39",
-   "--length",
-   "12",
-   "--index",
-   "0",
-   "--from",
-   "phrase=@env:MNEMONIC_GUI_S0",
-   "--passphrase-stdin"
-  ],
   "base_exit": 0,
   "plan_exit": 0,
   "base_effect": "target biology midnight canal glass common include trophy glimpse north castle dove",
-  "plan_effect": "target biology midnight canal glass common include trophy glimpse north castle dove",
   "equal": true,
   "plan_err": "",
-  "c1_env_runs": [
-   {
-    "source": 0,
-    "provenance": "$USER_SECRET_0",
-    "equal_baseline": true
-   },
-   {
-    "source": 1,
-    "provenance": "$USER_SECRET_1",
-    "equal_baseline": true
-   }
-  ],
   "swaps": [
    {
     "pair": [
@@ -384,8 +699,119 @@
     ],
     "same_as_baseline": false,
     "expected_same": false,
+    "exit": 1
+   }
+  ],
+  "env_endings": [
+   {
+    "source": 0,
+    "ending": "",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "target biology midnight canal glass common include trophy glimpse north castle dove",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "target biology midnight canal glass common include trophy glimpse north castle dove"
+   },
+   {
+    "source": 0,
+    "ending": "\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "target biology midnight canal glass common include trophy glimpse north castle dove",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "target biology midnight canal glass common include trophy glimpse north castle dove"
+   },
+   {
+    "source": 0,
+    "ending": "\r\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "target biology midnight canal glass common include trophy glimpse north castle dove",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "target biology midnight canal glass common include trophy glimpse north castle dove"
+   },
+   {
+    "source": 0,
+    "ending": "\nX",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
     "exit": 1,
-    "effect": ""
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 0,
+    "ending": "  ",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "target biology midnight canal glass common include trophy glimpse north castle dove",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "target biology midnight canal glass common include trophy glimpse north castle dove"
+   },
+   {
+    "source": 1,
+    "ending": "",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "target biology midnight canal glass common include trophy glimpse north castle dove",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "target biology midnight canal glass common include trophy glimpse north castle dove"
+   },
+   {
+    "source": 1,
+    "ending": "\n",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "install jungle blood evolve bird marriage nerve wing salute online empty throw",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "install jungle blood evolve bird marriage nerve wing salute online empty throw"
+   },
+   {
+    "source": 1,
+    "ending": "\r\n",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "brain outside agree mix oblige despair auction balcony life betray grocery stick",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "brain outside agree mix oblige despair auction balcony life betray grocery stick"
+   },
+   {
+    "source": 1,
+    "ending": "\nX",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "regret annual unusual bicycle river parade foam right chimney erase coconut stairs",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "regret annual unusual bicycle river parade foam right chimney erase coconut stairs"
+   },
+   {
+    "source": 1,
+    "ending": "  ",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "must shop limit screen cereal depend scare sweet hub ridge eagle cement",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "must shop limit screen cereal depend scare sweet hub ridge eagle cement"
    }
   ]
  },
@@ -400,12 +826,14 @@
       "source": 0,
       "key": "mnemonic bundle --slot @N.phrase=",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S0"
      },
      {
       "source": 1,
       "key": "mnemonic bundle --passphrase",
       "kind": "StdinToggle",
+      "terminator": "\r\n",
       "flag": "--passphrase-stdin"
      }
     ]
@@ -415,14 +843,14 @@
      {
       "source": 0,
       "key": "mnemonic bundle --slot @N.phrase=",
-      "kind": "EnvRef",
-      "env": "MNEMONIC_GUI_S0"
+      "kind": "Argv",
+      "terminator": ""
      },
      {
       "source": 1,
       "key": "mnemonic bundle --passphrase",
-      "kind": "StdinToggle",
-      "flag": "--passphrase-stdin"
+      "kind": "Argv",
+      "terminator": ""
      }
     ]
    },
@@ -431,49 +859,42 @@
      {
       "source": 0,
       "key": "mnemonic bundle --slot @N.phrase=",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic bundle --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic bundle --slot @N.phrase=",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S0"
      },
      {
       "source": 1,
       "key": "mnemonic bundle --passphrase",
       "kind": "StdinToggle",
+      "terminator": "\r\n",
       "flag": "--passphrase-stdin"
      }
     ]
    }
   },
-  "c1_failures": [],
   "t1_problems": [],
-  "planned_argv": [
-   "mnemonic",
-   "bundle",
-   "--network",
-   "mainnet",
-   "--template",
-   "bip84",
-   "--slot",
-   "@0.phrase=@env:MNEMONIC_GUI_S0",
-   "--passphrase-stdin"
-  ],
   "base_exit": 0,
   "plan_exit": 0,
   "base_effect": "mk1qpd2y2pqqsqk4z99gdzlh7lxqvzg3vs7vs57ls3u2nlnjvzn90ffnjpcsauf2eggmpdquu02l9k7dpjhxhs3yaa",
-  "plan_effect": "mk1qpd2y2pqqsqk4z99gdzlh7lxqvzg3vs7vs57ls3u2nlnjvzn90ffnjpcsauf2eggmpdquu02l9k7dpjhxhs3yaa",
   "equal": true,
   "plan_err": "",
-  "c1_env_runs": [
-   {
-    "source": 0,
-    "provenance": "$USER_SECRET_0",
-    "equal_baseline": true
-   },
-   {
-    "source": 1,
-    "provenance": "$USER_SECRET_1",
-    "equal_baseline": true
-   }
-  ],
   "swaps": [
    {
     "pair": [
@@ -482,8 +903,119 @@
     ],
     "same_as_baseline": false,
     "expected_same": false,
+    "exit": 1
+   }
+  ],
+  "env_endings": [
+   {
+    "source": 0,
+    "ending": "",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "mk1qpd2y2pqqsqk4z99gdzlh7lxqvzg3vs7vs57ls3u2nlnjvzn90ffnjpcsauf2eggmpdquu02l9k7dpjhxhs3yaa",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "mk1qpd2y2pqqsqk4z99gdzlh7lxqvzg3vs7vs57ls3u2nlnjvzn90ffnjpcsauf2eggmpdquu02l9k7dpjhxhs3yaa"
+   },
+   {
+    "source": 0,
+    "ending": "\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "mk1qpd2y2pqqsqk4z99gdzlh7lxqvzg3vs7vs57ls3u2nlnjvzn90ffnjpcsauf2eggmpdquu02l9k7dpjhxhs3yaa",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "mk1qpd2y2pqqsqk4z99gdzlh7lxqvzg3vs7vs57ls3u2nlnjvzn90ffnjpcsauf2eggmpdquu02l9k7dpjhxhs3yaa"
+   },
+   {
+    "source": 0,
+    "ending": "\r\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "mk1qpd2y2pqqsqk4z99gdzlh7lxqvzg3vs7vs57ls3u2nlnjvzn90ffnjpcsauf2eggmpdquu02l9k7dpjhxhs3yaa",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "mk1qpd2y2pqqsqk4z99gdzlh7lxqvzg3vs7vs57ls3u2nlnjvzn90ffnjpcsauf2eggmpdquu02l9k7dpjhxhs3yaa"
+   },
+   {
+    "source": 0,
+    "ending": "\nX",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
     "exit": 1,
-    "effect": ""
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 0,
+    "ending": "  ",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "mk1qpd2y2pqqsqk4z99gdzlh7lxqvzg3vs7vs57ls3u2nlnjvzn90ffnjpcsauf2eggmpdquu02l9k7dpjhxhs3yaa",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "mk1qpd2y2pqqsqk4z99gdzlh7lxqvzg3vs7vs57ls3u2nlnjvzn90ffnjpcsauf2eggmpdquu02l9k7dpjhxhs3yaa"
+   },
+   {
+    "source": 1,
+    "ending": "",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "mk1qpd2y2pqqsqk4z99gdzlh7lxqvzg3vs7vs57ls3u2nlnjvzn90ffnjpcsauf2eggmpdquu02l9k7dpjhxhs3yaa",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "mk1qpd2y2pqqsqk4z99gdzlh7lxqvzg3vs7vs57ls3u2nlnjvzn90ffnjpcsauf2eggmpdquu02l9k7dpjhxhs3yaa"
+   },
+   {
+    "source": 1,
+    "ending": "\n",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "mk1qp9hthpqqsqjm4msvdw4krs6qvzg3vs7hx4058cj9u5ju47h4vrzxvn25x8mv0vdwsmfwu3d3e9jujg6x25ecm4",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "mk1qp9hthpqqsqjm4msvdw4krs6qvzg3vs7hx4058cj9u5ju47h4vrzxvn25x8mv0vdwsmfwu3d3e9jujg6x25ecm4"
+   },
+   {
+    "source": 1,
+    "ending": "\r\n",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "mk1qptd9epqqsq4kju7v04d7jnvqvzg3vs7dfj8g5r8quy5c0q0w8da0rpcvpgzwmhggf2r4sv6t45pem9f42xm6dw",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "mk1qptd9epqqsq4kju7v04d7jnvqvzg3vs7dfj8g5r8quy5c0q0w8da0rpcvpgzwmhggf2r4sv6t45pem9f42xm6dw"
+   },
+   {
+    "source": 1,
+    "ending": "\nX",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "mk1qpuvpnpqqsq7xqe53thvlgd8qvzg3vs7szatcu0fnwsye5jcgjvk8pprq4zx5jgsme8ef3uh32ys7hlvaaypchx",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "mk1qpuvpnpqqsq7xqe53thvlgd8qvzg3vs7szatcu0fnwsye5jcgjvk8pprq4zx5jgsme8ef3uh32ys7hlvaaypchx"
+   },
+   {
+    "source": 1,
+    "ending": "  ",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "mk1qplmvxpqqsqlakrzkc3qw9anqvzg3vs7delyv04s2dzqjutxdj3e96us8j377uuyhg308wv3hmwld46yn0jzq8p",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "mk1qplmvxpqqsqlakrzkc3qw9anqvzg3vs7delyv04s2dzqjutxdj3e96us8j377uuyhg308wv3hmwld46yn0jzq8p"
    }
   ]
  },
@@ -498,12 +1030,14 @@
       "source": 0,
       "key": "mnemonic bundle --slot @N.phrase=",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S0"
      },
      {
       "source": 1,
       "key": "mnemonic bundle --slot @N.phrase=",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S1"
      }
     ]
@@ -513,14 +1047,14 @@
      {
       "source": 0,
       "key": "mnemonic bundle --slot @N.phrase=",
-      "kind": "EnvRef",
-      "env": "MNEMONIC_GUI_S0"
+      "kind": "Argv",
+      "terminator": ""
      },
      {
       "source": 1,
       "key": "mnemonic bundle --slot @N.phrase=",
-      "kind": "EnvRef",
-      "env": "MNEMONIC_GUI_S1"
+      "kind": "Argv",
+      "terminator": ""
      }
     ]
    },
@@ -529,52 +1063,42 @@
      {
       "source": 0,
       "key": "mnemonic bundle --slot @N.phrase=",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic bundle --slot @N.phrase=",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic bundle --slot @N.phrase=",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S0"
      },
      {
       "source": 1,
       "key": "mnemonic bundle --slot @N.phrase=",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S1"
      }
     ]
    }
   },
-  "c1_failures": [],
   "t1_problems": [],
-  "planned_argv": [
-   "mnemonic",
-   "bundle",
-   "--network",
-   "mainnet",
-   "--template",
-   "wsh-multi",
-   "--threshold",
-   "2",
-   "--slot",
-   "@0.phrase=@env:MNEMONIC_GUI_S0",
-   "--slot",
-   "@1.phrase=@env:MNEMONIC_GUI_S1"
-  ],
   "base_exit": 0,
   "plan_exit": 0,
   "base_effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5",
-  "plan_effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5",
   "equal": true,
   "plan_err": "",
-  "c1_env_runs": [
-   {
-    "source": 0,
-    "provenance": "$USER_SECRET_0",
-    "equal_baseline": true
-   },
-   {
-    "source": 1,
-    "provenance": "$USER_SECRET_1",
-    "equal_baseline": true
-   }
-  ],
   "swaps": [
    {
     "pair": [
@@ -583,8 +1107,119 @@
     ],
     "same_as_baseline": false,
     "expected_same": false,
+    "exit": 0
+   }
+  ],
+  "env_endings": [
+   {
+    "source": 0,
+    "ending": "",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
     "exit": 0,
-    "effect": "mk1qplmpxpqqsp0asnw8hlvym3a8a345cc8qjyty8hmtpvuu9ha34aj9f4k8fpg3ey6r2xqexagzjsnpuwyku0fh4c"
+    "effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5"
+   },
+   {
+    "source": 0,
+    "ending": "\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5"
+   },
+   {
+    "source": 0,
+    "ending": "\r\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5"
+   },
+   {
+    "source": 0,
+    "ending": "\nX",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 1,
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 0,
+    "ending": "  ",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5"
+   },
+   {
+    "source": 1,
+    "ending": "",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5"
+   },
+   {
+    "source": 1,
+    "ending": "\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5"
+   },
+   {
+    "source": 1,
+    "ending": "\r\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5"
+   },
+   {
+    "source": 1,
+    "ending": "\nX",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 1,
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 1,
+    "ending": "  ",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5"
    }
   ]
  },
@@ -599,18 +1234,21 @@
       "source": 0,
       "key": "mnemonic bundle --slot @N.phrase=",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S0"
      },
      {
       "source": 1,
       "key": "mnemonic bundle --slot @N.ms1=",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S1"
      },
      {
       "source": 2,
       "key": "mnemonic bundle --passphrase",
       "kind": "StdinToggle",
+      "terminator": "\r\n",
       "flag": "--passphrase-stdin"
      }
     ]
@@ -620,20 +1258,20 @@
      {
       "source": 0,
       "key": "mnemonic bundle --slot @N.phrase=",
-      "kind": "EnvRef",
-      "env": "MNEMONIC_GUI_S0"
+      "kind": "Argv",
+      "terminator": ""
      },
      {
       "source": 1,
       "key": "mnemonic bundle --slot @N.ms1=",
-      "kind": "EnvRef",
-      "env": "MNEMONIC_GUI_S1"
+      "kind": "Argv",
+      "terminator": ""
      },
      {
       "source": 2,
       "key": "mnemonic bundle --passphrase",
-      "kind": "StdinToggle",
-      "flag": "--passphrase-stdin"
+      "kind": "Argv",
+      "terminator": ""
      }
     ]
    },
@@ -642,64 +1280,55 @@
      {
       "source": 0,
       "key": "mnemonic bundle --slot @N.phrase=",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic bundle --slot @N.ms1=",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 2,
+      "key": "mnemonic bundle --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic bundle --slot @N.phrase=",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S0"
      },
      {
       "source": 1,
       "key": "mnemonic bundle --slot @N.ms1=",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S1"
      },
      {
       "source": 2,
       "key": "mnemonic bundle --passphrase",
       "kind": "StdinToggle",
+      "terminator": "\r\n",
       "flag": "--passphrase-stdin"
      }
     ]
    }
   },
-  "c1_failures": [],
   "t1_problems": [],
-  "planned_argv": [
-   "mnemonic",
-   "bundle",
-   "--network",
-   "mainnet",
-   "--template",
-   "wsh-multi",
-   "--threshold",
-   "2",
-   "--slot",
-   "@0.phrase=@env:MNEMONIC_GUI_S0",
-   "--slot",
-   "@1.ms1=@env:MNEMONIC_GUI_S1",
-   "--passphrase-stdin"
-  ],
   "base_exit": 0,
   "plan_exit": 0,
   "base_effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq",
-  "plan_effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq",
   "equal": true,
   "plan_err": "",
-  "c1_env_runs": [
-   {
-    "source": 0,
-    "provenance": "$USER_SECRET_0",
-    "equal_baseline": true
-   },
-   {
-    "source": 1,
-    "provenance": "$USER_SECRET_1",
-    "equal_baseline": true
-   },
-   {
-    "source": 2,
-    "provenance": "$USER_SECRET_2",
-    "equal_baseline": true
-   }
-  ],
   "swaps": [
    {
     "pair": [
@@ -708,8 +1337,7 @@
     ],
     "same_as_baseline": false,
     "expected_same": false,
-    "exit": 1,
-    "effect": ""
+    "exit": 1
    },
    {
     "pair": [
@@ -718,8 +1346,7 @@
     ],
     "same_as_baseline": false,
     "expected_same": false,
-    "exit": 1,
-    "effect": ""
+    "exit": 1
    },
    {
     "pair": [
@@ -728,8 +1355,174 @@
     ],
     "same_as_baseline": false,
     "expected_same": false,
+    "exit": 1
+   }
+  ],
+  "env_endings": [
+   {
+    "source": 0,
+    "ending": "",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq"
+   },
+   {
+    "source": 0,
+    "ending": "\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq"
+   },
+   {
+    "source": 0,
+    "ending": "\r\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq"
+   },
+   {
+    "source": 0,
+    "ending": "\nX",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
     "exit": 1,
-    "effect": ""
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 0,
+    "ending": "  ",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq"
+   },
+   {
+    "source": 1,
+    "ending": "",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq"
+   },
+   {
+    "source": 1,
+    "ending": "\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq"
+   },
+   {
+    "source": 1,
+    "ending": "\r\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq"
+   },
+   {
+    "source": 1,
+    "ending": "\nX",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 1,
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 1,
+    "ending": "  ",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq"
+   },
+   {
+    "source": 2,
+    "ending": "",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq"
+   },
+   {
+    "source": 2,
+    "ending": "\n",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "mk1qp4rvdpqqsp23kxs0z5d35rct4dsuxs8qjyty8534ek0a9wkc8ld25uekznm8z4tvx5nk5l7sl7pumaa3w3zdvt",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "mk1qp4rvdpqqsp23kxs0z5d35rct4dsuxs8qjyty8534ek0a9wkc8ld25uekznm8z4tvx5nk5l7sl7pumaa3w3zdvt"
+   },
+   {
+    "source": 2,
+    "ending": "\r\n",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "mk1qp8re3pqqspr3uccdsu0xxrvat055mq8qjyty84zdd9eq0p772a7d6dh480gmczp9ep6zp04a0m35yld29pca0z",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "mk1qp8re3pqqspr3uccdsu0xxrvat055mq8qjyty84zdd9eq0p772a7d6dh480gmczp9ep6zp04a0m35yld29pca0z"
+   },
+   {
+    "source": 2,
+    "ending": "\nX",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "mk1qpxvrhpqqsprxpmkh5eswa4aam86rfc8qjyty8h95xnwfzzzet6dkfsw7ugv3g5x4kdmues907rwg4f82rmeap6",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "mk1qpxvrhpqqsprxpmkh5eswa4aam86rfc8qjyty8h95xnwfzzzet6dkfsw7ugv3g5x4kdmues907rwg4f82rmeap6"
+   },
+   {
+    "source": 2,
+    "ending": "  ",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "mk1qpal20pqqspwl48anmhaflv7ygr30vc8qjyty8sd0p6dcpcldwzere3p6tld8mlck2hk9thad8st9wgqy6kals5",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "mk1qpal20pqqspwl48anmhaflv7ygr30vc8qjyty8sd0p6dcpcldwzere3p6tld8mlck2hk9thad8st9wgqy6kals5"
    }
   ]
  },
@@ -744,12 +1537,14 @@
       "source": 0,
       "key": "mnemonic convert --from phrase=",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S0"
      },
      {
       "source": 1,
       "key": "mnemonic convert --passphrase",
       "kind": "StdinToggle",
+      "terminator": "\r\n",
       "flag": "--passphrase-stdin"
      }
     ]
@@ -759,14 +1554,14 @@
      {
       "source": 0,
       "key": "mnemonic convert --from phrase=",
-      "kind": "EnvRef",
-      "env": "MNEMONIC_GUI_S0"
+      "kind": "Argv",
+      "terminator": ""
      },
      {
       "source": 1,
       "key": "mnemonic convert --passphrase",
-      "kind": "StdinToggle",
-      "flag": "--passphrase-stdin"
+      "kind": "Argv",
+      "terminator": ""
      }
     ]
    },
@@ -775,49 +1570,42 @@
      {
       "source": 0,
       "key": "mnemonic convert --from phrase=",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic convert --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic convert --from phrase=",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S0"
      },
      {
       "source": 1,
       "key": "mnemonic convert --passphrase",
       "kind": "StdinToggle",
+      "terminator": "\r\n",
       "flag": "--passphrase-stdin"
      }
     ]
    }
   },
-  "c1_failures": [],
   "t1_problems": [],
-  "planned_argv": [
-   "mnemonic",
-   "convert",
-   "--to",
-   "xpub",
-   "--template",
-   "bip84",
-   "--from",
-   "phrase=@env:MNEMONIC_GUI_S0",
-   "--passphrase-stdin"
-  ],
   "base_exit": 0,
   "plan_exit": 0,
   "base_effect": "xpub: xpub6CPUCVp94gpNs3bS1eGiwSWwZMLNmfr2Uo1t5v8YtY4XVoxhUraBH7sRyVfgwSNCxRVpX1bDREtc5Kri",
-  "plan_effect": "xpub: xpub6CPUCVp94gpNs3bS1eGiwSWwZMLNmfr2Uo1t5v8YtY4XVoxhUraBH7sRyVfgwSNCxRVpX1bDREtc5Kri",
   "equal": true,
   "plan_err": "",
-  "c1_env_runs": [
-   {
-    "source": 0,
-    "provenance": "$USER_SECRET_0",
-    "equal_baseline": true
-   },
-   {
-    "source": 1,
-    "provenance": "$USER_SECRET_1",
-    "equal_baseline": true
-   }
-  ],
   "swaps": [
    {
     "pair": [
@@ -826,8 +1614,119 @@
     ],
     "same_as_baseline": false,
     "expected_same": false,
+    "exit": 1
+   }
+  ],
+  "env_endings": [
+   {
+    "source": 0,
+    "ending": "",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "xpub: xpub6CPUCVp94gpNs3bS1eGiwSWwZMLNmfr2Uo1t5v8YtY4XVoxhUraBH7sRyVfgwSNCxRVpX1bDREtc5Kri",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "xpub: xpub6CPUCVp94gpNs3bS1eGiwSWwZMLNmfr2Uo1t5v8YtY4XVoxhUraBH7sRyVfgwSNCxRVpX1bDREtc5Kri"
+   },
+   {
+    "source": 0,
+    "ending": "\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "xpub: xpub6CPUCVp94gpNs3bS1eGiwSWwZMLNmfr2Uo1t5v8YtY4XVoxhUraBH7sRyVfgwSNCxRVpX1bDREtc5Kri",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "xpub: xpub6CPUCVp94gpNs3bS1eGiwSWwZMLNmfr2Uo1t5v8YtY4XVoxhUraBH7sRyVfgwSNCxRVpX1bDREtc5Kri"
+   },
+   {
+    "source": 0,
+    "ending": "\r\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "xpub: xpub6CPUCVp94gpNs3bS1eGiwSWwZMLNmfr2Uo1t5v8YtY4XVoxhUraBH7sRyVfgwSNCxRVpX1bDREtc5Kri",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "xpub: xpub6CPUCVp94gpNs3bS1eGiwSWwZMLNmfr2Uo1t5v8YtY4XVoxhUraBH7sRyVfgwSNCxRVpX1bDREtc5Kri"
+   },
+   {
+    "source": 0,
+    "ending": "\nX",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
     "exit": 1,
-    "effect": ""
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 0,
+    "ending": "  ",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "xpub: xpub6CPUCVp94gpNs3bS1eGiwSWwZMLNmfr2Uo1t5v8YtY4XVoxhUraBH7sRyVfgwSNCxRVpX1bDREtc5Kri",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "xpub: xpub6CPUCVp94gpNs3bS1eGiwSWwZMLNmfr2Uo1t5v8YtY4XVoxhUraBH7sRyVfgwSNCxRVpX1bDREtc5Kri"
+   },
+   {
+    "source": 1,
+    "ending": "",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "xpub: xpub6CPUCVp94gpNs3bS1eGiwSWwZMLNmfr2Uo1t5v8YtY4XVoxhUraBH7sRyVfgwSNCxRVpX1bDREtc5Kri",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "xpub: xpub6CPUCVp94gpNs3bS1eGiwSWwZMLNmfr2Uo1t5v8YtY4XVoxhUraBH7sRyVfgwSNCxRVpX1bDREtc5Kri"
+   },
+   {
+    "source": 1,
+    "ending": "\n",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "xpub: xpub6D1vNc6xbQZ5QWmFJVKN3MLorEquZeiXshoPh7XT4v4XPMuQX1S6bp6akzBcDHqephtrqGLQ9ECU1QGK",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "xpub: xpub6D1vNc6xbQZ5QWmFJVKN3MLorEquZeiXshoPh7XT4v4XPMuQX1S6bp6akzBcDHqephtrqGLQ9ECU1QGK"
+   },
+   {
+    "source": 1,
+    "ending": "\r\n",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "xpub: xpub6CS8CxuQagzQEQDG5N3nXhP2eX4Fbk6tgCzN43rJxQ3y34pjXBbcxpEFr4ZJn26xzNvUtyGGDDtsA8LE",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "xpub: xpub6CS8CxuQagzQEQDG5N3nXhP2eX4Fbk6tgCzN43rJxQ3y34pjXBbcxpEFr4ZJn26xzNvUtyGGDDtsA8LE"
+   },
+   {
+    "source": 1,
+    "ending": "\nX",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "xpub: xpub6CbeWheaLWg4fp2VsrXQaBh52MGawRuyp6s9dUBbTfe1gVNDkJgfZPkxNPxRDty1BzKyQ5BMwquLnSc9",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "xpub: xpub6CbeWheaLWg4fp2VsrXQaBh52MGawRuyp6s9dUBbTfe1gVNDkJgfZPkxNPxRDty1BzKyQ5BMwquLnSc9"
+   },
+   {
+    "source": 1,
+    "ending": "  ",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "xpub: xpub6CTsc3Qb2MvBa1NXzfNhjFW9ebH58qzZL6B4dnVGUYTJqk9e8n6wmjms68BDcxowsnfrnXX6xTXcUBJJ",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "xpub: xpub6CTsc3Qb2MvBa1NXzfNhjFW9ebH58qzZL6B4dnVGUYTJqk9e8n6wmjms68BDcxowsnfrnXX6xTXcUBJJ"
    }
   ]
  },
@@ -842,12 +1741,14 @@
       "source": 0,
       "key": "mnemonic convert --from wif=",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S0"
      },
      {
       "source": 1,
       "key": "mnemonic convert --bip38-passphrase",
       "kind": "StdinToggle",
+      "terminator": "\r\n",
       "flag": "--bip38-passphrase-stdin"
      }
     ]
@@ -857,14 +1758,14 @@
      {
       "source": 0,
       "key": "mnemonic convert --from wif=",
-      "kind": "EnvRef",
-      "env": "MNEMONIC_GUI_S0"
+      "kind": "Argv",
+      "terminator": ""
      },
      {
       "source": 1,
       "key": "mnemonic convert --bip38-passphrase",
-      "kind": "StdinToggle",
-      "flag": "--bip38-passphrase-stdin"
+      "kind": "Argv",
+      "terminator": ""
      }
     ]
    },
@@ -873,47 +1774,42 @@
      {
       "source": 0,
       "key": "mnemonic convert --from wif=",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic convert --bip38-passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic convert --from wif=",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S0"
      },
      {
       "source": 1,
       "key": "mnemonic convert --bip38-passphrase",
       "kind": "StdinToggle",
+      "terminator": "\r\n",
       "flag": "--bip38-passphrase-stdin"
      }
     ]
    }
   },
-  "c1_failures": [],
   "t1_problems": [],
-  "planned_argv": [
-   "mnemonic",
-   "convert",
-   "--to",
-   "bip38",
-   "--from",
-   "wif=@env:MNEMONIC_GUI_S0",
-   "--bip38-passphrase-stdin"
-  ],
   "base_exit": 0,
   "plan_exit": 0,
   "base_effect": "bip38: 6PYP8fdoVaE3ThLmEnYcGo3nJeBqd8PvB7CRvTz3TX5L9ojoPHKCg7QXG6",
-  "plan_effect": "bip38: 6PYP8fdoVaE3ThLmEnYcGo3nJeBqd8PvB7CRvTz3TX5L9ojoPHKCg7QXG6",
   "equal": true,
   "plan_err": "",
-  "c1_env_runs": [
-   {
-    "source": 0,
-    "provenance": "$USER_SECRET_0",
-    "equal_baseline": true
-   },
-   {
-    "source": 1,
-    "provenance": "$USER_SECRET_1",
-    "equal_baseline": true
-   }
-  ],
   "swaps": [
    {
     "pair": [
@@ -922,8 +1818,119 @@
     ],
     "same_as_baseline": false,
     "expected_same": false,
+    "exit": 1
+   }
+  ],
+  "env_endings": [
+   {
+    "source": 0,
+    "ending": "",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "bip38: 6PYP8fdoVaE3ThLmEnYcGo3nJeBqd8PvB7CRvTz3TX5L9ojoPHKCg7QXG6",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "bip38: 6PYP8fdoVaE3ThLmEnYcGo3nJeBqd8PvB7CRvTz3TX5L9ojoPHKCg7QXG6"
+   },
+   {
+    "source": 0,
+    "ending": "\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
     "exit": 1,
-    "effect": ""
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 0,
+    "ending": "\r\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 1,
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 0,
+    "ending": "\nX",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 1,
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 0,
+    "ending": "  ",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 1,
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 1,
+    "ending": "",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "bip38: 6PYP8fdoVaE3ThLmEnYcGo3nJeBqd8PvB7CRvTz3TX5L9ojoPHKCg7QXG6",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "bip38: 6PYP8fdoVaE3ThLmEnYcGo3nJeBqd8PvB7CRvTz3TX5L9ojoPHKCg7QXG6"
+   },
+   {
+    "source": 1,
+    "ending": "\n",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "bip38: 6PYP8fdoVjeEov47rHXTY9PeB7tTJTKe8M6KJGb7svmj7CMSuyTy7UjJRC",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "bip38: 6PYP8fdoVjeEov47rHXTY9PeB7tTJTKe8M6KJGb7svmj7CMSuyTy7UjJRC"
+   },
+   {
+    "source": 1,
+    "ending": "\r\n",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "bip38: 6PYP8fdoVeHbypdd6isBEGUNWB77VFc34Puok2SBLBA6FkYk2xHGvwRkLv",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "bip38: 6PYP8fdoVeHbypdd6isBEGUNWB77VFc34Puok2SBLBA6FkYk2xHGvwRkLv"
+   },
+   {
+    "source": 1,
+    "ending": "\nX",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "bip38: 6PYP8fdoWnC5x5muG7owLsWSpdjzarXXEhaGJeko53t1sxZ7zMZWARscdK",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "bip38: 6PYP8fdoWnC5x5muG7owLsWSpdjzarXXEhaGJeko53t1sxZ7zMZWARscdK"
+   },
+   {
+    "source": 1,
+    "ending": "  ",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "bip38: 6PYP8fdoWVzuVFycCFCUHzSGEaQ2KuVtaApk6wUo6rYqh3Y13Tdep4Lzuj",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "bip38: 6PYP8fdoWVzuVFycCFCUHzSGEaQ2KuVtaApk6wUo6rYqh3Y13Tdep4Lzuj"
    }
   ]
  },
@@ -938,12 +1945,14 @@
       "source": 0,
       "key": "mnemonic convert --from bip38=",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S0"
      },
      {
       "source": 1,
       "key": "mnemonic convert --bip38-passphrase",
       "kind": "StdinToggle",
+      "terminator": "\r\n",
       "flag": "--bip38-passphrase-stdin"
      }
     ]
@@ -953,14 +1962,14 @@
      {
       "source": 0,
       "key": "mnemonic convert --from bip38=",
-      "kind": "EnvRef",
-      "env": "MNEMONIC_GUI_S0"
+      "kind": "Argv",
+      "terminator": ""
      },
      {
       "source": 1,
       "key": "mnemonic convert --bip38-passphrase",
-      "kind": "StdinToggle",
-      "flag": "--bip38-passphrase-stdin"
+      "kind": "Argv",
+      "terminator": ""
      }
     ]
    },
@@ -969,47 +1978,42 @@
      {
       "source": 0,
       "key": "mnemonic convert --from bip38=",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic convert --bip38-passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic convert --from bip38=",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S0"
      },
      {
       "source": 1,
       "key": "mnemonic convert --bip38-passphrase",
       "kind": "StdinToggle",
+      "terminator": "\r\n",
       "flag": "--bip38-passphrase-stdin"
      }
     ]
    }
   },
-  "c1_failures": [],
   "t1_problems": [],
-  "planned_argv": [
-   "mnemonic",
-   "convert",
-   "--to",
-   "wif",
-   "--from",
-   "bip38=@env:MNEMONIC_GUI_S0",
-   "--bip38-passphrase-stdin"
-  ],
   "base_exit": 0,
   "plan_exit": 0,
   "base_effect": "wif: KyZpNDKnfs94vbrwhJneDi77V6jF64PWPF8x5cdJb8ifgg2DUc9d",
-  "plan_effect": "wif: KyZpNDKnfs94vbrwhJneDi77V6jF64PWPF8x5cdJb8ifgg2DUc9d",
   "equal": true,
   "plan_err": "",
-  "c1_env_runs": [
-   {
-    "source": 0,
-    "provenance": "$USER_SECRET_0",
-    "equal_baseline": true
-   },
-   {
-    "source": 1,
-    "provenance": "$USER_SECRET_1",
-    "equal_baseline": true
-   }
-  ],
   "swaps": [
    {
     "pair": [
@@ -1018,8 +2022,119 @@
     ],
     "same_as_baseline": false,
     "expected_same": false,
+    "exit": 1
+   }
+  ],
+  "env_endings": [
+   {
+    "source": 0,
+    "ending": "",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "wif: KyZpNDKnfs94vbrwhJneDi77V6jF64PWPF8x5cdJb8ifgg2DUc9d",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "wif: KyZpNDKnfs94vbrwhJneDi77V6jF64PWPF8x5cdJb8ifgg2DUc9d"
+   },
+   {
+    "source": 0,
+    "ending": "\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
     "exit": 1,
-    "effect": ""
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 0,
+    "ending": "\r\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 1,
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 0,
+    "ending": "\nX",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 1,
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 0,
+    "ending": "  ",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 1,
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 1,
+    "ending": "",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "wif: KyZpNDKnfs94vbrwhJneDi77V6jF64PWPF8x5cdJb8ifgg2DUc9d",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "wif: KyZpNDKnfs94vbrwhJneDi77V6jF64PWPF8x5cdJb8ifgg2DUc9d"
+   },
+   {
+    "source": 1,
+    "ending": "\n",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 2,
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 1,
+    "ending": "\r\n",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 2,
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 1,
+    "ending": "\nX",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 2,
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 1,
+    "ending": "  ",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 2,
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
    }
   ]
  },
@@ -1034,12 +2149,14 @@
       "source": 0,
       "key": "mnemonic xpub-search path-of-xpub --phrase",
       "kind": "StdinToggle",
+      "terminator": "\r\n",
       "flag": "--phrase-stdin"
      },
      {
       "source": 1,
       "key": "mnemonic xpub-search path-of-xpub --passphrase",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S1"
      }
     ]
@@ -1049,14 +2166,14 @@
      {
       "source": 0,
       "key": "mnemonic xpub-search path-of-xpub --phrase",
-      "kind": "StdinToggle",
-      "flag": "--phrase-stdin"
+      "kind": "Argv",
+      "terminator": ""
      },
      {
       "source": 1,
       "key": "mnemonic xpub-search path-of-xpub --passphrase",
-      "kind": "EnvRef",
-      "env": "MNEMONIC_GUI_S1"
+      "kind": "Argv",
+      "terminator": ""
      }
     ]
    },
@@ -1065,48 +2182,42 @@
      {
       "source": 0,
       "key": "mnemonic xpub-search path-of-xpub --phrase",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search path-of-xpub --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search path-of-xpub --phrase",
       "kind": "StdinToggle",
+      "terminator": "\r\n",
       "flag": "--phrase-stdin"
      },
      {
       "source": 1,
       "key": "mnemonic xpub-search path-of-xpub --passphrase",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S1"
      }
     ]
    }
   },
-  "c1_failures": [],
   "t1_problems": [],
-  "planned_argv": [
-   "mnemonic",
-   "xpub-search",
-   "path-of-xpub",
-   "--target-xpub",
-   "xpub6CPUCVp94gpNs3bS1eGiwSWwZMLNmfr2Uo1t5v8YtY4XVoxhUraBH7sRyVfgwSNCxRVpX1bDREtc5KriC7smtjYco8w57agUrg1nLawsNFG",
-   "--phrase-stdin",
-   "--passphrase",
-   "@env:MNEMONIC_GUI_S1"
-  ],
   "base_exit": 0,
   "plan_exit": 0,
   "base_effect": "match: m/84'/0'/0'  (template=bip84, account=0)",
-  "plan_effect": "match: m/84'/0'/0'  (template=bip84, account=0)",
   "equal": true,
   "plan_err": "",
-  "c1_env_runs": [
-   {
-    "source": 0,
-    "provenance": "$USER_SECRET_0",
-    "equal_baseline": true
-   },
-   {
-    "source": 1,
-    "provenance": "$USER_SECRET_1",
-    "equal_baseline": true
-   }
-  ],
   "swaps": [
    {
     "pair": [
@@ -1115,8 +2226,119 @@
     ],
     "same_as_baseline": false,
     "expected_same": false,
+    "exit": 1
+   }
+  ],
+  "env_endings": [
+   {
+    "source": 0,
+    "ending": "",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "match: m/84'/0'/0'  (template=bip84, account=0)",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "match: m/84'/0'/0'  (template=bip84, account=0)"
+   },
+   {
+    "source": 0,
+    "ending": "\n",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "match: m/84'/0'/0'  (template=bip84, account=0)",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "match: m/84'/0'/0'  (template=bip84, account=0)"
+   },
+   {
+    "source": 0,
+    "ending": "\r\n",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "match: m/84'/0'/0'  (template=bip84, account=0)",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "match: m/84'/0'/0'  (template=bip84, account=0)"
+   },
+   {
+    "source": 0,
+    "ending": "\nX",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
     "exit": 1,
-    "effect": ""
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 0,
+    "ending": "  ",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "match: m/84'/0'/0'  (template=bip84, account=0)",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "match: m/84'/0'/0'  (template=bip84, account=0)"
+   },
+   {
+    "source": 1,
+    "ending": "",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "match: m/84'/0'/0'  (template=bip84, account=0)",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "match: m/84'/0'/0'  (template=bip84, account=0)"
+   },
+   {
+    "source": 1,
+    "ending": "\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 4,
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 1,
+    "ending": "\r\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 4,
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 1,
+    "ending": "\nX",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 4,
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 1,
+    "ending": "  ",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 4,
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
    }
   ]
  },
@@ -1131,12 +2353,14 @@
       "source": 0,
       "key": "mnemonic xpub-search path-of-xpub --ms1",
       "kind": "StdinToggle",
+      "terminator": "",
       "flag": "--ms1-stdin"
      },
      {
       "source": 1,
       "key": "mnemonic xpub-search path-of-xpub --passphrase",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S1"
      }
     ]
@@ -1146,14 +2370,14 @@
      {
       "source": 0,
       "key": "mnemonic xpub-search path-of-xpub --ms1",
-      "kind": "StdinToggle",
-      "flag": "--ms1-stdin"
+      "kind": "Argv",
+      "terminator": ""
      },
      {
       "source": 1,
       "key": "mnemonic xpub-search path-of-xpub --passphrase",
-      "kind": "EnvRef",
-      "env": "MNEMONIC_GUI_S1"
+      "kind": "Argv",
+      "terminator": ""
      }
     ]
    },
@@ -1162,48 +2386,42 @@
      {
       "source": 0,
       "key": "mnemonic xpub-search path-of-xpub --ms1",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search path-of-xpub --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search path-of-xpub --ms1",
       "kind": "StdinToggle",
+      "terminator": "",
       "flag": "--ms1-stdin"
      },
      {
       "source": 1,
       "key": "mnemonic xpub-search path-of-xpub --passphrase",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S1"
      }
     ]
    }
   },
-  "c1_failures": [],
   "t1_problems": [],
-  "planned_argv": [
-   "mnemonic",
-   "xpub-search",
-   "path-of-xpub",
-   "--target-xpub",
-   "xpub6CPUCVp94gpNs3bS1eGiwSWwZMLNmfr2Uo1t5v8YtY4XVoxhUraBH7sRyVfgwSNCxRVpX1bDREtc5KriC7smtjYco8w57agUrg1nLawsNFG",
-   "--ms1-stdin",
-   "--passphrase",
-   "@env:MNEMONIC_GUI_S1"
-  ],
   "base_exit": 0,
   "plan_exit": 0,
   "base_effect": "match: m/84'/0'/0'  (template=bip84, account=0)",
-  "plan_effect": "match: m/84'/0'/0'  (template=bip84, account=0)",
   "equal": true,
   "plan_err": "",
-  "c1_env_runs": [
-   {
-    "source": 0,
-    "provenance": "$USER_SECRET_0",
-    "equal_baseline": true
-   },
-   {
-    "source": 1,
-    "provenance": "$USER_SECRET_1",
-    "equal_baseline": true
-   }
-  ],
   "swaps": [
    {
     "pair": [
@@ -1212,8 +2430,93 @@
     ],
     "same_as_baseline": false,
     "expected_same": false,
-    "exit": 2,
-    "effect": ""
+    "exit": 2
+   }
+  ],
+  "env_endings": [
+   {
+    "source": 0,
+    "ending": "",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "match: m/84'/0'/0'  (template=bip84, account=0)",
+    "eq_argv_exact": true
+   },
+   {
+    "source": 0,
+    "ending": "\n",
+    "refused": "value-not-byte-exact"
+   },
+   {
+    "source": 0,
+    "ending": "\r\n",
+    "refused": "value-not-byte-exact"
+   },
+   {
+    "source": 0,
+    "ending": "\nX",
+    "refused": "value-not-byte-exact"
+   },
+   {
+    "source": 0,
+    "ending": "  ",
+    "refused": "value-not-byte-exact"
+   },
+   {
+    "source": 1,
+    "ending": "",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "match: m/84'/0'/0'  (template=bip84, account=0)",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "match: m/84'/0'/0'  (template=bip84, account=0)"
+   },
+   {
+    "source": 1,
+    "ending": "\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 4,
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 1,
+    "ending": "\r\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 4,
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 1,
+    "ending": "\nX",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 4,
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 1,
+    "ending": "  ",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 4,
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
    }
   ]
  },
@@ -1228,12 +2531,14 @@
       "source": 0,
       "key": "mnemonic xpub-search passphrase-of-xpub --phrase",
       "kind": "StdinToggle",
+      "terminator": "\r\n",
       "flag": "--phrase-stdin"
      },
      {
       "source": 1,
       "key": "mnemonic xpub-search passphrase-of-xpub --passphrase",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S1"
      }
     ]
@@ -1243,14 +2548,14 @@
      {
       "source": 0,
       "key": "mnemonic xpub-search passphrase-of-xpub --phrase",
-      "kind": "StdinToggle",
-      "flag": "--phrase-stdin"
+      "kind": "Argv",
+      "terminator": ""
      },
      {
       "source": 1,
       "key": "mnemonic xpub-search passphrase-of-xpub --passphrase",
-      "kind": "EnvRef",
-      "env": "MNEMONIC_GUI_S1"
+      "kind": "Argv",
+      "terminator": ""
      }
     ]
    },
@@ -1259,48 +2564,42 @@
      {
       "source": 0,
       "key": "mnemonic xpub-search passphrase-of-xpub --phrase",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search passphrase-of-xpub --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search passphrase-of-xpub --phrase",
       "kind": "StdinToggle",
+      "terminator": "\r\n",
       "flag": "--phrase-stdin"
      },
      {
       "source": 1,
       "key": "mnemonic xpub-search passphrase-of-xpub --passphrase",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S1"
      }
     ]
    }
   },
-  "c1_failures": [],
   "t1_problems": [],
-  "planned_argv": [
-   "mnemonic",
-   "xpub-search",
-   "passphrase-of-xpub",
-   "--target-xpub",
-   "xpub6CPUCVp94gpNs3bS1eGiwSWwZMLNmfr2Uo1t5v8YtY4XVoxhUraBH7sRyVfgwSNCxRVpX1bDREtc5KriC7smtjYco8w57agUrg1nLawsNFG",
-   "--phrase-stdin",
-   "--passphrase",
-   "@env:MNEMONIC_GUI_S1"
-  ],
   "base_exit": 0,
   "plan_exit": 0,
   "base_effect": "match: m/84'/0'/0'  (template=bip84, account=0)",
-  "plan_effect": "match: m/84'/0'/0'  (template=bip84, account=0)",
   "equal": true,
   "plan_err": "",
-  "c1_env_runs": [
-   {
-    "source": 0,
-    "provenance": "$USER_SECRET_0",
-    "equal_baseline": true
-   },
-   {
-    "source": 1,
-    "provenance": "$USER_SECRET_1",
-    "equal_baseline": true
-   }
-  ],
   "swaps": [
    {
     "pair": [
@@ -1309,8 +2608,119 @@
     ],
     "same_as_baseline": false,
     "expected_same": false,
+    "exit": 1
+   }
+  ],
+  "env_endings": [
+   {
+    "source": 0,
+    "ending": "",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "match: m/84'/0'/0'  (template=bip84, account=0)",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "match: m/84'/0'/0'  (template=bip84, account=0)"
+   },
+   {
+    "source": 0,
+    "ending": "\n",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "match: m/84'/0'/0'  (template=bip84, account=0)",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "match: m/84'/0'/0'  (template=bip84, account=0)"
+   },
+   {
+    "source": 0,
+    "ending": "\r\n",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "match: m/84'/0'/0'  (template=bip84, account=0)",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "match: m/84'/0'/0'  (template=bip84, account=0)"
+   },
+   {
+    "source": 0,
+    "ending": "\nX",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
     "exit": 1,
-    "effect": ""
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 0,
+    "ending": "  ",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "match: m/84'/0'/0'  (template=bip84, account=0)",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "match: m/84'/0'/0'  (template=bip84, account=0)"
+   },
+   {
+    "source": 1,
+    "ending": "",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "match: m/84'/0'/0'  (template=bip84, account=0)",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "match: m/84'/0'/0'  (template=bip84, account=0)"
+   },
+   {
+    "source": 1,
+    "ending": "\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 4,
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 1,
+    "ending": "\r\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 4,
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 1,
+    "ending": "\nX",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 4,
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 1,
+    "ending": "  ",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 4,
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
    }
   ]
  },
@@ -1325,12 +2735,14 @@
       "source": 0,
       "key": "mnemonic xpub-search passphrase-of-xpub --ms1",
       "kind": "StdinToggle",
+      "terminator": "",
       "flag": "--ms1-stdin"
      },
      {
       "source": 1,
       "key": "mnemonic xpub-search passphrase-of-xpub --passphrase",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S1"
      }
     ]
@@ -1340,14 +2752,14 @@
      {
       "source": 0,
       "key": "mnemonic xpub-search passphrase-of-xpub --ms1",
-      "kind": "StdinToggle",
-      "flag": "--ms1-stdin"
+      "kind": "Argv",
+      "terminator": ""
      },
      {
       "source": 1,
       "key": "mnemonic xpub-search passphrase-of-xpub --passphrase",
-      "kind": "EnvRef",
-      "env": "MNEMONIC_GUI_S1"
+      "kind": "Argv",
+      "terminator": ""
      }
     ]
    },
@@ -1356,48 +2768,42 @@
      {
       "source": 0,
       "key": "mnemonic xpub-search passphrase-of-xpub --ms1",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search passphrase-of-xpub --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search passphrase-of-xpub --ms1",
       "kind": "StdinToggle",
+      "terminator": "",
       "flag": "--ms1-stdin"
      },
      {
       "source": 1,
       "key": "mnemonic xpub-search passphrase-of-xpub --passphrase",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S1"
      }
     ]
    }
   },
-  "c1_failures": [],
   "t1_problems": [],
-  "planned_argv": [
-   "mnemonic",
-   "xpub-search",
-   "passphrase-of-xpub",
-   "--target-xpub",
-   "xpub6CPUCVp94gpNs3bS1eGiwSWwZMLNmfr2Uo1t5v8YtY4XVoxhUraBH7sRyVfgwSNCxRVpX1bDREtc5KriC7smtjYco8w57agUrg1nLawsNFG",
-   "--ms1-stdin",
-   "--passphrase",
-   "@env:MNEMONIC_GUI_S1"
-  ],
   "base_exit": 0,
   "plan_exit": 0,
   "base_effect": "match: m/84'/0'/0'  (template=bip84, account=0)",
-  "plan_effect": "match: m/84'/0'/0'  (template=bip84, account=0)",
   "equal": true,
   "plan_err": "",
-  "c1_env_runs": [
-   {
-    "source": 0,
-    "provenance": "$USER_SECRET_0",
-    "equal_baseline": true
-   },
-   {
-    "source": 1,
-    "provenance": "$USER_SECRET_1",
-    "equal_baseline": true
-   }
-  ],
   "swaps": [
    {
     "pair": [
@@ -1406,8 +2812,93 @@
     ],
     "same_as_baseline": false,
     "expected_same": false,
-    "exit": 2,
-    "effect": ""
+    "exit": 2
+   }
+  ],
+  "env_endings": [
+   {
+    "source": 0,
+    "ending": "",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "match: m/84'/0'/0'  (template=bip84, account=0)",
+    "eq_argv_exact": true
+   },
+   {
+    "source": 0,
+    "ending": "\n",
+    "refused": "value-not-byte-exact"
+   },
+   {
+    "source": 0,
+    "ending": "\r\n",
+    "refused": "value-not-byte-exact"
+   },
+   {
+    "source": 0,
+    "ending": "\nX",
+    "refused": "value-not-byte-exact"
+   },
+   {
+    "source": 0,
+    "ending": "  ",
+    "refused": "value-not-byte-exact"
+   },
+   {
+    "source": 1,
+    "ending": "",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "match: m/84'/0'/0'  (template=bip84, account=0)",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "match: m/84'/0'/0'  (template=bip84, account=0)"
+   },
+   {
+    "source": 1,
+    "ending": "\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 4,
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 1,
+    "ending": "\r\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 4,
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 1,
+    "ending": "\nX",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 4,
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 1,
+    "ending": "  ",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 4,
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
    }
   ]
  },
@@ -1422,12 +2913,14 @@
       "source": 0,
       "key": "mnemonic xpub-search account-of-descriptor --phrase",
       "kind": "StdinToggle",
+      "terminator": "\r\n",
       "flag": "--phrase-stdin"
      },
      {
       "source": 1,
       "key": "mnemonic xpub-search account-of-descriptor --passphrase",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S1"
      }
     ]
@@ -1437,14 +2930,14 @@
      {
       "source": 0,
       "key": "mnemonic xpub-search account-of-descriptor --phrase",
-      "kind": "StdinToggle",
-      "flag": "--phrase-stdin"
+      "kind": "Argv",
+      "terminator": ""
      },
      {
       "source": 1,
       "key": "mnemonic xpub-search account-of-descriptor --passphrase",
-      "kind": "EnvRef",
-      "env": "MNEMONIC_GUI_S1"
+      "kind": "Argv",
+      "terminator": ""
      }
     ]
    },
@@ -1453,48 +2946,42 @@
      {
       "source": 0,
       "key": "mnemonic xpub-search account-of-descriptor --phrase",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search account-of-descriptor --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search account-of-descriptor --phrase",
       "kind": "StdinToggle",
+      "terminator": "\r\n",
       "flag": "--phrase-stdin"
      },
      {
       "source": 1,
       "key": "mnemonic xpub-search account-of-descriptor --passphrase",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S1"
      }
     ]
    }
   },
-  "c1_failures": [],
   "t1_problems": [],
-  "planned_argv": [
-   "mnemonic",
-   "xpub-search",
-   "account-of-descriptor",
-   "--descriptor",
-   "wpkh(xpub6CPUCVp94gpNs3bS1eGiwSWwZMLNmfr2Uo1t5v8YtY4XVoxhUraBH7sRyVfgwSNCxRVpX1bDREtc5KriC7smtjYco8w57agUrg1nLawsNFG/0/*)",
-   "--phrase-stdin",
-   "--passphrase",
-   "@env:MNEMONIC_GUI_S1"
-  ],
   "base_exit": 0,
   "plan_exit": 0,
   "base_effect": "match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)",
-  "plan_effect": "match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)",
   "equal": true,
   "plan_err": "",
-  "c1_env_runs": [
-   {
-    "source": 0,
-    "provenance": "$USER_SECRET_0",
-    "equal_baseline": true
-   },
-   {
-    "source": 1,
-    "provenance": "$USER_SECRET_1",
-    "equal_baseline": true
-   }
-  ],
   "swaps": [
    {
     "pair": [
@@ -1503,8 +2990,119 @@
     ],
     "same_as_baseline": false,
     "expected_same": false,
+    "exit": 1
+   }
+  ],
+  "env_endings": [
+   {
+    "source": 0,
+    "ending": "",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)"
+   },
+   {
+    "source": 0,
+    "ending": "\n",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)"
+   },
+   {
+    "source": 0,
+    "ending": "\r\n",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)"
+   },
+   {
+    "source": 0,
+    "ending": "\nX",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
     "exit": 1,
-    "effect": ""
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 0,
+    "ending": "  ",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)"
+   },
+   {
+    "source": 1,
+    "ending": "",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)"
+   },
+   {
+    "source": 1,
+    "ending": "\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 4,
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 1,
+    "ending": "\r\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 4,
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 1,
+    "ending": "\nX",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 4,
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 1,
+    "ending": "  ",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 4,
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
    }
   ]
  },
@@ -1519,12 +3117,14 @@
       "source": 0,
       "key": "mnemonic xpub-search account-of-descriptor --ms1",
       "kind": "StdinToggle",
+      "terminator": "",
       "flag": "--ms1-stdin"
      },
      {
       "source": 1,
       "key": "mnemonic xpub-search account-of-descriptor --passphrase",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S1"
      }
     ]
@@ -1534,14 +3134,14 @@
      {
       "source": 0,
       "key": "mnemonic xpub-search account-of-descriptor --ms1",
-      "kind": "StdinToggle",
-      "flag": "--ms1-stdin"
+      "kind": "Argv",
+      "terminator": ""
      },
      {
       "source": 1,
       "key": "mnemonic xpub-search account-of-descriptor --passphrase",
-      "kind": "EnvRef",
-      "env": "MNEMONIC_GUI_S1"
+      "kind": "Argv",
+      "terminator": ""
      }
     ]
    },
@@ -1550,48 +3150,42 @@
      {
       "source": 0,
       "key": "mnemonic xpub-search account-of-descriptor --ms1",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search account-of-descriptor --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search account-of-descriptor --ms1",
       "kind": "StdinToggle",
+      "terminator": "",
       "flag": "--ms1-stdin"
      },
      {
       "source": 1,
       "key": "mnemonic xpub-search account-of-descriptor --passphrase",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S1"
      }
     ]
    }
   },
-  "c1_failures": [],
   "t1_problems": [],
-  "planned_argv": [
-   "mnemonic",
-   "xpub-search",
-   "account-of-descriptor",
-   "--descriptor",
-   "wpkh(xpub6CPUCVp94gpNs3bS1eGiwSWwZMLNmfr2Uo1t5v8YtY4XVoxhUraBH7sRyVfgwSNCxRVpX1bDREtc5KriC7smtjYco8w57agUrg1nLawsNFG/0/*)",
-   "--ms1-stdin",
-   "--passphrase",
-   "@env:MNEMONIC_GUI_S1"
-  ],
   "base_exit": 0,
   "plan_exit": 0,
   "base_effect": "match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)",
-  "plan_effect": "match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)",
   "equal": true,
   "plan_err": "",
-  "c1_env_runs": [
-   {
-    "source": 0,
-    "provenance": "$USER_SECRET_0",
-    "equal_baseline": true
-   },
-   {
-    "source": 1,
-    "provenance": "$USER_SECRET_1",
-    "equal_baseline": true
-   }
-  ],
   "swaps": [
    {
     "pair": [
@@ -1600,8 +3194,93 @@
     ],
     "same_as_baseline": false,
     "expected_same": false,
-    "exit": 2,
-    "effect": ""
+    "exit": 2
+   }
+  ],
+  "env_endings": [
+   {
+    "source": 0,
+    "ending": "",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)",
+    "eq_argv_exact": true
+   },
+   {
+    "source": 0,
+    "ending": "\n",
+    "refused": "value-not-byte-exact"
+   },
+   {
+    "source": 0,
+    "ending": "\r\n",
+    "refused": "value-not-byte-exact"
+   },
+   {
+    "source": 0,
+    "ending": "\nX",
+    "refused": "value-not-byte-exact"
+   },
+   {
+    "source": 0,
+    "ending": "  ",
+    "refused": "value-not-byte-exact"
+   },
+   {
+    "source": 1,
+    "ending": "",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)"
+   },
+   {
+    "source": 1,
+    "ending": "\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 4,
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 1,
+    "ending": "\r\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 4,
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 1,
+    "ending": "\nX",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 4,
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 1,
+    "ending": "  ",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 4,
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
    }
   ]
  },
@@ -1616,6 +3295,7 @@
       "source": 0,
       "key": "mnemonic silent-payment --secret",
       "kind": "FileFlag",
+      "terminator": "\r\n",
       "flag": "--secret-file",
       "fd": 3
      },
@@ -1623,46 +3303,54 @@
       "source": 1,
       "key": "mnemonic silent-payment --passphrase",
       "kind": "StdinToggle",
+      "terminator": "\r\n",
       "flag": "--passphrase-stdin"
      }
     ]
    },
    "macos": {
-    "refusal": "fd-not-on-platform",
-    "detail": "fd-not-on-platform: mnemonic silent-payment --secret + mnemonic silent-payment --passphrase: needs a pipe fd; not enabled on macos"
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic silent-payment --secret",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic silent-payment --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
    },
    "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic silent-payment --secret",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic silent-payment --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
     "refusal": "fd-not-on-platform",
-    "detail": "fd-not-on-platform: mnemonic silent-payment --secret + mnemonic silent-payment --passphrase: needs a pipe fd; not enabled on windows"
+    "detail": "fd-not-on-platform: mnemonic silent-payment --secret + mnemonic silent-payment --passphrase: needs a pipe fd; not enabled on macos"
    }
   },
-  "c1_failures": [],
   "t1_problems": [],
-  "planned_argv": [
-   "mnemonic",
-   "silent-payment",
-   "--secret-file",
-   "/dev/fd/3",
-   "--passphrase-stdin"
-  ],
   "base_exit": 0,
   "plan_exit": 0,
   "base_effect": "address:      sp1qq2d73kpx36h7r08gmawe6slzxkntu2tw0as7pkqe0hvv3k38mkvckqsp6dmrwxvd6mumfqj9",
-  "plan_effect": "address:      sp1qq2d73kpx36h7r08gmawe6slzxkntu2tw0as7pkqe0hvv3k38mkvckqsp6dmrwxvd6mumfqj9",
   "equal": true,
   "plan_err": "",
-  "c1_env_runs": [
-   {
-    "source": 0,
-    "provenance": "$USER_SECRET_0",
-    "equal_baseline": true
-   },
-   {
-    "source": 1,
-    "provenance": "$USER_SECRET_1",
-    "equal_baseline": true
-   }
-  ],
   "swaps": [
    {
     "pair": [
@@ -1671,8 +3359,99 @@
     ],
     "same_as_baseline": false,
     "expected_same": false,
+    "exit": 1
+   }
+  ],
+  "env_endings": [
+   {
+    "source": 0,
+    "ending": "",
+    "channel": "FileFlag",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "address:      sp1qq2d73kpx36h7r08gmawe6slzxkntu2tw0as7pkqe0hvv3k38mkvckqsp6dmrwxvd6mumfqj9",
+    "eq_argv_exact": true
+   },
+   {
+    "source": 0,
+    "ending": "\n",
+    "channel": "FileFlag",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "address:      sp1qq2d73kpx36h7r08gmawe6slzxkntu2tw0as7pkqe0hvv3k38mkvckqsp6dmrwxvd6mumfqj9",
+    "eq_argv_exact": true
+   },
+   {
+    "source": 0,
+    "ending": "\r\n",
+    "channel": "FileFlag",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "address:      sp1qq2d73kpx36h7r08gmawe6slzxkntu2tw0as7pkqe0hvv3k38mkvckqsp6dmrwxvd6mumfqj9",
+    "eq_argv_exact": true
+   },
+   {
+    "source": 0,
+    "ending": "\nX",
+    "channel": "FileFlag",
+    "provenance": "$USER_SECRET",
     "exit": 1,
-    "effect": ""
+    "effect": "",
+    "eq_argv_exact": true
+   },
+   {
+    "source": 0,
+    "ending": "  ",
+    "channel": "FileFlag",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "address:      sp1qq2d73kpx36h7r08gmawe6slzxkntu2tw0as7pkqe0hvv3k38mkvckqsp6dmrwxvd6mumfqj9",
+    "eq_argv_exact": true
+   },
+   {
+    "source": 1,
+    "ending": "",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "address:      sp1qq2d73kpx36h7r08gmawe6slzxkntu2tw0as7pkqe0hvv3k38mkvckqsp6dmrwxvd6mumfqj9",
+    "eq_argv_exact": true
+   },
+   {
+    "source": 1,
+    "ending": "\n",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "address:      sp1qq2kaah96lmtwyv3p0njq2vx3t339vfh2jqkfdxkhqnqkyvxm393swqszc832uxcfjh2dpuna",
+    "eq_argv_exact": true
+   },
+   {
+    "source": 1,
+    "ending": "\r\n",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "address:      sp1qqgq8qren0nkwf9cskjhh2h55jlsqtaukv7c0s8s0hweu7thy3hhlsq4zmj3az677yexxutyt",
+    "eq_argv_exact": true
+   },
+   {
+    "source": 1,
+    "ending": "\nX",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "address:      sp1qqgdkc3aqtmmy6nh8ay0sl3dfhrp89w07s8ghy2yt7hd697yk4lvfvq44suzyp3qle7xjy80c",
+    "eq_argv_exact": true
+   },
+   {
+    "source": 1,
+    "ending": "  ",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "address:      sp1qqdrcjvk6ncuk4uq5zpvum6x6mw9hm9t3yg6zvkekkur0uwzu0q57cq343pst9qftlngjdyve",
+    "eq_argv_exact": true
    }
   ]
  },
@@ -1687,12 +3466,14 @@
       "source": 0,
       "key": "mnemonic slip39 split --from phrase=",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S0"
      },
      {
       "source": 1,
       "key": "mnemonic slip39 split --passphrase",
       "kind": "StdinToggle",
+      "terminator": "\r\n",
       "flag": "--passphrase-stdin"
      }
     ]
@@ -1702,14 +3483,14 @@
      {
       "source": 0,
       "key": "mnemonic slip39 split --from phrase=",
-      "kind": "EnvRef",
-      "env": "MNEMONIC_GUI_S0"
+      "kind": "Argv",
+      "terminator": ""
      },
      {
       "source": 1,
       "key": "mnemonic slip39 split --passphrase",
-      "kind": "StdinToggle",
-      "flag": "--passphrase-stdin"
+      "kind": "Argv",
+      "terminator": ""
      }
     ]
    },
@@ -1718,50 +3499,42 @@
      {
       "source": 0,
       "key": "mnemonic slip39 split --from phrase=",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic slip39 split --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic slip39 split --from phrase=",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S0"
      },
      {
       "source": 1,
       "key": "mnemonic slip39 split --passphrase",
       "kind": "StdinToggle",
+      "terminator": "\r\n",
       "flag": "--passphrase-stdin"
      }
     ]
    }
   },
-  "c1_failures": [],
   "t1_problems": [],
-  "planned_argv": [
-   "mnemonic",
-   "slip39",
-   "split",
-   "--group-threshold",
-   "1",
-   "--group",
-   "3,2",
-   "--from",
-   "phrase=@env:MNEMONIC_GUI_S0",
-   "--passphrase-stdin"
-  ],
   "base_exit": 0,
   "plan_exit": 0,
   "base_effect": "00000000000000000000000000000000",
-  "plan_effect": "00000000000000000000000000000000",
   "equal": true,
   "plan_err": "",
-  "c1_env_runs": [
-   {
-    "source": 0,
-    "provenance": "$USER_SECRET_0",
-    "equal_baseline": true
-   },
-   {
-    "source": 1,
-    "provenance": "$USER_SECRET_1",
-    "equal_baseline": true
-   }
-  ],
   "swaps": [
    {
     "pair": [
@@ -1770,8 +3543,119 @@
     ],
     "same_as_baseline": false,
     "expected_same": false,
+    "exit": 1
+   }
+  ],
+  "env_endings": [
+   {
+    "source": 0,
+    "ending": "",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "00000000000000000000000000000000",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "00000000000000000000000000000000"
+   },
+   {
+    "source": 0,
+    "ending": "\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "00000000000000000000000000000000",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "00000000000000000000000000000000"
+   },
+   {
+    "source": 0,
+    "ending": "\r\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "00000000000000000000000000000000",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "00000000000000000000000000000000"
+   },
+   {
+    "source": 0,
+    "ending": "\nX",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
     "exit": 1,
-    "effect": ""
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 0,
+    "ending": "  ",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "00000000000000000000000000000000",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "00000000000000000000000000000000"
+   },
+   {
+    "source": 1,
+    "ending": "",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "00000000000000000000000000000000",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "00000000000000000000000000000000"
+   },
+   {
+    "source": 1,
+    "ending": "\n",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "00000000000000000000000000000000",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "00000000000000000000000000000000"
+   },
+   {
+    "source": 1,
+    "ending": "\r\n",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "00000000000000000000000000000000",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "00000000000000000000000000000000"
+   },
+   {
+    "source": 1,
+    "ending": "\nX",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "00000000000000000000000000000000",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "00000000000000000000000000000000"
+   },
+   {
+    "source": 1,
+    "ending": "  ",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "00000000000000000000000000000000",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "00000000000000000000000000000000"
    }
   ]
  },
@@ -1791,18 +3675,21 @@
       "source": 0,
       "key": "mnemonic slip39 combine --share",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S0"
      },
      {
       "source": 1,
       "key": "mnemonic slip39 combine --share",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S1"
      },
      {
       "source": 2,
       "key": "mnemonic slip39 combine --passphrase",
       "kind": "StdinToggle",
+      "terminator": "\r\n",
       "flag": "--passphrase-stdin"
      }
     ]
@@ -1812,20 +3699,20 @@
      {
       "source": 0,
       "key": "mnemonic slip39 combine --share",
-      "kind": "EnvRef",
-      "env": "MNEMONIC_GUI_S0"
+      "kind": "Argv",
+      "terminator": ""
      },
      {
       "source": 1,
       "key": "mnemonic slip39 combine --share",
-      "kind": "EnvRef",
-      "env": "MNEMONIC_GUI_S1"
+      "kind": "Argv",
+      "terminator": ""
      },
      {
       "source": 2,
       "key": "mnemonic slip39 combine --passphrase",
-      "kind": "StdinToggle",
-      "flag": "--passphrase-stdin"
+      "kind": "Argv",
+      "terminator": ""
      }
     ]
    },
@@ -1834,59 +3721,55 @@
      {
       "source": 0,
       "key": "mnemonic slip39 combine --share",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic slip39 combine --share",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 2,
+      "key": "mnemonic slip39 combine --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic slip39 combine --share",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S0"
      },
      {
       "source": 1,
       "key": "mnemonic slip39 combine --share",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S1"
      },
      {
       "source": 2,
       "key": "mnemonic slip39 combine --passphrase",
       "kind": "StdinToggle",
+      "terminator": "\r\n",
       "flag": "--passphrase-stdin"
      }
     ]
    }
   },
-  "c1_failures": [],
   "t1_problems": [],
-  "planned_argv": [
-   "mnemonic",
-   "slip39",
-   "combine",
-   "--share",
-   "@env:MNEMONIC_GUI_S0",
-   "--share",
-   "@env:MNEMONIC_GUI_S1",
-   "--passphrase-stdin"
-  ],
   "base_exit": 0,
   "plan_exit": 0,
   "base_effect": "8ab7aa39cd427130e225ed43c34f5b5a",
-  "plan_effect": "8ab7aa39cd427130e225ed43c34f5b5a",
   "equal": true,
   "plan_err": "",
-  "c1_env_runs": [
-   {
-    "source": 0,
-    "provenance": "$USER_SECRET_0",
-    "equal_baseline": true
-   },
-   {
-    "source": 1,
-    "provenance": "$USER_SECRET_1",
-    "equal_baseline": true
-   },
-   {
-    "source": 2,
-    "provenance": "$USER_SECRET_2",
-    "equal_baseline": true
-   }
-  ],
   "swaps": [
    {
     "pair": [
@@ -1895,8 +3778,7 @@
     ],
     "same_as_baseline": true,
     "expected_same": true,
-    "exit": 0,
-    "effect": "8ab7aa39cd427130e225ed43c34f5b5a"
+    "exit": 0
    },
    {
     "pair": [
@@ -1905,8 +3787,7 @@
     ],
     "same_as_baseline": false,
     "expected_same": false,
-    "exit": 1,
-    "effect": ""
+    "exit": 1
    },
    {
     "pair": [
@@ -1915,8 +3796,174 @@
     ],
     "same_as_baseline": false,
     "expected_same": false,
+    "exit": 1
+   }
+  ],
+  "env_endings": [
+   {
+    "source": 0,
+    "ending": "",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "8ab7aa39cd427130e225ed43c34f5b5a",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "8ab7aa39cd427130e225ed43c34f5b5a"
+   },
+   {
+    "source": 0,
+    "ending": "\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "8ab7aa39cd427130e225ed43c34f5b5a",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "8ab7aa39cd427130e225ed43c34f5b5a"
+   },
+   {
+    "source": 0,
+    "ending": "\r\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "8ab7aa39cd427130e225ed43c34f5b5a",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "8ab7aa39cd427130e225ed43c34f5b5a"
+   },
+   {
+    "source": 0,
+    "ending": "\nX",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
     "exit": 1,
-    "effect": ""
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 0,
+    "ending": "  ",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "8ab7aa39cd427130e225ed43c34f5b5a",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "8ab7aa39cd427130e225ed43c34f5b5a"
+   },
+   {
+    "source": 1,
+    "ending": "",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "8ab7aa39cd427130e225ed43c34f5b5a",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "8ab7aa39cd427130e225ed43c34f5b5a"
+   },
+   {
+    "source": 1,
+    "ending": "\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "8ab7aa39cd427130e225ed43c34f5b5a",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "8ab7aa39cd427130e225ed43c34f5b5a"
+   },
+   {
+    "source": 1,
+    "ending": "\r\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "8ab7aa39cd427130e225ed43c34f5b5a",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "8ab7aa39cd427130e225ed43c34f5b5a"
+   },
+   {
+    "source": 1,
+    "ending": "\nX",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 1,
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 1,
+    "ending": "  ",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "8ab7aa39cd427130e225ed43c34f5b5a",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "8ab7aa39cd427130e225ed43c34f5b5a"
+   },
+   {
+    "source": 2,
+    "ending": "",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "8ab7aa39cd427130e225ed43c34f5b5a",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "8ab7aa39cd427130e225ed43c34f5b5a"
+   },
+   {
+    "source": 2,
+    "ending": "\n",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "cf82be07d39e98000f98a7562b0b552c",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "cf82be07d39e98000f98a7562b0b552c"
+   },
+   {
+    "source": 2,
+    "ending": "\r\n",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "49b27d94e62a3822d0c57035c2859529",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "49b27d94e62a3822d0c57035c2859529"
+   },
+   {
+    "source": 2,
+    "ending": "\nX",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "e2dfef77918a033f56649333bb7e0898",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "e2dfef77918a033f56649333bb7e0898"
+   },
+   {
+    "source": 2,
+    "ending": "  ",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "9627ef753a433f56e779f6ca6d22353d",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "9627ef753a433f56e779f6ca6d22353d"
    }
   ]
  },
@@ -1936,12 +3983,14 @@
       "source": 0,
       "key": "mnemonic slip39 combine --share",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S0"
      },
      {
       "source": 1,
       "key": "mnemonic slip39 combine --share",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S1"
      }
     ]
@@ -1951,14 +4000,14 @@
      {
       "source": 0,
       "key": "mnemonic slip39 combine --share",
-      "kind": "EnvRef",
-      "env": "MNEMONIC_GUI_S0"
+      "kind": "Argv",
+      "terminator": ""
      },
      {
       "source": 1,
       "key": "mnemonic slip39 combine --share",
-      "kind": "EnvRef",
-      "env": "MNEMONIC_GUI_S1"
+      "kind": "Argv",
+      "terminator": ""
      }
     ]
    },
@@ -1967,47 +4016,42 @@
      {
       "source": 0,
       "key": "mnemonic slip39 combine --share",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic slip39 combine --share",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic slip39 combine --share",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S0"
      },
      {
       "source": 1,
       "key": "mnemonic slip39 combine --share",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S1"
      }
     ]
    }
   },
-  "c1_failures": [],
   "t1_problems": [],
-  "planned_argv": [
-   "mnemonic",
-   "slip39",
-   "combine",
-   "--share",
-   "@env:MNEMONIC_GUI_S0",
-   "--share",
-   "@env:MNEMONIC_GUI_S1"
-  ],
   "base_exit": 0,
   "plan_exit": 0,
   "base_effect": "00000000000000000000000000000000",
-  "plan_effect": "00000000000000000000000000000000",
   "equal": true,
   "plan_err": "",
-  "c1_env_runs": [
-   {
-    "source": 0,
-    "provenance": "$USER_SECRET_0",
-    "equal_baseline": true
-   },
-   {
-    "source": 1,
-    "provenance": "$USER_SECRET_1",
-    "equal_baseline": true
-   }
-  ],
   "swaps": [
    {
     "pair": [
@@ -2016,8 +4060,119 @@
     ],
     "same_as_baseline": true,
     "expected_same": true,
+    "exit": 0
+   }
+  ],
+  "env_endings": [
+   {
+    "source": 0,
+    "ending": "",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
     "exit": 0,
-    "effect": "00000000000000000000000000000000"
+    "effect": "00000000000000000000000000000000",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "00000000000000000000000000000000"
+   },
+   {
+    "source": 0,
+    "ending": "\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "00000000000000000000000000000000",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "00000000000000000000000000000000"
+   },
+   {
+    "source": 0,
+    "ending": "\r\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "00000000000000000000000000000000",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "00000000000000000000000000000000"
+   },
+   {
+    "source": 0,
+    "ending": "\nX",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 1,
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 0,
+    "ending": "  ",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "00000000000000000000000000000000",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "00000000000000000000000000000000"
+   },
+   {
+    "source": 1,
+    "ending": "",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "00000000000000000000000000000000",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "00000000000000000000000000000000"
+   },
+   {
+    "source": 1,
+    "ending": "\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "00000000000000000000000000000000",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "00000000000000000000000000000000"
+   },
+   {
+    "source": 1,
+    "ending": "\r\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "00000000000000000000000000000000",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "00000000000000000000000000000000"
+   },
+   {
+    "source": 1,
+    "ending": "\nX",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 1,
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 1,
+    "ending": "  ",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "00000000000000000000000000000000",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "00000000000000000000000000000000"
    }
   ]
  },
@@ -2037,12 +4192,14 @@
       "source": 0,
       "key": "mnemonic seed-xor combine --share phrase=",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S0"
      },
      {
       "source": 1,
       "key": "mnemonic seed-xor combine --share phrase=",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S1"
      }
     ]
@@ -2052,14 +4209,14 @@
      {
       "source": 0,
       "key": "mnemonic seed-xor combine --share phrase=",
-      "kind": "EnvRef",
-      "env": "MNEMONIC_GUI_S0"
+      "kind": "Argv",
+      "terminator": ""
      },
      {
       "source": 1,
       "key": "mnemonic seed-xor combine --share phrase=",
-      "kind": "EnvRef",
-      "env": "MNEMONIC_GUI_S1"
+      "kind": "Argv",
+      "terminator": ""
      }
     ]
    },
@@ -2068,49 +4225,42 @@
      {
       "source": 0,
       "key": "mnemonic seed-xor combine --share phrase=",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic seed-xor combine --share phrase=",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic seed-xor combine --share phrase=",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S0"
      },
      {
       "source": 1,
       "key": "mnemonic seed-xor combine --share phrase=",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S1"
      }
     ]
    }
   },
-  "c1_failures": [],
   "t1_problems": [],
-  "planned_argv": [
-   "mnemonic",
-   "seed-xor",
-   "combine",
-   "--shares",
-   "2",
-   "--share",
-   "phrase=@env:MNEMONIC_GUI_S0",
-   "--share",
-   "phrase=@env:MNEMONIC_GUI_S1"
-  ],
   "base_exit": 0,
   "plan_exit": 0,
   "base_effect": "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong",
-  "plan_effect": "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong",
   "equal": true,
   "plan_err": "",
-  "c1_env_runs": [
-   {
-    "source": 0,
-    "provenance": "$USER_SECRET_0",
-    "equal_baseline": true
-   },
-   {
-    "source": 1,
-    "provenance": "$USER_SECRET_1",
-    "equal_baseline": true
-   }
-  ],
   "swaps": [
    {
     "pair": [
@@ -2119,8 +4269,119 @@
     ],
     "same_as_baseline": true,
     "expected_same": true,
+    "exit": 0
+   }
+  ],
+  "env_endings": [
+   {
+    "source": 0,
+    "ending": "",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
     "exit": 0,
-    "effect": "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
+    "effect": "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
+   },
+   {
+    "source": 0,
+    "ending": "\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
+   },
+   {
+    "source": 0,
+    "ending": "\r\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
+   },
+   {
+    "source": 0,
+    "ending": "\nX",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 1,
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 0,
+    "ending": "  ",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
+   },
+   {
+    "source": 1,
+    "ending": "",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
+   },
+   {
+    "source": 1,
+    "ending": "\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
+   },
+   {
+    "source": 1,
+    "ending": "\r\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
+   },
+   {
+    "source": 1,
+    "ending": "\nX",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 1,
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 1,
+    "ending": "  ",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
    }
   ]
  },
@@ -2140,12 +4401,14 @@
       "source": 0,
       "key": "mnemonic ms-shares combine --share",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S0"
      },
      {
       "source": 1,
       "key": "mnemonic ms-shares combine --share",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S1"
      }
     ]
@@ -2155,14 +4418,14 @@
      {
       "source": 0,
       "key": "mnemonic ms-shares combine --share",
-      "kind": "EnvRef",
-      "env": "MNEMONIC_GUI_S0"
+      "kind": "Argv",
+      "terminator": ""
      },
      {
       "source": 1,
       "key": "mnemonic ms-shares combine --share",
-      "kind": "EnvRef",
-      "env": "MNEMONIC_GUI_S1"
+      "kind": "Argv",
+      "terminator": ""
      }
     ]
    },
@@ -2171,49 +4434,42 @@
      {
       "source": 0,
       "key": "mnemonic ms-shares combine --share",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic ms-shares combine --share",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic ms-shares combine --share",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S0"
      },
      {
       "source": 1,
       "key": "mnemonic ms-shares combine --share",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S1"
      }
     ]
    }
   },
-  "c1_failures": [],
   "t1_problems": [],
-  "planned_argv": [
-   "mnemonic",
-   "ms-shares",
-   "combine",
-   "--to",
-   "phrase",
-   "--share",
-   "@env:MNEMONIC_GUI_S0",
-   "--share",
-   "@env:MNEMONIC_GUI_S1"
-  ],
   "base_exit": 0,
   "plan_exit": 0,
   "base_effect": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab",
-  "plan_effect": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab",
   "equal": true,
   "plan_err": "",
-  "c1_env_runs": [
-   {
-    "source": 0,
-    "provenance": "$USER_SECRET_0",
-    "equal_baseline": true
-   },
-   {
-    "source": 1,
-    "provenance": "$USER_SECRET_1",
-    "equal_baseline": true
-   }
-  ],
   "swaps": [
    {
     "pair": [
@@ -2222,8 +4478,119 @@
     ],
     "same_as_baseline": true,
     "expected_same": true,
+    "exit": 0
+   }
+  ],
+  "env_endings": [
+   {
+    "source": 0,
+    "ending": "",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
     "exit": 0,
-    "effect": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab"
+    "effect": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab"
+   },
+   {
+    "source": 0,
+    "ending": "\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab"
+   },
+   {
+    "source": 0,
+    "ending": "\r\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab"
+   },
+   {
+    "source": 0,
+    "ending": "\nX",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 1,
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 0,
+    "ending": "  ",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab"
+   },
+   {
+    "source": 1,
+    "ending": "",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab"
+   },
+   {
+    "source": 1,
+    "ending": "\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab"
+   },
+   {
+    "source": 1,
+    "ending": "\r\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab"
+   },
+   {
+    "source": 1,
+    "ending": "\nX",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 1,
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 1,
+    "ending": "  ",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab"
    }
   ]
  },
@@ -2238,12 +4605,14 @@
       "source": 0,
       "key": "mnemonic import-wallet --ms1",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S0"
      },
      {
       "source": 1,
       "key": "mnemonic import-wallet --ms1",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S1"
      }
     ]
@@ -2253,14 +4622,14 @@
      {
       "source": 0,
       "key": "mnemonic import-wallet --ms1",
-      "kind": "EnvRef",
-      "env": "MNEMONIC_GUI_S0"
+      "kind": "Argv",
+      "terminator": ""
      },
      {
       "source": 1,
       "key": "mnemonic import-wallet --ms1",
-      "kind": "EnvRef",
-      "env": "MNEMONIC_GUI_S1"
+      "kind": "Argv",
+      "terminator": ""
      }
     ]
    },
@@ -2269,51 +4638,42 @@
      {
       "source": 0,
       "key": "mnemonic import-wallet --ms1",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic import-wallet --ms1",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic import-wallet --ms1",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S0"
      },
      {
       "source": 1,
       "key": "mnemonic import-wallet --ms1",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S1"
      }
     ]
    }
   },
-  "c1_failures": [],
   "t1_problems": [],
-  "planned_argv": [
-   "mnemonic",
-   "import-wallet",
-   "--blob",
-   "/scratch/code/shibboleth/gui-worktrees/followups/design/measurements/secret-channels/fixtures/blob-2of2.bsms",
-   "--format",
-   "bsms",
-   "--json",
-   "--ms1",
-   "@env:MNEMONIC_GUI_S0",
-   "--ms1",
-   "@env:MNEMONIC_GUI_S1"
-  ],
   "base_exit": 0,
   "plan_exit": 0,
   "base_effect": "\"descriptor\": \"wsh(sortedmulti(2,[5436d724/48'/0'/0'/2']xpub6E79FaRWLSJCAgA2jDHRvyrWKwT6aS",
-  "plan_effect": "\"descriptor\": \"wsh(sortedmulti(2,[5436d724/48'/0'/0'/2']xpub6E79FaRWLSJCAgA2jDHRvyrWKwT6aS",
   "equal": true,
   "plan_err": "",
-  "c1_env_runs": [
-   {
-    "source": 0,
-    "provenance": "$USER_SECRET_0",
-    "equal_baseline": true
-   },
-   {
-    "source": 1,
-    "provenance": "$USER_SECRET_1",
-    "equal_baseline": true
-   }
-  ],
   "swaps": [
    {
     "pair": [
@@ -2322,8 +4682,119 @@
     ],
     "same_as_baseline": false,
     "expected_same": false,
-    "exit": 4,
-    "effect": ""
+    "exit": 4
+   }
+  ],
+  "env_endings": [
+   {
+    "source": 0,
+    "ending": "",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "\"descriptor\": \"wsh(sortedmulti(2,[5436d724/48'/0'/0'/2']xpub6E79FaRWLSJCAgA2jDHRvyrWKwT6aS",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "\"descriptor\": \"wsh(sortedmulti(2,[5436d724/48'/0'/0'/2']xpub6E79FaRWLSJCAgA2jDHRvyrWKwT6aS"
+   },
+   {
+    "source": 0,
+    "ending": "\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 1,
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 0,
+    "ending": "\r\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 1,
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 0,
+    "ending": "\nX",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 1,
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 0,
+    "ending": "  ",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 1,
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 1,
+    "ending": "",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "\"descriptor\": \"wsh(sortedmulti(2,[5436d724/48'/0'/0'/2']xpub6E79FaRWLSJCAgA2jDHRvyrWKwT6aS",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "\"descriptor\": \"wsh(sortedmulti(2,[5436d724/48'/0'/0'/2']xpub6E79FaRWLSJCAgA2jDHRvyrWKwT6aS"
+   },
+   {
+    "source": 1,
+    "ending": "\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 1,
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 1,
+    "ending": "\r\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 1,
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 1,
+    "ending": "\nX",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 1,
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 1,
+    "ending": "  ",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 1,
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
    }
   ]
  },
@@ -2338,18 +4809,21 @@
       "source": 0,
       "key": "mnemonic verify-bundle --ms1",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S0"
      },
      {
       "source": 1,
       "key": "mnemonic verify-bundle --slot @N.phrase=",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S1"
      },
      {
       "source": 2,
       "key": "mnemonic verify-bundle --passphrase",
       "kind": "StdinToggle",
+      "terminator": "\r\n",
       "flag": "--passphrase-stdin"
      }
     ]
@@ -2359,20 +4833,20 @@
      {
       "source": 0,
       "key": "mnemonic verify-bundle --ms1",
-      "kind": "EnvRef",
-      "env": "MNEMONIC_GUI_S0"
+      "kind": "Argv",
+      "terminator": ""
      },
      {
       "source": 1,
       "key": "mnemonic verify-bundle --slot @N.phrase=",
-      "kind": "EnvRef",
-      "env": "MNEMONIC_GUI_S1"
+      "kind": "Argv",
+      "terminator": ""
      },
      {
       "source": 2,
       "key": "mnemonic verify-bundle --passphrase",
-      "kind": "StdinToggle",
-      "flag": "--passphrase-stdin"
+      "kind": "Argv",
+      "terminator": ""
      }
     ]
    },
@@ -2381,69 +4855,55 @@
      {
       "source": 0,
       "key": "mnemonic verify-bundle --ms1",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "mnemonic verify-bundle --slot @N.phrase=",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 2,
+      "key": "mnemonic verify-bundle --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic verify-bundle --ms1",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S0"
      },
      {
       "source": 1,
       "key": "mnemonic verify-bundle --slot @N.phrase=",
       "kind": "EnvRef",
+      "terminator": "",
       "env": "MNEMONIC_GUI_S1"
      },
      {
       "source": 2,
       "key": "mnemonic verify-bundle --passphrase",
       "kind": "StdinToggle",
+      "terminator": "\r\n",
       "flag": "--passphrase-stdin"
      }
     ]
    }
   },
-  "c1_failures": [],
   "t1_problems": [],
-  "planned_argv": [
-   "mnemonic",
-   "verify-bundle",
-   "--network",
-   "mainnet",
-   "--template",
-   "bip84",
-   "--mk1",
-   "mk1qpd2y2pqqsqk4z99gdzlh7lxqvzg3vs7vs57ls3u2nlnjvzn90ffnjpcsauf2eggmpdquu02l9k7dpjhxhs3yaa99gptc4a2n52g8ural6ka",
-   "mk1qpd2y2ppkg4avpw5epus8t6arq6ygqxwxkzwazx3nhhjuzyy0x4vgpjuujemj3nrnnvwpnk2w7n5y",
-   "--md1",
-   "md1fmgqkpqpqpm6jzzqqvqpdqghalhes4gyrc48l8yc9x27jn8yr3qr6g5je08dpvln",
-   "md1fmgqkpqth39t9prv95rn3atukme5x2u67zynh554q909j90tqt5jseywjj6mcg8d",
-   "md1fmgqkpqjvs7gr4aw3sdzyqr8rtp8w3rgemmewpzz8n2kyqewwgqw2esfh8sa6p0g",
-   "--ms1",
-   "@env:MNEMONIC_GUI_S0",
-   "--slot",
-   "@0.phrase=@env:MNEMONIC_GUI_S1",
-   "--passphrase-stdin"
-  ],
   "base_exit": 0,
   "plan_exit": 0,
   "base_effect": "result: ok",
-  "plan_effect": "result: ok",
   "equal": true,
   "plan_err": "",
-  "c1_env_runs": [
-   {
-    "source": 0,
-    "provenance": "$USER_SECRET_0",
-    "equal_baseline": true
-   },
-   {
-    "source": 1,
-    "provenance": "$USER_SECRET_1",
-    "equal_baseline": true
-   },
-   {
-    "source": 2,
-    "provenance": "$USER_SECRET_2",
-    "equal_baseline": true
-   }
-  ],
   "swaps": [
    {
     "pair": [
@@ -2452,8 +4912,7 @@
     ],
     "same_as_baseline": false,
     "expected_same": false,
-    "exit": 2,
-    "effect": ""
+    "exit": 2
    },
    {
     "pair": [
@@ -2462,8 +4921,7 @@
     ],
     "same_as_baseline": false,
     "expected_same": false,
-    "exit": 2,
-    "effect": ""
+    "exit": 2
    },
    {
     "pair": [
@@ -2472,8 +4930,174 @@
     ],
     "same_as_baseline": false,
     "expected_same": false,
+    "exit": 1
+   }
+  ],
+  "env_endings": [
+   {
+    "source": 0,
+    "ending": "",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "result: ok",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "result: ok"
+   },
+   {
+    "source": 0,
+    "ending": "\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "result: ok",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "result: ok"
+   },
+   {
+    "source": 0,
+    "ending": "\r\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "result: ok",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "result: ok"
+   },
+   {
+    "source": 0,
+    "ending": "\nX",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 4,
+    "effect": "result: mismatch",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "result: mismatch"
+   },
+   {
+    "source": 0,
+    "ending": "  ",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "result: ok",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "result: ok"
+   },
+   {
+    "source": 1,
+    "ending": "",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "result: ok",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "result: ok"
+   },
+   {
+    "source": 1,
+    "ending": "\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "result: ok",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "result: ok"
+   },
+   {
+    "source": 1,
+    "ending": "\r\n",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "result: ok",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "result: ok"
+   },
+   {
+    "source": 1,
+    "ending": "\nX",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
     "exit": 1,
-    "effect": ""
+    "effect": "",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": ""
+   },
+   {
+    "source": 1,
+    "ending": "  ",
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "result: ok",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "result: ok"
+   },
+   {
+    "source": 2,
+    "ending": "",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "result: ok",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "result: ok"
+   },
+   {
+    "source": 2,
+    "ending": "\n",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 4,
+    "effect": "result: mismatch",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "result: mismatch"
+   },
+   {
+    "source": 2,
+    "ending": "\r\n",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 4,
+    "effect": "result: mismatch",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "result: mismatch"
+   },
+   {
+    "source": 2,
+    "ending": "\nX",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 4,
+    "effect": "result: mismatch",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "result: mismatch"
+   },
+   {
+    "source": 2,
+    "ending": "  ",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 4,
+    "effect": "result: mismatch",
+    "eq_argv_exact": true,
+    "eq_cli_env": true,
+    "cli_env_effect": "result: mismatch"
    }
   ]
  },
@@ -2487,7 +5111,8 @@
      {
       "source": 0,
       "key": "ms combine <shares>",
-      "kind": "StdinMulti"
+      "kind": "StdinMulti",
+      "terminator": "\n"
      }
     ]
    },
@@ -2496,7 +5121,8 @@
      {
       "source": 0,
       "key": "ms combine <shares>",
-      "kind": "StdinMulti"
+      "kind": "Argv",
+      "terminator": ""
      }
     ]
    },
@@ -2505,36 +5131,30 @@
      {
       "source": 0,
       "key": "ms combine <shares>",
-      "kind": "StdinMulti"
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "ms combine <shares>",
+      "kind": "StdinMulti",
+      "terminator": "\n"
      }
     ]
    }
   },
-  "c1_failures": [],
   "t1_problems": [],
-  "planned_argv": [
-   "ms",
-   "combine",
-   "--",
-   "-"
-  ],
   "base_exit": 0,
   "plan_exit": 0,
   "base_effect": "entropy: 00000000000000000000000000000000",
-  "plan_effect": "entropy: 00000000000000000000000000000000",
   "equal": true,
   "plan_err": "",
-  "c1_env_runs": [
-   {
-    "source": 0,
-    "provenance": [
-     "$USER_SECRET_0",
-     "typed"
-    ],
-    "equal_baseline": true
-   }
-  ],
-  "swaps": []
+  "swaps": [],
+  "env_endings": []
  },
  {
   "name": "ms verify phrase+ms1",
@@ -2546,54 +5166,62 @@
      {
       "source": 0,
       "key": "ms verify --phrase",
-      "kind": "DashValue"
+      "kind": "DashValue",
+      "terminator": "\r\n"
      },
      {
       "source": 1,
       "key": "ms verify <ms1>",
       "kind": "InFile",
+      "terminator": "\r\n",
       "flag": "--in",
       "fd": 3
      }
     ]
    },
    "macos": {
-    "refusal": "fd-not-on-platform",
-    "detail": "fd-not-on-platform: ms verify --phrase + ms verify <ms1>: needs a pipe fd; not enabled on macos"
+    "bindings": [
+     {
+      "source": 0,
+      "key": "ms verify --phrase",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "ms verify <ms1>",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
    },
    "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "ms verify --phrase",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "ms verify <ms1>",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
     "refusal": "fd-not-on-platform",
-    "detail": "fd-not-on-platform: ms verify --phrase + ms verify <ms1>: needs a pipe fd; not enabled on windows"
+    "detail": "fd-not-on-platform: ms verify --phrase + ms verify <ms1>: needs a pipe fd; not enabled on macos"
    }
   },
-  "c1_failures": [],
   "t1_problems": [],
-  "planned_argv": [
-   "ms",
-   "verify",
-   "--phrase",
-   "-",
-   "--in",
-   "/dev/fd/3"
-  ],
   "base_exit": 0,
   "plan_exit": 0,
   "base_effect": "OK: round-trip valid (12 words, language=english)",
-  "plan_effect": "OK: round-trip valid (12 words, language=english)",
   "equal": true,
   "plan_err": "",
-  "c1_env_runs": [
-   {
-    "source": 0,
-    "provenance": "$USER_SECRET_0",
-    "equal_baseline": true
-   },
-   {
-    "source": 1,
-    "provenance": "$USER_SECRET_1",
-    "equal_baseline": true
-   }
-  ],
   "swaps": [
    {
     "pair": [
@@ -2602,8 +5230,99 @@
     ],
     "same_as_baseline": false,
     "expected_same": false,
+    "exit": 1
+   }
+  ],
+  "env_endings": [
+   {
+    "source": 0,
+    "ending": "",
+    "channel": "DashValue",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "OK: round-trip valid (12 words, language=english)",
+    "eq_argv_exact": true
+   },
+   {
+    "source": 0,
+    "ending": "\n",
+    "channel": "DashValue",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "OK: round-trip valid (12 words, language=english)",
+    "eq_argv_exact": true
+   },
+   {
+    "source": 0,
+    "ending": "\r\n",
+    "channel": "DashValue",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "OK: round-trip valid (12 words, language=english)",
+    "eq_argv_exact": true
+   },
+   {
+    "source": 0,
+    "ending": "\nX",
+    "channel": "DashValue",
+    "provenance": "$USER_SECRET",
     "exit": 1,
-    "effect": ""
+    "effect": "",
+    "eq_argv_exact": true
+   },
+   {
+    "source": 0,
+    "ending": "  ",
+    "channel": "DashValue",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "OK: round-trip valid (12 words, language=english)",
+    "eq_argv_exact": true
+   },
+   {
+    "source": 1,
+    "ending": "",
+    "channel": "InFile",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "OK: round-trip valid (12 words, language=english)",
+    "eq_argv_exact": true
+   },
+   {
+    "source": 1,
+    "ending": "\n",
+    "channel": "InFile",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "OK: round-trip valid (12 words, language=english)",
+    "eq_argv_exact": true
+   },
+   {
+    "source": 1,
+    "ending": "\r\n",
+    "channel": "InFile",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "OK: round-trip valid (12 words, language=english)",
+    "eq_argv_exact": true
+   },
+   {
+    "source": 1,
+    "ending": "\nX",
+    "channel": "InFile",
+    "provenance": "$USER_SECRET",
+    "exit": 1,
+    "effect": "",
+    "eq_argv_exact": true
+   },
+   {
+    "source": 1,
+    "ending": "  ",
+    "channel": "InFile",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "OK: round-trip valid (12 words, language=english)",
+    "eq_argv_exact": true
    }
   ]
  },
@@ -2618,53 +5337,62 @@
       "source": 0,
       "key": "ms derive --passphrase",
       "kind": "StdinToggle",
+      "terminator": "\r\n",
       "flag": "--passphrase-stdin"
      },
      {
       "source": 1,
       "key": "ms derive <ms1>",
       "kind": "InFile",
+      "terminator": "\r\n",
       "flag": "--in",
       "fd": 3
      }
     ]
    },
    "macos": {
-    "refusal": "fd-not-on-platform",
-    "detail": "fd-not-on-platform: ms derive --passphrase + ms derive <ms1>: needs a pipe fd; not enabled on macos"
+    "bindings": [
+     {
+      "source": 0,
+      "key": "ms derive --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "ms derive <ms1>",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
    },
    "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "ms derive --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "ms derive <ms1>",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
     "refusal": "fd-not-on-platform",
-    "detail": "fd-not-on-platform: ms derive --passphrase + ms derive <ms1>: needs a pipe fd; not enabled on windows"
+    "detail": "fd-not-on-platform: ms derive --passphrase + ms derive <ms1>: needs a pipe fd; not enabled on macos"
    }
   },
-  "c1_failures": [],
   "t1_problems": [],
-  "planned_argv": [
-   "ms",
-   "derive",
-   "--passphrase-stdin",
-   "--in",
-   "/dev/fd/3"
-  ],
   "base_exit": 0,
   "plan_exit": 0,
   "base_effect": "master_fingerprint:  45fbfbe6",
-  "plan_effect": "master_fingerprint:  45fbfbe6",
   "equal": true,
   "plan_err": "",
-  "c1_env_runs": [
-   {
-    "source": 0,
-    "provenance": "$USER_SECRET_0",
-    "equal_baseline": true
-   },
-   {
-    "source": 1,
-    "provenance": "$USER_SECRET_1",
-    "equal_baseline": true
-   }
-  ],
   "swaps": [
    {
     "pair": [
@@ -2673,8 +5401,99 @@
     ],
     "same_as_baseline": false,
     "expected_same": false,
+    "exit": 1
+   }
+  ],
+  "env_endings": [
+   {
+    "source": 0,
+    "ending": "",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "master_fingerprint:  45fbfbe6",
+    "eq_argv_exact": true
+   },
+   {
+    "source": 0,
+    "ending": "\n",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "master_fingerprint:  5d5b0e1a",
+    "eq_argv_exact": true
+   },
+   {
+    "source": 0,
+    "ending": "\r\n",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "master_fingerprint:  eadf4a6c",
+    "eq_argv_exact": true
+   },
+   {
+    "source": 0,
+    "ending": "\nX",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "master_fingerprint:  eecfa1a7",
+    "eq_argv_exact": true
+   },
+   {
+    "source": 0,
+    "ending": "  ",
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "master_fingerprint:  220717b3",
+    "eq_argv_exact": true
+   },
+   {
+    "source": 1,
+    "ending": "",
+    "channel": "InFile",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "master_fingerprint:  45fbfbe6",
+    "eq_argv_exact": true
+   },
+   {
+    "source": 1,
+    "ending": "\n",
+    "channel": "InFile",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "master_fingerprint:  45fbfbe6",
+    "eq_argv_exact": true
+   },
+   {
+    "source": 1,
+    "ending": "\r\n",
+    "channel": "InFile",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "master_fingerprint:  45fbfbe6",
+    "eq_argv_exact": true
+   },
+   {
+    "source": 1,
+    "ending": "\nX",
+    "channel": "InFile",
+    "provenance": "$USER_SECRET",
     "exit": 1,
-    "effect": ""
+    "effect": "",
+    "eq_argv_exact": true
+   },
+   {
+    "source": 1,
+    "ending": "  ",
+    "channel": "InFile",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "master_fingerprint:  45fbfbe6",
+    "eq_argv_exact": true
    }
   ]
  },
@@ -2688,15 +5507,42 @@
     "detail": "two-stdin: ms derive --phrase + ms derive --passphrase: each has stdin as its only channel"
    },
    "macos": {
-    "refusal": "two-stdin",
-    "detail": "two-stdin: ms derive --phrase + ms derive --passphrase: each has stdin as its only channel"
+    "bindings": [
+     {
+      "source": 0,
+      "key": "ms derive --phrase",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "ms derive --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
    },
    "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "ms derive --phrase",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "ms derive --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
     "refusal": "two-stdin",
     "detail": "two-stdin: ms derive --phrase + ms derive --passphrase: each has stdin as its only channel"
    }
-  },
-  "c1_failures": []
+  }
  },
  {
   "name": "ms derive hex+passphrase",
@@ -2708,14 +5554,41 @@
     "detail": "two-stdin: ms derive --hex + ms derive --passphrase: each has stdin as its only channel"
    },
    "macos": {
-    "refusal": "two-stdin",
-    "detail": "two-stdin: ms derive --hex + ms derive --passphrase: each has stdin as its only channel"
+    "bindings": [
+     {
+      "source": 0,
+      "key": "ms derive --hex",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "ms derive --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
    },
    "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "ms derive --hex",
+      "kind": "Argv",
+      "terminator": ""
+     },
+     {
+      "source": 1,
+      "key": "ms derive --passphrase",
+      "kind": "Argv",
+      "terminator": ""
+     }
+    ]
+   },
+   "other_once_enabled": {
     "refusal": "two-stdin",
     "detail": "two-stdin: ms derive --hex + ms derive --passphrase: each has stdin as its only channel"
    }
-  },
-  "c1_failures": []
+  }
  }
 ]

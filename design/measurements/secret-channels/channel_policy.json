@@ -1,0 +1,12 @@
+{
+ "_doc": "Hand-maintained policy (DESIGN §A3c, §A6). Each key is ONE entry; changing it is the whole change.",
+ "env_value_rule": "verbatim",
+ "_env_value_rule_doc": "How the pinned CLIs' own `@env:VAR` turns the variable into the secret: `verbatim` (mnemonic 0.104.0, ms 0.19.1, measured) or `strip-one-trailing-newline` (strip exactly one trailing \\n or \\r\\n; the expected F-687 rule). The GUI applies it to a resolved @env:VAR value to get the TARGET bytes.",
+ "private_channels_on": ["linux"],
+ "_private_channels_on_doc": "OSes whose Run path uses the private-channel planner. Every other OS uses the interim path: C1-resolved bytes on argv + --allow-argv-secret. An OS may be listed ONLY if a CI job on that OS runs the real-binary tests (T2, T3', T7); test_plan.py's os_gate checks the workflows.",
+ "fd_channel_on": ["linux"],
+ "reserved_env_prefix": "MNEMONIC_GUI_",
+ "env_name_rule": "^[A-Z_][A-Z0-9_]*$",
+ "_env_name_rule_doc": "The CLI's own rule (mnemonic-toolkit env_sentinel.rs is_valid_posix_env_var_name).",
+ "pipe_payload_max": 4096
+}

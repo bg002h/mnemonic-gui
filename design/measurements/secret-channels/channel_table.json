@@ -2,10 +2,12 @@
  "mnemonic addresses --from electrum-phrase=": {
   "channels": [
    {
-    "kind": "DashValue"
+    "kind": "DashValue",
+    "terminator": "\r\n"
    },
    {
-    "kind": "EnvRef"
+    "kind": "EnvRef",
+    "terminator": ""
    }
   ],
   "measured_in": "single-input harness"
@@ -13,10 +15,12 @@
  "mnemonic addresses --from entropy=": {
   "channels": [
    {
-    "kind": "DashValue"
+    "kind": "DashValue",
+    "terminator": "\r\n"
    },
    {
-    "kind": "EnvRef"
+    "kind": "EnvRef",
+    "terminator": ""
    }
   ],
   "measured_in": "single-input harness"
@@ -24,10 +28,12 @@
  "mnemonic addresses --from phrase=": {
   "channels": [
    {
-    "kind": "DashValue"
+    "kind": "DashValue",
+    "terminator": "\r\n"
    },
    {
-    "kind": "EnvRef"
+    "kind": "EnvRef",
+    "terminator": ""
    }
   ],
   "measured_in": "single-input harness"
@@ -35,10 +41,12 @@
  "mnemonic addresses --from seedqr=": {
   "channels": [
    {
-    "kind": "DashValue"
+    "kind": "DashValue",
+    "terminator": "\r\n"
    },
    {
-    "kind": "EnvRef"
+    "kind": "EnvRef",
+    "terminator": ""
    }
   ],
   "measured_in": "single-input harness"
@@ -46,11 +54,13 @@
  "mnemonic addresses --passphrase": {
   "channels": [
    {
-    "kind": "EnvRef"
+    "kind": "EnvRef",
+    "terminator": ""
    },
    {
     "kind": "StdinToggle",
-    "flag": "--passphrase-stdin"
+    "flag": "--passphrase-stdin",
+    "terminator": "\r\n"
    }
   ],
   "measured_in": "single-input harness"
@@ -58,11 +68,13 @@
  "mnemonic bundle --passphrase": {
   "channels": [
    {
-    "kind": "EnvRef"
+    "kind": "EnvRef",
+    "terminator": ""
    },
    {
     "kind": "StdinToggle",
-    "flag": "--passphrase-stdin"
+    "flag": "--passphrase-stdin",
+    "terminator": "\r\n"
    }
   ],
   "measured_in": "single-input harness"
@@ -70,10 +82,12 @@
  "mnemonic bundle --slot @N.entropy=": {
   "channels": [
    {
-    "kind": "DashValue"
+    "kind": "DashValue",
+    "terminator": "\r\n"
    },
    {
-    "kind": "EnvRef"
+    "kind": "EnvRef",
+    "terminator": ""
    }
   ],
   "measured_in": "single-input harness"
@@ -81,10 +95,12 @@
  "mnemonic bundle --slot @N.ms1=": {
   "channels": [
    {
-    "kind": "DashValue"
+    "kind": "DashValue",
+    "terminator": "\r\n"
    },
    {
-    "kind": "EnvRef"
+    "kind": "EnvRef",
+    "terminator": ""
    }
   ],
   "measured_in": "single-input harness"
@@ -92,10 +108,12 @@
  "mnemonic bundle --slot @N.phrase=": {
   "channels": [
    {
-    "kind": "DashValue"
+    "kind": "DashValue",
+    "terminator": "\r\n"
    },
    {
-    "kind": "EnvRef"
+    "kind": "EnvRef",
+    "terminator": ""
    }
   ],
   "measured_in": "single-input harness"
@@ -103,10 +121,12 @@
  "mnemonic bundle --slot @N.seedqr=": {
   "channels": [
    {
-    "kind": "DashValue"
+    "kind": "DashValue",
+    "terminator": "\r\n"
    },
    {
-    "kind": "EnvRef"
+    "kind": "EnvRef",
+    "terminator": ""
    }
   ],
   "measured_in": "single-input harness"
@@ -114,10 +134,12 @@
  "mnemonic bundle --slot @N.wif=": {
   "channels": [
    {
-    "kind": "DashValue"
+    "kind": "DashValue",
+    "terminator": "\r\n"
    },
    {
-    "kind": "EnvRef"
+    "kind": "EnvRef",
+    "terminator": ""
    }
   ],
   "measured_in": "single-input harness"
@@ -125,11 +147,13 @@
  "mnemonic convert --bip38-passphrase": {
   "channels": [
    {
-    "kind": "EnvRef"
+    "kind": "EnvRef",
+    "terminator": ""
    },
    {
     "kind": "StdinToggle",
-    "flag": "--bip38-passphrase-stdin"
+    "flag": "--bip38-passphrase-stdin",
+    "terminator": "\r\n"
    }
   ],
   "measured_in": "single-input harness"
@@ -137,10 +161,12 @@
  "mnemonic convert --from bip38=": {
   "channels": [
    {
-    "kind": "DashValue"
+    "kind": "DashValue",
+    "terminator": null
    },
    {
-    "kind": "EnvRef"
+    "kind": "EnvRef",
+    "terminator": ""
    }
   ],
   "measured_in": "single-input harness"
@@ -148,10 +174,12 @@
  "mnemonic convert --from electrum-phrase=": {
   "channels": [
    {
-    "kind": "DashValue"
+    "kind": "DashValue",
+    "terminator": "\r\n"
    },
    {
-    "kind": "EnvRef"
+    "kind": "EnvRef",
+    "terminator": ""
    }
   ],
   "measured_in": "single-input harness"
@@ -159,10 +187,12 @@
  "mnemonic convert --from entropy=": {
   "channels": [
    {
-    "kind": "DashValue"
+    "kind": "DashValue",
+    "terminator": null
    },
    {
-    "kind": "EnvRef"
+    "kind": "EnvRef",
+    "terminator": ""
    }
   ],
   "measured_in": "single-input harness"
@@ -170,7 +200,8 @@
  "mnemonic convert --from minikey=": {
   "channels": [
    {
-    "kind": "DashValue"
+    "kind": "DashValue",
+    "terminator": null
    }
   ],
   "measured_in": "single-input harness"
@@ -178,10 +209,12 @@
  "mnemonic convert --from ms1=": {
   "channels": [
    {
-    "kind": "DashValue"
+    "kind": "DashValue",
+    "terminator": "\r\n"
    },
    {
-    "kind": "EnvRef"
+    "kind": "EnvRef",
+    "terminator": ""
    }
   ],
   "measured_in": "single-input harness"
@@ -189,10 +222,12 @@
  "mnemonic convert --from phrase=": {
   "channels": [
    {
-    "kind": "DashValue"
+    "kind": "DashValue",
+    "terminator": "\r\n"
    },
    {
-    "kind": "EnvRef"
+    "kind": "EnvRef",
+    "terminator": ""
    }
   ],
   "measured_in": "single-input harness"
@@ -200,10 +235,12 @@
  "mnemonic convert --from seedqr=": {
   "channels": [
    {
-    "kind": "DashValue"
+    "kind": "DashValue",
+    "terminator": "\r\n"
    },
    {
-    "kind": "EnvRef"
+    "kind": "EnvRef",
+    "terminator": ""
    }
   ],
   "measured_in": "single-input harness"
@@ -211,10 +248,12 @@
  "mnemonic convert --from wif=": {
   "channels": [
    {
-    "kind": "DashValue"
+    "kind": "DashValue",
+    "terminator": null
    },
    {
-    "kind": "EnvRef"
+    "kind": "EnvRef",
+    "terminator": ""
    }
   ],
   "measured_in": "single-input harness"
@@ -222,10 +261,12 @@
  "mnemonic convert --from xprv=": {
   "channels": [
    {
-    "kind": "DashValue"
+    "kind": "DashValue",
+    "terminator": null
    },
    {
-    "kind": "EnvRef"
+    "kind": "EnvRef",
+    "terminator": ""
    }
   ],
   "measured_in": "single-input harness"
@@ -233,11 +274,13 @@
  "mnemonic convert --passphrase": {
   "channels": [
    {
-    "kind": "EnvRef"
+    "kind": "EnvRef",
+    "terminator": ""
    },
    {
     "kind": "StdinToggle",
-    "flag": "--passphrase-stdin"
+    "flag": "--passphrase-stdin",
+    "terminator": "\r\n"
    }
   ],
   "measured_in": "single-input harness"
@@ -245,10 +288,12 @@
  "mnemonic derive-child --from phrase=": {
   "channels": [
    {
-    "kind": "DashValue"
+    "kind": "DashValue",
+    "terminator": "\r\n"
    },
    {
-    "kind": "EnvRef"
+    "kind": "EnvRef",
+    "terminator": ""
    }
   ],
   "measured_in": "single-input harness"
@@ -256,10 +301,12 @@
  "mnemonic derive-child --from xprv=": {
   "channels": [
    {
-    "kind": "DashValue"
+    "kind": "DashValue",
+    "terminator": null
    },
    {
-    "kind": "EnvRef"
+    "kind": "EnvRef",
+    "terminator": ""
    }
   ],
   "measured_in": "single-input harness"
@@ -267,11 +314,13 @@
  "mnemonic derive-child --passphrase": {
   "channels": [
    {
-    "kind": "EnvRef"
+    "kind": "EnvRef",
+    "terminator": ""
    },
    {
     "kind": "StdinToggle",
-    "flag": "--passphrase-stdin"
+    "flag": "--passphrase-stdin",
+    "terminator": "\r\n"
    }
   ],
   "measured_in": "single-input harness"
@@ -280,11 +329,13 @@
   "channels": [
    {
     "kind": "StdinToggle",
-    "flag": "--decrypt-password-stdin"
+    "flag": "--decrypt-password-stdin",
+    "terminator": "\r\n"
    },
    {
     "kind": "FileFlag",
-    "flag": "--decrypt-password-file"
+    "flag": "--decrypt-password-file",
+    "terminator": "\n"
    }
   ],
   "measured_in": "single-input harness"
@@ -292,7 +343,8 @@
  "mnemonic final-word --from phrase=": {
   "channels": [
    {
-    "kind": "DashValue"
+    "kind": "DashValue",
+    "terminator": "\r\n"
    }
   ],
   "measured_in": "single-input harness"
@@ -301,11 +353,13 @@
   "channels": [
    {
     "kind": "StdinToggle",
-    "flag": "--decrypt-password-stdin"
+    "flag": "--decrypt-password-stdin",
+    "terminator": "\r\n"
    },
    {
     "kind": "FileFlag",
-    "flag": "--decrypt-password-file"
+    "flag": "--decrypt-password-file",
+    "terminator": "\n"
    }
   ],
   "measured_in": "single-input harness"
@@ -313,7 +367,8 @@
  "mnemonic import-wallet --ms1": {
   "channels": [
    {
-    "kind": "EnvRef"
+    "kind": "EnvRef",
+    "terminator": ""
    }
   ],
   "measured_in": "single-input harness"
@@ -321,7 +376,8 @@
  "mnemonic import-wallet --slot @N.phrase=": {
   "channels": [
    {
-    "kind": "EnvRef"
+    "kind": "EnvRef",
+    "terminator": ""
    }
   ],
   "measured_in": "single-input harness"
@@ -329,7 +385,8 @@
  "mnemonic inspect --ms1": {
   "channels": [
    {
-    "kind": "DashValue"
+    "kind": "DashValue",
+    "terminator": null
    }
   ],
   "measured_in": "single-input harness"
@@ -337,10 +394,12 @@
  "mnemonic ms-shares combine --share": {
   "channels": [
    {
-    "kind": "DashValue"
+    "kind": "DashValue",
+    "terminator": "\r\n"
    },
    {
-    "kind": "EnvRef"
+    "kind": "EnvRef",
+    "terminator": ""
    }
   ],
   "measured_in": "single-input harness"
@@ -348,10 +407,12 @@
  "mnemonic ms-shares split --from entropy=": {
   "channels": [
    {
-    "kind": "DashValue"
+    "kind": "DashValue",
+    "terminator": null
    },
    {
-    "kind": "EnvRef"
+    "kind": "EnvRef",
+    "terminator": ""
    }
   ],
   "measured_in": "single-input harness"
@@ -359,10 +420,12 @@
  "mnemonic ms-shares split --from phrase=": {
   "channels": [
    {
-    "kind": "DashValue"
+    "kind": "DashValue",
+    "terminator": "\r\n"
    },
    {
-    "kind": "EnvRef"
+    "kind": "EnvRef",
+    "terminator": ""
    }
   ],
   "measured_in": "single-input harness"
@@ -371,11 +434,13 @@
   "channels": [
    {
     "kind": "StdinToggle",
-    "flag": "--secret-stdin"
+    "flag": "--secret-stdin",
+    "terminator": "\r\n"
    },
    {
     "kind": "FileFlag",
-    "flag": "--secret-file"
+    "flag": "--secret-file",
+    "terminator": "\r\n"
    }
   ],
   "measured_in": "single-input harness"
@@ -383,7 +448,8 @@
  "mnemonic repair --ms1": {
   "channels": [
    {
-    "kind": "DashValue"
+    "kind": "DashValue",
+    "terminator": "\r\n"
    }
   ],
   "measured_in": "single-input harness"
@@ -391,10 +457,12 @@
  "mnemonic restore --from entropy=": {
   "channels": [
    {
-    "kind": "DashValue"
+    "kind": "DashValue",
+    "terminator": "\r\n"
    },
    {
-    "kind": "EnvRef"
+    "kind": "EnvRef",
+    "terminator": ""
    }
   ],
   "measured_in": "single-input harness"
@@ -402,10 +470,12 @@
  "mnemonic restore --from ms1=": {
   "channels": [
    {
-    "kind": "DashValue"
+    "kind": "DashValue",
+    "terminator": "\r\n"
    },
    {
-    "kind": "EnvRef"
+    "kind": "EnvRef",
+    "terminator": ""
    }
   ],
   "measured_in": "single-input harness"
@@ -413,10 +483,12 @@
  "mnemonic restore --from phrase=": {
   "channels": [
    {
-    "kind": "DashValue"
+    "kind": "DashValue",
+    "terminator": "\r\n"
    },
    {
-    "kind": "EnvRef"
+    "kind": "EnvRef",
+    "terminator": ""
    }
   ],
   "measured_in": "single-input harness"
@@ -424,10 +496,12 @@
  "mnemonic restore --from seedqr=": {
   "channels": [
    {
-    "kind": "DashValue"
+    "kind": "DashValue",
+    "terminator": "\r\n"
    },
    {
-    "kind": "EnvRef"
+    "kind": "EnvRef",
+    "terminator": ""
    }
   ],
   "measured_in": "single-input harness"
@@ -435,11 +509,13 @@
  "mnemonic restore --passphrase": {
   "channels": [
    {
-    "kind": "EnvRef"
+    "kind": "EnvRef",
+    "terminator": ""
    },
    {
     "kind": "StdinToggle",
-    "flag": "--passphrase-stdin"
+    "flag": "--passphrase-stdin",
+    "terminator": "\r\n"
    }
   ],
   "measured_in": "single-input harness"
@@ -447,10 +523,12 @@
  "mnemonic seed-xor combine --share phrase=": {
   "channels": [
    {
-    "kind": "DashValue"
+    "kind": "DashValue",
+    "terminator": "\r\n"
    },
    {
-    "kind": "EnvRef"
+    "kind": "EnvRef",
+    "terminator": ""
    }
   ],
   "measured_in": "single-input harness"
@@ -458,10 +536,12 @@
  "mnemonic seed-xor split --from phrase=": {
   "channels": [
    {
-    "kind": "DashValue"
+    "kind": "DashValue",
+    "terminator": "\r\n"
    },
    {
-    "kind": "EnvRef"
+    "kind": "EnvRef",
+    "terminator": ""
    }
   ],
   "measured_in": "single-input harness"
@@ -469,7 +549,8 @@
  "mnemonic seedqr decode --digits": {
   "channels": [
    {
-    "kind": "DashValue"
+    "kind": "DashValue",
+    "terminator": "\r\n"
    }
   ],
   "measured_in": "single-input harness"
@@ -477,7 +558,8 @@
  "mnemonic seedqr decode --from seedqr=": {
   "channels": [
    {
-    "kind": "DashValue"
+    "kind": "DashValue",
+    "terminator": "\r\n"
    }
   ],
   "measured_in": "single-input harness"
@@ -485,7 +567,8 @@
  "mnemonic seedqr encode --from phrase=": {
   "channels": [
    {
-    "kind": "DashValue"
+    "kind": "DashValue",
+    "terminator": "\r\n"
    }
   ],
   "measured_in": "single-input harness"
@@ -494,7 +577,8 @@
   "channels": [
    {
     "kind": "StdinToggle",
-    "flag": "--passphrase-stdin"
+    "flag": "--passphrase-stdin",
+    "terminator": "\r\n"
    }
   ],
   "measured_in": "single-input harness"
@@ -503,11 +587,13 @@
   "channels": [
    {
     "kind": "StdinToggle",
-    "flag": "--secret-stdin"
+    "flag": "--secret-stdin",
+    "terminator": "\r\n"
    },
    {
     "kind": "FileFlag",
-    "flag": "--secret-file"
+    "flag": "--secret-file",
+    "terminator": "\r\n"
    }
   ],
   "measured_in": "single-input harness"
@@ -515,11 +601,13 @@
  "mnemonic slip39 combine --passphrase": {
   "channels": [
    {
-    "kind": "EnvRef"
+    "kind": "EnvRef",
+    "terminator": ""
    },
    {
     "kind": "StdinToggle",
-    "flag": "--passphrase-stdin"
+    "flag": "--passphrase-stdin",
+    "terminator": "\r\n"
    }
   ],
   "measured_in": "single-input harness"
@@ -527,10 +615,12 @@
  "mnemonic slip39 combine --share": {
   "channels": [
    {
-    "kind": "DashValue"
+    "kind": "DashValue",
+    "terminator": "\r\n"
    },
    {
-    "kind": "EnvRef"
+    "kind": "EnvRef",
+    "terminator": ""
    }
   ],
   "measured_in": "single-input harness"
@@ -538,10 +628,12 @@
  "mnemonic slip39 split --from entropy=": {
   "channels": [
    {
-    "kind": "DashValue"
+    "kind": "DashValue",
+    "terminator": null
    },
    {
-    "kind": "EnvRef"
+    "kind": "EnvRef",
+    "terminator": ""
    }
   ],
   "measured_in": "single-input harness"
@@ -549,10 +641,12 @@
  "mnemonic slip39 split --from phrase=": {
   "channels": [
    {
-    "kind": "DashValue"
+    "kind": "DashValue",
+    "terminator": "\r\n"
    },
    {
-    "kind": "EnvRef"
+    "kind": "EnvRef",
+    "terminator": ""
    }
   ],
   "measured_in": "single-input harness"
@@ -560,11 +654,13 @@
  "mnemonic slip39 split --passphrase": {
   "channels": [
    {
-    "kind": "EnvRef"
+    "kind": "EnvRef",
+    "terminator": ""
    },
    {
     "kind": "StdinToggle",
-    "flag": "--passphrase-stdin"
+    "flag": "--passphrase-stdin",
+    "terminator": "\r\n"
    }
   ],
   "measured_in": "single-input harness"
@@ -572,7 +668,8 @@
  "mnemonic verify-bundle --ms1": {
   "channels": [
    {
-    "kind": "EnvRef"
+    "kind": "EnvRef",
+    "terminator": ""
    }
   ],
   "measured_in": "single-input harness"
@@ -580,11 +677,13 @@
  "mnemonic verify-bundle --passphrase": {
   "channels": [
    {
-    "kind": "EnvRef"
+    "kind": "EnvRef",
+    "terminator": ""
    },
    {
     "kind": "StdinToggle",
-    "flag": "--passphrase-stdin"
+    "flag": "--passphrase-stdin",
+    "terminator": "\r\n"
    }
   ],
   "measured_in": "single-input harness"
@@ -592,10 +691,12 @@
  "mnemonic verify-bundle --slot @N.entropy=": {
   "channels": [
    {
-    "kind": "DashValue"
+    "kind": "DashValue",
+    "terminator": "\r\n"
    },
    {
-    "kind": "EnvRef"
+    "kind": "EnvRef",
+    "terminator": ""
    }
   ],
   "measured_in": "single-input harness"
@@ -603,10 +704,12 @@
  "mnemonic verify-bundle --slot @N.ms1=": {
   "channels": [
    {
-    "kind": "DashValue"
+    "kind": "DashValue",
+    "terminator": "\r\n"
    },
    {
-    "kind": "EnvRef"
+    "kind": "EnvRef",
+    "terminator": ""
    }
   ],
   "measured_in": "single-input harness"
@@ -614,10 +717,12 @@
  "mnemonic verify-bundle --slot @N.phrase=": {
   "channels": [
    {
-    "kind": "DashValue"
+    "kind": "DashValue",
+    "terminator": "\r\n"
    },
    {
-    "kind": "EnvRef"
+    "kind": "EnvRef",
+    "terminator": ""
    }
   ],
   "measured_in": "single-input harness"
@@ -625,10 +730,12 @@
  "mnemonic verify-bundle --slot @N.seedqr=": {
   "channels": [
    {
-    "kind": "DashValue"
+    "kind": "DashValue",
+    "terminator": "\r\n"
    },
    {
-    "kind": "EnvRef"
+    "kind": "EnvRef",
+    "terminator": ""
    }
   ],
   "measured_in": "single-input harness"
@@ -637,7 +744,8 @@
   "channels": [
    {
     "kind": "StdinToggle",
-    "flag": "--ms1-stdin"
+    "flag": "--ms1-stdin",
+    "terminator": null
    }
   ],
   "measured_in": "single-input harness"
@@ -645,11 +753,13 @@
  "mnemonic xpub-search account-of-descriptor --passphrase": {
   "channels": [
    {
-    "kind": "EnvRef"
+    "kind": "EnvRef",
+    "terminator": ""
    },
    {
     "kind": "StdinToggle",
-    "flag": "--passphrase-stdin"
+    "flag": "--passphrase-stdin",
+    "terminator": "\r\n"
    }
   ],
   "measured_in": "single-input harness"
@@ -657,11 +767,13 @@
  "mnemonic xpub-search account-of-descriptor --phrase": {
   "channels": [
    {
-    "kind": "EnvRef"
+    "kind": "EnvRef",
+    "terminator": ""
    },
    {
     "kind": "StdinToggle",
-    "flag": "--phrase-stdin"
+    "flag": "--phrase-stdin",
+    "terminator": "\r\n"
    }
   ],
   "measured_in": "single-input harness"
@@ -670,7 +782,8 @@
   "channels": [
    {
     "kind": "StdinToggle",
-    "flag": "--ms1-stdin"
+    "flag": "--ms1-stdin",
+    "terminator": null
    }
   ],
   "measured_in": "single-input harness"
@@ -678,11 +791,13 @@
  "mnemonic xpub-search passphrase-of-xpub --passphrase": {
   "channels": [
    {
-    "kind": "EnvRef"
+    "kind": "EnvRef",
+    "terminator": ""
    },
    {
     "kind": "StdinToggle",
-    "flag": "--passphrase-stdin"
+    "flag": "--passphrase-stdin",
+    "terminator": "\r\n"
    }
   ],
   "measured_in": "single-input harness"
@@ -690,11 +805,13 @@
  "mnemonic xpub-search passphrase-of-xpub --phrase": {
   "channels": [
    {
-    "kind": "EnvRef"
+    "kind": "EnvRef",
+    "terminator": ""
    },
    {
     "kind": "StdinToggle",
-    "flag": "--phrase-stdin"
+    "flag": "--phrase-stdin",
+    "terminator": "\r\n"
    }
   ],
   "measured_in": "single-input harness"
@@ -703,7 +820,8 @@
   "channels": [
    {
     "kind": "StdinToggle",
-    "flag": "--ms1-stdin"
+    "flag": "--ms1-stdin",
+    "terminator": null
    }
   ],
   "measured_in": "single-input harness"
@@ -711,11 +829,13 @@
  "mnemonic xpub-search path-of-xpub --passphrase": {
   "channels": [
    {
-    "kind": "EnvRef"
+    "kind": "EnvRef",
+    "terminator": ""
    },
    {
     "kind": "StdinToggle",
-    "flag": "--passphrase-stdin"
+    "flag": "--passphrase-stdin",
+    "terminator": "\r\n"
    }
   ],
   "measured_in": "single-input harness"
@@ -723,11 +843,13 @@
  "mnemonic xpub-search path-of-xpub --phrase": {
   "channels": [
    {
-    "kind": "EnvRef"
+    "kind": "EnvRef",
+    "terminator": ""
    },
    {
     "kind": "StdinToggle",
-    "flag": "--phrase-stdin"
+    "flag": "--phrase-stdin",
+    "terminator": "\r\n"
    }
   ],
   "measured_in": "single-input harness"
@@ -735,11 +857,13 @@
  "ms combine <shares>": {
   "channels": [
    {
-    "kind": "StdinMulti"
+    "kind": "StdinMulti",
+    "terminator": "\n"
    },
    {
     "kind": "InFile",
-    "flag": "--in"
+    "flag": "--in",
+    "terminator": "\n"
    }
   ],
   "measured_in": "measure_groups.py"
@@ -747,11 +871,13 @@
  "ms decode <ms1>": {
   "channels": [
    {
-    "kind": "PosDash"
+    "kind": "PosDash",
+    "terminator": "\r\n"
    },
    {
     "kind": "InFile",
-    "flag": "--in"
+    "flag": "--in",
+    "terminator": "\r\n"
    }
   ],
   "measured_in": "single-input harness"
@@ -759,7 +885,8 @@
  "ms derive --hex": {
   "channels": [
    {
-    "kind": "DashValue"
+    "kind": "DashValue",
+    "terminator": "\r\n"
    }
   ],
   "measured_in": "single-input harness"
@@ -768,7 +895,8 @@
   "channels": [
    {
     "kind": "StdinToggle",
-    "flag": "--passphrase-stdin"
+    "flag": "--passphrase-stdin",
+    "terminator": "\r\n"
    }
   ],
   "measured_in": "single-input harness"
@@ -776,7 +904,8 @@
  "ms derive --phrase": {
   "channels": [
    {
-    "kind": "DashValue"
+    "kind": "DashValue",
+    "terminator": "\r\n"
    }
   ],
   "measured_in": "single-input harness"
@@ -784,11 +913,13 @@
  "ms derive <ms1>": {
   "channels": [
    {
-    "kind": "PosDash"
+    "kind": "PosDash",
+    "terminator": "\r\n"
    },
    {
     "kind": "InFile",
-    "flag": "--in"
+    "flag": "--in",
+    "terminator": "\r\n"
    }
   ],
   "measured_in": "single-input harness"
@@ -796,7 +927,8 @@
  "ms encode --hex": {
   "channels": [
    {
-    "kind": "DashValue"
+    "kind": "DashValue",
+    "terminator": "\r\n"
    }
   ],
   "measured_in": "single-input harness"
@@ -804,11 +936,13 @@
  "ms encode --phrase": {
   "channels": [
    {
-    "kind": "DashValue"
+    "kind": "DashValue",
+    "terminator": "\r\n"
    },
    {
     "kind": "InFile",
-    "flag": "--in"
+    "flag": "--in",
+    "terminator": "\r\n"
    }
   ],
   "measured_in": "single-input harness"
@@ -817,7 +951,8 @@
   "channels": [
    {
     "kind": "StdinToggle",
-    "flag": "--hashlock-phrase-stdin"
+    "flag": "--hashlock-phrase-stdin",
+    "terminator": "\r\n"
    }
   ],
   "measured_in": "single-input harness"
@@ -825,7 +960,8 @@
  "ms hashlock --hex": {
   "channels": [
    {
-    "kind": "DashValue"
+    "kind": "DashValue",
+    "terminator": "\r\n"
    }
   ],
   "measured_in": "single-input harness"
@@ -833,11 +969,13 @@
  "ms hashlock <ms1>": {
   "channels": [
    {
-    "kind": "PosDash"
+    "kind": "PosDash",
+    "terminator": "\r\n"
    },
    {
     "kind": "InFile",
-    "flag": "--in"
+    "flag": "--in",
+    "terminator": "\r\n"
    }
   ],
   "measured_in": "single-input harness"
@@ -845,11 +983,13 @@
  "ms inspect <ms1>": {
   "channels": [
    {
-    "kind": "PosDash"
+    "kind": "PosDash",
+    "terminator": "\r\n"
    },
    {
     "kind": "InFile",
-    "flag": "--in"
+    "flag": "--in",
+    "terminator": "\r\n"
    }
   ],
   "measured_in": "single-input harness"
@@ -857,11 +997,13 @@
  "ms repair --ms1": {
   "channels": [
    {
-    "kind": "DashValue"
+    "kind": "DashValue",
+    "terminator": "\r\n"
    },
    {
     "kind": "InFile",
-    "flag": "--in"
+    "flag": "--in",
+    "terminator": "\r\n"
    }
   ],
   "measured_in": "single-input harness"
@@ -869,7 +1011,8 @@
  "ms split --hex": {
   "channels": [
    {
-    "kind": "DashValue"
+    "kind": "DashValue",
+    "terminator": "\r\n"
    }
   ],
   "measured_in": "single-input harness"
@@ -877,11 +1020,13 @@
  "ms split --phrase": {
   "channels": [
    {
-    "kind": "DashValue"
+    "kind": "DashValue",
+    "terminator": "\r\n"
    },
    {
     "kind": "InFile",
-    "flag": "--in"
+    "flag": "--in",
+    "terminator": "\r\n"
    }
   ],
   "measured_in": "single-input harness"
@@ -889,7 +1034,8 @@
  "ms verify --phrase": {
   "channels": [
    {
-    "kind": "DashValue"
+    "kind": "DashValue",
+    "terminator": "\r\n"
    }
   ],
   "measured_in": "single-input harness"
@@ -897,11 +1043,13 @@
  "ms verify <ms1>": {
   "channels": [
    {
-    "kind": "PosDash"
+    "kind": "PosDash",
+    "terminator": "\r\n"
    },
    {
     "kind": "InFile",
-    "flag": "--in"
+    "flag": "--in",
+    "terminator": "\r\n"
    }
   ],
   "measured_in": "single-input harness"
