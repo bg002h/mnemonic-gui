@@ -29,6 +29,8 @@
 | B5: `all kinds` emits its label as --kind | KILLED | b5_kind_choose_blocks_run_and_all_kinds_emits_nothing_with_a_banner, b_real_every_new_form_runs_at_exit_zero |
 | B5: Run no longer blocked on (choose) | KILLED | b5_kind_choose_blocks_run_and_all_kinds_emits_nothing_with_a_banner |
 | B5: source exclusivity off | KILLED | b5_one_source_random_needs_out_and_phrase_only_flags |
+| M1: Copy no longer gated on (choose) | KILLED | m1_hashlock_copy_is_gated_like_run_at_choose, m1_window_copy_buttons_are_disabled_at_choose |
+| M2: Copy reveal label never raised | KILLED | m2_copy_reveals_a_pasted_private_key_and_says_so, m2_window_labels_copy_and_confirms_run_without_claiming_privacy |
 | B2-B4: pasted xprv no longer masked | KILLED | b2_b4_a_pasted_xprv_is_masked_and_never_persisted |
 
-29/29 mutations killed by assertion with the mutated line run; control survived; problems: none
+31/31 mutations killed by assertion with the mutated line run; control survived; problems: none
