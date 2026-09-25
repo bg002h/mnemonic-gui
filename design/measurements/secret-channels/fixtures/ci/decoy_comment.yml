@@ -1,0 +1,6 @@
+# decoy: macOS job that only builds; MNEMONIC_BIN appears in a comment only
+jobs:
+  mac:
+    runs-on: macos-latest
+    steps:
+      - run: cargo build   # MNEMONIC_BIN=mnemonic cargo test --test secret_channels_t2 --test secret_channels_t3prime --test secret_channels_t7

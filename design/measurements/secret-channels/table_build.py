@@ -49,5 +49,14 @@ def main():
     print(len(table),"inputs;",sum(1 for v in table.values() if not v["channels"]),"with no OK channel")
 
 
+def record_versions():
+    """measured_with.json: the CLI versions of BIN_DIR, the binaries every measuring script in the
+    §A1 pipeline ran against. test_plan.py's pin check compares it with pinned-upstream.toml."""
+    import os, subprocess
+    b=os.environ["BIN_DIR"].rstrip("/")+"/"
+    v={c: subprocess.run([b+c,"--version"],capture_output=True,text=True).stdout.split()[1] for c in ("mnemonic","md","ms","mk")}
+    json.dump(v,open("measured_with.json","w"),indent=1)
+
 if __name__=="__main__":
     main()
+    record_versions()

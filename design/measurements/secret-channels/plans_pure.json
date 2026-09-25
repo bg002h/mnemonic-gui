@@ -70,7 +70,153 @@
      }
     ]
    }
-  }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\n",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\n",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\n",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase\n\r\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase\n"
+    ]
+   }
+  ]
  },
  {
   "name": "restore phrase+passphrase",
@@ -143,7 +289,153 @@
      }
     ]
    }
-  }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\n",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\n",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\n",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase\n\r\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase\n"
+    ]
+   }
+  ]
  },
  {
   "name": "restore ms1+passphrase",
@@ -216,7 +508,153 @@
      }
     ]
    }
-  }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f\n",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f\n",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f\n",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "hunter2-passphrase\n\r\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "hunter2-passphrase\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "hunter2-passphrase\n"
+    ]
+   }
+  ]
  },
  {
   "name": "derive-child phrase+passphrase",
@@ -289,7 +727,153 @@
      }
     ]
    }
-  }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\n",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\n",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\n",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase\n\r\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase\n"
+    ]
+   }
+  ]
  },
  {
   "name": "bundle slot+passphrase",
@@ -362,7 +946,153 @@
      }
     ]
    }
-  }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\n",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\n",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\n",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase\n\r\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase\n"
+    ]
+   }
+  ]
  },
  {
   "name": "bundle wsh-multi 2 slots",
@@ -435,7 +1165,153 @@
      }
     ]
    }
-  }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "EnvRef"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "EnvRef"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\n",
+     "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\n",
+     "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\n",
+     "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "EnvRef"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong\n"
+    ]
+   }
+  ]
  },
  {
   "name": "bundle wsh-multi 2 slots+passphrase",
@@ -534,7 +1410,237 @@
      }
     ]
    }
-  }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\n",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\n",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\n",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w\n",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w\n",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w\n",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src2 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w",
+     "hunter2-passphrase\n\r\n"
+    ]
+   },
+   {
+    "case": "src2 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w",
+     "hunter2-passphrase\n"
+    ]
+   },
+   {
+    "case": "src2 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w",
+     "hunter2-passphrase\n"
+    ]
+   }
+  ]
  },
  {
   "name": "convert phrase+passphrase",
@@ -607,7 +1713,153 @@
      }
     ]
    }
-  }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\n",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\n",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\n",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase\n\r\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase\n"
+    ]
+   }
+  ]
  },
  {
   "name": "convert wif+bip38-passphrase",
@@ -680,7 +1932,153 @@
      }
     ]
    }
-  }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "KyZpNDKnfs94vbrwhJneDi77V6jF64PWPF8x5cdJb8ifgg2DUc9d",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "KyZpNDKnfs94vbrwhJneDi77V6jF64PWPF8x5cdJb8ifgg2DUc9d",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "KyZpNDKnfs94vbrwhJneDi77V6jF64PWPF8x5cdJb8ifgg2DUc9d",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "KyZpNDKnfs94vbrwhJneDi77V6jF64PWPF8x5cdJb8ifgg2DUc9d\n",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "KyZpNDKnfs94vbrwhJneDi77V6jF64PWPF8x5cdJb8ifgg2DUc9d\n",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "KyZpNDKnfs94vbrwhJneDi77V6jF64PWPF8x5cdJb8ifgg2DUc9d\n",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "KyZpNDKnfs94vbrwhJneDi77V6jF64PWPF8x5cdJb8ifgg2DUc9d",
+     "hunter2-passphrase\n\r\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "KyZpNDKnfs94vbrwhJneDi77V6jF64PWPF8x5cdJb8ifgg2DUc9d",
+     "hunter2-passphrase\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "KyZpNDKnfs94vbrwhJneDi77V6jF64PWPF8x5cdJb8ifgg2DUc9d",
+     "hunter2-passphrase\n"
+    ]
+   }
+  ]
  },
  {
   "name": "convert bip38+bip38-passphrase",
@@ -753,7 +2151,153 @@
      }
     ]
    }
-  }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "6PYP8fdoVaE3ThLmEnYcGo3nJeBqd8PvB7CRvTz3TX5L9ojoPHKCg7QXG6",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "6PYP8fdoVaE3ThLmEnYcGo3nJeBqd8PvB7CRvTz3TX5L9ojoPHKCg7QXG6",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "6PYP8fdoVaE3ThLmEnYcGo3nJeBqd8PvB7CRvTz3TX5L9ojoPHKCg7QXG6",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "6PYP8fdoVaE3ThLmEnYcGo3nJeBqd8PvB7CRvTz3TX5L9ojoPHKCg7QXG6\n",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "6PYP8fdoVaE3ThLmEnYcGo3nJeBqd8PvB7CRvTz3TX5L9ojoPHKCg7QXG6\n",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "6PYP8fdoVaE3ThLmEnYcGo3nJeBqd8PvB7CRvTz3TX5L9ojoPHKCg7QXG6\n",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "6PYP8fdoVaE3ThLmEnYcGo3nJeBqd8PvB7CRvTz3TX5L9ojoPHKCg7QXG6",
+     "hunter2-passphrase\n\r\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "6PYP8fdoVaE3ThLmEnYcGo3nJeBqd8PvB7CRvTz3TX5L9ojoPHKCg7QXG6",
+     "hunter2-passphrase\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "6PYP8fdoVaE3ThLmEnYcGo3nJeBqd8PvB7CRvTz3TX5L9ojoPHKCg7QXG6",
+     "hunter2-passphrase\n"
+    ]
+   }
+  ]
  },
  {
   "name": "xpub-search path-of-xpub phrase+passphrase",
@@ -826,7 +2370,153 @@
      }
     ]
    }
-  }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "kinds": [
+     "StdinToggle",
+     "EnvRef"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\r\n",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "StdinToggle",
+     "EnvRef"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\n\r\n",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\n",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\n",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "StdinToggle",
+     "EnvRef"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\r\n",
+     "hunter2-passphrase\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase\n"
+    ]
+   }
+  ]
  },
  {
   "name": "xpub-search path-of-xpub ms1+passphrase",
@@ -899,7 +2589,142 @@
      }
     ]
    }
-  }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "kinds": [
+     "StdinToggle",
+     "EnvRef"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "linux",
+    "refusal": "value-not-byte-exact"
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f\n",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f\n",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "StdinToggle",
+     "EnvRef"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "hunter2-passphrase\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "hunter2-passphrase\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "hunter2-passphrase\n"
+    ]
+   }
+  ]
  },
  {
   "name": "xpub-search passphrase-of-xpub phrase+passphrase",
@@ -972,7 +2797,153 @@
      }
     ]
    }
-  }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "kinds": [
+     "StdinToggle",
+     "EnvRef"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\r\n",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "StdinToggle",
+     "EnvRef"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\n\r\n",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\n",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\n",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "StdinToggle",
+     "EnvRef"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\r\n",
+     "hunter2-passphrase\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase\n"
+    ]
+   }
+  ]
  },
  {
   "name": "xpub-search passphrase-of-xpub ms1+passphrase",
@@ -1045,7 +3016,142 @@
      }
     ]
    }
-  }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "kinds": [
+     "StdinToggle",
+     "EnvRef"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "linux",
+    "refusal": "value-not-byte-exact"
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f\n",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f\n",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "StdinToggle",
+     "EnvRef"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "hunter2-passphrase\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "hunter2-passphrase\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "hunter2-passphrase\n"
+    ]
+   }
+  ]
  },
  {
   "name": "xpub-search account-of-descriptor phrase+passphrase",
@@ -1118,7 +3224,153 @@
      }
     ]
    }
-  }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "kinds": [
+     "StdinToggle",
+     "EnvRef"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\r\n",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "StdinToggle",
+     "EnvRef"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\n\r\n",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\n",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\n",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "StdinToggle",
+     "EnvRef"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\r\n",
+     "hunter2-passphrase\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase\n"
+    ]
+   }
+  ]
  },
  {
   "name": "xpub-search account-of-descriptor ms1+passphrase",
@@ -1191,7 +3443,142 @@
      }
     ]
    }
-  }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "kinds": [
+     "StdinToggle",
+     "EnvRef"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "linux",
+    "refusal": "value-not-byte-exact"
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f\n",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f\n",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "StdinToggle",
+     "EnvRef"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "hunter2-passphrase\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "hunter2-passphrase\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "hunter2-passphrase\n"
+    ]
+   }
+  ]
  },
  {
   "name": "silent-payment secret+passphrase",
@@ -1251,7 +3638,153 @@
     "refusal": "fd-not-on-platform",
     "detail": "fd-not-on-platform: mnemonic silent-payment --secret + mnemonic silent-payment --passphrase: needs a pipe fd; not enabled on macos"
    }
-  }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "kinds": [
+     "FileFlag",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\r\n",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "FileFlag",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\n\r\n",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\n",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\n",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "FileFlag",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\r\n",
+     "hunter2-passphrase\n\r\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase\n"
+    ]
+   }
+  ]
  },
  {
   "name": "slip39 split phrase+passphrase",
@@ -1324,7 +3857,153 @@
      }
     ]
    }
-  }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\n",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\n",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\n",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase\n\r\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase\n"
+    ]
+   }
+  ]
  },
  {
   "name": "slip39 combine 2 shares+passphrase",
@@ -1423,7 +4102,237 @@
      }
     ]
    }
-  }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "brother branch academic acid dream prevent dwarf yelp axis priority include fatigue ceramic camera axle browser usual tidy video greatest",
+     "brother branch academic agency course flip ordinary smell plains game raspy pancake fridge plan editor knit peaceful medal impact taxi",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "brother branch academic acid dream prevent dwarf yelp axis priority include fatigue ceramic camera axle browser usual tidy video greatest",
+     "brother branch academic agency course flip ordinary smell plains game raspy pancake fridge plan editor knit peaceful medal impact taxi",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "brother branch academic acid dream prevent dwarf yelp axis priority include fatigue ceramic camera axle browser usual tidy video greatest",
+     "brother branch academic agency course flip ordinary smell plains game raspy pancake fridge plan editor knit peaceful medal impact taxi",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "brother branch academic acid dream prevent dwarf yelp axis priority include fatigue ceramic camera axle browser usual tidy video greatest\n",
+     "brother branch academic agency course flip ordinary smell plains game raspy pancake fridge plan editor knit peaceful medal impact taxi",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "brother branch academic acid dream prevent dwarf yelp axis priority include fatigue ceramic camera axle browser usual tidy video greatest\n",
+     "brother branch academic agency course flip ordinary smell plains game raspy pancake fridge plan editor knit peaceful medal impact taxi",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "brother branch academic acid dream prevent dwarf yelp axis priority include fatigue ceramic camera axle browser usual tidy video greatest\n",
+     "brother branch academic agency course flip ordinary smell plains game raspy pancake fridge plan editor knit peaceful medal impact taxi",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "brother branch academic acid dream prevent dwarf yelp axis priority include fatigue ceramic camera axle browser usual tidy video greatest",
+     "brother branch academic agency course flip ordinary smell plains game raspy pancake fridge plan editor knit peaceful medal impact taxi\n",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "brother branch academic acid dream prevent dwarf yelp axis priority include fatigue ceramic camera axle browser usual tidy video greatest",
+     "brother branch academic agency course flip ordinary smell plains game raspy pancake fridge plan editor knit peaceful medal impact taxi\n",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "brother branch academic acid dream prevent dwarf yelp axis priority include fatigue ceramic camera axle browser usual tidy video greatest",
+     "brother branch academic agency course flip ordinary smell plains game raspy pancake fridge plan editor knit peaceful medal impact taxi\n",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src2 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "brother branch academic acid dream prevent dwarf yelp axis priority include fatigue ceramic camera axle browser usual tidy video greatest",
+     "brother branch academic agency course flip ordinary smell plains game raspy pancake fridge plan editor knit peaceful medal impact taxi",
+     "hunter2-passphrase\n\r\n"
+    ]
+   },
+   {
+    "case": "src2 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "brother branch academic acid dream prevent dwarf yelp axis priority include fatigue ceramic camera axle browser usual tidy video greatest",
+     "brother branch academic agency course flip ordinary smell plains game raspy pancake fridge plan editor knit peaceful medal impact taxi",
+     "hunter2-passphrase\n"
+    ]
+   },
+   {
+    "case": "src2 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "brother branch academic acid dream prevent dwarf yelp axis priority include fatigue ceramic camera axle browser usual tidy video greatest",
+     "brother branch academic agency course flip ordinary smell plains game raspy pancake fridge plan editor knit peaceful medal impact taxi",
+     "hunter2-passphrase\n"
+    ]
+   }
+  ]
  },
  {
   "name": "slip39 combine 2 shares",
@@ -1496,7 +4405,153 @@
      }
     ]
    }
-  }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "EnvRef"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "brother branch academic acid dream prevent dwarf yelp axis priority include fatigue ceramic camera axle browser usual tidy video greatest",
+     "brother branch academic agency course flip ordinary smell plains game raspy pancake fridge plan editor knit peaceful medal impact taxi"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "brother branch academic acid dream prevent dwarf yelp axis priority include fatigue ceramic camera axle browser usual tidy video greatest",
+     "brother branch academic agency course flip ordinary smell plains game raspy pancake fridge plan editor knit peaceful medal impact taxi"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "brother branch academic acid dream prevent dwarf yelp axis priority include fatigue ceramic camera axle browser usual tidy video greatest",
+     "brother branch academic agency course flip ordinary smell plains game raspy pancake fridge plan editor knit peaceful medal impact taxi"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "EnvRef"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "brother branch academic acid dream prevent dwarf yelp axis priority include fatigue ceramic camera axle browser usual tidy video greatest\n",
+     "brother branch academic agency course flip ordinary smell plains game raspy pancake fridge plan editor knit peaceful medal impact taxi"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "brother branch academic acid dream prevent dwarf yelp axis priority include fatigue ceramic camera axle browser usual tidy video greatest\n",
+     "brother branch academic agency course flip ordinary smell plains game raspy pancake fridge plan editor knit peaceful medal impact taxi"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "brother branch academic acid dream prevent dwarf yelp axis priority include fatigue ceramic camera axle browser usual tidy video greatest\n",
+     "brother branch academic agency course flip ordinary smell plains game raspy pancake fridge plan editor knit peaceful medal impact taxi"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "EnvRef"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "brother branch academic acid dream prevent dwarf yelp axis priority include fatigue ceramic camera axle browser usual tidy video greatest",
+     "brother branch academic agency course flip ordinary smell plains game raspy pancake fridge plan editor knit peaceful medal impact taxi\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "brother branch academic acid dream prevent dwarf yelp axis priority include fatigue ceramic camera axle browser usual tidy video greatest",
+     "brother branch academic agency course flip ordinary smell plains game raspy pancake fridge plan editor knit peaceful medal impact taxi\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "brother branch academic acid dream prevent dwarf yelp axis priority include fatigue ceramic camera axle browser usual tidy video greatest",
+     "brother branch academic agency course flip ordinary smell plains game raspy pancake fridge plan editor knit peaceful medal impact taxi\n"
+    ]
+   }
+  ]
  },
  {
   "name": "seed-xor combine 2 shares",
@@ -1569,7 +4624,153 @@
      }
     ]
    }
-  }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "EnvRef"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "EnvRef"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\n",
+     "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\n",
+     "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\n",
+     "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "EnvRef"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong\n"
+    ]
+   }
+  ]
  },
  {
   "name": "ms-shares combine 2 shares",
@@ -1642,7 +4843,153 @@
      }
     ]
    }
-  }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "EnvRef"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "ms127776qw8m0z2uqfrdpxhc2q7v88ys6l25qum46xfaug68t2",
+     "ms127776p47az8mrqts9hf0dmqyj77w32nmlqxsl6m0f3zgdar"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "ms127776qw8m0z2uqfrdpxhc2q7v88ys6l25qum46xfaug68t2",
+     "ms127776p47az8mrqts9hf0dmqyj77w32nmlqxsl6m0f3zgdar"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "ms127776qw8m0z2uqfrdpxhc2q7v88ys6l25qum46xfaug68t2",
+     "ms127776p47az8mrqts9hf0dmqyj77w32nmlqxsl6m0f3zgdar"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "EnvRef"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "ms127776qw8m0z2uqfrdpxhc2q7v88ys6l25qum46xfaug68t2\n",
+     "ms127776p47az8mrqts9hf0dmqyj77w32nmlqxsl6m0f3zgdar"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "ms127776qw8m0z2uqfrdpxhc2q7v88ys6l25qum46xfaug68t2\n",
+     "ms127776p47az8mrqts9hf0dmqyj77w32nmlqxsl6m0f3zgdar"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "ms127776qw8m0z2uqfrdpxhc2q7v88ys6l25qum46xfaug68t2\n",
+     "ms127776p47az8mrqts9hf0dmqyj77w32nmlqxsl6m0f3zgdar"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "EnvRef"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "ms127776qw8m0z2uqfrdpxhc2q7v88ys6l25qum46xfaug68t2",
+     "ms127776p47az8mrqts9hf0dmqyj77w32nmlqxsl6m0f3zgdar\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "ms127776qw8m0z2uqfrdpxhc2q7v88ys6l25qum46xfaug68t2",
+     "ms127776p47az8mrqts9hf0dmqyj77w32nmlqxsl6m0f3zgdar\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "ms127776qw8m0z2uqfrdpxhc2q7v88ys6l25qum46xfaug68t2",
+     "ms127776p47az8mrqts9hf0dmqyj77w32nmlqxsl6m0f3zgdar\n"
+    ]
+   }
+  ]
  },
  {
   "name": "import-wallet 2 cosigner ms1",
@@ -1715,7 +5062,153 @@
      }
     ]
    }
-  }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "EnvRef"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "EnvRef"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w\n",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w\n",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w\n",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "EnvRef"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f\n"
+    ]
+   }
+  ]
  },
  {
   "name": "verify-bundle ms1+slot+passphrase",
@@ -1814,7 +5307,237 @@
      }
     ]
    }
-  }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f\n",
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f\n",
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f\n",
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\n",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\n",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\n",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src2 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase\n\r\n"
+    ]
+   },
+   {
+    "case": "src2 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase\n"
+    ]
+   },
+   {
+    "case": "src2 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase\n"
+    ]
+   }
+  ]
  },
  {
   "name": "ms combine share group",
@@ -1859,7 +5582,57 @@
      }
     ]
    }
-  }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "kinds": [
+     "StdinMulti"
+    ],
+    "provenance": [
+     [
+      "typed",
+      "typed"
+     ]
+    ],
+    "payloads": [
+     "ms12ec7pqsf34k729gl6yrsfk9q244kzsx62s9krxwywxv4jav\nms12ec7pp3txgcymeun2ws3tceqmggc83f2m3l2cj299w9l9vr"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv"
+    ],
+    "provenance": [
+     [
+      "typed",
+      "typed"
+     ]
+    ],
+    "payloads": [
+     "ms12ec7pqsf34k729gl6yrsfk9q244kzsx62s9krxwywxv4jav\nms12ec7pp3txgcymeun2ws3tceqmggc83f2m3l2cj299w9l9vr"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv"
+    ],
+    "provenance": [
+     [
+      "typed",
+      "typed"
+     ]
+    ],
+    "payloads": [
+     "ms12ec7pqsf34k729gl6yrsfk9q244kzsx62s9krxwywxv4jav\nms12ec7pp3txgcymeun2ws3tceqmggc83f2m3l2cj299w9l9vr"
+    ]
+   }
+  ]
  },
  {
   "name": "ms verify phrase+ms1",
@@ -1918,7 +5691,153 @@
     "refusal": "fd-not-on-platform",
     "detail": "fd-not-on-platform: ms verify --phrase + ms verify <ms1>: needs a pipe fd; not enabled on macos"
    }
-  }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "kinds": [
+     "DashValue",
+     "InFile"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\r\n",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f\r\n"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "DashValue",
+     "InFile"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\n\r\n",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f\r\n"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\n",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\n",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "DashValue",
+     "InFile"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\r\n",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f\n\r\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f\n"
+    ]
+   }
+  ]
  },
  {
   "name": "ms derive ms1+passphrase",
@@ -1978,7 +5897,153 @@
     "refusal": "fd-not-on-platform",
     "detail": "fd-not-on-platform: ms derive --passphrase + ms derive <ms1>: needs a pipe fd; not enabled on macos"
    }
-  }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "kinds": [
+     "StdinToggle",
+     "InFile"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "hunter2-passphrase\r\n",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f\r\n"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "hunter2-passphrase",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "hunter2-passphrase",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "StdinToggle",
+     "InFile"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "hunter2-passphrase\n\r\n",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f\r\n"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "hunter2-passphrase\n",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "hunter2-passphrase\n",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "StdinToggle",
+     "InFile"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "hunter2-passphrase\r\n",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f\n\r\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "hunter2-passphrase",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "hunter2-passphrase",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f\n"
+    ]
+   }
+  ]
  },
  {
   "name": "ms derive phrase+passphrase",
@@ -2023,7 +6088,120 @@
     "refusal": "two-stdin",
     "detail": "two-stdin: ms derive --phrase + ms derive --passphrase: each has stdin as its only channel"
    }
-  }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "refusal": "two-stdin"
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "linux",
+    "refusal": "two-stdin"
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\n",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\n",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "refusal": "two-stdin"
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase\n"
+    ]
+   }
+  ]
  },
  {
   "name": "ms derive hex+passphrase",
@@ -2068,6 +6246,119 @@
     "refusal": "two-stdin",
     "detail": "two-stdin: ms derive --hex + ms derive --passphrase: each has stdin as its only channel"
    }
-  }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "refusal": "two-stdin"
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "00000000000000000000000000000000",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "00000000000000000000000000000000",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "linux",
+    "refusal": "two-stdin"
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "00000000000000000000000000000000\n",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "00000000000000000000000000000000\n",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "refusal": "two-stdin"
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "00000000000000000000000000000000",
+     "hunter2-passphrase\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "00000000000000000000000000000000",
+     "hunter2-passphrase\n"
+    ]
+   }
+  ]
  }
 ]

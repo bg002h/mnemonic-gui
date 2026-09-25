@@ -10,10 +10,42 @@ TABLE = json.load(open(os.path.join(HERE, "channel_table.json")))
 PLATFORMS = ("linux", "macos", "windows")
 
 
+def payloads(bindings, res):
+    """The exact bytes each binding delivers (R2 NI3: T8 pins VALUES, not only shapes)."""
+    out = []
+    for b, s in zip(bindings, res):
+        v = s["value"]
+        if isinstance(v, list):
+            out.append("\n".join(v))
+        else:
+            out.append(v + ("" if b["kind"] == "Argv" else b["terminator"]))
+    return out
+
+
+def value_cases(sh):
+    """Per OS: the typed case, and each source typed as `@env:USER_SECRET` holding value + '\\n'."""
+    cases = []
+    variants = [("typed", sh["sources"], {})]
+    for i, s in enumerate(sh["sources"]):
+        if s["form"] != "group":
+            srcs = [dict(x) for x in sh["sources"]]
+            srcs[i]["value"] = "@env:USER_SECRET"
+            variants.append((f"src{i} as @env:USER_SECRET", srcs, {"USER_SECRET": s["value"] + "\n"}))
+    for name, srcs, uenv in variants:
+        for p in PLATFORMS:
+            try:
+                b, prov, res = plan(srcs, TABLE, p, uenv)
+                cases.append({"case": name, "os": p, "kinds": [x["kind"] for x in b], "provenance": prov,
+                              "payloads": payloads(b, res)})
+            except Refusal as e:
+                cases.append({"case": name, "os": p, "refusal": e.code})
+    return cases
+
+
 def generate():
     rows = []
     for sh in SHAPES:
-        row = {"name": sh["name"], "plans": {}}
+        row = {"name": sh["name"], "plans": {}, "value_cases": value_cases(sh)}
         for p in PLATFORMS:
             try:
                 b, prov, _ = plan(sh["sources"], TABLE, p)
@@ -40,7 +72,9 @@ def cell(p):
 
 def a5_markdown(rows):
     head = (f"Policy: private channels on {POLICY['private_channels_on']}, fd channel on "
-            f"{POLICY['fd_channel_on']}, env_value_rule `{POLICY['env_value_rule']}` (channel_policy.json).\n\n")
+            f"{POLICY['fd_channel_on']}, env_value_rule `{POLICY['env_value_rule']['value']}`, argv re-interprets "
+            + ", ".join(f"{k} {v['version']}: {' '.join('`'+x+'`' for x in v['spellings'])}" for k, v in POLICY['argv_reinterprets'].items())
+            + " (channel_policy.json).\n\n")
     out = head + "| shape | Linux plan | macOS | Windows | macOS/Windows once their flag flips |\n|---|---|---|---|---|\n"
     for r in rows:
         mac = "same as Linux" if r["plans"]["macos"] == r["plans"]["linux"] else cell(r["plans"]["macos"])

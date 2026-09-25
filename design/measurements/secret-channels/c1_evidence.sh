@@ -29,3 +29,8 @@ for sh in bash zsh fish; do
     printf "  %-5s printf '%%s\\\\r\\\\n' \"\$MY_PW\" | … --passphrase-stdin         : %s\n" "$sh" "$out"
   fi
 done
+echo "R2 NC1: MY_PW='@env:OTHER', OTHER=hunter2 (\$OTHER's wallet is ca2c62d2):"
+echo "  CLI's own --passphrase @env:MY_PW (resolves once)                 : $(MY_PW='@env:OTHER' OTHER=hunter2 $M restore $A --from "phrase=$P" --template bip84 --passphrase @env:MY_PW 2>/dev/null | fp)"
+echo "  GUI Linux plan: resolved bytes over --passphrase-stdin + \\r\\n      : $(printf '@env:OTHER\r\n' | OTHER=hunter2 $M restore $A --from "phrase=$P" --template bip84 --passphrase-stdin 2>/dev/null | fp)"
+echo "  UNGUARDED interim: resolved bytes on argv (re-resolved by the CLI) : $(OTHER=hunter2 $M restore $A --from "phrase=$P" --template bip84 --passphrase '@env:OTHER' 2>/dev/null | fp)"
+echo "  GUI interim (fold 3): refused value-is-a-channel-spelling (plan.py; test_plan.py NC1 legs)"

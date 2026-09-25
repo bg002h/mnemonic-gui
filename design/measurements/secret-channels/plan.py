@@ -32,7 +32,7 @@ class Refusal(Exception):
 # ── §A3c: the TARGET bytes ────────────────────────────────────────────────────────────────
 def env_value_rule(raw, rule=None):
     """What the pinned CLIs' own `@env:VAR` makes of the variable (channel_policy.json)."""
-    rule = rule or POLICY["env_value_rule"]
+    rule = rule or POLICY["env_value_rule"]["value"]
     if rule == "verbatim":
         return raw
     if rule == "strip-one-trailing-newline":
@@ -69,9 +69,10 @@ def resolve(sources, user_env, rule=None):
                     raise Refusal("C1-bad-name", s["key"], f"{name!r} is not a valid name ([A-Z_][A-Z0-9_]*)")
                 if name not in user_env:
                     raise Refusal("C1-env-unset", s["key"], f"${name} is not set in the GUI's environment")
-                if user_env[name] == "":
-                    raise Refusal("C1-env-empty", s["key"], f"${name} is empty")
-                got.append(env_value_rule(user_env[name], rule)); where.append(f"${name}")
+                target = env_value_rule(user_env[name], rule)
+                if target == "":        # checked on the TARGET, after the rule (R2 Nit 1)
+                    raise Refusal("C1-env-empty", s["key"], f"${name} is empty (after the CLI's @env: rule)")
+                got.append(target); where.append(f"${name}")
             else:
                 got.append(v); where.append("typed")
         r = dict(s)
@@ -97,7 +98,21 @@ def plan(sources, table, platform="linux", user_env=None, rule=None):
     for s in res:
         if s["key"] not in table:
             raise Refusal("no-table-entry", s["key"], "input not measured")
+        vals = s["value"] if s["form"] == "group" else [s["value"]]
+        if any("\0" in v for v in vals):      # R2 Nit 1: argv and env cannot carry NUL; one message on every OS
+            raise Refusal("nul-in-value", s["key"], "the value contains a NUL byte")
     if platform not in POLICY["private_channels_on"]:
+        # INTERIM path: resolved bytes on argv. A CLI re-interprets some argv VALUES as channel
+        # spellings (argv_reinterprets, measured per CLI version); such a value would be resolved a
+        # second time — a different wallet at exit 0 (R2 NC1). Refuse it.
+        for s in res:
+            cli = s["key"].split()[0]
+            row = POLICY["argv_reinterprets"].get(cli, {"spellings": [], "version": "?"})
+            vals = s["value"] if s["form"] == "group" else [s["value"]]
+            for v in vals:
+                if ("-" in row["spellings"] and v == "-") or ("@env:" in row["spellings"] and v.startswith("@env:")):
+                    raise Refusal("value-is-a-channel-spelling", s["key"],
+                                  f"{cli} {row['version']} reads {v[:5]!r}… on the command line as a channel, not as the secret")
         return [{"source": i, "key": s["key"], "kind": "Argv", "terminator": ""} for i, s in enumerate(res)], prov, res
     try:
         return _plan(res, table, platform), prov, res
@@ -118,8 +133,6 @@ def _plan(sources, table, platform):
         chans = list(table[s["key"]]["channels"])
         if platform not in POLICY["fd_channel_on"]:
             chans = [c for c in chans if c["kind"] not in FD_KINDS]
-        if any("\0" in v for v in vals):                      # env cannot carry NUL (§A8)
-            chans = [c for c in chans if c["kind"] != "EnvRef"]
         if not chans:
             raise Refusal("no-channel-on-platform", s["key"], platform)
         if not all(is_clean(v) for v in vals):                 # lenient channels need a clean value

@@ -79,6 +79,90 @@
   "base_effect": "0  bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv",
   "equal": true,
   "plan_err": "",
+  "interim": [
+   {
+    "source": 0,
+    "ending": "",
+    "equal": true,
+    "effect": "0  bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv"
+   },
+   {
+    "source": 0,
+    "ending": "\n",
+    "equal": true,
+    "effect": "0  bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv"
+   },
+   {
+    "source": 0,
+    "ending": "\r\n",
+    "equal": true,
+    "effect": "0  bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv"
+   },
+   {
+    "source": 0,
+    "ending": "  ",
+    "equal": true,
+    "effect": "0  bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv"
+   },
+   {
+    "source": 1,
+    "ending": "",
+    "equal": true,
+    "effect": "0  bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv"
+   },
+   {
+    "source": 1,
+    "ending": "\n",
+    "equal": true,
+    "effect": "0  bc1qzr4ec5jpay24amf5t7l508l4yak028qnerelv7"
+   },
+   {
+    "source": 1,
+    "ending": "\r\n",
+    "equal": true,
+    "effect": "0  bc1q525j9ez5twzlwjzqfv23p3044ed4jsdkkt9ega"
+   },
+   {
+    "source": 1,
+    "ending": "  ",
+    "equal": true,
+    "effect": "0  bc1qqul54nnz3ae38947p56n67y827mvf0u654xg2a"
+   }
+  ],
+  "nc1": [
+   {
+    "source": 0,
+    "content": "@env:OTHER",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 0,
+    "content": "-",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 1,
+    "content": "@env:OTHER",
+    "linux_exit": 0,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 1,
+    "content": "-",
+    "linux_exit": 0,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   }
+  ],
   "swaps": [
    {
     "pair": [
@@ -283,6 +367,90 @@
   "base_effect": "master fingerprint: 45fbfbe6  (passphrase: applied)",
   "equal": true,
   "plan_err": "",
+  "interim": [
+   {
+    "source": 0,
+    "ending": "",
+    "equal": true,
+    "effect": "master fingerprint: 45fbfbe6  (passphrase: applied)"
+   },
+   {
+    "source": 0,
+    "ending": "\n",
+    "equal": true,
+    "effect": "master fingerprint: 45fbfbe6  (passphrase: applied)"
+   },
+   {
+    "source": 0,
+    "ending": "\r\n",
+    "equal": true,
+    "effect": "master fingerprint: 45fbfbe6  (passphrase: applied)"
+   },
+   {
+    "source": 0,
+    "ending": "  ",
+    "equal": true,
+    "effect": "master fingerprint: 45fbfbe6  (passphrase: applied)"
+   },
+   {
+    "source": 1,
+    "ending": "",
+    "equal": true,
+    "effect": "master fingerprint: 45fbfbe6  (passphrase: applied)"
+   },
+   {
+    "source": 1,
+    "ending": "\n",
+    "equal": true,
+    "effect": "master fingerprint: 5d5b0e1a  (passphrase: applied)"
+   },
+   {
+    "source": 1,
+    "ending": "\r\n",
+    "equal": true,
+    "effect": "master fingerprint: eadf4a6c  (passphrase: applied)"
+   },
+   {
+    "source": 1,
+    "ending": "  ",
+    "equal": true,
+    "effect": "master fingerprint: 220717b3  (passphrase: applied)"
+   }
+  ],
+  "nc1": [
+   {
+    "source": 0,
+    "content": "@env:OTHER",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 0,
+    "content": "-",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 1,
+    "content": "@env:OTHER",
+    "linux_exit": 0,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 1,
+    "content": "-",
+    "linux_exit": 0,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   }
+  ],
   "swaps": [
    {
     "pair": [
@@ -487,6 +655,90 @@
   "base_effect": "master fingerprint: 45fbfbe6  (passphrase: applied)",
   "equal": true,
   "plan_err": "",
+  "interim": [
+   {
+    "source": 0,
+    "ending": "",
+    "equal": true,
+    "effect": "master fingerprint: 45fbfbe6  (passphrase: applied)"
+   },
+   {
+    "source": 0,
+    "ending": "\n",
+    "equal": true,
+    "effect": "master fingerprint: 45fbfbe6  (passphrase: applied)"
+   },
+   {
+    "source": 0,
+    "ending": "\r\n",
+    "equal": true,
+    "effect": "master fingerprint: 45fbfbe6  (passphrase: applied)"
+   },
+   {
+    "source": 0,
+    "ending": "  ",
+    "equal": true,
+    "effect": "master fingerprint: 45fbfbe6  (passphrase: applied)"
+   },
+   {
+    "source": 1,
+    "ending": "",
+    "equal": true,
+    "effect": "master fingerprint: 45fbfbe6  (passphrase: applied)"
+   },
+   {
+    "source": 1,
+    "ending": "\n",
+    "equal": true,
+    "effect": "master fingerprint: 5d5b0e1a  (passphrase: applied)"
+   },
+   {
+    "source": 1,
+    "ending": "\r\n",
+    "equal": true,
+    "effect": "master fingerprint: eadf4a6c  (passphrase: applied)"
+   },
+   {
+    "source": 1,
+    "ending": "  ",
+    "equal": true,
+    "effect": "master fingerprint: 220717b3  (passphrase: applied)"
+   }
+  ],
+  "nc1": [
+   {
+    "source": 0,
+    "content": "@env:OTHER",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 0,
+    "content": "-",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 1,
+    "content": "@env:OTHER",
+    "linux_exit": 0,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 1,
+    "content": "-",
+    "linux_exit": 0,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   }
+  ],
   "swaps": [
    {
     "pair": [
@@ -691,6 +943,90 @@
   "base_effect": "target biology midnight canal glass common include trophy glimpse north castle dove",
   "equal": true,
   "plan_err": "",
+  "interim": [
+   {
+    "source": 0,
+    "ending": "",
+    "equal": true,
+    "effect": "target biology midnight canal glass common include trophy glimpse north castle dove"
+   },
+   {
+    "source": 0,
+    "ending": "\n",
+    "equal": true,
+    "effect": "target biology midnight canal glass common include trophy glimpse north castle dove"
+   },
+   {
+    "source": 0,
+    "ending": "\r\n",
+    "equal": true,
+    "effect": "target biology midnight canal glass common include trophy glimpse north castle dove"
+   },
+   {
+    "source": 0,
+    "ending": "  ",
+    "equal": true,
+    "effect": "target biology midnight canal glass common include trophy glimpse north castle dove"
+   },
+   {
+    "source": 1,
+    "ending": "",
+    "equal": true,
+    "effect": "target biology midnight canal glass common include trophy glimpse north castle dove"
+   },
+   {
+    "source": 1,
+    "ending": "\n",
+    "equal": true,
+    "effect": "install jungle blood evolve bird marriage nerve wing salute online empty throw"
+   },
+   {
+    "source": 1,
+    "ending": "\r\n",
+    "equal": true,
+    "effect": "brain outside agree mix oblige despair auction balcony life betray grocery stick"
+   },
+   {
+    "source": 1,
+    "ending": "  ",
+    "equal": true,
+    "effect": "must shop limit screen cereal depend scare sweet hub ridge eagle cement"
+   }
+  ],
+  "nc1": [
+   {
+    "source": 0,
+    "content": "@env:OTHER",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 0,
+    "content": "-",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 1,
+    "content": "@env:OTHER",
+    "linux_exit": 0,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 1,
+    "content": "-",
+    "linux_exit": 0,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   }
+  ],
   "swaps": [
    {
     "pair": [
@@ -895,6 +1231,90 @@
   "base_effect": "mk1qpd2y2pqqsqk4z99gdzlh7lxqvzg3vs7vs57ls3u2nlnjvzn90ffnjpcsauf2eggmpdquu02l9k7dpjhxhs3yaa",
   "equal": true,
   "plan_err": "",
+  "interim": [
+   {
+    "source": 0,
+    "ending": "",
+    "equal": true,
+    "effect": "mk1qpd2y2pqqsqk4z99gdzlh7lxqvzg3vs7vs57ls3u2nlnjvzn90ffnjpcsauf2eggmpdquu02l9k7dpjhxhs3yaa"
+   },
+   {
+    "source": 0,
+    "ending": "\n",
+    "equal": true,
+    "effect": "mk1qpd2y2pqqsqk4z99gdzlh7lxqvzg3vs7vs57ls3u2nlnjvzn90ffnjpcsauf2eggmpdquu02l9k7dpjhxhs3yaa"
+   },
+   {
+    "source": 0,
+    "ending": "\r\n",
+    "equal": true,
+    "effect": "mk1qpd2y2pqqsqk4z99gdzlh7lxqvzg3vs7vs57ls3u2nlnjvzn90ffnjpcsauf2eggmpdquu02l9k7dpjhxhs3yaa"
+   },
+   {
+    "source": 0,
+    "ending": "  ",
+    "equal": true,
+    "effect": "mk1qpd2y2pqqsqk4z99gdzlh7lxqvzg3vs7vs57ls3u2nlnjvzn90ffnjpcsauf2eggmpdquu02l9k7dpjhxhs3yaa"
+   },
+   {
+    "source": 1,
+    "ending": "",
+    "equal": true,
+    "effect": "mk1qpd2y2pqqsqk4z99gdzlh7lxqvzg3vs7vs57ls3u2nlnjvzn90ffnjpcsauf2eggmpdquu02l9k7dpjhxhs3yaa"
+   },
+   {
+    "source": 1,
+    "ending": "\n",
+    "equal": true,
+    "effect": "mk1qp9hthpqqsqjm4msvdw4krs6qvzg3vs7hx4058cj9u5ju47h4vrzxvn25x8mv0vdwsmfwu3d3e9jujg6x25ecm4"
+   },
+   {
+    "source": 1,
+    "ending": "\r\n",
+    "equal": true,
+    "effect": "mk1qptd9epqqsq4kju7v04d7jnvqvzg3vs7dfj8g5r8quy5c0q0w8da0rpcvpgzwmhggf2r4sv6t45pem9f42xm6dw"
+   },
+   {
+    "source": 1,
+    "ending": "  ",
+    "equal": true,
+    "effect": "mk1qplmvxpqqsqlakrzkc3qw9anqvzg3vs7delyv04s2dzqjutxdj3e96us8j377uuyhg308wv3hmwld46yn0jzq8p"
+   }
+  ],
+  "nc1": [
+   {
+    "source": 0,
+    "content": "@env:OTHER",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 0,
+    "content": "-",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 1,
+    "content": "@env:OTHER",
+    "linux_exit": 0,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 1,
+    "content": "-",
+    "linux_exit": 0,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   }
+  ],
   "swaps": [
    {
     "pair": [
@@ -1099,6 +1519,90 @@
   "base_effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5",
   "equal": true,
   "plan_err": "",
+  "interim": [
+   {
+    "source": 0,
+    "ending": "",
+    "equal": true,
+    "effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5"
+   },
+   {
+    "source": 0,
+    "ending": "\n",
+    "equal": true,
+    "effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5"
+   },
+   {
+    "source": 0,
+    "ending": "\r\n",
+    "equal": true,
+    "effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5"
+   },
+   {
+    "source": 0,
+    "ending": "  ",
+    "equal": true,
+    "effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5"
+   },
+   {
+    "source": 1,
+    "ending": "",
+    "equal": true,
+    "effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5"
+   },
+   {
+    "source": 1,
+    "ending": "\n",
+    "equal": true,
+    "effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5"
+   },
+   {
+    "source": 1,
+    "ending": "\r\n",
+    "equal": true,
+    "effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5"
+   },
+   {
+    "source": 1,
+    "ending": "  ",
+    "equal": true,
+    "effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5"
+   }
+  ],
+  "nc1": [
+   {
+    "source": 0,
+    "content": "@env:OTHER",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 0,
+    "content": "-",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 1,
+    "content": "@env:OTHER",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 1,
+    "content": "-",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   }
+  ],
   "swaps": [
    {
     "pair": [
@@ -1329,6 +1833,130 @@
   "base_effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq",
   "equal": true,
   "plan_err": "",
+  "interim": [
+   {
+    "source": 0,
+    "ending": "",
+    "equal": true,
+    "effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq"
+   },
+   {
+    "source": 0,
+    "ending": "\n",
+    "equal": true,
+    "effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq"
+   },
+   {
+    "source": 0,
+    "ending": "\r\n",
+    "equal": true,
+    "effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq"
+   },
+   {
+    "source": 0,
+    "ending": "  ",
+    "equal": true,
+    "effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq"
+   },
+   {
+    "source": 1,
+    "ending": "",
+    "equal": true,
+    "effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq"
+   },
+   {
+    "source": 1,
+    "ending": "\n",
+    "equal": true,
+    "effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq"
+   },
+   {
+    "source": 1,
+    "ending": "\r\n",
+    "equal": true,
+    "effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq"
+   },
+   {
+    "source": 1,
+    "ending": "  ",
+    "equal": true,
+    "effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq"
+   },
+   {
+    "source": 2,
+    "ending": "",
+    "equal": true,
+    "effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq"
+   },
+   {
+    "source": 2,
+    "ending": "\n",
+    "equal": true,
+    "effect": "mk1qp4rvdpqqsp23kxs0z5d35rct4dsuxs8qjyty8534ek0a9wkc8ld25uekznm8z4tvx5nk5l7sl7pumaa3w3zdvt"
+   },
+   {
+    "source": 2,
+    "ending": "\r\n",
+    "equal": true,
+    "effect": "mk1qp8re3pqqspr3uccdsu0xxrvat055mq8qjyty84zdd9eq0p772a7d6dh480gmczp9ep6zp04a0m35yld29pca0z"
+   },
+   {
+    "source": 2,
+    "ending": "  ",
+    "equal": true,
+    "effect": "mk1qpal20pqqspwl48anmhaflv7ygr30vc8qjyty8sd0p6dcpcldwzere3p6tld8mlck2hk9thad8st9wgqy6kals5"
+   }
+  ],
+  "nc1": [
+   {
+    "source": 0,
+    "content": "@env:OTHER",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 0,
+    "content": "-",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 1,
+    "content": "@env:OTHER",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 1,
+    "content": "-",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 2,
+    "content": "@env:OTHER",
+    "linux_exit": 0,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 2,
+    "content": "-",
+    "linux_exit": 0,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   }
+  ],
   "swaps": [
    {
     "pair": [
@@ -1606,6 +2234,90 @@
   "base_effect": "xpub: xpub6CPUCVp94gpNs3bS1eGiwSWwZMLNmfr2Uo1t5v8YtY4XVoxhUraBH7sRyVfgwSNCxRVpX1bDREtc5Kri",
   "equal": true,
   "plan_err": "",
+  "interim": [
+   {
+    "source": 0,
+    "ending": "",
+    "equal": true,
+    "effect": "xpub: xpub6CPUCVp94gpNs3bS1eGiwSWwZMLNmfr2Uo1t5v8YtY4XVoxhUraBH7sRyVfgwSNCxRVpX1bDREtc5Kri"
+   },
+   {
+    "source": 0,
+    "ending": "\n",
+    "equal": true,
+    "effect": "xpub: xpub6CPUCVp94gpNs3bS1eGiwSWwZMLNmfr2Uo1t5v8YtY4XVoxhUraBH7sRyVfgwSNCxRVpX1bDREtc5Kri"
+   },
+   {
+    "source": 0,
+    "ending": "\r\n",
+    "equal": true,
+    "effect": "xpub: xpub6CPUCVp94gpNs3bS1eGiwSWwZMLNmfr2Uo1t5v8YtY4XVoxhUraBH7sRyVfgwSNCxRVpX1bDREtc5Kri"
+   },
+   {
+    "source": 0,
+    "ending": "  ",
+    "equal": true,
+    "effect": "xpub: xpub6CPUCVp94gpNs3bS1eGiwSWwZMLNmfr2Uo1t5v8YtY4XVoxhUraBH7sRyVfgwSNCxRVpX1bDREtc5Kri"
+   },
+   {
+    "source": 1,
+    "ending": "",
+    "equal": true,
+    "effect": "xpub: xpub6CPUCVp94gpNs3bS1eGiwSWwZMLNmfr2Uo1t5v8YtY4XVoxhUraBH7sRyVfgwSNCxRVpX1bDREtc5Kri"
+   },
+   {
+    "source": 1,
+    "ending": "\n",
+    "equal": true,
+    "effect": "xpub: xpub6D1vNc6xbQZ5QWmFJVKN3MLorEquZeiXshoPh7XT4v4XPMuQX1S6bp6akzBcDHqephtrqGLQ9ECU1QGK"
+   },
+   {
+    "source": 1,
+    "ending": "\r\n",
+    "equal": true,
+    "effect": "xpub: xpub6CS8CxuQagzQEQDG5N3nXhP2eX4Fbk6tgCzN43rJxQ3y34pjXBbcxpEFr4ZJn26xzNvUtyGGDDtsA8LE"
+   },
+   {
+    "source": 1,
+    "ending": "  ",
+    "equal": true,
+    "effect": "xpub: xpub6CTsc3Qb2MvBa1NXzfNhjFW9ebH58qzZL6B4dnVGUYTJqk9e8n6wmjms68BDcxowsnfrnXX6xTXcUBJJ"
+   }
+  ],
+  "nc1": [
+   {
+    "source": 0,
+    "content": "@env:OTHER",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 0,
+    "content": "-",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 1,
+    "content": "@env:OTHER",
+    "linux_exit": 0,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 1,
+    "content": "-",
+    "linux_exit": 0,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   }
+  ],
   "swaps": [
    {
     "pair": [
@@ -1810,6 +2522,90 @@
   "base_effect": "bip38: 6PYP8fdoVaE3ThLmEnYcGo3nJeBqd8PvB7CRvTz3TX5L9ojoPHKCg7QXG6",
   "equal": true,
   "plan_err": "",
+  "interim": [
+   {
+    "source": 0,
+    "ending": "",
+    "equal": true,
+    "effect": "bip38: 6PYP8fdoVaE3ThLmEnYcGo3nJeBqd8PvB7CRvTz3TX5L9ojoPHKCg7QXG6"
+   },
+   {
+    "source": 0,
+    "ending": "\n",
+    "equal": true,
+    "effect": ""
+   },
+   {
+    "source": 0,
+    "ending": "\r\n",
+    "equal": true,
+    "effect": ""
+   },
+   {
+    "source": 0,
+    "ending": "  ",
+    "equal": true,
+    "effect": ""
+   },
+   {
+    "source": 1,
+    "ending": "",
+    "equal": true,
+    "effect": "bip38: 6PYP8fdoVaE3ThLmEnYcGo3nJeBqd8PvB7CRvTz3TX5L9ojoPHKCg7QXG6"
+   },
+   {
+    "source": 1,
+    "ending": "\n",
+    "equal": true,
+    "effect": "bip38: 6PYP8fdoVjeEov47rHXTY9PeB7tTJTKe8M6KJGb7svmj7CMSuyTy7UjJRC"
+   },
+   {
+    "source": 1,
+    "ending": "\r\n",
+    "equal": true,
+    "effect": "bip38: 6PYP8fdoVeHbypdd6isBEGUNWB77VFc34Puok2SBLBA6FkYk2xHGvwRkLv"
+   },
+   {
+    "source": 1,
+    "ending": "  ",
+    "equal": true,
+    "effect": "bip38: 6PYP8fdoWVzuVFycCFCUHzSGEaQ2KuVtaApk6wUo6rYqh3Y13Tdep4Lzuj"
+   }
+  ],
+  "nc1": [
+   {
+    "source": 0,
+    "content": "@env:OTHER",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 0,
+    "content": "-",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 1,
+    "content": "@env:OTHER",
+    "linux_exit": 0,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 1,
+    "content": "-",
+    "linux_exit": 0,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   }
+  ],
   "swaps": [
    {
     "pair": [
@@ -2014,6 +2810,90 @@
   "base_effect": "wif: KyZpNDKnfs94vbrwhJneDi77V6jF64PWPF8x5cdJb8ifgg2DUc9d",
   "equal": true,
   "plan_err": "",
+  "interim": [
+   {
+    "source": 0,
+    "ending": "",
+    "equal": true,
+    "effect": "wif: KyZpNDKnfs94vbrwhJneDi77V6jF64PWPF8x5cdJb8ifgg2DUc9d"
+   },
+   {
+    "source": 0,
+    "ending": "\n",
+    "equal": true,
+    "effect": ""
+   },
+   {
+    "source": 0,
+    "ending": "\r\n",
+    "equal": true,
+    "effect": ""
+   },
+   {
+    "source": 0,
+    "ending": "  ",
+    "equal": true,
+    "effect": ""
+   },
+   {
+    "source": 1,
+    "ending": "",
+    "equal": true,
+    "effect": "wif: KyZpNDKnfs94vbrwhJneDi77V6jF64PWPF8x5cdJb8ifgg2DUc9d"
+   },
+   {
+    "source": 1,
+    "ending": "\n",
+    "equal": true,
+    "effect": ""
+   },
+   {
+    "source": 1,
+    "ending": "\r\n",
+    "equal": true,
+    "effect": ""
+   },
+   {
+    "source": 1,
+    "ending": "  ",
+    "equal": true,
+    "effect": ""
+   }
+  ],
+  "nc1": [
+   {
+    "source": 0,
+    "content": "@env:OTHER",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 0,
+    "content": "-",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 1,
+    "content": "@env:OTHER",
+    "linux_exit": 2,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 1,
+    "content": "-",
+    "linux_exit": 2,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   }
+  ],
   "swaps": [
    {
     "pair": [
@@ -2218,6 +3098,90 @@
   "base_effect": "match: m/84'/0'/0'  (template=bip84, account=0)",
   "equal": true,
   "plan_err": "",
+  "interim": [
+   {
+    "source": 0,
+    "ending": "",
+    "equal": true,
+    "effect": "match: m/84'/0'/0'  (template=bip84, account=0)"
+   },
+   {
+    "source": 0,
+    "ending": "\n",
+    "equal": true,
+    "effect": "match: m/84'/0'/0'  (template=bip84, account=0)"
+   },
+   {
+    "source": 0,
+    "ending": "\r\n",
+    "equal": true,
+    "effect": "match: m/84'/0'/0'  (template=bip84, account=0)"
+   },
+   {
+    "source": 0,
+    "ending": "  ",
+    "equal": true,
+    "effect": "match: m/84'/0'/0'  (template=bip84, account=0)"
+   },
+   {
+    "source": 1,
+    "ending": "",
+    "equal": true,
+    "effect": "match: m/84'/0'/0'  (template=bip84, account=0)"
+   },
+   {
+    "source": 1,
+    "ending": "\n",
+    "equal": true,
+    "effect": ""
+   },
+   {
+    "source": 1,
+    "ending": "\r\n",
+    "equal": true,
+    "effect": ""
+   },
+   {
+    "source": 1,
+    "ending": "  ",
+    "equal": true,
+    "effect": ""
+   }
+  ],
+  "nc1": [
+   {
+    "source": 0,
+    "content": "@env:OTHER",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 0,
+    "content": "-",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 1,
+    "content": "@env:OTHER",
+    "linux_exit": 4,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 1,
+    "content": "-",
+    "linux_exit": 4,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   }
+  ],
   "swaps": [
    {
     "pair": [
@@ -2422,6 +3386,88 @@
   "base_effect": "match: m/84'/0'/0'  (template=bip84, account=0)",
   "equal": true,
   "plan_err": "",
+  "interim": [
+   {
+    "source": 0,
+    "ending": "",
+    "equal": true,
+    "effect": "match: m/84'/0'/0'  (template=bip84, account=0)"
+   },
+   {
+    "source": 0,
+    "ending": "\n",
+    "equal": true,
+    "effect": ""
+   },
+   {
+    "source": 0,
+    "ending": "\r\n",
+    "equal": true,
+    "effect": ""
+   },
+   {
+    "source": 0,
+    "ending": "  ",
+    "equal": true,
+    "effect": ""
+   },
+   {
+    "source": 1,
+    "ending": "",
+    "equal": true,
+    "effect": "match: m/84'/0'/0'  (template=bip84, account=0)"
+   },
+   {
+    "source": 1,
+    "ending": "\n",
+    "equal": true,
+    "effect": ""
+   },
+   {
+    "source": 1,
+    "ending": "\r\n",
+    "equal": true,
+    "effect": ""
+   },
+   {
+    "source": 1,
+    "ending": "  ",
+    "equal": true,
+    "effect": ""
+   }
+  ],
+  "nc1": [
+   {
+    "source": 0,
+    "content": "@env:OTHER",
+    "linux_exit": 2,
+    "linux_is_other_wallet": false,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 0,
+    "content": "-",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 1,
+    "content": "@env:OTHER",
+    "linux_exit": 4,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 1,
+    "content": "-",
+    "linux_exit": 4,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   }
+  ],
   "swaps": [
    {
     "pair": [
@@ -2600,6 +3646,90 @@
   "base_effect": "match: m/84'/0'/0'  (template=bip84, account=0)",
   "equal": true,
   "plan_err": "",
+  "interim": [
+   {
+    "source": 0,
+    "ending": "",
+    "equal": true,
+    "effect": "match: m/84'/0'/0'  (template=bip84, account=0)"
+   },
+   {
+    "source": 0,
+    "ending": "\n",
+    "equal": true,
+    "effect": "match: m/84'/0'/0'  (template=bip84, account=0)"
+   },
+   {
+    "source": 0,
+    "ending": "\r\n",
+    "equal": true,
+    "effect": "match: m/84'/0'/0'  (template=bip84, account=0)"
+   },
+   {
+    "source": 0,
+    "ending": "  ",
+    "equal": true,
+    "effect": "match: m/84'/0'/0'  (template=bip84, account=0)"
+   },
+   {
+    "source": 1,
+    "ending": "",
+    "equal": true,
+    "effect": "match: m/84'/0'/0'  (template=bip84, account=0)"
+   },
+   {
+    "source": 1,
+    "ending": "\n",
+    "equal": true,
+    "effect": ""
+   },
+   {
+    "source": 1,
+    "ending": "\r\n",
+    "equal": true,
+    "effect": ""
+   },
+   {
+    "source": 1,
+    "ending": "  ",
+    "equal": true,
+    "effect": ""
+   }
+  ],
+  "nc1": [
+   {
+    "source": 0,
+    "content": "@env:OTHER",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 0,
+    "content": "-",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 1,
+    "content": "@env:OTHER",
+    "linux_exit": 4,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 1,
+    "content": "-",
+    "linux_exit": 4,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   }
+  ],
   "swaps": [
    {
     "pair": [
@@ -2804,6 +3934,88 @@
   "base_effect": "match: m/84'/0'/0'  (template=bip84, account=0)",
   "equal": true,
   "plan_err": "",
+  "interim": [
+   {
+    "source": 0,
+    "ending": "",
+    "equal": true,
+    "effect": "match: m/84'/0'/0'  (template=bip84, account=0)"
+   },
+   {
+    "source": 0,
+    "ending": "\n",
+    "equal": true,
+    "effect": ""
+   },
+   {
+    "source": 0,
+    "ending": "\r\n",
+    "equal": true,
+    "effect": ""
+   },
+   {
+    "source": 0,
+    "ending": "  ",
+    "equal": true,
+    "effect": ""
+   },
+   {
+    "source": 1,
+    "ending": "",
+    "equal": true,
+    "effect": "match: m/84'/0'/0'  (template=bip84, account=0)"
+   },
+   {
+    "source": 1,
+    "ending": "\n",
+    "equal": true,
+    "effect": ""
+   },
+   {
+    "source": 1,
+    "ending": "\r\n",
+    "equal": true,
+    "effect": ""
+   },
+   {
+    "source": 1,
+    "ending": "  ",
+    "equal": true,
+    "effect": ""
+   }
+  ],
+  "nc1": [
+   {
+    "source": 0,
+    "content": "@env:OTHER",
+    "linux_exit": 2,
+    "linux_is_other_wallet": false,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 0,
+    "content": "-",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 1,
+    "content": "@env:OTHER",
+    "linux_exit": 4,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 1,
+    "content": "-",
+    "linux_exit": 4,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   }
+  ],
   "swaps": [
    {
     "pair": [
@@ -2982,6 +4194,90 @@
   "base_effect": "match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)",
   "equal": true,
   "plan_err": "",
+  "interim": [
+   {
+    "source": 0,
+    "ending": "",
+    "equal": true,
+    "effect": "match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)"
+   },
+   {
+    "source": 0,
+    "ending": "\n",
+    "equal": true,
+    "effect": "match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)"
+   },
+   {
+    "source": 0,
+    "ending": "\r\n",
+    "equal": true,
+    "effect": "match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)"
+   },
+   {
+    "source": 0,
+    "ending": "  ",
+    "equal": true,
+    "effect": "match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)"
+   },
+   {
+    "source": 1,
+    "ending": "",
+    "equal": true,
+    "effect": "match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)"
+   },
+   {
+    "source": 1,
+    "ending": "\n",
+    "equal": true,
+    "effect": ""
+   },
+   {
+    "source": 1,
+    "ending": "\r\n",
+    "equal": true,
+    "effect": ""
+   },
+   {
+    "source": 1,
+    "ending": "  ",
+    "equal": true,
+    "effect": ""
+   }
+  ],
+  "nc1": [
+   {
+    "source": 0,
+    "content": "@env:OTHER",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 0,
+    "content": "-",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 1,
+    "content": "@env:OTHER",
+    "linux_exit": 4,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 1,
+    "content": "-",
+    "linux_exit": 4,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   }
+  ],
   "swaps": [
    {
     "pair": [
@@ -3186,6 +4482,88 @@
   "base_effect": "match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)",
   "equal": true,
   "plan_err": "",
+  "interim": [
+   {
+    "source": 0,
+    "ending": "",
+    "equal": true,
+    "effect": "match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)"
+   },
+   {
+    "source": 0,
+    "ending": "\n",
+    "equal": true,
+    "effect": ""
+   },
+   {
+    "source": 0,
+    "ending": "\r\n",
+    "equal": true,
+    "effect": ""
+   },
+   {
+    "source": 0,
+    "ending": "  ",
+    "equal": true,
+    "effect": ""
+   },
+   {
+    "source": 1,
+    "ending": "",
+    "equal": true,
+    "effect": "match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)"
+   },
+   {
+    "source": 1,
+    "ending": "\n",
+    "equal": true,
+    "effect": ""
+   },
+   {
+    "source": 1,
+    "ending": "\r\n",
+    "equal": true,
+    "effect": ""
+   },
+   {
+    "source": 1,
+    "ending": "  ",
+    "equal": true,
+    "effect": ""
+   }
+  ],
+  "nc1": [
+   {
+    "source": 0,
+    "content": "@env:OTHER",
+    "linux_exit": 2,
+    "linux_is_other_wallet": false,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 0,
+    "content": "-",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 1,
+    "content": "@env:OTHER",
+    "linux_exit": 4,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 1,
+    "content": "-",
+    "linux_exit": 4,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   }
+  ],
   "swaps": [
    {
     "pair": [
@@ -3351,6 +4729,86 @@
   "base_effect": "address:      sp1qq2d73kpx36h7r08gmawe6slzxkntu2tw0as7pkqe0hvv3k38mkvckqsp6dmrwxvd6mumfqj9",
   "equal": true,
   "plan_err": "",
+  "interim": [
+   {
+    "source": 0,
+    "ending": "",
+    "equal": true,
+    "effect": "address:      sp1qq2d73kpx36h7r08gmawe6slzxkntu2tw0as7pkqe0hvv3k38mkvckqsp6dmrwxvd6mumfqj9"
+   },
+   {
+    "source": 0,
+    "ending": "\n",
+    "equal": true,
+    "effect": "address:      sp1qq2d73kpx36h7r08gmawe6slzxkntu2tw0as7pkqe0hvv3k38mkvckqsp6dmrwxvd6mumfqj9"
+   },
+   {
+    "source": 0,
+    "ending": "\r\n",
+    "equal": true,
+    "effect": "address:      sp1qq2d73kpx36h7r08gmawe6slzxkntu2tw0as7pkqe0hvv3k38mkvckqsp6dmrwxvd6mumfqj9"
+   },
+   {
+    "source": 0,
+    "ending": "  ",
+    "equal": true,
+    "effect": "address:      sp1qq2d73kpx36h7r08gmawe6slzxkntu2tw0as7pkqe0hvv3k38mkvckqsp6dmrwxvd6mumfqj9"
+   },
+   {
+    "source": 1,
+    "ending": "",
+    "equal": true,
+    "effect": "address:      sp1qq2d73kpx36h7r08gmawe6slzxkntu2tw0as7pkqe0hvv3k38mkvckqsp6dmrwxvd6mumfqj9"
+   },
+   {
+    "source": 1,
+    "ending": "\n",
+    "equal": true,
+    "effect": "address:      sp1qq2kaah96lmtwyv3p0njq2vx3t339vfh2jqkfdxkhqnqkyvxm393swqszc832uxcfjh2dpuna"
+   },
+   {
+    "source": 1,
+    "ending": "\r\n",
+    "equal": true,
+    "effect": "address:      sp1qqgq8qren0nkwf9cskjhh2h55jlsqtaukv7c0s8s0hweu7thy3hhlsq4zmj3az677yexxutyt"
+   },
+   {
+    "source": 1,
+    "ending": "  ",
+    "equal": true,
+    "effect": "address:      sp1qqdrcjvk6ncuk4uq5zpvum6x6mw9hm9t3yg6zvkekkur0uwzu0q57cq343pst9qftlngjdyve"
+   }
+  ],
+  "nc1": [
+   {
+    "source": 0,
+    "content": "@env:OTHER",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 0,
+    "content": "-",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 1,
+    "content": "@env:OTHER",
+    "linux_exit": 0,
+    "linux_is_other_wallet": false,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 1,
+    "content": "-",
+    "linux_exit": 0,
+    "linux_is_other_wallet": false,
+    "interim": "value-is-a-channel-spelling"
+   }
+  ],
   "swaps": [
    {
     "pair": [
@@ -3535,6 +4993,90 @@
   "base_effect": "00000000000000000000000000000000",
   "equal": true,
   "plan_err": "",
+  "interim": [
+   {
+    "source": 0,
+    "ending": "",
+    "equal": true,
+    "effect": "00000000000000000000000000000000"
+   },
+   {
+    "source": 0,
+    "ending": "\n",
+    "equal": true,
+    "effect": "00000000000000000000000000000000"
+   },
+   {
+    "source": 0,
+    "ending": "\r\n",
+    "equal": true,
+    "effect": "00000000000000000000000000000000"
+   },
+   {
+    "source": 0,
+    "ending": "  ",
+    "equal": true,
+    "effect": "00000000000000000000000000000000"
+   },
+   {
+    "source": 1,
+    "ending": "",
+    "equal": true,
+    "effect": "00000000000000000000000000000000"
+   },
+   {
+    "source": 1,
+    "ending": "\n",
+    "equal": true,
+    "effect": "00000000000000000000000000000000"
+   },
+   {
+    "source": 1,
+    "ending": "\r\n",
+    "equal": true,
+    "effect": "00000000000000000000000000000000"
+   },
+   {
+    "source": 1,
+    "ending": "  ",
+    "equal": true,
+    "effect": "00000000000000000000000000000000"
+   }
+  ],
+  "nc1": [
+   {
+    "source": 0,
+    "content": "@env:OTHER",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 0,
+    "content": "-",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 1,
+    "content": "@env:OTHER",
+    "linux_exit": 0,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 1,
+    "content": "-",
+    "linux_exit": 0,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   }
+  ],
   "swaps": [
    {
     "pair": [
@@ -3770,6 +5312,130 @@
   "base_effect": "8ab7aa39cd427130e225ed43c34f5b5a",
   "equal": true,
   "plan_err": "",
+  "interim": [
+   {
+    "source": 0,
+    "ending": "",
+    "equal": true,
+    "effect": "8ab7aa39cd427130e225ed43c34f5b5a"
+   },
+   {
+    "source": 0,
+    "ending": "\n",
+    "equal": true,
+    "effect": "8ab7aa39cd427130e225ed43c34f5b5a"
+   },
+   {
+    "source": 0,
+    "ending": "\r\n",
+    "equal": true,
+    "effect": "8ab7aa39cd427130e225ed43c34f5b5a"
+   },
+   {
+    "source": 0,
+    "ending": "  ",
+    "equal": true,
+    "effect": "8ab7aa39cd427130e225ed43c34f5b5a"
+   },
+   {
+    "source": 1,
+    "ending": "",
+    "equal": true,
+    "effect": "8ab7aa39cd427130e225ed43c34f5b5a"
+   },
+   {
+    "source": 1,
+    "ending": "\n",
+    "equal": true,
+    "effect": "8ab7aa39cd427130e225ed43c34f5b5a"
+   },
+   {
+    "source": 1,
+    "ending": "\r\n",
+    "equal": true,
+    "effect": "8ab7aa39cd427130e225ed43c34f5b5a"
+   },
+   {
+    "source": 1,
+    "ending": "  ",
+    "equal": true,
+    "effect": "8ab7aa39cd427130e225ed43c34f5b5a"
+   },
+   {
+    "source": 2,
+    "ending": "",
+    "equal": true,
+    "effect": "8ab7aa39cd427130e225ed43c34f5b5a"
+   },
+   {
+    "source": 2,
+    "ending": "\n",
+    "equal": true,
+    "effect": "cf82be07d39e98000f98a7562b0b552c"
+   },
+   {
+    "source": 2,
+    "ending": "\r\n",
+    "equal": true,
+    "effect": "49b27d94e62a3822d0c57035c2859529"
+   },
+   {
+    "source": 2,
+    "ending": "  ",
+    "equal": true,
+    "effect": "9627ef753a433f56e779f6ca6d22353d"
+   }
+  ],
+  "nc1": [
+   {
+    "source": 0,
+    "content": "@env:OTHER",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 0,
+    "content": "-",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 1,
+    "content": "@env:OTHER",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 1,
+    "content": "-",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 2,
+    "content": "@env:OTHER",
+    "linux_exit": 0,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 2,
+    "content": "-",
+    "linux_exit": 0,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   }
+  ],
   "swaps": [
    {
     "pair": [
@@ -4052,6 +5718,90 @@
   "base_effect": "00000000000000000000000000000000",
   "equal": true,
   "plan_err": "",
+  "interim": [
+   {
+    "source": 0,
+    "ending": "",
+    "equal": true,
+    "effect": "00000000000000000000000000000000"
+   },
+   {
+    "source": 0,
+    "ending": "\n",
+    "equal": true,
+    "effect": "00000000000000000000000000000000"
+   },
+   {
+    "source": 0,
+    "ending": "\r\n",
+    "equal": true,
+    "effect": "00000000000000000000000000000000"
+   },
+   {
+    "source": 0,
+    "ending": "  ",
+    "equal": true,
+    "effect": "00000000000000000000000000000000"
+   },
+   {
+    "source": 1,
+    "ending": "",
+    "equal": true,
+    "effect": "00000000000000000000000000000000"
+   },
+   {
+    "source": 1,
+    "ending": "\n",
+    "equal": true,
+    "effect": "00000000000000000000000000000000"
+   },
+   {
+    "source": 1,
+    "ending": "\r\n",
+    "equal": true,
+    "effect": "00000000000000000000000000000000"
+   },
+   {
+    "source": 1,
+    "ending": "  ",
+    "equal": true,
+    "effect": "00000000000000000000000000000000"
+   }
+  ],
+  "nc1": [
+   {
+    "source": 0,
+    "content": "@env:OTHER",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 0,
+    "content": "-",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 1,
+    "content": "@env:OTHER",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 1,
+    "content": "-",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   }
+  ],
   "swaps": [
    {
     "pair": [
@@ -4261,6 +6011,90 @@
   "base_effect": "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong",
   "equal": true,
   "plan_err": "",
+  "interim": [
+   {
+    "source": 0,
+    "ending": "",
+    "equal": true,
+    "effect": "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
+   },
+   {
+    "source": 0,
+    "ending": "\n",
+    "equal": true,
+    "effect": "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
+   },
+   {
+    "source": 0,
+    "ending": "\r\n",
+    "equal": true,
+    "effect": "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
+   },
+   {
+    "source": 0,
+    "ending": "  ",
+    "equal": true,
+    "effect": "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
+   },
+   {
+    "source": 1,
+    "ending": "",
+    "equal": true,
+    "effect": "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
+   },
+   {
+    "source": 1,
+    "ending": "\n",
+    "equal": true,
+    "effect": "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
+   },
+   {
+    "source": 1,
+    "ending": "\r\n",
+    "equal": true,
+    "effect": "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
+   },
+   {
+    "source": 1,
+    "ending": "  ",
+    "equal": true,
+    "effect": "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
+   }
+  ],
+  "nc1": [
+   {
+    "source": 0,
+    "content": "@env:OTHER",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 0,
+    "content": "-",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 1,
+    "content": "@env:OTHER",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 1,
+    "content": "-",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   }
+  ],
   "swaps": [
    {
     "pair": [
@@ -4470,6 +6304,90 @@
   "base_effect": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab",
   "equal": true,
   "plan_err": "",
+  "interim": [
+   {
+    "source": 0,
+    "ending": "",
+    "equal": true,
+    "effect": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab"
+   },
+   {
+    "source": 0,
+    "ending": "\n",
+    "equal": true,
+    "effect": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab"
+   },
+   {
+    "source": 0,
+    "ending": "\r\n",
+    "equal": true,
+    "effect": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab"
+   },
+   {
+    "source": 0,
+    "ending": "  ",
+    "equal": true,
+    "effect": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab"
+   },
+   {
+    "source": 1,
+    "ending": "",
+    "equal": true,
+    "effect": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab"
+   },
+   {
+    "source": 1,
+    "ending": "\n",
+    "equal": true,
+    "effect": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab"
+   },
+   {
+    "source": 1,
+    "ending": "\r\n",
+    "equal": true,
+    "effect": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab"
+   },
+   {
+    "source": 1,
+    "ending": "  ",
+    "equal": true,
+    "effect": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab"
+   }
+  ],
+  "nc1": [
+   {
+    "source": 0,
+    "content": "@env:OTHER",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 0,
+    "content": "-",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 1,
+    "content": "@env:OTHER",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 1,
+    "content": "-",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   }
+  ],
   "swaps": [
    {
     "pair": [
@@ -4674,6 +6592,90 @@
   "base_effect": "\"descriptor\": \"wsh(sortedmulti(2,[5436d724/48'/0'/0'/2']xpub6E79FaRWLSJCAgA2jDHRvyrWKwT6aS",
   "equal": true,
   "plan_err": "",
+  "interim": [
+   {
+    "source": 0,
+    "ending": "",
+    "equal": true,
+    "effect": "\"descriptor\": \"wsh(sortedmulti(2,[5436d724/48'/0'/0'/2']xpub6E79FaRWLSJCAgA2jDHRvyrWKwT6aS"
+   },
+   {
+    "source": 0,
+    "ending": "\n",
+    "equal": true,
+    "effect": ""
+   },
+   {
+    "source": 0,
+    "ending": "\r\n",
+    "equal": true,
+    "effect": ""
+   },
+   {
+    "source": 0,
+    "ending": "  ",
+    "equal": true,
+    "effect": ""
+   },
+   {
+    "source": 1,
+    "ending": "",
+    "equal": true,
+    "effect": "\"descriptor\": \"wsh(sortedmulti(2,[5436d724/48'/0'/0'/2']xpub6E79FaRWLSJCAgA2jDHRvyrWKwT6aS"
+   },
+   {
+    "source": 1,
+    "ending": "\n",
+    "equal": true,
+    "effect": ""
+   },
+   {
+    "source": 1,
+    "ending": "\r\n",
+    "equal": true,
+    "effect": ""
+   },
+   {
+    "source": 1,
+    "ending": "  ",
+    "equal": true,
+    "effect": ""
+   }
+  ],
+  "nc1": [
+   {
+    "source": 0,
+    "content": "@env:OTHER",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 0,
+    "content": "-",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 1,
+    "content": "@env:OTHER",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 1,
+    "content": "-",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   }
+  ],
   "swaps": [
    {
     "pair": [
@@ -4904,6 +6906,130 @@
   "base_effect": "result: ok",
   "equal": true,
   "plan_err": "",
+  "interim": [
+   {
+    "source": 0,
+    "ending": "",
+    "equal": true,
+    "effect": "result: ok"
+   },
+   {
+    "source": 0,
+    "ending": "\n",
+    "equal": true,
+    "effect": "result: ok"
+   },
+   {
+    "source": 0,
+    "ending": "\r\n",
+    "equal": true,
+    "effect": "result: ok"
+   },
+   {
+    "source": 0,
+    "ending": "  ",
+    "equal": true,
+    "effect": "result: ok"
+   },
+   {
+    "source": 1,
+    "ending": "",
+    "equal": true,
+    "effect": "result: ok"
+   },
+   {
+    "source": 1,
+    "ending": "\n",
+    "equal": true,
+    "effect": "result: ok"
+   },
+   {
+    "source": 1,
+    "ending": "\r\n",
+    "equal": true,
+    "effect": "result: ok"
+   },
+   {
+    "source": 1,
+    "ending": "  ",
+    "equal": true,
+    "effect": "result: ok"
+   },
+   {
+    "source": 2,
+    "ending": "",
+    "equal": true,
+    "effect": "result: ok"
+   },
+   {
+    "source": 2,
+    "ending": "\n",
+    "equal": true,
+    "effect": "result: mismatch"
+   },
+   {
+    "source": 2,
+    "ending": "\r\n",
+    "equal": true,
+    "effect": "result: mismatch"
+   },
+   {
+    "source": 2,
+    "ending": "  ",
+    "equal": true,
+    "effect": "result: mismatch"
+   }
+  ],
+  "nc1": [
+   {
+    "source": 0,
+    "content": "@env:OTHER",
+    "linux_exit": 2,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 0,
+    "content": "-",
+    "linux_exit": 4,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 1,
+    "content": "@env:OTHER",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 1,
+    "content": "-",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 2,
+    "content": "@env:OTHER",
+    "linux_exit": 4,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 2,
+    "content": "-",
+    "linux_exit": 4,
+    "linux_is_other_wallet": false,
+    "linux_eq_cli_env": true,
+    "interim": "value-is-a-channel-spelling"
+   }
+  ],
   "swaps": [
    {
     "pair": [
@@ -5153,6 +7279,8 @@
   "base_effect": "entropy: 00000000000000000000000000000000",
   "equal": true,
   "plan_err": "",
+  "interim": [],
+  "nc1": [],
   "swaps": [],
   "env_endings": []
  },
@@ -5222,6 +7350,88 @@
   "base_effect": "OK: round-trip valid (12 words, language=english)",
   "equal": true,
   "plan_err": "",
+  "interim": [
+   {
+    "source": 0,
+    "ending": "",
+    "equal": true,
+    "effect": "OK: round-trip valid (12 words, language=english)"
+   },
+   {
+    "source": 0,
+    "ending": "\n",
+    "equal": true,
+    "effect": "OK: round-trip valid (12 words, language=english)"
+   },
+   {
+    "source": 0,
+    "ending": "\r\n",
+    "equal": true,
+    "effect": "OK: round-trip valid (12 words, language=english)"
+   },
+   {
+    "source": 0,
+    "ending": "  ",
+    "equal": true,
+    "effect": "OK: round-trip valid (12 words, language=english)"
+   },
+   {
+    "source": 1,
+    "ending": "",
+    "equal": true,
+    "effect": "OK: round-trip valid (12 words, language=english)"
+   },
+   {
+    "source": 1,
+    "ending": "\n",
+    "equal": true,
+    "effect": "OK: round-trip valid (12 words, language=english)"
+   },
+   {
+    "source": 1,
+    "ending": "\r\n",
+    "equal": true,
+    "effect": "OK: round-trip valid (12 words, language=english)"
+   },
+   {
+    "source": 1,
+    "ending": "  ",
+    "equal": true,
+    "effect": "OK: round-trip valid (12 words, language=english)"
+   }
+  ],
+  "nc1": [
+   {
+    "source": 0,
+    "content": "@env:OTHER",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "interim": "planned",
+    "interim_should_refuse": false
+   },
+   {
+    "source": 0,
+    "content": "-",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 1,
+    "content": "@env:OTHER",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "interim": "planned",
+    "interim_should_refuse": false
+   },
+   {
+    "source": 1,
+    "content": "-",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "interim": "value-is-a-channel-spelling"
+   }
+  ],
   "swaps": [
    {
     "pair": [
@@ -5393,6 +7603,88 @@
   "base_effect": "master_fingerprint:  45fbfbe6",
   "equal": true,
   "plan_err": "",
+  "interim": [
+   {
+    "source": 0,
+    "ending": "",
+    "equal": true,
+    "effect": "master_fingerprint:  45fbfbe6"
+   },
+   {
+    "source": 0,
+    "ending": "\n",
+    "equal": true,
+    "effect": "master_fingerprint:  5d5b0e1a"
+   },
+   {
+    "source": 0,
+    "ending": "\r\n",
+    "equal": true,
+    "effect": "master_fingerprint:  eadf4a6c"
+   },
+   {
+    "source": 0,
+    "ending": "  ",
+    "equal": true,
+    "effect": "master_fingerprint:  220717b3"
+   },
+   {
+    "source": 1,
+    "ending": "",
+    "equal": true,
+    "effect": "master_fingerprint:  45fbfbe6"
+   },
+   {
+    "source": 1,
+    "ending": "\n",
+    "equal": true,
+    "effect": "master_fingerprint:  45fbfbe6"
+   },
+   {
+    "source": 1,
+    "ending": "\r\n",
+    "equal": true,
+    "effect": "master_fingerprint:  45fbfbe6"
+   },
+   {
+    "source": 1,
+    "ending": "  ",
+    "equal": true,
+    "effect": "master_fingerprint:  45fbfbe6"
+   }
+  ],
+  "nc1": [
+   {
+    "source": 0,
+    "content": "@env:OTHER",
+    "linux_exit": 0,
+    "linux_is_other_wallet": false,
+    "interim": "planned",
+    "interim_should_refuse": false
+   },
+   {
+    "source": 0,
+    "content": "-",
+    "linux_exit": 0,
+    "linux_is_other_wallet": false,
+    "interim": "value-is-a-channel-spelling"
+   },
+   {
+    "source": 1,
+    "content": "@env:OTHER",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "interim": "planned",
+    "interim_should_refuse": false
+   },
+   {
+    "source": 1,
+    "content": "-",
+    "linux_exit": 1,
+    "linux_is_other_wallet": false,
+    "interim": "value-is-a-channel-spelling"
+   }
+  ],
   "swaps": [
    {
     "pair": [

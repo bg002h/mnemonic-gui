@@ -19,7 +19,7 @@ on Linux, through a REAL runner (env, stdin, pipe fds written and closed before 
 Run:  BIN_DIR=<dir with mnemonic/md/ms/mk> python3 run_plans.py   -> plans.json, t3.md"""
 import json, os, subprocess, sys
 from concurrent.futures import ThreadPoolExecutor
-from plan import plan, Refusal, ENV_PREFIX, POLICY
+from plan import plan, Refusal, ENV_PREFIX, POLICY, env_value_rule
 from shapes import SHAPES, effect, PW
 import gen_plans
 
@@ -99,6 +99,13 @@ def build(sh, bindings, values):
     return argv, env, stdin, fds, index
 
 
+def interim_argv(sh, bindings, res):
+    """The interim invocation, built from the plan: every binding is Argv; the value is the
+    resolved source's (DESIGN §A6)."""
+    assert all(b["kind"] == "Argv" for b in bindings)
+    return baseline_argv(sh, [x["value"] for x in res])
+
+
 def run(argv, env=None, stdin=None, fds=()):
     r = subprocess.run(argv, input=(stdin if stdin is not None else "").encode(), capture_output=True,
                        env=clean_env(env or {}), pass_fds=tuple(fds), timeout=180)
@@ -158,6 +165,64 @@ def measure(pair):
     row["base_effect"] = effect(normalise(sh, base))
     row["equal"] = same(sh, base, got)
     row["plan_err"] = "" if row["equal"] else (got.stderr.strip().splitlines() or [""])[-1][:160]
+    # NI3 (R2): the INTERIM path through the real runner. The invocation is built from the PLAN's
+    # bindings and resolved sources; the oracle is argv-exact of a target computed HERE from the
+    # raw variable (env_value_rule applied independently of plan.py).
+    row["interim"] = []
+    for i, s in enumerate(sh["sources"]):
+        if s["form"] == "group":
+            continue
+        for e in ["", "\n", "\r\n", "  "]:
+            raw = s["value"] + e
+            srcs = [dict(x) for x in sh["sources"]]
+            srcs[i]["value"] = "@env:USER_SECRET"
+            try:
+                b4, prov4, res4 = plan(srcs, TABLE, "macos", {"USER_SECRET": raw})
+            except Refusal as ex:
+                row["interim"].append({"source": i, "ending": e, "refused": ex.code})
+                continue
+            got4 = run(interim_argv(sh, b4, res4))
+            want_vals = list(values); want_vals[i] = env_value_rule(raw)
+            pw = want_vals[i] if sh["name"].startswith("slip39 split") and i == 1 else PW
+            row["interim"].append({"source": i, "ending": e, "equal": same(sh, got4, run(baseline_argv(sh, want_vals)), pw),
+                                   "effect": effect(normalise(sh, got4, pw))})
+    # NC1 (R2): the variable itself holds `@env:OTHER` (OTHER = this source's fixture value) or `-`.
+    # Linux (private) must equal the CLI's own `@env:USER_SECRET` where that cell's EnvRef is OK,
+    # and must never be OTHER's wallet; the interim path must refuse where the CLI re-interprets.
+    row["nc1"] = []
+    for i, s in enumerate(sh["sources"]):
+        if s["form"] == "group":
+            continue
+        env_ok = any(c["kind"] == "EnvRef" for c in TABLE[s["key"]]["channels"])
+        for content in ("@env:OTHER", "-"):
+            uenv = {"USER_SECRET": content, "OTHER": s["value"]}
+            srcs = [dict(x) for x in sh["sources"]]
+            srcs[i]["value"] = "@env:USER_SECRET"
+            rec = {"source": i, "content": content}
+            try:
+                b5, _, res5 = plan(srcs, TABLE, "linux", uenv)
+                a5_, e5, s5, f5, _ = build(sh, b5, [x["value"] for x in res5])
+                e5 = dict(e5); e5.update(uenv)          # the child inherits the GUI's env: worst case
+                g5 = run(a5_, e5, s5, f5)
+                # slip39 split's shares are random: recover them with the passphrase actually sent
+                pw5 = content if sh["name"].startswith("slip39 split") and i == 1 else PW
+                rec["linux_exit"] = g5.returncode
+                # "OTHER's wallet": the run equals the baseline made with OTHER's value. For slip39 split
+                # that means the shares recover the master secret under OTHER's passphrase (PW).
+                rec["linux_is_other_wallet"] = g5.returncode in (0, 4) and same(sh, g5, base, PW)
+                if env_ok:
+                    cli = run(baseline_argv(sh, values, {i: "USER_SECRET"}), uenv)
+                    rec["linux_eq_cli_env"] = same(sh, g5, cli, pw5)
+            except Refusal as ex:
+                rec["linux_refused"] = ex.code
+            try:
+                plan(srcs, TABLE, "macos", uenv)
+                rec["interim"] = "planned"
+                sp = POLICY["argv_reinterprets"].get(s["key"].split()[0], {"spellings": []})["spellings"]
+                rec["interim_should_refuse"] = (content == "-" and "-" in sp) or (content.startswith("@env:") and "@env:" in sp)
+            except Refusal as ex:
+                rec["interim"] = ex.code
+            row["nc1"].append(rec)
     row["swaps"] = []
     for i in range(len(values)):
         for j in range(i + 1, len(values)):
@@ -206,11 +271,12 @@ if __name__ == "__main__":
         rows = list(ex.map(measure, zip(SHAPES, pure)))
     json.dump(rows, open("plans.json", "w"), indent=1)
     lines = ["| shape | baseline exit | planned exit | planned == baseline | effect (baseline) | "
-             "source values swapped (i↔j) vs baseline | T1 | NI1: `@env:` + endings == argv-exact / == CLI's own `@env:` |",
-             "|---|---|---|---|---|---|---|---|"]
+             "source values swapped (i↔j) vs baseline | T1 | NI1: `@env:` + endings == argv-exact / == CLI's own `@env:` | "
+             "interim (NI3) == argv-exact of the target | NC1: Linux == CLI's `@env:`, never OTHER's wallet; interim refusals |",
+             "|---|---|---|---|---|---|---|---|---|---|"]
     for r in rows:
         if "equal" not in r:
-            lines.append(f"| {r['name']} | — | — | refused (expected: {r['expect']}) | — | — | — | — |")
+            lines.append(f"| {r['name']} | — | — | refused (expected: {r['expect']}) | — | — | — | — | — | — |")
             continue
         swc = "; ".join(f"{a}↔{b}: " + ("**same** (symmetric)" if x["same_as_baseline"] else f"differs (exit {x['exit']})")
                         for x in r["swaps"] for a, b in [x["pair"]]) or "n/a (one source)"
@@ -218,14 +284,21 @@ if __name__ == "__main__":
         cl = [x for x in ee if "eq_cli_env" in x]
         ni1 = f"{sum(x['eq_argv_exact'] for x in ee)}/{len(ee)}; {sum(x['eq_cli_env'] for x in cl)}/{len(cl)}"
         lines.append(f"| {r['name']} | {r['base_exit']} | {r['plan_exit']} | {'**yes**' if r['equal'] else 'NO: ' + r['plan_err']} | "
-                     f"`{r['base_effect']}` | {swc} | {'ok' if not r['t1_problems'] else r['t1_problems']} | {ni1} |")
+                     f"`{r['base_effect']}` | {swc} | {'ok' if not r['t1_problems'] else r['t1_problems']} | {ni1} | "
+                     f"{sum(x.get('equal', False) for x in r['interim'])}/{len(r['interim'])} | "
+                     f"{sum(x.get('linux_eq_cli_env', True) for x in r['nc1'])}/{len(r['nc1'])} eq, "
+                     f"{sum(x.get('linux_is_other_wallet', False) for x in r['nc1'])} OTHER, "
+                     f"{sum(x['interim'] == 'value-is-a-channel-spelling' for x in r['nc1'])} refused |")
     open("t3.md", "w").write("\n".join(lines) + "\n")
     print("\n".join(lines))
     bad = [r["name"] for r in rows if (r["expect"] == "run" and not r.get("equal"))
            or (r["expect"] == "refuse" and "bindings" in r["plans"]["linux"])
            or r.get("t1_problems")
            or any(x["same_as_baseline"] != x["expected_same"] for x in r.get("swaps", []))
-           or any(not x.get("eq_argv_exact", True) or not x.get("eq_cli_env", True) for x in r.get("env_endings", []))]
+           or any(not x.get("eq_argv_exact", True) or not x.get("eq_cli_env", True) for x in r.get("env_endings", []))
+           or any(not x.get("equal", False) for x in r.get("interim", []))
+           or any(x.get("linux_is_other_wallet") or x.get("linux_eq_cli_env") is False
+                  or x.get("interim_should_refuse") for x in r.get("nc1", []))]
     refused = [(r["name"], x) for r in rows for x in r.get("env_endings", []) if "refused" in x]
     print("NI1 endings refused by the planner:", refused if refused else "none")
     print("FAILURES:", bad if bad else "none")

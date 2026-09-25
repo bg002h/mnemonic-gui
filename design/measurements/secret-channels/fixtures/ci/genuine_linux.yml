@@ -1,0 +1,9 @@
+# genuine: the Linux job the implementing change adds to schema-mirror.yml
+jobs:
+  secret-channels:
+    runs-on: ubuntu-latest
+    env:
+      MNEMONIC_BIN: mnemonic
+      MS_BIN: ms
+    steps:
+      - run: cargo nextest run --locked --test secret_channels_t2 --test secret_channels_t3prime --test secret_channels_t7 --test secret_channels_t10
