@@ -604,6 +604,11 @@ impl MnemonicGuiApp {
                     if flag.name == "--slot" && sub.allows_slots {
                         continue; // SlotEditor handles below.
                     }
+                    // F-679: GUI-managed (`--allow-argv-secret`) — the Run
+                    // path adds it; there is no widget for it.
+                    if crate::form::invocation::is_gui_managed_flag(flag.name) {
+                        continue;
+                    }
                     // v0.32.0 (node-tree SPEC §0): in tree mode neither
                     // the --spec row nor --archetype (nor the 10
                     // requires=archetype flags) renders — the tree form
@@ -1028,6 +1033,11 @@ impl MnemonicGuiApp {
                 // latched reveal on Run dispatch so nothing stays revealed
                 // behind/around the modal.
                 crate::form::secret_widget::clear_revealed_field(ctx);
+                // F-679: the Run path (and only it — the Copy buttons above
+                // used the unadmitted argv) opts in to secret material on
+                // argv, so the confirm modal shows the flag it will run with.
+                let (argv, mask) =
+                    crate::form::invocation::admit_argv_secret_for_run(sub, argv, mask);
                 if needs_confirm {
                     self.pending_confirm_argv = Some(PendingConfirm {
                         argv,

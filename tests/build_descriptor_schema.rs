@@ -53,6 +53,8 @@ fn build_descriptor_flag_set_matches_v0_52_0_surface() {
     let mut want = [
         "--after",
         "--allow",
+        // F-679: toolkit v0.104.0's global secret-on-argv opt-in (GUI-managed).
+        "--allow-argv-secret",
         "--archetype",
         "--emit-spec",
         "--final-key",

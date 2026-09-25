@@ -28,23 +28,55 @@ pub const LANG_MS: &[&str] = &[
 ];
 
 // mstring display-grouping (ms-cli v0.8.0): `--separator` keyword values.
-// SPEC §I7 — keyword dropdown (space|hyphen|comma); the toolkit reports
-// `--separator` as kind `text`, the GUI narrows it. Names-only gate.
-const SEPARATORS: &[&str] = &["space", "hyphen", "comma"];
+// SPEC §I7 — keyword dropdown; the CLI reports `--separator` as kind `text`,
+// the GUI narrows it. Names-only gate.
+// F-679 (ms-cli v0.19.0): `hyphen` and `comma` are RETIRED — ms refuses them
+// ("separator \"hyphen\" is no longer offered: `ms` emits whitespace grouping
+// only"). The drift gate cannot see this (the CLI reports `text`, no choices),
+// so it was measured against the release binary. Offering them would be a
+// dropdown value that always fails.
+const SEPARATORS: &[&str] = &["space"];
+
+// F-679 (ms-cli v0.19.0): ms REFUSES secret material on argv unless
+// `--allow-argv-secret` is present, on the eight material verbs. GUI-managed,
+// exactly as `schema::mnemonic::ALLOW_ARGV_SECRET_FLAG`: mirrored for parity,
+// never rendered, added only by the Run path when the argv carries a
+// secret-masked token. ms declares it non-global (its gui-schema carries no
+// `global` key).
+const ALLOW_ARGV_SECRET_FLAG: FlagSchema = FlagSchema {
+    global: false,
+    ..super::mnemonic::ALLOW_ARGV_SECRET_FLAG
+};
 
 // ─── inspect ─────────────────────────────────────────────────────────────
 
 // `ms inspect [MS1] [--json]`
-const INSPECT_FLAGS: &[FlagSchema] = &[FlagSchema {
-    name: "--json",
-    kind: FlagKind::Boolean,
-    required: false,
-    repeating: false,
-    help: "Emit JSON instead of text verdict + fields.",
-    secret: false,
-    default_value: None,
-    global: false,
-}];
+const INSPECT_FLAGS: &[FlagSchema] = &[
+    FlagSchema {
+        name: "--json",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Emit JSON instead of text verdict + fields.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--in",
+        kind: FlagKind::Path {
+            stdio_sentinel: false,
+        },
+        required: false,
+        repeating: false,
+        help: "Read the ms1 string from FILE instead of argv (a private channel: \
+               the secret never reaches the command line).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    ALLOW_ARGV_SECRET_FLAG,
+];
 
 const INSPECT_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
     name: "ms1",
@@ -83,8 +115,8 @@ const ENCODE_FLAGS: &[FlagSchema] = &[
         kind: FlagKind::Dropdown(SEPARATORS),
         required: false,
         repeating: false,
-        help: "Display-grouping separator keyword (space|hyphen|comma; \
-               default space). Cosmetic — non-load-bearing.",
+        help: "Display-grouping separator: `space` only (hyphen and comma \
+               were retired). Cosmetic — non-load-bearing.",
         secret: false,
         default_value: Some("space"),
         global: false,
@@ -139,6 +171,33 @@ const ENCODE_FLAGS: &[FlagSchema] = &[
         default_value: None,
         global: false,
     },
+    FlagSchema {
+        name: "--in",
+        kind: FlagKind::Path {
+            stdio_sentinel: false,
+        },
+        required: false,
+        repeating: false,
+        help: "Read the BIP-39 PHRASE from FILE (never hex). A private channel: \
+               the phrase never reaches the command line.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--out",
+        kind: FlagKind::Path {
+            stdio_sentinel: false,
+        },
+        required: false,
+        repeating: false,
+        help: "Write the canonical artifact to FILE, owner-only (0600), instead \
+               of stdout. OVERWRITES an existing file.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    ALLOW_ARGV_SECRET_FLAG,
 ];
 
 const ENCODE_POSITIONALS: &[PositionalArgSchema] = &[];
@@ -167,6 +226,20 @@ const DECODE_FLAGS: &[FlagSchema] = &[
         default_value: None,
         global: false,
     },
+    FlagSchema {
+        name: "--in",
+        kind: FlagKind::Path {
+            stdio_sentinel: false,
+        },
+        required: false,
+        repeating: false,
+        help: "Read the ms1 string from FILE instead of argv (a private channel: \
+               the secret never reaches the command line).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    ALLOW_ARGV_SECRET_FLAG,
 ];
 
 const DECODE_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
@@ -213,6 +286,20 @@ const VERIFY_FLAGS: &[FlagSchema] = &[
         default_value: None,
         global: false,
     },
+    FlagSchema {
+        name: "--in",
+        kind: FlagKind::Path {
+            stdio_sentinel: false,
+        },
+        required: false,
+        repeating: false,
+        help: "Read the ms1 string from FILE instead of argv (a private channel: \
+               the secret never reaches the command line).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    ALLOW_ARGV_SECRET_FLAG,
 ];
 
 const VERIFY_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
@@ -279,12 +366,19 @@ const DERIVE_FLAGS: &[FlagSchema] = &[
             "bip48-p2wsh",
             "bip48-p2sh-p2wsh",
             "bip48",
+            // F-679 (ms-cli v0.19.0): three templates added upstream.
+            "bip48-p2tr",
+            "bg002h-tr",
+            "bg002h-wsh",
         ]),
         required: false,
         repeating: false,
         help: "Account-path template; emits an account xpub. bip44/49/84/86 are \
                single-sig account paths; the bip48-* variants are multisig \
-               account paths (m/48'/coin'/account'/script').",
+               account paths (m/48'/coin'/account'/script'); bip48-p2tr is the \
+               taproot-multisig convention (script 3'); bg002h-tr / bg002h-wsh \
+               are the constellation's own paths (m/270028'/coin'/account'/0' \
+               and /1').",
         secret: false,
         default_value: None,
         global: false,
@@ -349,6 +443,20 @@ const DERIVE_FLAGS: &[FlagSchema] = &[
         default_value: None,
         global: false,
     },
+    FlagSchema {
+        name: "--in",
+        kind: FlagKind::Path {
+            stdio_sentinel: false,
+        },
+        required: false,
+        repeating: false,
+        help: "Read the ms1 string from FILE instead of argv (a private channel: \
+               the secret never reaches the command line).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    ALLOW_ARGV_SECRET_FLAG,
 ];
 
 const DERIVE_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
@@ -364,7 +472,9 @@ const REPAIR_FLAGS: &[FlagSchema] = &[
     FlagSchema {
         name: "--ms1",
         kind: FlagKind::Text,
-        required: true,
+        // F-679: no longer clap-required upstream (ms-cli v0.19.0 gui-schema
+        // `required: false`) — `--in FILE` is the private alternative.
+        required: false,
         repeating: false,
         help: "ms1 string to repair via BCH error correction. `-` reads stdin.",
         // v0.33.0 deliberate GUI-side override (audit I4 ms.rs half): the
@@ -387,6 +497,33 @@ const REPAIR_FLAGS: &[FlagSchema] = &[
         default_value: None,
         global: false,
     },
+    FlagSchema {
+        name: "--in",
+        kind: FlagKind::Path {
+            stdio_sentinel: false,
+        },
+        required: false,
+        repeating: false,
+        help: "Read the ms1 string from FILE instead of argv (a private channel: \
+               the secret never reaches the command line).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--out",
+        kind: FlagKind::Path {
+            stdio_sentinel: false,
+        },
+        required: false,
+        repeating: false,
+        help: "Write the canonical artifact to FILE, owner-only (0600), instead \
+               of stdout. OVERWRITES an existing file.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    ALLOW_ARGV_SECRET_FLAG,
 ];
 
 const REPAIR_POSITIONALS: &[PositionalArgSchema] = &[];
@@ -419,8 +556,8 @@ const SPLIT_FLAGS: &[FlagSchema] = &[
         kind: FlagKind::Dropdown(SEPARATORS),
         required: false,
         repeating: false,
-        help: "Display-grouping separator keyword (space|hyphen|comma; \
-               default space). Cosmetic — non-load-bearing.",
+        help: "Display-grouping separator: `space` only (hyphen and comma \
+               were retired). Cosmetic — non-load-bearing.",
         secret: false,
         default_value: Some("space"),
         global: false,
@@ -486,6 +623,33 @@ const SPLIT_FLAGS: &[FlagSchema] = &[
         default_value: None,
         global: false,
     },
+    FlagSchema {
+        name: "--in",
+        kind: FlagKind::Path {
+            stdio_sentinel: false,
+        },
+        required: false,
+        repeating: false,
+        help: "Read the BIP-39 PHRASE from FILE (never hex). A private channel: \
+               the phrase never reaches the command line.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--out",
+        kind: FlagKind::Path {
+            stdio_sentinel: false,
+        },
+        required: false,
+        repeating: false,
+        help: "Write the canonical artifact to FILE, owner-only (0600), instead \
+               of stdout. OVERWRITES an existing file.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    ALLOW_ARGV_SECRET_FLAG,
 ];
 
 const SPLIT_POSITIONALS: &[PositionalArgSchema] = &[];
@@ -516,6 +680,20 @@ const COMBINE_FLAGS: &[FlagSchema] = &[
         default_value: None,
         global: false,
     },
+    FlagSchema {
+        name: "--in",
+        kind: FlagKind::Path {
+            stdio_sentinel: false,
+        },
+        required: false,
+        repeating: false,
+        help: "Read the shares from FILE, one per line, instead of argv. A \
+               private channel: the shares never reach the command line.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    ALLOW_ARGV_SECRET_FLAG,
 ];
 
 const COMBINE_TO_SHAPES: &[&str] = &["phrase", "entropy", "ms1"];
@@ -636,6 +814,6 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
 
 pub const SCHEMA: Schema = Schema {
     cli_name: "ms",
-    pinned_version: "ms 0.13.0",
+    pinned_version: "ms 0.19.0",
     subcommands: SUBCOMMANDS,
 };

@@ -563,6 +563,6 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
 
 pub const SCHEMA: Schema = Schema {
     cli_name: "mk",
-    pinned_version: "mk 0.11.0",
+    pinned_version: "mk 0.13.0",
     subcommands: SUBCOMMANDS,
 };

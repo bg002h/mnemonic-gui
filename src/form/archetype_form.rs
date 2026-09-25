@@ -244,6 +244,8 @@ mod tests {
             .flags
             .iter()
             .map(|f| f.name)
+            // F-679: GUI-managed flags never render in ANY mode.
+            .filter(|n| !crate::form::invocation::is_gui_managed_flag(n))
             .partition(|n| suppressed_in_archetype_mode(n));
         assert_eq!(suppressed.len(), 10, "9 params + --spec: {suppressed:?}");
         assert_eq!(

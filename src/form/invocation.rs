@@ -43,6 +43,58 @@ fn subcommand_argv_tokens(name: &str) -> Vec<&str> {
     vec![name]
 }
 
+/// F-679 — the CLI's opt-in for secret material on argv. `mnemonic` (toolkit
+/// v0.104.0+) and `ms` (v0.19.0+) REFUSE a secret on the command line unless
+/// this flag is present.
+pub const ALLOW_ARGV_SECRET: &str = "--allow-argv-secret";
+
+/// F-679 — flags the GUI manages itself. They are mirrored in the schema (so
+/// the schema-mirror gate stays set-equal with the CLI) but are never rendered
+/// as a widget and never emitted from form state: the form cannot set them,
+/// and a stale persisted value cannot smuggle one into argv.
+pub fn is_gui_managed_flag(name: &str) -> bool {
+    name == ALLOW_ARGV_SECRET
+}
+
+/// F-679 — the RUN path's argv. When `argv` carries at least one secret-masked
+/// token (or a secret `<node>=<value>` token — see
+/// [`is_secret_node_value_token`]) AND the subcommand declares
+/// [`ALLOW_ARGV_SECRET`], insert that flag
+/// directly after the (possibly nested) subcommand tokens, with a `false` mask
+/// bit. Otherwise return the pair unchanged.
+///
+/// Why this is not the user's checkbox: the GUI spawns the child with
+/// `execve` — no shell, so no shell history, which is the leak the CLI's
+/// refusal and its purge recipe are about. What stays exposed is `/proc`
+/// argv to the same UID and root, and that exposure is not new: the GUI has
+/// always passed secrets this way, and every such run already goes through
+/// the run-confirm modal (`secrets::should_confirm_run`, which classifies the
+/// same four secret sources this mask carries).
+///
+/// Why only the Run path: the Copy-command buttons produce text the user
+/// pastes into a SHELL. There the refusal is exactly right, so the copied
+/// command never carries this flag.
+pub fn admit_argv_secret_for_run(
+    subcommand: &SubcommandSchema,
+    argv: Vec<String>,
+    mask: Vec<bool>,
+) -> (Vec<String>, Vec<bool>) {
+    debug_assert_eq!(argv.len(), mask.len());
+    let declared = subcommand.flags.iter().any(|f| f.name == ALLOW_ARGV_SECRET);
+    let carries_secret =
+        mask.iter().any(|&m| m) || argv.iter().skip(1).any(|t| is_secret_node_value_token(t));
+    if !declared || !carries_secret || argv.iter().any(|t| t == ALLOW_ARGV_SECRET) {
+        return (argv, mask);
+    }
+    // argv[0] is the binary; then 1 or 2 subcommand tokens.
+    let at = 1 + subcommand_argv_tokens(subcommand.name).len();
+    let mut argv = argv;
+    let mut mask = mask;
+    argv.insert(at, ALLOW_ARGV_SECRET.to_string());
+    mask.insert(at, false);
+    (argv, mask)
+}
+
 /// v0.10.0 B.3 (D33) — compare the user-typed `value` against the flag's
 /// schema-declared `default_value` per the D33 per-FlagKind compare-predicate
 /// table. Returns `true` iff the value equals the schema default; in that
@@ -163,6 +215,38 @@ pub fn assemble_argv(
     assemble_argv_with_secret_mask(schema, subcommand, state).0
 }
 
+/// F-679 — a `<node>=<value>` token whose node is argv-secret-classed
+/// (`SECRET_NODE_TYPES_ARGV`) and whose value is not a private-channel
+/// sentinel (`-`, `@env:…`, empty). This is the shape the toolkit refuses as
+/// `--from <node>=`. It exists because `restore --from` is a plain `Text`
+/// flag (`secret: false` upstream and here — its secrecy depends on the node
+/// the user types), so the secret mask never marks `restore --from ms1=…`
+/// and the Run path would otherwise spawn an argv the toolkit refuses.
+fn is_secret_node_value_token(token: &str) -> bool {
+    match token.split_once('=') {
+        Some((node, value)) => {
+            crate::secrets::node_type_is_argv_secret(node)
+                && !value.is_empty()
+                && value != "-"
+                && !value.starts_with("@env:")
+        }
+        None => false,
+    }
+}
+
+/// F-679 — the argv the GUI's Run button spawns:
+/// [`assemble_argv_with_secret_mask`] followed by
+/// [`admit_argv_secret_for_run`]. Tests that model "what the GUI runs" against
+/// a real CLI use this, not [`assemble_argv`] (which is the Copy/preview argv).
+pub fn assemble_argv_for_run(
+    schema: &Schema,
+    subcommand: &SubcommandSchema,
+    state: &crate::schema::FormState,
+) -> Vec<String> {
+    let (argv, mask) = assemble_argv_with_secret_mask(schema, subcommand, state);
+    admit_argv_secret_for_run(subcommand, argv, mask).0
+}
+
 /// Fixed redaction placeholder substituted for every secret VALUE token in
 /// `render_copy_command_masked`. NOT shell-quoted (it is a display sentinel,
 /// never run). Four `\u{2022}` bullets.
@@ -238,6 +322,11 @@ pub fn assemble_argv_with_secret_mask(
         // v0.6.0 §6.10.4 v3: PinValue REPLACES the user-typed value before
         // emission. Handled below the suppress check so PinValue beats
         // a stale state.values entry for the same flag.
+        // F-679: GUI-managed flags never emit from form state (the Run path
+        // adds `--allow-argv-secret` itself — `admit_argv_secret_for_run`).
+        if is_gui_managed_flag(flag.name) {
+            continue;
+        }
         let flag_vis = visibility_of(flag.name);
         if flag.name != "--slot" || !subcommand.allows_slots {
             if suppresses(&flag_vis) {

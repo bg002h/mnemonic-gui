@@ -731,17 +731,28 @@ pub fn ms_encode(state: &FormState) -> FlagVisibility {
     let mut vis = Vec::new();
     let has_phrase = state.has_value("--phrase");
     let has_hex = state.has_value("--hex");
+    // F-679 (ms-cli v0.19.0): `--in FILE` is the third member of the
+    // required one-of group (`<--phrase|--hex|--in>`), and the private one.
+    let has_in = state.has_value("--in");
     if has_phrase {
         vis.push(("--hex", Visibility::Disabled));
+        vis.push(("--in", Visibility::Disabled));
     }
     if has_hex {
         vis.push(("--phrase", Visibility::Disabled));
+        vis.push(("--in", Visibility::Disabled));
         // --language is ignored when --hex is supplied (upstream help).
         vis.push(("--language", Visibility::Hidden));
     }
-    if !has_phrase && !has_hex {
+    if has_in {
+        // `--in` reads a PHRASE (never hex), so --language still applies.
+        vis.push(("--phrase", Visibility::Disabled));
+        vis.push(("--hex", Visibility::Disabled));
+    }
+    if !has_phrase && !has_hex && !has_in {
         vis.push(("--phrase", Visibility::Required));
         vis.push(("--hex", Visibility::Required));
+        vis.push(("--in", Visibility::Required));
     }
     vis
 }
@@ -779,7 +790,9 @@ pub fn mk_encode(state: &FormState) -> FlagVisibility {
 ///   includes resolved keys).
 pub fn md_encode(state: &FormState) -> FlagVisibility {
     let mut vis = Vec::new();
-    let has_template_pos = state.has_positional(0);
+    // F-679 (md-cli v0.20.3): `--in FILE` supplies the template the positional
+    // would, so it counts as the template input mode.
+    let has_template_pos = state.has_positional(0) || state.has_value("--in");
     let has_from_policy = state.has_value("--from-policy");
 
     if has_template_pos {
@@ -832,13 +845,26 @@ pub fn md_address(state: &FormState) -> FlagVisibility {
     let mut vis = Vec::new();
     let has_phrases_pos = state.has_positional(0);
     let has_template = state.has_value("--template");
+    // F-679 (md-cli v0.20.3): `--from-mk1` / `--from-mk1-file` seat key cards
+    // into a KEYLESS policy card's phrases; upstream makes `--from-mk1` a
+    // member of the required one-of group and mutually exclusive with
+    // `--template`.
+    let has_mk1 = state.has_value("--from-mk1") || state.has_value("--from-mk1-file");
 
     if has_phrases_pos {
         vis.push(("--template", Visibility::Disabled));
         vis.push(("--key", Visibility::Disabled));
         vis.push(("--fingerprint", Visibility::Disabled));
     }
-    if !has_phrases_pos && !has_template {
+    if has_mk1 {
+        vis.push(("--template", Visibility::Disabled));
+    }
+    if has_template {
+        vis.push(("--from-mk1", Visibility::Disabled));
+        vis.push(("--from-mk1-file", Visibility::Disabled));
+        vis.push(("--seat", Visibility::Disabled));
+    }
+    if !has_phrases_pos && !has_template && !has_mk1 {
         vis.push(("--template", Visibility::Required));
         // positional Required handled at widget layer.
     }

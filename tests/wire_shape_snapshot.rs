@@ -374,6 +374,11 @@ fn wireshape_passphrase_of_xpub_match() {
         &[
             "xpub-search",
             "passphrase-of-xpub",
+            // F-679: toolkit v0.104.0 refuses a passphrase on argv without
+            // the opt-in. The seed is already on stdin, so the passphrase
+            // has no second private channel here — this is the argv the
+            // GUI's Run path produces (`admit_argv_secret_for_run`).
+            "--allow-argv-secret",
             "--phrase-stdin",
             "--passphrase",
             PASSPHRASE,
@@ -415,6 +420,11 @@ fn wireshape_passphrase_of_xpub_no_match() {
         &[
             "xpub-search",
             "passphrase-of-xpub",
+            // F-679: toolkit v0.104.0 refuses a passphrase on argv without
+            // the opt-in. The seed is already on stdin, so the passphrase
+            // has no second private channel here — this is the argv the
+            // GUI's Run path produces (`admit_argv_secret_for_run`).
+            "--allow-argv-secret",
             "--phrase-stdin",
             "--passphrase",
             PASSPHRASE,

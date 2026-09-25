@@ -2270,9 +2270,8 @@ dependencies = [
 
 [[package]]
 name = "md-codec"
-version = "0.42.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "336f2c0c7f8d394136992f0b9f3d527f94a2023b55772dbed07ac09e9abcfd8f"
+version = "0.47.0"
+source = "git+https://github.com/bg002h/descriptor-mnemonic?rev=cf35d61af0f058029df841f4882945e53f86cd4b#cf35d61af0f058029df841f4882945e53f86cd4b"
 dependencies = [
  "bip39",
  "bitcoin",
@@ -2322,8 +2321,7 @@ dependencies = [
 [[package]]
 name = "miniscript"
 version = "13.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "867b1f11e0545ad5ebbddd8a9f18756d9657a6758bf10d96cf15ddd0b726b650"
+source = "git+https://github.com/rust-bitcoin/rust-miniscript?rev=ff4732e5f75aa555682343cb180fa72ee3e8e9d5#ff4732e5f75aa555682343cb180fa72ee3e8e9d5"
 dependencies = [
  "bech32",
  "bitcoin",
@@ -2384,9 +2382,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "mnemonic-io-lib"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d54d9fc783d32defa2274b346b66549a29756db8514200b12c3c98a2c4579f64"
+
+[[package]]
 name = "mnemonic-toolkit"
-version = "0.97.0"
-source = "git+https://github.com/bg002h/mnemonic-toolkit?tag=mnemonic-toolkit-v0.97.0#c14b1e21dba83f1052e84e90254724002c3d951c"
+version = "0.104.0"
+source = "git+https://github.com/bg002h/mnemonic-toolkit?tag=mnemonic-toolkit-v0.104.0#642300b7c8f45ffb0d9a46031e7c0c156048b362"
 dependencies = [
  "aes",
  "base64 0.22.1",
@@ -2406,6 +2410,7 @@ dependencies = [
  "md-codec",
  "miniscript",
  "mk-codec",
+ "mnemonic-io-lib",
  "ms-codec",
  "pbkdf2",
  "rand_chacha 0.3.1",
@@ -4471,7 +4476,7 @@ dependencies = [
 [[package]]
 name = "wc-codec"
 version = "0.1.1"
-source = "git+https://github.com/bg002h/mnemonic-toolkit?tag=mnemonic-toolkit-v0.97.0#c14b1e21dba83f1052e84e90254724002c3d951c"
+source = "git+https://github.com/bg002h/mnemonic-toolkit?tag=mnemonic-toolkit-v0.104.0#642300b7c8f45ffb0d9a46031e7c0c156048b362"
 dependencies = [
  "bip39",
  "sha2",

@@ -412,6 +412,25 @@ fn cell_d2_ms_encode_both_required_when_neither_set() {
     assert_eq!(vis_of(&vis, "--hex"), Visibility::Required);
 }
 
+// F-679: `ms encode --in FILE` joins the one-of group.
+#[test]
+fn cell_f679_ms_encode_in_disables_phrase_and_hex_and_keeps_language() {
+    let state = FormState::from_pairs(vec![("--in", FlagValue::Path("phrase.txt".into()))]);
+    let vis = run_conditional_for_cli("encode", &state, "ms");
+    assert_eq!(vis_of(&vis, "--phrase"), Visibility::Disabled);
+    assert_eq!(vis_of(&vis, "--hex"), Visibility::Disabled);
+    assert_eq!(vis_of(&vis, "--language"), Visibility::Visible);
+}
+
+#[test]
+fn cell_f679_ms_encode_hex_disables_in_and_none_set_marks_in_required() {
+    let state = FormState::from_pairs(vec![("--hex", FlagValue::Text("00".into()))]);
+    let vis = run_conditional_for_cli("encode", &state, "ms");
+    assert_eq!(vis_of(&vis, "--in"), Visibility::Disabled);
+    let vis = run_conditional_for_cli("encode", &FormState::default(), "ms");
+    assert_eq!(vis_of(&vis, "--in"), Visibility::Required);
+}
+
 #[test]
 fn cell_d2_mk_encode_origin_fingerprint_conflicts_privacy_preserving() {
     let state = FormState::from_pairs(vec![(
@@ -465,6 +484,26 @@ fn cell_d3_md_encode_unspendable_key_disabled_by_segwitv0() {
     ]);
     let vis = run_conditional_for_cli("encode", &state, "md");
     assert_eq!(vis_of(&vis, "--unspendable-key"), Visibility::Disabled);
+}
+
+// F-679: `md encode --in FILE` is the template input mode.
+#[test]
+fn cell_f679_md_encode_in_counts_as_the_template() {
+    let state = FormState::from_pairs(vec![("--in", FlagValue::Path("t.txt".into()))]);
+    let vis = run_conditional_for_cli("encode", &state, "md");
+    assert_eq!(vis_of(&vis, "--from-policy"), Visibility::Disabled);
+}
+
+// F-679: `md address --from-mk1` is exclusive with `--template`.
+#[test]
+fn cell_f679_md_address_from_mk1_and_template_exclude_each_other() {
+    let state = FormState::from_pairs(vec![("--from-mk1", FlagValue::Text("mk1x".into()))]);
+    let vis = run_conditional_for_cli("address", &state, "md");
+    assert_eq!(vis_of(&vis, "--template"), Visibility::Disabled);
+    let state = FormState::from_pairs(vec![("--template", FlagValue::Text("wpkh(@0/**)".into()))]);
+    let vis = run_conditional_for_cli("address", &state, "md");
+    assert_eq!(vis_of(&vis, "--from-mk1"), Visibility::Disabled);
+    assert_eq!(vis_of(&vis, "--seat"), Visibility::Disabled);
 }
 
 #[test]

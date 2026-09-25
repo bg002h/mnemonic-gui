@@ -12,7 +12,7 @@
 //! canonical test-vector phrase supplied via `--slot @0.phrase=...`).
 //! Skipped when the binary is not resolvable.
 
-use mnemonic_gui::form::invocation::assemble_argv;
+use mnemonic_gui::form::invocation::{assemble_argv, assemble_argv_for_run};
 use mnemonic_gui::form::slot_editor::{SlotRow, SlotState, SlotSubkey};
 use mnemonic_gui::schema::{self, FlagValue, FormState};
 
@@ -86,7 +86,9 @@ fn default_bundle_form_state_cli_accepts() {
         }
     };
     let state = default_bundle_form_state_with_phrase();
-    let mut argv = assemble_argv(&schema::mnemonic::SCHEMA, bundle_subcommand(), &state);
+    // F-679: the RUN argv (the phrase slot is secret, so it carries the
+    // GUI-managed --allow-argv-secret the toolkit now requires).
+    let mut argv = assemble_argv_for_run(&schema::mnemonic::SCHEMA, bundle_subcommand(), &state);
     // Add --self-check so the CLI does not actually print 100+ lines of
     // cards; just runs the full pre-check + synthesis pipeline.
     argv.push("--self-check".into());

@@ -382,6 +382,11 @@ pub fn is_render_suppressed(
     if flag_name == "--slot" && sub.allows_slots {
         return true;
     }
+    // F-679: the GUI-managed `--allow-argv-secret` `continue` (app_window's
+    // form loop; the Run path adds the flag, no widget renders it).
+    if mnemonic_gui::form::invocation::is_gui_managed_flag(flag_name) {
+        return true;
+    }
     // P1 `gui`-feature split: the mode predicates now live in the non-gated
     // `mode_predicates` module (the gated `tree_form`/`archetype_form` re-export
     // them too, but use the canonical home here so this harness — reused by the

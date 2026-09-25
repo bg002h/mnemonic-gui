@@ -19,7 +19,7 @@
 url = "https://github.com/bg002h/mnemonic-toolkit"
 # Cross-cite with Cargo.toml's [dependencies] mnemonic-toolkit tag.
 # Both should bump in lockstep when the toolkit is upgraded.
-tag = "mnemonic-toolkit-v0.97.0"
+tag = "mnemonic-toolkit-v0.104.0"
 bin = "mnemonic"
 workspace-member-path = "crates/mnemonic-toolkit"
 # v0.2 Phase C.1: GUI consults `<cli> gui-schema` JSON path when true;
@@ -29,25 +29,31 @@ workspace-member-path = "crates/mnemonic-toolkit"
 gui-schema-capable = true
 
 [md]
+# F-679 (2026-09-24): v0.11.0 -> v0.20.3, the released md the toolkit
+# installer ships. Mirror updated in lockstep (src/schema/md.rs); new
+# upstream-only subcommands (compose, shape-key, descriptor, decompose) are
+# deliberately NOT surfaced yet (CHANGELOG 0.62.0).
 # man-pages cycle: bumped to descriptor-mnemonic-md-cli-v0.11.0 to match
 # the released binary (md --version → "md 0.11.0"). Schema and
 # pinned-upstream tag must move in lockstep so the runtime soft-check
 # can't fire a false-positive banner. v0.11.0 adds the visible `md
 # gen-man --out` subcommand (mirrored in src/schema/md.rs this cycle).
 url = "https://github.com/bg002h/descriptor-mnemonic"
-tag = "descriptor-mnemonic-md-cli-v0.11.0"
+tag = "descriptor-mnemonic-md-cli-v0.20.3"
 bin = "md"
 workspace-member-path = "crates/md-cli"
 gui-schema-capable = true
 
 [ms]
 url = "https://github.com/bg002h/mnemonic-secret"
+# F-679 (2026-09-24): v0.16.0 -> v0.19.0 (argv-secret refusal, --in/--out,
+# three new derive templates; `hashlock` not surfaced yet).
 # Bumped v0.13.0 -> v0.16.0 (2026-08-19): the hand mirror lists `ms derive
 # --template`'s bip48 arms (bip48-p2wsh, bip48-p2sh-p2wsh, bip48) and the pinned
 # v0.13.0 has NONE of them, so the schema-mirror gate was red on a mirror that
 # described a RELEASED ms the pin had not caught up to. v0.16.0 is tagged
 # upstream; the mirror is right and this pin was stale.
-tag = "ms-cli-v0.16.0"
+tag = "ms-cli-v0.19.0"
 bin = "ms"
 workspace-member-path = "crates/ms-cli"
 gui-schema-capable = true

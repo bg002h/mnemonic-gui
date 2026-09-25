@@ -541,6 +541,10 @@ fn is_render_suppressed(
     if flag_name == "--slot" && sub.allows_slots {
         return true;
     }
+    // F-679: GUI-managed flags are never rendered (app_window mirrors this).
+    if crate::form::invocation::is_gui_managed_flag(flag_name) {
+        return true;
+    }
     let tree_mode =
         sub.name == "build-descriptor" && mode_predicates::tree_enabled(state);
     if tree_mode && mode_predicates::suppressed_in_tree_mode(flag_name) {
