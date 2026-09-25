@@ -370,6 +370,22 @@ jobs:
         if: ${{ matrix.cross }}
         run: cross build --release --target ${{ matrix.target }}
 
+      - name: glibc-floor
+        # F-679: the gnu assets must start on RHEL 9 (glibc 2.34), Ubuntu 22.04
+        # (2.35) and Debian 12 (2.36). The highest GLIBC_x.y symbol version the
+        # binary references IS its floor (`readelf`, which reads either arch;
+        # host `objdump` may not know aarch64); print it and fail above 2.34. Runs on
+        # every push, not just tags, so a runner-image or build-row change
+        # that raises the floor is caught before a release ships it.
+        if: ${{ endsWith(matrix.target, '-linux-gnu') }}
+        shell: bash
+        run: |
+          bin="target/${{ matrix.target }}/release/mnemonic-gui"
+          floor="$(readelf --dyn-syms -W "$bin" | grep -o 'GLIBC_[0-9.]*' | sed 's/GLIBC_//' | sort -uV | tail -1)"
+          echo "glibc floor (${{ matrix.target }}): GLIBC_${floor}"
+          test -n "$floor"
+          test "$(printf '%s\n' "$floor" 2.34 | sort -V | tail -1)" = "2.34"
+
       - name: package-unix
         if: ${{ !startsWith(matrix.runner, 'windows') }}
         env:
