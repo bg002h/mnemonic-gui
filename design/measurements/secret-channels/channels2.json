@@ -1,0 +1,64 @@
+[
+ {
+  "label": "mnemonic slip39 combine --share",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `--share -`": "OK",
+   "`--share @env:VAR`": "OK",
+   "`--share-stdin`": "no (exit 64: error: unexpected argument '--share-stdin' found)",
+   "`--share-file F`": "no (exit 64: error: unexpected argument '--share-file' found)",
+   "`--in F`": "no (exit 64: error: unexpected argument '--in' found)"
+  }
+ },
+ {
+  "label": "mnemonic verify-bundle --slot @0.phrase=",
+  "base_exit": 4,
+  "base_err": "",
+  "depends": false,
+  "channels": {
+   "stdin `@0.phrase=-`": "OK",
+   "`@0.phrase=@env:VAR`": "OK"
+  }
+ },
+ {
+  "label": "mnemonic verify-bundle --passphrase",
+  "base_exit": 4,
+  "base_err": "",
+  "depends": false,
+  "channels": {
+   "stdin `--passphrase -`": "OK",
+   "`--passphrase @env:VAR`": "OK",
+   "`--passphrase-stdin`": "OK",
+   "`--passphrase-file F`": "no (exit 64: error: unexpected argument '--passphrase-file' found)",
+   "`--in F`": "no (exit 64: error: unexpected argument '--in' found)"
+  }
+ },
+ {
+  "label": "mnemonic xpub-search path-of-xpub --passphrase",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `--passphrase -`": "exit 4 but DIFFERENT output",
+   "`--passphrase @env:VAR`": "OK",
+   "`--passphrase-stdin`": "OK",
+   "`--passphrase-file F`": "no (exit 64: error: unexpected argument '--passphrase-file' found)",
+   "`--in F`": "no (exit 64: error: unexpected argument '--in' found)"
+  }
+ },
+ {
+  "label": "mnemonic xpub-search account-of-descriptor --passphrase",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `--passphrase -`": "exit 4 but DIFFERENT output",
+   "`--passphrase @env:VAR`": "OK",
+   "`--passphrase-stdin`": "OK",
+   "`--passphrase-file F`": "no (exit 64: error: unexpected argument '--passphrase-file' found)",
+   "`--in F`": "no (exit 64: error: unexpected argument '--in' found)"
+  }
+ }
+]

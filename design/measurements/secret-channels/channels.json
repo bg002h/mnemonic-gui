@@ -1,0 +1,838 @@
+[
+ {
+  "label": "mnemonic addresses --from phrase=",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `phrase=-`": "OK",
+   "`phrase=@env:VAR`": "OK"
+  }
+ },
+ {
+  "label": "mnemonic addresses --from entropy=",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `entropy=-`": "OK",
+   "`entropy=@env:VAR`": "OK"
+  }
+ },
+ {
+  "label": "mnemonic addresses --passphrase",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `--passphrase -`": "exit 0 but DIFFERENT output",
+   "`--passphrase @env:VAR`": "OK",
+   "`--passphrase-stdin`": "OK",
+   "`--passphrase-file F`": "no (exit 64: error: unexpected argument '--passphrase-file' found)",
+   "`--in F`": "no (exit 64: error: unexpected argument '--in' found)"
+  }
+ },
+ {
+  "label": "mnemonic bundle --slot @0.phrase=",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `@0.phrase=-`": "OK",
+   "`@0.phrase=@env:VAR`": "OK"
+  }
+ },
+ {
+  "label": "mnemonic bundle --slot @0.entropy=",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `@0.entropy=-`": "OK",
+   "`@0.entropy=@env:VAR`": "OK"
+  }
+ },
+ {
+  "label": "mnemonic bundle --slot @0.seedqr=",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `@0.seedqr=-`": "OK",
+   "`@0.seedqr=@env:VAR`": "OK"
+  }
+ },
+ {
+  "label": "mnemonic bundle --passphrase",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `--passphrase -`": "exit 0 but DIFFERENT output",
+   "`--passphrase @env:VAR`": "OK",
+   "`--passphrase-stdin`": "OK",
+   "`--passphrase-file F`": "no (exit 64: error: unexpected argument '--passphrase-file' found)",
+   "`--in F`": "no (exit 64: error: unexpected argument '--in' found)"
+  }
+ },
+ {
+  "label": "mnemonic convert --from phrase=",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `phrase=-`": "OK",
+   "`phrase=@env:VAR`": "OK"
+  }
+ },
+ {
+  "label": "mnemonic convert --from entropy=",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `entropy=-`": "OK",
+   "`entropy=@env:VAR`": "OK"
+  }
+ },
+ {
+  "label": "mnemonic convert --from seedqr=",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `seedqr=-`": "OK",
+   "`seedqr=@env:VAR`": "OK"
+  }
+ },
+ {
+  "label": "mnemonic convert --from xprv=",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `xprv=-`": "OK",
+   "`xprv=@env:VAR`": "OK"
+  }
+ },
+ {
+  "label": "mnemonic convert --from minikey=",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `minikey=-`": "OK",
+   "`minikey=@env:VAR`": "no (exit 2: error: --from minikey requires a Casascius mini-key string (22/26/30 chars, starting with uppercase 'S'); supplied value does not match.)"
+  }
+ },
+ {
+  "label": "mnemonic convert --from ms1=",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `ms1=-`": "OK",
+   "`ms1=@env:VAR`": "OK"
+  }
+ },
+ {
+  "label": "mnemonic convert --from electrum-phrase=",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `electrum-phrase=-`": "OK",
+   "`electrum-phrase=@env:VAR`": "OK"
+  }
+ },
+ {
+  "label": "mnemonic convert --passphrase",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `--passphrase -`": "exit 0 but DIFFERENT output",
+   "`--passphrase @env:VAR`": "OK",
+   "`--passphrase-stdin`": "OK",
+   "`--passphrase-file F`": "no (exit 64: error: unexpected argument '--passphrase-file' found)",
+   "`--in F`": "no (exit 64: error: unexpected argument '--in' found)"
+  }
+ },
+ {
+  "label": "mnemonic convert --bip38-passphrase",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `--bip38-passphrase -`": "exit 0 but DIFFERENT output",
+   "`--bip38-passphrase @env:VAR`": "OK",
+   "`--bip38-passphrase-stdin`": "OK",
+   "`--bip38-passphrase-file F`": "no (exit 64: error: unexpected argument '--bip38-passphrase-file' found)",
+   "`--in F`": "no (exit 64: error: unexpected argument '--in' found)"
+  }
+ },
+ {
+  "label": "mnemonic restore --from phrase=",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `phrase=-`": "OK",
+   "`phrase=@env:VAR`": "OK"
+  }
+ },
+ {
+  "label": "mnemonic restore --from entropy=",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `entropy=-`": "OK",
+   "`entropy=@env:VAR`": "OK"
+  }
+ },
+ {
+  "label": "mnemonic restore --from seedqr=",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `seedqr=-`": "OK",
+   "`seedqr=@env:VAR`": "OK"
+  }
+ },
+ {
+  "label": "mnemonic restore --from ms1=",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `ms1=-`": "OK",
+   "`ms1=@env:VAR`": "OK"
+  }
+ },
+ {
+  "label": "mnemonic restore --passphrase",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `--passphrase -`": "exit 0 but DIFFERENT output",
+   "`--passphrase @env:VAR`": "OK",
+   "`--passphrase-stdin`": "OK",
+   "`--passphrase-file F`": "no (exit 64: error: unexpected argument '--passphrase-file' found)",
+   "`--in F`": "no (exit 64: error: unexpected argument '--in' found)"
+  }
+ },
+ {
+  "label": "mnemonic derive-child --from phrase=",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `phrase=-`": "OK",
+   "`phrase=@env:VAR`": "OK"
+  }
+ },
+ {
+  "label": "mnemonic derive-child --passphrase",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `--passphrase -`": "exit 0 but DIFFERENT output",
+   "`--passphrase @env:VAR`": "OK",
+   "`--passphrase-stdin`": "OK",
+   "`--passphrase-file F`": "no (exit 64: error: unexpected argument '--passphrase-file' found)",
+   "`--in F`": "no (exit 64: error: unexpected argument '--in' found)"
+  }
+ },
+ {
+  "label": "mnemonic nostr --secret",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `--secret -`": "no (exit 2: mnemonic: argument 2 on ARGV (--secret) is private key material -- 1 characters. Nothing about it is printed here.)",
+   "`--secret @env:VAR`": "no (exit 1: error: nostr: invalid bech32 nostr key: parsing failed)",
+   "`--secret-stdin`": "OK",
+   "`--secret-file F`": "OK",
+   "`--in F`": "no (exit 64: error: unexpected argument '--in' found)"
+  }
+ },
+ {
+  "label": "mnemonic silent-payment --secret",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `--secret -`": "no (exit 2: mnemonic: argument 2 on ARGV (--secret) is private key material -- 1 characters. Nothing about it is printed here.)",
+   "`--secret @env:VAR`": "no (exit 1: error: silent-payment: expected a seed-bearing secret (BIP-39 phrase / ms1 / entropy-hex / xprv); a single private key (WIF/minikey) cannot derive m/3)",
+   "`--secret-stdin`": "OK",
+   "`--secret-file F`": "OK",
+   "`--in F`": "no (exit 64: error: unexpected argument '--in' found)"
+  }
+ },
+ {
+  "label": "mnemonic silent-payment --passphrase",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `--passphrase -`": "exit 0 but DIFFERENT output",
+   "`--passphrase @env:VAR`": "exit 0 but DIFFERENT output",
+   "`--passphrase-stdin`": "OK",
+   "`--passphrase-file F`": "no (exit 64: error: unexpected argument '--passphrase-file' found)",
+   "`--in F`": "no (exit 64: error: unexpected argument '--in' found)"
+  }
+ },
+ {
+  "label": "mnemonic final-word --from phrase=",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `phrase=-`": "OK",
+   "`phrase=@env:VAR`": "no (exit 1: error: final-word: got 1 words; expected one of [11, 14, 17, 20, 23] (target = K+1 must be in {12,15,18,21,24}))"
+  }
+ },
+ {
+  "label": "mnemonic seed-xor split --from phrase=",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `phrase=-`": "OK",
+   "`phrase=@env:VAR`": "OK"
+  }
+ },
+ {
+  "label": "mnemonic seed-xor combine --share phrase=",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `phrase=-`": "OK",
+   "`phrase=@env:VAR`": "OK"
+  }
+ },
+ {
+  "label": "mnemonic seedqr encode --from phrase=",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `phrase=-`": "OK",
+   "`phrase=@env:VAR`": "no (exit 1: error: seedqr: encode: invalid word count: 1 (only 12, 15, 18, 21, or 24 supported))"
+  }
+ },
+ {
+  "label": "mnemonic seedqr decode --from seedqr=",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `seedqr=-`": "OK",
+   "`seedqr=@env:VAR`": "no (exit 1: error: seedqr: decode: invalid digit count (expected 48, 60, 72, 84, or 96; got 17))"
+  }
+ },
+ {
+  "label": "mnemonic seedqr decode --digits",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `--digits -`": "OK",
+   "`--digits @env:VAR`": "no (exit 1: notice: --digits is deprecated; use --from seedqr=<VALUE|-> instead (--digits will be removed in a future release))",
+   "`--digits-stdin`": "no (exit 64: error: unexpected argument '--digits-stdin' found)",
+   "`--digits-file F`": "no (exit 64: error: unexpected argument '--digits-file' found)",
+   "`--in F`": "no (exit 64: error: unexpected argument '--in' found)"
+  }
+ },
+ {
+  "label": "mnemonic repair --ms1",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `--ms1 -`": "OK",
+   "`--ms1 @env:VAR`": "no (exit 2: error: --ms1 expects a value with HRP 'ms', got '@env:gui_secret_t' (HRP is not BCH-protected; re-type the prefix))",
+   "`--ms1-stdin`": "no (exit 64: error: unexpected argument '--ms1-stdin' found)",
+   "`--ms1-file F`": "no (exit 64: error: unexpected argument '--ms1-file' found)",
+   "`--in F`": "no (exit 64: error: unexpected argument '--in' found)"
+  }
+ },
+ {
+  "label": "mnemonic inspect --ms1",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `--ms1 -`": "OK",
+   "`--ms1 @env:VAR`": "no (exit 2: error: --ms1 expects a value with HRP 'ms', got '@env:gui_secret_t' (HRP is not BCH-protected; re-type the prefix))",
+   "`--ms1-stdin`": "no (exit 64: error: unexpected argument '--ms1-stdin' found)",
+   "`--ms1-file F`": "no (exit 64: error: unexpected argument '--ms1-file' found)",
+   "`--in F`": "no (exit 64: error: unexpected argument '--in' found)"
+  }
+ },
+ {
+  "label": "ms encode --phrase",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `--phrase -`": "OK",
+   "`--phrase @env:VAR`": "no (exit 1: ms: argument 3 on ARGV (arguments count from 0, and 0 is `ms` itself) is a BIP-39 mnemonic, 17 characters long.)",
+   "`--phrase-stdin`": "no (exit 64: error: unexpected argument '--phrase-stdin' found)",
+   "`--phrase-file F`": "no (exit 64: error: unexpected argument '--phrase-file' found)",
+   "`--in F`": "OK"
+  }
+ },
+ {
+  "label": "ms encode --hex",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `--hex -`": "OK",
+   "`--hex @env:VAR`": "no (exit 1: ms: argument 3 on ARGV (arguments count from 0, and 0 is `ms` itself) is raw hex entropy, 17 characters long.)",
+   "`--hex-stdin`": "no (exit 64: error: unexpected argument '--hex-stdin' found)",
+   "`--hex-file F`": "no (exit 64: error: unexpected argument '--hex-file' found)",
+   "`--in F`": "no (exit 1: ms encode --hex - < /tmp/tmpbodcutoq/tmpo5qds726.txt)"
+  }
+ },
+ {
+  "label": "ms inspect <ms1>",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `-`": "OK",
+   "`@env:VAR`": "no (exit 1: error: string length 17 not a valid codex32 length (need 48-93 short or 125-127 long))",
+   "`--in F`": "OK"
+  }
+ },
+ {
+  "label": "ms decode <ms1>",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `-`": "OK",
+   "`@env:VAR`": "no (exit 1: error: string length 17 not in v0.1 set [50, 56, 62, 69, 75])",
+   "`--in F`": "OK"
+  }
+ },
+ {
+  "label": "ms verify <ms1>",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `-`": "OK",
+   "`@env:VAR`": "no (exit 1: error: string length 17 not in v0.1 set [50, 56, 62, 69, 75])",
+   "`--in F`": "OK"
+  }
+ },
+ {
+  "label": "ms derive <ms1>",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `-`": "OK",
+   "`@env:VAR`": "no (exit 1: error: string length 17 not in v0.1 set [50, 56, 62, 69, 75])",
+   "`--in F`": "OK"
+  }
+ },
+ {
+  "label": "ms verify --phrase",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `--phrase -`": "OK",
+   "`--phrase @env:VAR`": "no (exit 1: error: BIP-39 word count 1 invalid (must be 12, 15, 18, 21, or 24))",
+   "`--phrase-stdin`": "no (exit 64: error: unexpected argument '--phrase-stdin' found)",
+   "`--phrase-file F`": "no (exit 64: error: unexpected argument '--phrase-file' found)",
+   "`--in F`": "no (exit 64: error: the argument '--in <FILE>' cannot be used with '[MS1]')"
+  }
+ },
+ {
+  "label": "ms derive --hex",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `--hex -`": "OK",
+   "`--hex @env:VAR`": "no (exit 1: ms: argument 3 on ARGV (arguments count from 0, and 0 is `ms` itself) is raw hex entropy, 17 characters long.)",
+   "`--hex-stdin`": "no (exit 64: error: unexpected argument '--hex-stdin' found)",
+   "`--hex-file F`": "no (exit 64: error: unexpected argument '--hex-file' found)",
+   "`--in F`": "no (exit 1: error: string length 32 not in v0.1 set [50, 56, 62, 69, 75])"
+  }
+ },
+ {
+  "label": "ms derive --phrase",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `--phrase -`": "OK",
+   "`--phrase @env:VAR`": "no (exit 1: ms: argument 3 on ARGV (arguments count from 0, and 0 is `ms` itself) is a BIP-39 mnemonic, 17 characters long.)",
+   "`--phrase-stdin`": "no (exit 1: error: there is no --phrase-stdin: on `derive`, stdin carries the ms1, not a BIP-39 phrase.)",
+   "`--phrase-file F`": "no (exit 64: error: unexpected argument '--phrase-file' found)",
+   "`--in F`": "no (exit 1: error: string length 82 not in v0.1 set [50, 56, 62, 69, 75])"
+  }
+ },
+ {
+  "label": "ms derive --passphrase",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `--passphrase -`": "exit 0 but DIFFERENT output",
+   "`--passphrase @env:VAR`": "exit 0 but DIFFERENT output",
+   "`--passphrase-stdin`": "OK",
+   "`--passphrase-file F`": "no (exit 64: error: unexpected argument '--passphrase-file' found)",
+   "`--in F`": "no (exit 64: error: the argument '--phrase <PHRASE>' cannot be used with '--in <FILE>')"
+  }
+ },
+ {
+  "label": "ms repair --ms1",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `--ms1 -`": "OK",
+   "`--ms1 @env:VAR`": "no (exit 1: ms: argument 3 on ARGV (arguments count from 0, and 0 is `ms` itself) is an ms1 string, 17 characters long.)",
+   "`--ms1-stdin`": "no (exit 64: error: unexpected argument '--ms1-stdin' found)",
+   "`--ms1-file F`": "no (exit 64: error: unexpected argument '--ms1-file' found)",
+   "`--in F`": "OK"
+  }
+ },
+ {
+  "label": "mnemonic derive-child --from xprv=",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `xprv=-`": "OK",
+   "`xprv=@env:VAR`": "OK"
+  }
+ },
+ {
+  "label": "mnemonic convert --from wif=",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `wif=-`": "OK",
+   "`wif=@env:VAR`": "OK"
+  }
+ },
+ {
+  "label": "mnemonic verify-bundle --slot @0.phrase=",
+  "base_exit": 4,
+  "base_err": "",
+  "depends": false,
+  "channels": {
+   "stdin `@0.phrase=-`": "OK",
+   "`@0.phrase=@env:VAR`": "OK"
+  }
+ },
+ {
+  "label": "mnemonic verify-bundle --passphrase",
+  "base_exit": 4,
+  "base_err": "",
+  "depends": false,
+  "channels": {
+   "stdin `--passphrase -`": "OK",
+   "`--passphrase @env:VAR`": "OK",
+   "`--passphrase-stdin`": "OK",
+   "`--passphrase-file F`": "no (exit 64: error: unexpected argument '--passphrase-file' found)",
+   "`--in F`": "no (exit 64: error: unexpected argument '--in' found)"
+  }
+ },
+ {
+  "label": "mnemonic verify-bundle --ms1",
+  "base_exit": 1,
+  "base_err": "error: slot count 0 out of range 1..=16",
+  "depends": false,
+  "channels": {}
+ },
+ {
+  "label": "mnemonic import-wallet --ms1",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `--ms1 -`": "no (exit 1: error: import-wallet: --ms1 for cosigner 0: ms_codec decode failed: Error(\"string length 1 outside v0.1 set [50, 56, 62, 69, 75]\"))",
+   "`--ms1 @env:VAR`": "OK",
+   "`--ms1-stdin`": "no (exit 64: error: unexpected argument '--ms1-stdin' found)",
+   "`--ms1-file F`": "no (exit 64: error: unexpected argument '--ms1-file' found)",
+   "`--in F`": "no (exit 64: error: unexpected argument '--in' found)"
+  }
+ },
+ {
+  "label": "mnemonic import-wallet --slot @0.phrase=",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `@0.phrase=-`": "no (exit 1: error: import-wallet: --slot @0.phrase=: BIP-39 parse error: mnemonic has an invalid word count: 1. Word count must be 12, 15, 18, 21, or 24)",
+   "`@0.phrase=@env:VAR`": "OK"
+  }
+ },
+ {
+  "label": "mnemonic electrum-decrypt --decrypt-password",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `--decrypt-password -`": "no (exit 2: mnemonic: argument 4 on ARGV (--decrypt-password) is a wallet decryption password -- 1 characters. Nothing about it is printed here.)",
+   "`--decrypt-password @env:VAR`": "no (exit 1: error: electrum-decrypt: decryption failed (wrong password or corrupted ciphertext))",
+   "`--decrypt-password-stdin`": "OK",
+   "`--decrypt-password-file F`": "OK",
+   "`--in F`": "no (exit 64: error: unexpected argument '--in' found)"
+  }
+ },
+ {
+  "label": "mnemonic xpub-search path-of-xpub --phrase",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `--phrase -`": "no (exit 2: mnemonic: argument 5 on ARGV (--phrase) is a BIP-39 phrase -- 1 characters. Nothing about it is printed here.)",
+   "`--phrase @env:VAR`": "OK",
+   "`--phrase-stdin`": "OK",
+   "`--phrase-file F`": "no (exit 64: error: unexpected argument '--phrase-file' found)",
+   "`--in F`": "no (exit 64: error: unexpected argument '--in' found)"
+  }
+ },
+ {
+  "label": "mnemonic xpub-search path-of-xpub --ms1",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `--ms1 -`": "no (exit 1: error: ms1 string length 1 not in v0.1 set [50, 56, 62, 69, 75])",
+   "`--ms1 @env:VAR`": "no (exit 2: error: --ms1 expects a value with HRP 'ms', got '@env:gui_secret_t' (HRP is not BCH-protected; re-type the prefix))",
+   "`--ms1-stdin`": "OK",
+   "`--ms1-file F`": "no (exit 64: error: unexpected argument '--ms1-file' found)",
+   "`--in F`": "no (exit 64: error: unexpected argument '--in' found)"
+  }
+ },
+ {
+  "label": "mnemonic xpub-search path-of-xpub --passphrase",
+  "base_exit": 4,
+  "base_err": "error: no match in searched set: mode=path-of-xpub, paths searched=140; widen the range with --max-account / --number-of-accounts, or supply additiona",
+  "depends": false,
+  "channels": {
+   "stdin `--passphrase -`": "OK",
+   "`--passphrase @env:VAR`": "OK",
+   "`--passphrase-stdin`": "OK",
+   "`--passphrase-file F`": "no (exit 64: error: unexpected argument '--passphrase-file' found)",
+   "`--in F`": "no (exit 64: error: unexpected argument '--in' found)"
+  }
+ },
+ {
+  "label": "mnemonic xpub-search account-of-descriptor --phrase",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `--phrase -`": "no (exit 2: mnemonic: argument 5 on ARGV (--phrase) is a BIP-39 phrase -- 1 characters. Nothing about it is printed here.)",
+   "`--phrase @env:VAR`": "OK",
+   "`--phrase-stdin`": "OK",
+   "`--phrase-file F`": "no (exit 64: error: unexpected argument '--phrase-file' found)",
+   "`--in F`": "no (exit 64: error: unexpected argument '--in' found)"
+  }
+ },
+ {
+  "label": "mnemonic xpub-search account-of-descriptor --ms1",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `--ms1 -`": "no (exit 1: error: ms1 string length 1 not in v0.1 set [50, 56, 62, 69, 75])",
+   "`--ms1 @env:VAR`": "no (exit 2: error: --ms1 expects a value with HRP 'ms', got '@env:gui_secret_t' (HRP is not BCH-protected; re-type the prefix))",
+   "`--ms1-stdin`": "OK",
+   "`--ms1-file F`": "no (exit 64: error: unexpected argument '--ms1-file' found)",
+   "`--in F`": "no (exit 64: error: unexpected argument '--in' found)"
+  }
+ },
+ {
+  "label": "mnemonic xpub-search account-of-descriptor --passphrase",
+  "base_exit": 4,
+  "base_err": "error: no match in searched set: mode=account-of-descriptor, paths searched=140; widen the range with --max-account / --number-of-accounts, or supply ",
+  "depends": false,
+  "channels": {
+   "stdin `--passphrase -`": "OK",
+   "`--passphrase @env:VAR`": "OK",
+   "`--passphrase-stdin`": "OK",
+   "`--passphrase-file F`": "no (exit 64: error: unexpected argument '--passphrase-file' found)",
+   "`--in F`": "no (exit 64: error: unexpected argument '--in' found)"
+  }
+ },
+ {
+  "label": "mnemonic xpub-search passphrase-of-xpub --passphrase",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `--passphrase -`": "exit 4 but DIFFERENT output",
+   "`--passphrase @env:VAR`": "OK",
+   "`--passphrase-stdin`": "OK",
+   "`--passphrase-file F`": "no (exit 64: error: unexpected argument '--passphrase-file' found)",
+   "`--in F`": "no (exit 64: error: unexpected argument '--in' found)"
+  }
+ },
+ {
+  "label": "mnemonic xpub-search passphrase-of-xpub --phrase",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `--phrase -`": "no (exit 1: error: BIP-39 word count 1 invalid (must be 12, 15, 18, 21, or 24))",
+   "`--phrase @env:VAR`": "OK",
+   "`--phrase-stdin`": "OK",
+   "`--phrase-file F`": "no (exit 64: error: unexpected argument '--phrase-file' found)",
+   "`--in F`": "no (exit 64: error: unexpected argument '--in' found)"
+  }
+ },
+ {
+  "label": "mnemonic slip39 split --from phrase=",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `phrase=-`": "OK",
+   "`phrase=@env:VAR`": "OK"
+  }
+ },
+ {
+  "label": "mnemonic slip39 split --passphrase",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `--passphrase -`": "exit 0 but DIFFERENT output",
+   "`--passphrase @env:VAR`": "OK",
+   "`--passphrase-stdin`": "OK",
+   "`--passphrase-file F`": "no (exit 64: error: unexpected argument '--passphrase-file' found)",
+   "`--in F`": "no (exit 64: error: unexpected argument '--in' found)"
+  }
+ },
+ {
+  "label": "mnemonic slip39 combine --share",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": false,
+  "channels": {
+   "stdin `--share -`": "OK",
+   "`--share @env:VAR`": "OK",
+   "`--share-stdin`": "no (exit 64: error: unexpected argument '--share-stdin' found)",
+   "`--share-file F`": "no (exit 64: error: unexpected argument '--share-file' found)",
+   "`--in F`": "no (exit 64: error: unexpected argument '--in' found)"
+  }
+ },
+ {
+  "label": "mnemonic slip39 combine --passphrase",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `--passphrase -`": "exit 0 but DIFFERENT output",
+   "`--passphrase @env:VAR`": "OK",
+   "`--passphrase-stdin`": "OK",
+   "`--passphrase-file F`": "no (exit 64: error: unexpected argument '--passphrase-file' found)",
+   "`--in F`": "no (exit 64: error: unexpected argument '--in' found)"
+  }
+ },
+ {
+  "label": "mnemonic ms-shares split --from phrase=",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `phrase=-`": "OK",
+   "`phrase=@env:VAR`": "OK"
+  }
+ },
+ {
+  "label": "mnemonic ms-shares combine --share",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `--share -`": "OK",
+   "`--share @env:VAR`": "OK",
+   "`--share-stdin`": "no (exit 64: error: unexpected argument '--share-stdin' found)",
+   "`--share-file F`": "no (exit 64: error: unexpected argument '--share-file' found)",
+   "`--in F`": "no (exit 64: error: unexpected argument '--in' found)"
+  }
+ },
+ {
+  "label": "ms split --phrase",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `--phrase -`": "OK",
+   "`--phrase @env:VAR`": "no (exit 1: ms: argument 7 on ARGV (arguments count from 0, and 0 is `ms` itself) is a BIP-39 mnemonic, 17 characters long.)",
+   "`--phrase-stdin`": "no (exit 64: error: unexpected argument '--phrase-stdin' found)",
+   "`--phrase-file F`": "no (exit 64: error: unexpected argument '--phrase-file' found)",
+   "`--in F`": "OK"
+  }
+ },
+ {
+  "label": "ms split --hex",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `--hex -`": "OK",
+   "`--hex @env:VAR`": "no (exit 1: ms: argument 7 on ARGV (arguments count from 0, and 0 is `ms` itself) is raw hex entropy, 17 characters long.)",
+   "`--hex-stdin`": "no (exit 64: error: unexpected argument '--hex-stdin' found)",
+   "`--hex-file F`": "no (exit 64: error: unexpected argument '--hex-file' found)",
+   "`--in F`": "no (exit 1: ms split --hex - < /tmp/tmpbodcutoq/tmp4msggqcv.txt)"
+  }
+ },
+ {
+  "label": "ms combine <shares> (first)",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `-`": "OK",
+   "`@env:VAR`": "no (exit 1: error: string length 17 not a valid codex32 length (need 48-93 short or 125-127 long))",
+   "`--in F`": "no (exit 1: error: string length 2 not a valid codex32 length (need 48-93 short or 125-127 long))"
+  }
+ },
+ {
+  "label": "ms hashlock --hashlock-phrase",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `--hashlock-phrase -`": "no (exit 64: error: --hashlock-phrase - is not a channel; to read the phrase from stdin use --hashlock-phrase-stdin)",
+   "`--hashlock-phrase @env:VAR`": "no (exit 1: ms: argument 5 on ARGV (arguments count from 0, and 0 is `ms` itself) is a hashlock phrase, 17 characters long.)",
+   "`--hashlock-phrase-stdin`": "OK",
+   "`--hashlock-phrase-file F`": "no (exit 64: error: unexpected argument '--hashlock-phrase-file' found)",
+   "`--in F`": "no (exit 1: error: string length 25 not in v0.1 set [50, 56, 62, 69, 75])"
+  }
+ },
+ {
+  "label": "ms hashlock --hex",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `--hex -`": "OK",
+   "`--hex @env:VAR`": "no (exit 1: ms: argument 5 on ARGV (arguments count from 0, and 0 is `ms` itself) is raw hex entropy, 17 characters long.)",
+   "`--hex-stdin`": "no (exit 64: error: unexpected argument '--hex-stdin' found)",
+   "`--hex-file F`": "no (exit 64: error: unexpected argument '--hex-file' found)",
+   "`--in F`": "no (exit 1: error: BCH checksum invalid (short code); engraving error or transcription typo)"
+  }
+ }
+]
