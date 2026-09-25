@@ -21,6 +21,8 @@ MARK = 'if let Some(p) = std::env::var_os("MUTATION_MARK") { let _ = std::fs::wr
 PLANNER, LOOK, DATA, RUNNER = ("src/form/channels/mod.rs", "src/form/channels/lookalike.rs",
                                "src/form/channels/data.rs", "src/runner.rs")
 PURE = ["secret_channels_t1", "secret_channels_t6", "secret_channels_t8"]
+PARTB = ["part_b_forms", "secret_channels_t9", "f679_argv_secret_admission"]
+COND, SCHEMA_MOD = "src/form/conditional.rs", "src/schema/mod.rs"
 ALL = PURE + ["secret_channels_t7", "secret_channels_t2", "secret_channels_t3prime"]
 SKIP_SLOW = "not test(exhaustively)"
 
@@ -109,6 +111,19 @@ M = [
      "if interim && assembled.declares_allow_argv_secret && !planned.bindings.is_empty() {",
      "if { " + MARK + " true } && assembled.declares_allow_argv_secret && !planned.bindings.is_empty() {",
      ALL, SKIP_SLOW, True),
+    # ── Part B (the five forms) ──
+    ("B5: `all kinds` emits its label as --kind", SCHEMA_MOD,
+     "value == crate::schema::ms::HASHLOCK_KIND_ALL",
+     "({ " + MARK + " false }) && value == crate::schema::ms::HASHLOCK_KIND_ALL", PARTB, None, True),
+    ("B5: Run no longer blocked on (choose)", COND,
+     'let kind = state.dropdown_value("--kind").unwrap_or("");',
+     'let kind = { ' + MARK + ' let _ = state; "sha256" };', PARTB, None, True),
+    ("B5: source exclusivity off", COND,
+     '&["positional:ms1", "--hashlock-phrase", "--hex", "--in", "--random"],',
+     '&{ ' + MARK + ' ["positional:ms1"] },', PARTB, None, True),
+    ("B2-B4: pasted xprv no longer masked", "src/secrets.rs",
+     ".any(crate::form::tree_model::is_xprv_like)",
+     ".any(|t| { " + MARK + " let _ = t; false })", PARTB, None, True),
 ]
 
 

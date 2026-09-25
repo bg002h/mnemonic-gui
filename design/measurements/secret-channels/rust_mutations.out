@@ -26,5 +26,9 @@
 | delivery: env scrub dropped | KILLED | t7_each_channel_delivers_its_own_sources_target_plus_terminator |
 | delivery: pipe write end left open | KILLED | t7_each_channel_delivers_its_own_sources_target_plus_terminator |
 | delivery: the argv admission restored on the private path | KILLED | t6_copy_share_group_and_pipe_fd_recipes, t6_copy_typed_values_never_appear_and_use_the_a7_spellings |
+| B5: `all kinds` emits its label as --kind | KILLED | b5_kind_choose_blocks_run_and_all_kinds_emits_nothing_with_a_banner, b_real_every_new_form_runs_at_exit_zero |
+| B5: Run no longer blocked on (choose) | KILLED | b5_kind_choose_blocks_run_and_all_kinds_emits_nothing_with_a_banner |
+| B5: source exclusivity off | KILLED | b5_one_source_random_needs_out_and_phrase_only_flags |
+| B2-B4: pasted xprv no longer masked | KILLED | b2_b4_a_pasted_xprv_is_masked_and_never_persisted |
 
-25/25 mutations killed by assertion with the mutated line run; control survived; problems: none
+29/29 mutations killed by assertion with the mutated line run; control survived; problems: none
