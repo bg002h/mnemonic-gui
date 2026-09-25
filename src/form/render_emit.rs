@@ -211,6 +211,9 @@ enum FormElement {
     /// main.rs:832).
     Positional {
         pos: &'static PositionalArgSchema,
+        /// F-679 fold 1: schema `required` OR a conditional `Required` on the
+        /// reserved `positional:<name>` key (app_window reads the same).
+        required: bool,
     },
     /// A bespoke sub-surface / mode-selector placeholder line (out of the P3
     /// faithfulness gate per SPEC §2 — a single labeled line, not field-level).
@@ -284,7 +287,8 @@ fn form_elements(sub: &SubcommandSchema, state: &FormState) -> Vec<FormElement> 
 
     // Positionals (main.rs:832), after the slot editor.
     for pos in sub.positional_args {
-        els.push(FormElement::Positional { pos });
+        let required = positional_required(pos, &visibility_of);
+        els.push(FormElement::Positional { pos, required });
     }
 
     // Tree-builder bespoke sub-surface (main.rs:886).
@@ -315,9 +319,9 @@ pub fn render_form_from_state(
                 name: flag.name.to_string(),
                 body: flag_body(flag, vis),
             }),
-            FormElement::Positional { pos } => Item::Row(Row {
+            FormElement::Positional { pos, required } => Item::Row(Row {
                 name: pos.name.to_string(),
-                body: positional_body(pos),
+                body: positional_body(pos, *required),
             }),
             FormElement::Raw(s) => Item::Raw(s.clone()),
             FormElement::Run => Item::Raw("[ Run ]".to_string()),
@@ -541,6 +545,10 @@ fn is_render_suppressed(
     if flag_name == "--slot" && sub.allows_slots {
         return true;
     }
+    // F-679: GUI-managed flags are never rendered (app_window mirrors this).
+    if crate::form::invocation::is_gui_managed_flag(flag_name) {
+        return true;
+    }
     let tree_mode =
         sub.name == "build-descriptor" && mode_predicates::tree_enabled(state);
     if tree_mode && mode_predicates::suppressed_in_tree_mode(flag_name) {
@@ -669,15 +677,30 @@ fn flag_value_str(
     }
 }
 
+/// F-679 fold 1 — a positional shows the Required marker when its schema says
+/// so OR the subcommand's conditional marks the reserved key
+/// `positional:<name>` `Required` (positionals have no other visibility: they
+/// always render and always emit when filled). Shared with app_window.
+pub fn positional_required(
+    pos: &PositionalArgSchema,
+    visibility_of: &dyn Fn(&str) -> Visibility,
+) -> bool {
+    pos.required
+        || matches!(
+            visibility_of(&format!("positional:{}", pos.name)),
+            Visibility::Required
+        )
+}
+
 /// `{kind}  {markers}-> {value}` for a positional row.
-fn positional_body(pos: &PositionalArgSchema) -> String {
+fn positional_body(pos: &PositionalArgSchema, required: bool) -> String {
     let kind = if pos.repeating {
         "positional..."
     } else {
         "positional"
     };
     let mut markers: Vec<&str> = Vec::new();
-    if pos.required {
+    if required {
         markers.push("required");
     }
     if pos.secret {

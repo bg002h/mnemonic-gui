@@ -44,7 +44,11 @@ const NETWORKS_INFER: &[&str] = &["", "mainnet", "testnet", "signet", "regtest"]
 // path. The toolkit's gui-schema reports `--separator` as kind `text`
 // (keyword-or-literal value_parser); the GUI narrows it to this dropdown.
 // schema_mirror gates flag NAMES only, so the kind divergence is safe.
-const SEPARATORS: &[&str] = &["space", "hyphen", "comma"];
+// F-679 (toolkit v0.104.0): `hyphen` and `comma` are RETIRED as keywords and
+// literals ("the display separator is whitespace only"). The drift gate cannot
+// see it — the toolkit reports `--separator` as `text` with no choices — so it
+// was measured against the release binary. Intake still strips `-`/`,`.
+const SEPARATORS: &[&str] = &["space"];
 // toolkit v0.36.0: `verify-message --format` value-enum.
 const VERIFY_FORMATS: &[&str] = &["auto", "legacy", "bip322"];
 // toolkit v0.50.0: `build-descriptor --format` value-enum (CliBuildFormat).
@@ -180,6 +184,9 @@ const MULTISIG_PATH_FAMILIES: &[&str] = &["bip48", "bip87"];
 
 const EXPORT_FORMATS: &[&str] = &[
     "bitcoin-core",
+    // F-679 (toolkit v0.104.0, wallet-file-export Phase 1b): N non-ranged
+    // `addr()` entries, receive AND change; sized by `--count`.
+    "bitcoin-core-addresses",
     "bip388",
     "coldcard",
     "coldcard-multisig",
@@ -314,6 +321,27 @@ const NO_AUTO_REPAIR_FLAG: FlagSchema = FlagSchema {
     global: true,
 };
 
+// F-679 (toolkit v0.104.0, P3 rows 14-15): `--allow-argv-secret` is a clap
+// GLOBAL on every `mnemonic` subcommand. The toolkit now REFUSES secret
+// material on argv at exit 2 unless this flag is present. GUI decision:
+// mirrored here for schema parity, but GUI-MANAGED — never rendered as a
+// widget (see `form::invocation::is_gui_managed_flag`) and never emitted from
+// form state. The Run path adds it itself, and only when the argv it is about
+// to spawn carries a secret-masked token, i.e. only after the user has passed
+// the run-confirm modal (`form::invocation::admit_argv_secret_for_run`).
+// The Copy-command path does NOT add it: a copied command pasted into a shell
+// lands in shell history, which is exactly what the CLI's refusal protects.
+pub(crate) const ALLOW_ARGV_SECRET_FLAG: FlagSchema = FlagSchema {
+    name: "--allow-argv-secret",
+    kind: FlagKind::Boolean,
+    required: false,
+    repeating: false,
+    help: "GUI-managed: added by the Run path when the command carries            secret material (after the run-confirm modal). Never shown as a            widget; never added to a copied command.",
+    secret: false,
+    default_value: None,
+    global: true,
+};
+
 // ─── bundle ──────────────────────────────────────────────────────────────
 
 const BUNDLE_FLAGS: &[FlagSchema] = &[
@@ -326,10 +354,11 @@ const BUNDLE_FLAGS: &[FlagSchema] = &[
         required: false,
         repeating: false,
         help: "Display grouping: break the emitted card into groups of N \
-               characters (default 5; 0 = unbroken single line). Cosmetic — \
+               characters (default 0 = unbroken single line; 5 gives the \
+               engraving-friendly groups). Cosmetic — \
                intake strips separators, so any grouping re-ingests.",
         secret: false,
-        default_value: Some("5"),
+        default_value: Some("0"),
         global: false,
     },
     FlagSchema {
@@ -337,8 +366,8 @@ const BUNDLE_FLAGS: &[FlagSchema] = &[
         kind: FlagKind::Dropdown(SEPARATORS),
         required: false,
         repeating: false,
-        help: "Display-grouping separator keyword (space|hyphen|comma; \
-               default space). Cosmetic — non-load-bearing.",
+        help: "Display-grouping separator: `space` only (hyphen and comma \
+               were retired). Cosmetic — non-load-bearing.",
         secret: false,
         default_value: Some("space"),
         global: false,
@@ -544,13 +573,14 @@ const BUNDLE_FLAGS: &[FlagSchema] = &[
         global: false,
     },
     NO_AUTO_REPAIR_FLAG,
+    ALLOW_ARGV_SECRET_FLAG,
 ];
 
 // ─── restore (toolkit v0.43.0; +v0.44.0 multisig --md1/--cosigner) ──────────
 //
 // `restore` re-derives a wallet export (its inverse-ish sibling of
 // `export-wallet`) from a third-party source given via `--from` (required).
-// It shares export-wallet's `--format` (EXPORT_FORMATS, 11 values),
+// It shares export-wallet's `--format` (EXPORT_FORMATS, 12 values since F-679),
 // `--template` (TEMPLATES), `--language` (LANGUAGES), `--network`
 // (NETWORKS) dropdowns plus `--account` / `--output` defaults. The two
 // passphrase flags are the only secret-bearing flags (mirrored from the
@@ -902,6 +932,20 @@ const RESTORE_FLAGS: &[FlagSchema] = &[
         global: false,
     },
     NO_AUTO_REPAIR_FLAG,
+    ALLOW_ARGV_SECRET_FLAG,
+    // F-679 (toolkit v0.104.0): re-measure the search thread count.
+    FlagSchema {
+        name: "--recalibrate-threads",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Ignore any recorded search-thread count, MEASURE this machine, \
+               and overwrite `[search]` in `~/.mnemonic/mt.conf`. Use after a \
+               hardware change.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
 ];
 
 // ─── verify-bundle ───────────────────────────────────────────────────────
@@ -1261,6 +1305,7 @@ const VERIFY_BUNDLE_FLAGS: &[FlagSchema] = &[
         global: false,
     },
     NO_AUTO_REPAIR_FLAG,
+    ALLOW_ARGV_SECRET_FLAG,
 ];
 
 // ─── convert ─────────────────────────────────────────────────────────────
@@ -1275,10 +1320,11 @@ const CONVERT_FLAGS: &[FlagSchema] = &[
         required: false,
         repeating: false,
         help: "Display grouping: break the emitted card into groups of N \
-               characters (default 5; 0 = unbroken single line). Cosmetic — \
+               characters (default 0 = unbroken single line; 5 gives the \
+               engraving-friendly groups). Cosmetic — \
                intake strips separators, so any grouping re-ingests.",
         secret: false,
-        default_value: Some("5"),
+        default_value: Some("0"),
         global: false,
     },
     FlagSchema {
@@ -1286,8 +1332,8 @@ const CONVERT_FLAGS: &[FlagSchema] = &[
         kind: FlagKind::Dropdown(SEPARATORS),
         required: false,
         repeating: false,
-        help: "Display-grouping separator keyword (space|hyphen|comma; \
-               default space). Cosmetic — non-load-bearing.",
+        help: "Display-grouping separator: `space` only (hyphen and comma \
+               were retired). Cosmetic — non-load-bearing.",
         secret: false,
         default_value: Some("space"),
         global: false,
@@ -1466,6 +1512,7 @@ const CONVERT_FLAGS: &[FlagSchema] = &[
         global: false,
     },
     NO_AUTO_REPAIR_FLAG,
+    ALLOW_ARGV_SECRET_FLAG,
 ];
 
 // ─── export-wallet ───────────────────────────────────────────────────────
@@ -1567,6 +1614,37 @@ const EXPORT_WALLET_FLAGS: &[FlagSchema] = &[
         help: "Output format (default bitcoin-core).",
         secret: false,
         default_value: Some("bitcoin-core"),
+        global: false,
+    },
+    // F-679 (toolkit v0.104.0): `--allow` (same five-rule vocabulary as
+    // build-descriptor; only `sigless-branch` is enforced on this surface)
+    // and `--count` (addresses per chain for bitcoin-core-addresses).
+    FlagSchema {
+        name: "--allow",
+        kind: FlagKind::Dropdown(ALLOW_RULES),
+        required: false,
+        repeating: true,
+        help: "Reviewed opt-out of ONE sanity rule per occurrence (repeatable). \
+               Only `sigless-branch` is enforced here; the other four emit a \
+               note and change nothing. Permits EMISSION only — wallet apps \
+               (Bitcoin Core, Nunchuk, Sparrow) still refuse such a file.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--count",
+        kind: FlagKind::Number {
+            min: 1,
+            max: NumberMax::Static(u32::MAX as i64),
+        },
+        required: false,
+        repeating: false,
+        help: "Addresses PER CHAIN for --format bitcoin-core-addresses (default \
+               20): N receive + N change. The list is FIXED — Core cannot derive \
+               past it. Ignored by every other format.",
+        secret: false,
+        default_value: Some("20"),
         global: false,
     },
     FlagSchema {
@@ -1673,6 +1751,7 @@ const EXPORT_WALLET_FLAGS: &[FlagSchema] = &[
         global: false,
     },
     NO_AUTO_REPAIR_FLAG,
+    ALLOW_ARGV_SECRET_FLAG,
 ];
 
 // ─── derive-child ────────────────────────────────────────────────────────
@@ -1776,6 +1855,7 @@ const DERIVE_CHILD_FLAGS: &[FlagSchema] = &[
         global: false,
     },
     NO_AUTO_REPAIR_FLAG,
+    ALLOW_ARGV_SECRET_FLAG,
 ];
 
 // ─── slip39-split ────────────────────────────────────────────────────────
@@ -1864,6 +1944,7 @@ const SLIP39_SPLIT_FLAGS: &[FlagSchema] = &[
         global: false,
     },
     NO_AUTO_REPAIR_FLAG,
+    ALLOW_ARGV_SECRET_FLAG,
 ];
 
 // ─── slip39-combine ──────────────────────────────────────────────────────
@@ -1932,6 +2013,7 @@ const SLIP39_COMBINE_FLAGS: &[FlagSchema] = &[
         global: false,
     },
     NO_AUTO_REPAIR_FLAG,
+    ALLOW_ARGV_SECRET_FLAG,
 ];
 
 // ─── ms-shares-split ─────────────────────────────────────────────────────
@@ -1954,10 +2036,11 @@ const MS_SHARES_SPLIT_FLAGS: &[FlagSchema] = &[
         required: false,
         repeating: false,
         help: "Display grouping: break the emitted card into groups of N \
-               characters (default 5; 0 = unbroken single line). Cosmetic — \
+               characters (default 0 = unbroken single line; 5 gives the \
+               engraving-friendly groups). Cosmetic — \
                intake strips separators, so any grouping re-ingests.",
         secret: false,
-        default_value: Some("5"),
+        default_value: Some("0"),
         global: false,
     },
     FlagSchema {
@@ -1965,8 +2048,8 @@ const MS_SHARES_SPLIT_FLAGS: &[FlagSchema] = &[
         kind: FlagKind::Dropdown(SEPARATORS),
         required: false,
         repeating: false,
-        help: "Display-grouping separator keyword (space|hyphen|comma; \
-               default space). Cosmetic — non-load-bearing.",
+        help: "Display-grouping separator: `space` only (hyphen and comma \
+               were retired). Cosmetic — non-load-bearing.",
         secret: false,
         default_value: Some("space"),
         global: false,
@@ -2023,6 +2106,7 @@ const MS_SHARES_SPLIT_FLAGS: &[FlagSchema] = &[
         global: false,
     },
     NO_AUTO_REPAIR_FLAG,
+    ALLOW_ARGV_SECRET_FLAG,
 ];
 
 // ─── ms-shares-combine ───────────────────────────────────────────────────
@@ -2044,10 +2128,11 @@ const MS_SHARES_COMBINE_FLAGS: &[FlagSchema] = &[
         required: false,
         repeating: false,
         help: "Display grouping: break the emitted card into groups of N \
-               characters (default 5; 0 = unbroken single line). Cosmetic — \
+               characters (default 0 = unbroken single line; 5 gives the \
+               engraving-friendly groups). Cosmetic — \
                intake strips separators, so any grouping re-ingests.",
         secret: false,
-        default_value: Some("5"),
+        default_value: Some("0"),
         global: false,
     },
     FlagSchema {
@@ -2055,8 +2140,8 @@ const MS_SHARES_COMBINE_FLAGS: &[FlagSchema] = &[
         kind: FlagKind::Dropdown(SEPARATORS),
         required: false,
         repeating: false,
-        help: "Display-grouping separator keyword (space|hyphen|comma; \
-               default space). Cosmetic — non-load-bearing.",
+        help: "Display-grouping separator: `space` only (hyphen and comma \
+               were retired). Cosmetic — non-load-bearing.",
         secret: false,
         default_value: Some("space"),
         global: false,
@@ -2103,6 +2188,7 @@ const MS_SHARES_COMBINE_FLAGS: &[FlagSchema] = &[
         global: false,
     },
     NO_AUTO_REPAIR_FLAG,
+    ALLOW_ARGV_SECRET_FLAG,
 ];
 
 // ─── seed-xor-split ──────────────────────────────────────────────────────
@@ -2161,6 +2247,7 @@ const SEED_XOR_SPLIT_FLAGS: &[FlagSchema] = &[
         global: false,
     },
     NO_AUTO_REPAIR_FLAG,
+    ALLOW_ARGV_SECRET_FLAG,
 ];
 
 // ─── seed-xor-combine ────────────────────────────────────────────────────
@@ -2207,6 +2294,7 @@ const SEED_XOR_COMBINE_FLAGS: &[FlagSchema] = &[
         global: false,
     },
     NO_AUTO_REPAIR_FLAG,
+    ALLOW_ARGV_SECRET_FLAG,
 ];
 
 // ─── seedqr-encode ───────────────────────────────────────────────────────
@@ -2252,6 +2340,7 @@ const SEEDQR_ENCODE_FLAGS: &[FlagSchema] = &[
         global: false,
     },
     NO_AUTO_REPAIR_FLAG,
+    ALLOW_ARGV_SECRET_FLAG,
 ];
 
 // ─── seedqr-decode ───────────────────────────────────────────────────────
@@ -2318,6 +2407,7 @@ const SEEDQR_DECODE_FLAGS: &[FlagSchema] = &[
         global: false,
     },
     NO_AUTO_REPAIR_FLAG,
+    ALLOW_ARGV_SECRET_FLAG,
 ];
 
 // ─── compare-cost ────────────────────────────────────────────────────────
@@ -2389,6 +2479,7 @@ const COMPARE_COST_FLAGS: &[FlagSchema] = &[
         global: false,
     },
     NO_AUTO_REPAIR_FLAG,
+    ALLOW_ARGV_SECRET_FLAG,
 ];
 
 // ─── final-word ──────────────────────────────────────────────────────────
@@ -2425,6 +2516,7 @@ const FINAL_WORD_FLAGS: &[FlagSchema] = &[
         global: false,
     },
     NO_AUTO_REPAIR_FLAG,
+    ALLOW_ARGV_SECRET_FLAG,
 ];
 
 // ─── repair ──────────────────────────────────────────────────────────────
@@ -2526,6 +2618,7 @@ const REPAIR_FLAGS: &[FlagSchema] = &[
         global: false,
     },
     NO_AUTO_REPAIR_FLAG,
+    ALLOW_ARGV_SECRET_FLAG,
 ];
 
 // ─── inspect ─────────────────────────────────────────────────────────────
@@ -2608,6 +2701,7 @@ const INSPECT_FLAGS: &[FlagSchema] = &[
         global: false,
     },
     NO_AUTO_REPAIR_FLAG,
+    ALLOW_ARGV_SECRET_FLAG,
 ];
 
 // ─── import-wallet (v0.11.0 / toolkit v0.26.0) ───────────────────────────
@@ -2790,6 +2884,7 @@ const IMPORT_WALLET_FLAGS: &[FlagSchema] = &[
         global: false,
     },
     NO_AUTO_REPAIR_FLAG,
+    ALLOW_ARGV_SECRET_FLAG,
 ];
 
 // Eight-element option list for `--format` on import-wallet. Aligned with
@@ -3032,6 +3127,7 @@ const XPUB_SEARCH_PATH_OF_XPUB_FLAGS: &[FlagSchema] = &[
         global: false,
     },
     NO_AUTO_REPAIR_FLAG,
+    ALLOW_ARGV_SECRET_FLAG,
 ];
 
 const XPUB_SEARCH_ACCOUNT_OF_DESCRIPTOR_FLAGS: &[FlagSchema] = &[
@@ -3204,6 +3300,7 @@ const XPUB_SEARCH_ACCOUNT_OF_DESCRIPTOR_FLAGS: &[FlagSchema] = &[
         global: false,
     },
     NO_AUTO_REPAIR_FLAG,
+    ALLOW_ARGV_SECRET_FLAG,
 ];
 
 const XPUB_SEARCH_ADDRESS_OF_XPUB_FLAGS: &[FlagSchema] = &[
@@ -3307,6 +3404,7 @@ const XPUB_SEARCH_ADDRESS_OF_XPUB_FLAGS: &[FlagSchema] = &[
         global: false,
     },
     NO_AUTO_REPAIR_FLAG,
+    ALLOW_ARGV_SECRET_FLAG,
 ];
 
 const XPUB_SEARCH_PASSPHRASE_OF_XPUB_FLAGS: &[FlagSchema] = &[
@@ -3483,6 +3581,7 @@ const XPUB_SEARCH_PASSPHRASE_OF_XPUB_FLAGS: &[FlagSchema] = &[
         global: false,
     },
     NO_AUTO_REPAIR_FLAG,
+    ALLOW_ARGV_SECRET_FLAG,
 ];
 
 // ─── electrum-decrypt ──────────────────────────────────────────────────────
@@ -3552,6 +3651,7 @@ const ELECTRUM_DECRYPT_FLAGS: &[FlagSchema] = &[
         global: false,
     },
     NO_AUTO_REPAIR_FLAG,
+    ALLOW_ARGV_SECRET_FLAG,
 ];
 
 // ─── nostr ───────────────────────────────────────────────────────────────
@@ -3610,6 +3710,7 @@ const NOSTR_FLAGS: &[FlagSchema] = &[
         global: false,
     },
     NO_AUTO_REPAIR_FLAG,
+    ALLOW_ARGV_SECRET_FLAG,
     FlagSchema {
         name: "--pubkey",
         kind: FlagKind::Text,
@@ -3753,6 +3854,7 @@ const SILENT_PAYMENT_FLAGS: &[FlagSchema] = &[
         global: false,
     },
     NO_AUTO_REPAIR_FLAG,
+    ALLOW_ARGV_SECRET_FLAG,
     // toolkit v0.36.1: BIP-39 passphrase ("25th word"). SECRET (zeroize/mask/
     // paste-warn) — already covered by the toolkit's flag_is_secret.
     FlagSchema {
@@ -3833,6 +3935,7 @@ const DECODE_ADDRESS_FLAGS: &[FlagSchema] = &[
         global: false,
     },
     NO_AUTO_REPAIR_FLAG,
+    ALLOW_ARGV_SECRET_FLAG,
 ];
 
 // ─── verify-message ──────────────────────────────────────────────────────
@@ -3902,6 +4005,7 @@ const VERIFY_MESSAGE_FLAGS: &[FlagSchema] = &[
         global: false,
     },
     NO_AUTO_REPAIR_FLAG,
+    ALLOW_ARGV_SECRET_FLAG,
     FlagSchema {
         name: "--signature",
         kind: FlagKind::Text,
@@ -4032,6 +4136,7 @@ const ADDRESSES_FLAGS: &[FlagSchema] = &[
         global: false,
     },
     NO_AUTO_REPAIR_FLAG,
+    ALLOW_ARGV_SECRET_FLAG,
 ];
 
 // toolkit v0.50.0: `build-descriptor` (descriptor-builder engine Release A).
@@ -4247,6 +4352,7 @@ const BUILD_DESCRIPTOR_FLAGS: &[FlagSchema] = &[
         global: false,
     },
     NO_AUTO_REPAIR_FLAG,
+    ALLOW_ARGV_SECRET_FLAG,
 ];
 
 // ─── gen-man ─────────────────────────────────────────────────────────────
@@ -4270,6 +4376,7 @@ const GEN_MAN_FLAGS: &[FlagSchema] = &[
         global: false,
     },
     NO_AUTO_REPAIR_FLAG,
+    ALLOW_ARGV_SECRET_FLAG,
 ];
 
 // ─── word-card ───────────────────────────────────────────────────────────
@@ -4410,6 +4517,7 @@ const WORD_CARD_FLAGS: &[FlagSchema] = &[
         global: false,
     },
     NO_AUTO_REPAIR_FLAG,
+    ALLOW_ARGV_SECRET_FLAG,
 ];
 
 // Phase 5: wire the conditional-visibility fn pointers per subcommand.
@@ -4734,6 +4842,6 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
 // drift here is a cosmetic banner mismatch, not a functional error.
 pub const SCHEMA: Schema = Schema {
     cli_name: "mnemonic",
-    pinned_version: "mnemonic 0.97.0",
+    pinned_version: "mnemonic 0.104.0",
     subcommands: SUBCOMMANDS,
 };

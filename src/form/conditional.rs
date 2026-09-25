@@ -731,17 +731,28 @@ pub fn ms_encode(state: &FormState) -> FlagVisibility {
     let mut vis = Vec::new();
     let has_phrase = state.has_value("--phrase");
     let has_hex = state.has_value("--hex");
+    // F-679 (ms-cli v0.19.0): `--in FILE` is the third member of the
+    // required one-of group (`<--phrase|--hex|--in>`), and the private one.
+    let has_in = state.has_value("--in");
     if has_phrase {
         vis.push(("--hex", Visibility::Disabled));
+        vis.push(("--in", Visibility::Disabled));
     }
     if has_hex {
         vis.push(("--phrase", Visibility::Disabled));
+        vis.push(("--in", Visibility::Disabled));
         // --language is ignored when --hex is supplied (upstream help).
         vis.push(("--language", Visibility::Hidden));
     }
-    if !has_phrase && !has_hex {
+    if has_in {
+        // `--in` reads a PHRASE (never hex), so --language still applies.
+        vis.push(("--phrase", Visibility::Disabled));
+        vis.push(("--hex", Visibility::Disabled));
+    }
+    if !has_phrase && !has_hex && !has_in {
         vis.push(("--phrase", Visibility::Required));
         vis.push(("--hex", Visibility::Required));
+        vis.push(("--in", Visibility::Required));
     }
     vis
 }
@@ -779,7 +790,9 @@ pub fn mk_encode(state: &FormState) -> FlagVisibility {
 ///   includes resolved keys).
 pub fn md_encode(state: &FormState) -> FlagVisibility {
     let mut vis = Vec::new();
-    let has_template_pos = state.has_positional(0);
+    // F-679 (md-cli v0.20.3): `--in FILE` supplies the template the positional
+    // would, so it counts as the template input mode.
+    let has_template_pos = state.has_positional(0) || state.has_value("--in");
     let has_from_policy = state.has_value("--from-policy");
 
     if has_template_pos {
@@ -832,13 +845,31 @@ pub fn md_address(state: &FormState) -> FlagVisibility {
     let mut vis = Vec::new();
     let has_phrases_pos = state.has_positional(0);
     let has_template = state.has_value("--template");
+    // F-679 (md-cli v0.20.3): `--from-mk1` / `--from-mk1-file` seat key cards
+    // into a KEYLESS policy card's phrases; upstream makes `--from-mk1` a
+    // member of the required one-of group and mutually exclusive with
+    // `--template`.
+    let has_mk1 = state.has_value("--from-mk1") || state.has_value("--from-mk1-file");
 
     if has_phrases_pos {
         vis.push(("--template", Visibility::Disabled));
         vis.push(("--key", Visibility::Disabled));
         vis.push(("--fingerprint", Visibility::Disabled));
     }
-    if !has_phrases_pos && !has_template {
+    if has_mk1 {
+        vis.push(("--template", Visibility::Disabled));
+    }
+    if has_template {
+        vis.push(("--from-mk1", Visibility::Disabled));
+        vis.push(("--from-mk1-file", Visibility::Disabled));
+        vis.push(("--seat", Visibility::Disabled));
+    }
+    // F-679 fold 1 (review M2): key cards need the KEYLESS policy card's
+    // phrases on the positional — mark it Required when only mk1 is given.
+    if has_mk1 && !has_phrases_pos {
+        vis.push(("positional:phrases", Visibility::Required));
+    }
+    if !has_phrases_pos && !has_template && !has_mk1 {
         vis.push(("--template", Visibility::Required));
         // positional Required handled at widget layer.
     }
@@ -1009,4 +1040,61 @@ pub fn restore(state: &FormState) -> FlagVisibility {
         vis.push(("--from", Visibility::Required));
     }
     vis
+}
+
+// ─── F-679 fold 1 (review M1): ms input-source exclusivity ────────────────
+//
+// ms 0.19.0 added `--in FILE` to every material verb, and clap refuses it
+// together with the verb's other input (exit 64). Positionals cannot be
+// disabled (they always render and emit), so the rule is PRECEDENCE: the
+// first present source in `order` wins and every later FLAG source is
+// Disabled (suppressed from argv). A positional is listed first, so a filled
+// positional always wins. `required_group`: when nothing is present, mark
+// every source Required (the verbs whose clap group is required).
+fn ms_one_input_source(
+    state: &FormState,
+    order: &[&'static str],
+    required_group: bool,
+) -> FlagVisibility {
+    let mut vis = Vec::new();
+    match order.iter().position(|n| state.has_value(n)) {
+        Some(winner) => {
+            for n in order.iter().skip(winner + 1) {
+                if n.starts_with("--") {
+                    vis.push((*n, Visibility::Disabled));
+                }
+            }
+        }
+        None if required_group => {
+            for n in order {
+                vis.push((*n, Visibility::Required));
+            }
+        }
+        None => {}
+    }
+    vis
+}
+
+/// `ms inspect|decode|verify`: `[MS1]` XOR `--in`.
+pub fn ms_ms1_or_in(state: &FormState) -> FlagVisibility {
+    ms_one_input_source(state, &["positional:ms1", "--in"], false)
+}
+
+/// `ms derive`: one of `[MS1]`, `--in`, `--phrase`, `--hex`.
+pub fn ms_derive(state: &FormState) -> FlagVisibility {
+    ms_one_input_source(
+        state,
+        &["positional:ms1", "--in", "--phrase", "--hex"],
+        false,
+    )
+}
+
+/// `ms repair`: `<--ms1|--in>` (required group).
+pub fn ms_repair(state: &FormState) -> FlagVisibility {
+    ms_one_input_source(state, &["--ms1", "--in"], true)
+}
+
+/// `ms combine`: `<SHARES|--in>` (required group).
+pub fn ms_combine(state: &FormState) -> FlagVisibility {
+    ms_one_input_source(state, &["positional:shares", "--in"], true)
 }

@@ -272,6 +272,8 @@ fn cell_suppressed_in_tree_mode_is_exactly_the_twelve() {
         .flags
         .iter()
         .map(|f| f.name)
+        // F-679: GUI-managed flags never render in ANY mode.
+        .filter(|n| !mnemonic_gui::form::invocation::is_gui_managed_flag(n))
         .partition(|n| tree_form::suppressed_in_tree_mode(n));
     assert_eq!(suppressed.len(), 12, "2 mode flags + 9 params + --emit-spec: {suppressed:?}");
     assert_eq!(

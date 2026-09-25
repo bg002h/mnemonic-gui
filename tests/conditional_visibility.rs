@@ -412,6 +412,25 @@ fn cell_d2_ms_encode_both_required_when_neither_set() {
     assert_eq!(vis_of(&vis, "--hex"), Visibility::Required);
 }
 
+// F-679: `ms encode --in FILE` joins the one-of group.
+#[test]
+fn cell_f679_ms_encode_in_disables_phrase_and_hex_and_keeps_language() {
+    let state = FormState::from_pairs(vec![("--in", FlagValue::Path("phrase.txt".into()))]);
+    let vis = run_conditional_for_cli("encode", &state, "ms");
+    assert_eq!(vis_of(&vis, "--phrase"), Visibility::Disabled);
+    assert_eq!(vis_of(&vis, "--hex"), Visibility::Disabled);
+    assert_eq!(vis_of(&vis, "--language"), Visibility::Visible);
+}
+
+#[test]
+fn cell_f679_ms_encode_hex_disables_in_and_none_set_marks_in_required() {
+    let state = FormState::from_pairs(vec![("--hex", FlagValue::Text("00".into()))]);
+    let vis = run_conditional_for_cli("encode", &state, "ms");
+    assert_eq!(vis_of(&vis, "--in"), Visibility::Disabled);
+    let vis = run_conditional_for_cli("encode", &FormState::default(), "ms");
+    assert_eq!(vis_of(&vis, "--in"), Visibility::Required);
+}
+
 #[test]
 fn cell_d2_mk_encode_origin_fingerprint_conflicts_privacy_preserving() {
     let state = FormState::from_pairs(vec![(
@@ -465,6 +484,26 @@ fn cell_d3_md_encode_unspendable_key_disabled_by_segwitv0() {
     ]);
     let vis = run_conditional_for_cli("encode", &state, "md");
     assert_eq!(vis_of(&vis, "--unspendable-key"), Visibility::Disabled);
+}
+
+// F-679: `md encode --in FILE` is the template input mode.
+#[test]
+fn cell_f679_md_encode_in_counts_as_the_template() {
+    let state = FormState::from_pairs(vec![("--in", FlagValue::Path("t.txt".into()))]);
+    let vis = run_conditional_for_cli("encode", &state, "md");
+    assert_eq!(vis_of(&vis, "--from-policy"), Visibility::Disabled);
+}
+
+// F-679: `md address --from-mk1` is exclusive with `--template`.
+#[test]
+fn cell_f679_md_address_from_mk1_and_template_exclude_each_other() {
+    let state = FormState::from_pairs(vec![("--from-mk1", FlagValue::Text("mk1x".into()))]);
+    let vis = run_conditional_for_cli("address", &state, "md");
+    assert_eq!(vis_of(&vis, "--template"), Visibility::Disabled);
+    let state = FormState::from_pairs(vec![("--template", FlagValue::Text("wpkh(@0/**)".into()))]);
+    let vis = run_conditional_for_cli("address", &state, "md");
+    assert_eq!(vis_of(&vis, "--from-mk1"), Visibility::Disabled);
+    assert_eq!(vis_of(&vis, "--seat"), Visibility::Disabled);
 }
 
 #[test]
@@ -1393,4 +1432,74 @@ fn cell_15_build_descriptor_spec_disables_archetype() {
         Visibility::Visible,
         "--spec itself stays usable"
     );
+}
+
+// ─── F-679 fold 1 (review M1/M2) ───────────────────────────────────────────
+
+fn with_secret_positional(mut st: FormState, name: &str, v: &str) -> FormState {
+    st.secret_widgets.insert(
+        format!("positional:{name}"),
+        vec![mnemonic_gui::form::secret_widget::SecretLineEdit::from_text(v)],
+    );
+    st
+}
+
+/// M1: a filled ms1 positional disables `--in` on every positional-taking ms
+/// verb (the positional cannot be disabled, so it wins); `--in` alone is fine.
+#[test]
+fn cell_fold1_ms_positional_disables_in() {
+    for sub_name in ["inspect", "decode", "verify", "derive"] {
+        let st = with_secret_positional(
+            FormState::from_pairs(vec![("--in", FlagValue::Path("c.ms1".into()))]),
+            "ms1",
+            "ms10x",
+        );
+        let vis = run_conditional_for_cli(sub_name, &st, "ms");
+        assert_eq!(vis_of(&vis, "--in"), Visibility::Disabled, "{sub_name}");
+        let st = FormState::from_pairs(vec![("--in", FlagValue::Path("c.ms1".into()))]);
+        let vis = run_conditional_for_cli(sub_name, &st, "ms");
+        assert_eq!(vis_of(&vis, "--in"), Visibility::Visible, "{sub_name}");
+    }
+    let st = with_secret_positional(FormState::default(), "shares", "ms1x");
+    assert_eq!(
+        vis_of(&run_conditional_for_cli("combine", &st, "ms"), "--in"),
+        Visibility::Disabled
+    );
+}
+
+#[test]
+fn cell_fold1_ms_derive_first_source_wins() {
+    let st = FormState::from_pairs(vec![
+        ("--in", FlagValue::Path("c.ms1".into())),
+        ("--hex", FlagValue::Text("00".into())),
+    ]);
+    let vis = run_conditional_for_cli("derive", &st, "ms");
+    assert_eq!(vis_of(&vis, "--in"), Visibility::Visible);
+    assert_eq!(vis_of(&vis, "--hex"), Visibility::Disabled);
+    assert_eq!(vis_of(&vis, "--phrase"), Visibility::Disabled);
+}
+
+#[test]
+fn cell_fold1_ms_repair_ms1_xor_in_and_required_when_empty() {
+    let vis = run_conditional_for_cli("repair", &FormState::default(), "ms");
+    assert_eq!(vis_of(&vis, "--ms1"), Visibility::Required);
+    assert_eq!(vis_of(&vis, "--in"), Visibility::Required);
+    let mut st = FormState::default();
+    st.secret_widgets.insert(
+        "--ms1".into(),
+        vec![mnemonic_gui::form::secret_widget::SecretLineEdit::from_text("ms10x")],
+    );
+    let vis = run_conditional_for_cli("repair", &st, "ms");
+    assert_eq!(vis_of(&vis, "--in"), Visibility::Disabled);
+}
+
+/// M2: key cards without the policy card's phrases → the positional is Required.
+#[test]
+fn cell_fold1_md_address_mk1_only_marks_phrases_required() {
+    let st = FormState::from_pairs(vec![("--from-mk1", FlagValue::Text("mk1x".into()))]);
+    let vis = run_conditional_for_cli("address", &st, "md");
+    assert_eq!(vis_of(&vis, "positional:phrases"), Visibility::Required);
+    let st = st.with_positionals(["md1x"]);
+    let vis = run_conditional_for_cli("address", &st, "md");
+    assert_eq!(vis_of(&vis, "positional:phrases"), Visibility::Visible);
 }

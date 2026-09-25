@@ -99,6 +99,10 @@ fn exact_render_seeded_conditional_form_disables_multisig_only_flags() {
     // PLACEMENT guard: a prepend would read `dropdown[(none),bip44,…]` and
     // flip the virgin `opts[0]` materialization off `-> bip44`, so this
     // assert catches it.
+    //
+    // F-679 (toolkit v0.104.0): `--format` gains `bitcoin-core-addresses`, and
+    // `--allow` (optional-repeating: depicted, NOT seeded — no row emits) and
+    // `--count` are new rows. `--allow-argv-secret` is GUI-managed: no row.
     let expected = "\
 [ mnemonic > export-wallet ]
   --template                dropdown[bip44,bip49,bip84,bip86,wsh-multi,wsh-sortedmulti,sh-wsh-multi,sh-wsh-sortedmulti,tr-multi-a,tr-sortedmulti-a,(none)]  -> bip44
@@ -108,7 +112,9 @@ fn exact_render_seeded_conditional_form_disables_multisig_only_flags() {
   --network                 dropdown[mainnet,testnet,signet,regtest]  -> mainnet
   --language                dropdown[english,simplifiedchinese,traditionalchinese,czech,french,italian,japanese,korean,portuguese,spanish]  -> english
   --account                 number  -> <unset>
-  --format                  dropdown[bitcoin-core,bip388,coldcard,coldcard-multisig,jade,sparrow,specter,electrum,green,bsms,descriptor]  -> bitcoin-core
+  --format                  dropdown[bitcoin-core,bitcoin-core-addresses,bip388,coldcard,coldcard-multisig,jade,sparrow,specter,electrum,green,bsms,descriptor]  -> bitcoin-core
+  --allow                   dropdown[malleable,mixed-timelock,repeated-keys,resource-limit,sigless-branch]  (repeating) -> malleable
+  --count                   number  -> <unset>
   --output                  path(stdio)  -> <hint:->
   --range                   range  -> <unset>
   --timestamp               timestamp  -> <unset>

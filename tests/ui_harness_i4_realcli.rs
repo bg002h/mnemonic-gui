@@ -42,7 +42,7 @@
 mod ui_harness;
 
 use mnemonic_gui::app::CliTab;
-use mnemonic_gui::form::invocation::assemble_argv;
+use mnemonic_gui::form::invocation::assemble_argv_for_run;
 use mnemonic_gui::form::secret_widget::SecretLineEdit;
 use mnemonic_gui::runner;
 use mnemonic_gui::schema::FormState;
@@ -124,7 +124,9 @@ fn drive_json_and_decode(
     drive(&mut h, IdentityKind::Boolean, &Injected::Boolean(true));
 
     // GUI's OWN assembler — no hand-rolled argv (the I4 point).
-    let mut argv = assemble_argv(schema, sub, h.state());
+    // F-679: the RUN argv (`ms decode` of an ms1 positional now needs the
+    // GUI-managed --allow-argv-secret the Run path adds).
+    let mut argv = assemble_argv_for_run(schema, sub, h.state());
 
     // Non-vacuity: the driven checkbox actually reached argv. A no-op drive
     // would omit `--json`, the CLI would emit TEXT, and the JSON parse below
@@ -208,8 +210,12 @@ fn i4_md_decode_wpkh_template() {
     };
     assert_eq!(
         v["schema"].as_str(),
-        Some("md-cli/1"),
-        "md decode --json carries the md-cli/1 schema tag"
+        // F-679: md-cli v0.20.x bumped its JSON schema md-cli/1 -> md-cli/2
+        // (descriptor-mnemonic f29ecb93: `unspendable_kind` became reachable,
+        // breaking v1's is_nums ⟹ NUMS-point invariant). The GUI parses no
+        // md JSON; this cell only pins the tag.
+        Some("md-cli/2"),
+        "md decode --json carries the md-cli/2 schema tag"
     );
     assert_eq!(
         v["descriptor"]["tree"]["tag"].as_str(),

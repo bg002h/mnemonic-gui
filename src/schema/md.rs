@@ -21,7 +21,11 @@ pub const NETWORKS: &[&str] = &["mainnet", "testnet", "signet", "regtest"];
 // mstring display-grouping (md-cli v0.7.0): `--separator` keyword values.
 // SPEC §I7 — keyword dropdown (space|hyphen|comma); the toolkit reports
 // `--separator` as kind `text`, the GUI narrows it. Names-only gate.
-const SEPARATORS: &[&str] = &["space", "hyphen", "comma"];
+// F-679 (md-cli v0.20.3): `hyphen` and `comma` are RETIRED — md refuses them
+// ("--separator is whitespace-only across the constellation (SPEC §6c)").
+// The drift gate cannot see it (md reports `--separator` as `text`), so this
+// was measured against the release binary.
+const SEPARATORS: &[&str] = &["space"];
 
 /// Script contexts accepted by `md encode --context` and `md compile --context`.
 pub const SCRIPT_CONTEXTS: &[&str] = &["tap", "segwitv0"];
@@ -29,20 +33,35 @@ pub const SCRIPT_CONTEXTS: &[&str] = &["tap", "segwitv0"];
 // ─── inspect ─────────────────────────────────────────────────────────────
 
 // `md inspect <STRINGS>... [--json]`
-const INSPECT_FLAGS: &[FlagSchema] = &[FlagSchema {
-    name: "--json",
-    kind: FlagKind::Boolean,
-    required: false,
-    repeating: false,
-    help: "Emit structured JSON instead of pretty-printed text.",
-    secret: false,
-    default_value: None,
-    global: false,
-}];
+const INSPECT_FLAGS: &[FlagSchema] = &[
+    FlagSchema {
+        name: "--json",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Emit structured JSON instead of pretty-printed text.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--in",
+        kind: FlagKind::Path {
+            stdio_sentinel: false,
+        },
+        required: false,
+        repeating: false,
+        help: "Read md1 strings from FILE, one per line, instead of the \
+               positional.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+];
 
 const INSPECT_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
     name: "md1-strings",
-    required: true,
+    required: false,
     repeating: true,
     help: "One or more md1 strings to decode and pretty-print.",
     secret: false,
@@ -70,9 +89,9 @@ const ENCODE_FLAGS: &[FlagSchema] = &[
         },
         required: false,
         repeating: false,
-        help: "Display grouping: break the emitted card into groups of N \
-               characters (default 5; 0 = unbroken single line). Cosmetic — \
-               intake strips separators, so any grouping re-ingests.",
+        help: "Group the ENGRAVING CARD on stderr into N-character groups \
+               (default 5; 0 = unbroken). stdout is always the unbroken md1 \
+               string. Cosmetic — intake strips separators.",
         secret: false,
         default_value: Some("5"),
         global: false,
@@ -82,8 +101,8 @@ const ENCODE_FLAGS: &[FlagSchema] = &[
         kind: FlagKind::Dropdown(SEPARATORS),
         required: false,
         repeating: false,
-        help: "Display-grouping separator keyword (space|hyphen|comma; \
-               default space). Cosmetic — non-load-bearing.",
+        help: "Engraving-card separator: `space` only (hyphen and comma were \
+               retired constellation-wide). Cosmetic — non-load-bearing.",
         secret: false,
         default_value: Some("space"),
         global: false,
@@ -201,6 +220,44 @@ const ENCODE_FLAGS: &[FlagSchema] = &[
         default_value: None,
         global: false,
     },
+    FlagSchema {
+        name: "--in",
+        kind: FlagKind::Path {
+            stdio_sentinel: false,
+        },
+        required: false,
+        repeating: false,
+        help: "Read the BIP 388 template from FILE instead of the positional. \
+               Surrounding whitespace is trimmed.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--out",
+        kind: FlagKind::Path {
+            stdio_sentinel: false,
+        },
+        required: false,
+        repeating: false,
+        help: "Write the md1 artifact to FILE (created 0600; OVERWRITES) instead \
+               of stdout. The stderr engraving card is unaffected.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--experimental",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Admit a spend path that requires NO signature (e.g. a hashlock + \
+               timelock recovery tier). Whoever learns a keyless path's preimage \
+               can spend it alone. Prints a warning on every use.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
 ];
 
 const ENCODE_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
@@ -215,20 +272,35 @@ const ENCODE_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
 // ─── decode ──────────────────────────────────────────────────────────────
 
 // `md decode <STRINGS>... [--json]`
-const DECODE_FLAGS: &[FlagSchema] = &[FlagSchema {
-    name: "--json",
-    kind: FlagKind::Boolean,
-    required: false,
-    repeating: false,
-    help: "Emit JSON output.",
-    secret: false,
-    default_value: None,
-    global: false,
-}];
+const DECODE_FLAGS: &[FlagSchema] = &[
+    FlagSchema {
+        name: "--json",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Emit JSON output.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--in",
+        kind: FlagKind::Path {
+            stdio_sentinel: false,
+        },
+        required: false,
+        repeating: false,
+        help: "Read md1 strings from FILE, one per line, instead of the \
+               positional.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+];
 
 const DECODE_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
     name: "strings",
-    required: true,
+    required: false,
     repeating: true,
     help: "One or more md1 backup strings to decode into a wallet policy template.",
     secret: false,
@@ -281,11 +353,48 @@ const VERIFY_FLAGS: &[FlagSchema] = &[
         default_value: None,
         global: false,
     },
+    FlagSchema {
+        name: "--in",
+        kind: FlagKind::Path {
+            stdio_sentinel: false,
+        },
+        required: false,
+        repeating: false,
+        help: "Read md1 strings from FILE, one per line, instead of the \
+               positional.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--path",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "Override the inferred origin path with a single shared path \
+               (named bip44|48|49|84|86, hex 0xNN, or literal m/...). Mirrors \
+               `md encode --path`.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--experimental",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Accept a template with a spend path that requires no signature, \
+               mirroring `md encode --experimental` — without it a card authored \
+               that way cannot be read here.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
 ];
 
 const VERIFY_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
     name: "strings",
-    required: true,
+    required: false,
     repeating: true,
     help: "One or more md1 strings to verify re-encode to the template.",
     secret: false,
@@ -294,20 +403,35 @@ const VERIFY_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
 // ─── bytecode ────────────────────────────────────────────────────────────
 
 // `md bytecode <STRINGS>... [--json]` — low-level inspector.
-const BYTECODE_FLAGS: &[FlagSchema] = &[FlagSchema {
-    name: "--json",
-    kind: FlagKind::Boolean,
-    required: false,
-    repeating: false,
-    help: "Emit JSON output.",
-    secret: false,
-    default_value: None,
-    global: false,
-}];
+const BYTECODE_FLAGS: &[FlagSchema] = &[
+    FlagSchema {
+        name: "--json",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Emit JSON output.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--in",
+        kind: FlagKind::Path {
+            stdio_sentinel: false,
+        },
+        required: false,
+        repeating: false,
+        help: "Read md1 strings from FILE, one per line, instead of the \
+               positional.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+];
 
 const BYTECODE_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
     name: "strings",
-    required: true,
+    required: false,
     repeating: true,
     help: "One or more md1 strings whose raw payload bits to dump.",
     secret: false,
@@ -486,6 +610,66 @@ const ADDRESS_FLAGS: &[FlagSchema] = &[
         default_value: None,
         global: false,
     },
+    FlagSchema {
+        name: "--path",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "Shared origin path applied PER SLOT to any @i the template gave \
+               no inline origin (an inline origin always wins). Named, hex or \
+               literal (m/...) forms.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--from-mk1",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: true,
+        help: "mk1 key-card string, repeatable. Supplied TOGETHER WITH the keyless \
+               md1 phrases of a policy card: each card is seated in the slot whose \
+               declared origin it satisfies. Watch-only (xpub) material.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--from-mk1-file",
+        kind: FlagKind::Path {
+            stdio_sentinel: false,
+        },
+        required: false,
+        repeating: false,
+        help: "Read mk1 key-card strings from FILE, one per line (blank lines and \
+               `#` comments skipped). Combines with --from-mk1.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--seat",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: true,
+        help: "Assert the seating of one slot: `@i=<chunk-set-id>` (append \
+               `#<k>` to pick one of several collided cards). Repeatable.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--experimental",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Accept a template with a spend path that requires no signature, \
+               mirroring `md encode --experimental` — without it a card authored \
+               that way cannot be read here.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
 ];
 
 const ADDRESS_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
@@ -502,20 +686,35 @@ const ADDRESS_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
 // for chunked-form md1 strings. v0.22.0: closes the schema/binary subcommand-
 // coverage gap (9 binary subcommands vs 8 schema; schema_mirror iterates only
 // schema-declared subcommands, so a binary-only subcommand was invisible).
-const REPAIR_FLAGS: &[FlagSchema] = &[FlagSchema {
-    name: "--json",
-    kind: FlagKind::Boolean,
-    required: false,
-    repeating: false,
-    help: "Emit a single JSON envelope on stdout instead of the text-form report.",
-    secret: false,
-    default_value: None,
-    global: false,
-}];
+const REPAIR_FLAGS: &[FlagSchema] = &[
+    FlagSchema {
+        name: "--json",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Emit a single JSON envelope on stdout instead of the text-form report.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--in",
+        kind: FlagKind::Path {
+            stdio_sentinel: false,
+        },
+        required: false,
+        repeating: false,
+        help: "Read md1 strings from FILE, one per line, instead of the \
+               positional.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+];
 
 const REPAIR_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
     name: "md1-strings",
-    required: true,
+    required: false,
     repeating: true,
     help: "One or more md1 strings to repair (BCH error-correction). `-` reads one per line \
            from stdin. Chunked-form md1 only.",
@@ -628,6 +827,6 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
 
 pub const SCHEMA: Schema = Schema {
     cli_name: "md",
-    pinned_version: "md 0.11.0",
+    pinned_version: "md 0.20.3",
     subcommands: SUBCOMMANDS,
 };

@@ -604,6 +604,11 @@ impl MnemonicGuiApp {
                     if flag.name == "--slot" && sub.allows_slots {
                         continue; // SlotEditor handles below.
                     }
+                    // F-679: GUI-managed (`--allow-argv-secret`) — the Run
+                    // path adds it; there is no widget for it.
+                    if crate::form::invocation::is_gui_managed_flag(flag.name) {
+                        continue;
+                    }
                     // v0.32.0 (node-tree SPEC §0): in tree mode neither
                     // the --spec row nor --archetype (nor the 10
                     // requires=archetype flags) renders — the tree form
@@ -809,6 +814,9 @@ impl MnemonicGuiApp {
                 // SecretLineEdit::show — do NOT route through the
                 // FlagSchema-coupled render_with_dispatch.
                 for (i, pos) in sub.positional_args.iter().enumerate() {
+                    // F-679 fold 1: conditional Required on `positional:<name>`.
+                    let pos_required =
+                        crate::form::render_emit::positional_required(pos, &visibility_of);
                     if pos.secret {
                         let key = format!("positional:{}", pos.name);
                         let rows = state
@@ -820,7 +828,7 @@ impl MnemonicGuiApp {
                         let label = format!(
                             "{} {}{}",
                             pos.name,
-                            if pos.required { "*" } else { "" },
+                            if pos_required { "*" } else { "" },
                             if pos.repeating { "..." } else { "" }
                         );
                         let mut remove: Option<usize> = None;
@@ -848,7 +856,7 @@ impl MnemonicGuiApp {
                         ui.label(format!(
                             "{} {}{}",
                             pos.name,
-                            if pos.required { "*" } else { "" },
+                            if pos_required { "*" } else { "" },
                             if pos.repeating { "..." } else { "" }
                         ));
                         while state.positionals.len() <= i {
@@ -1028,6 +1036,11 @@ impl MnemonicGuiApp {
                 // latched reveal on Run dispatch so nothing stays revealed
                 // behind/around the modal.
                 crate::form::secret_widget::clear_revealed_field(ctx);
+                // F-679: the Run path (and only it — the Copy buttons above
+                // used the unadmitted argv) opts in to secret material on
+                // argv, so the confirm modal shows the flag it will run with.
+                let (argv, mask) =
+                    crate::form::invocation::admit_argv_secret_for_run(sub, argv, mask);
                 if needs_confirm {
                     self.pending_confirm_argv = Some(PendingConfirm {
                         argv,
