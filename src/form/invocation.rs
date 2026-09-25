@@ -9,6 +9,7 @@
 //! escaping needed); the copy-command output is for the user's eyes only
 //! and is NEVER used to spawn the subprocess.
 
+use crate::form::channels::{SourceForm, SourceSite};
 use crate::schema::{
     FlagKind, FlagSchema, FlagValue, Schema, SubcommandSchema, TaggedOrIndexedValue,
     TimestampValue, Visibility,
@@ -43,6 +44,11 @@ fn subcommand_argv_tokens(name: &str) -> Vec<&str> {
     vec![name]
 }
 
+/// The argv token sequence for a (possibly nested) subcommand name.
+pub fn subcommand_tokens(name: &str) -> Vec<&str> {
+    subcommand_argv_tokens(name)
+}
+
 /// F-679 fold 1 — the end-of-options marker emitted before positionals.
 pub const END_OF_OPTIONS: &str = "--";
 
@@ -57,54 +63,6 @@ pub const ALLOW_ARGV_SECRET: &str = "--allow-argv-secret";
 /// and a stale persisted value cannot smuggle one into argv.
 pub fn is_gui_managed_flag(name: &str) -> bool {
     name == ALLOW_ARGV_SECRET
-}
-
-/// F-679 — the RUN path's argv. When `argv` carries at least one secret-masked
-/// token (or a secret `<node>=<value>` token — see
-/// [`crate::secrets::text_value_is_secret_node_token`]) AND the subcommand declares
-/// [`ALLOW_ARGV_SECRET`], insert that flag
-/// directly after the (possibly nested) subcommand tokens, with a `false` mask
-/// bit. Otherwise return the pair unchanged.
-///
-/// Why this is not the user's checkbox: the GUI spawns the child with
-/// `execve` — no shell, so no shell history, which is the leak the CLI's
-/// refusal and its purge recipe are about. What stays exposed is `/proc`
-/// argv to the same UID and root, and that exposure is not new: the GUI has
-/// always passed secrets this way, and every such run already goes through
-/// the run-confirm modal (`secrets::should_confirm_run`, which classifies the
-/// same four secret sources this mask carries).
-///
-/// Why only the Run path: the Copy-command buttons produce text the user
-/// pastes into a SHELL. There the refusal is exactly right, so the copied
-/// command never carries this flag.
-pub fn admit_argv_secret_for_run(
-    subcommand: &SubcommandSchema,
-    argv: Vec<String>,
-    mask: Vec<bool>,
-) -> (Vec<String>, Vec<bool>) {
-    debug_assert_eq!(argv.len(), mask.len());
-    let declared = subcommand.flags.iter().any(|f| f.name == ALLOW_ARGV_SECRET);
-    // F-679 fold 1 (review N1): a masked token that only NAMES a private
-    // channel (`-`, `@env:VAR`) carries no material, and the CLI does not
-    // refuse it — so it does not earn the opt-in.
-    let carries_secret = argv
-        .iter()
-        .zip(mask.iter())
-        .any(|(t, &m)| m && !masked_token_is_private_channel(t))
-        || argv
-            .iter()
-            .skip(1)
-            .any(|t| crate::secrets::text_value_is_secret_node_token(t));
-    if !declared || !carries_secret || argv.iter().any(|t| t == ALLOW_ARGV_SECRET) {
-        return (argv, mask);
-    }
-    // argv[0] is the binary; then 1 or 2 subcommand tokens.
-    let at = 1 + subcommand_argv_tokens(subcommand.name).len();
-    let mut argv = argv;
-    let mut mask = mask;
-    argv.insert(at, ALLOW_ARGV_SECRET.to_string());
-    mask.insert(at, false);
-    (argv, mask)
 }
 
 /// v0.10.0 B.3 (D33) — compare the user-typed `value` against the flag's
@@ -227,42 +185,6 @@ pub fn assemble_argv(
     assemble_argv_with_secret_mask(schema, subcommand, state).0
 }
 
-fn is_private_channel_value(v: &str) -> bool {
-    v.is_empty() || v == "-" || v.starts_with("@env:")
-}
-
-/// F-679 fold 1 — a secret-masked token whose VALUE is a private-channel
-/// sentinel: the whole token (`--passphrase -`, an ms1 positional `-`), a slot
-/// row `@N.<subkey>=<sentinel>`, or a composite `<node>=<sentinel>` for an
-/// argv-secret node. Any other `=` inside a masked value (a passphrase may
-/// contain one) is NOT split on, so such a value still earns the opt-in.
-fn masked_token_is_private_channel(token: &str) -> bool {
-    if is_private_channel_value(token) {
-        return true;
-    }
-    match token.split_once('=') {
-        Some((lhs, rhs)) => {
-            let slot = lhs.starts_with('@') && lhs.contains('.');
-            let node = crate::secrets::node_type_is_argv_secret(lhs);
-            (slot || node) && is_private_channel_value(rhs)
-        }
-        None => false,
-    }
-}
-
-/// F-679 — the argv the GUI's Run button spawns:
-/// [`assemble_argv_with_secret_mask`] followed by
-/// [`admit_argv_secret_for_run`]. Tests that model "what the GUI runs" against
-/// a real CLI use this, not [`assemble_argv`] (which is the Copy/preview argv).
-pub fn assemble_argv_for_run(
-    schema: &Schema,
-    subcommand: &SubcommandSchema,
-    state: &crate::schema::FormState,
-) -> Vec<String> {
-    let (argv, mask) = assemble_argv_with_secret_mask(schema, subcommand, state);
-    admit_argv_secret_for_run(subcommand, argv, mask).0
-}
-
 /// Fixed redaction placeholder substituted for every secret VALUE token in
 /// `render_copy_command_masked`. NOT shell-quoted (it is a display sentinel,
 /// never run). Four `\u{2022}` bullets.
@@ -288,6 +210,26 @@ pub fn assemble_argv_with_secret_mask(
     subcommand: &SubcommandSchema,
     state: &crate::schema::FormState,
 ) -> (Vec<String>, Vec<bool>) {
+    let (argv, mask, _sites, _eoo) = assemble_argv_with_sources(schema, subcommand, state);
+    (argv, mask)
+}
+
+/// DESIGN §A4.1 — like [`assemble_argv_with_secret_mask`], plus every SECRET
+/// SOURCE in the argv with the channel-table key it is measured under: a
+/// secret Text flag's value, a secret `--slot` row, a composite whose node is
+/// argv-secret, a plain Text `<node>=<v>` with an argv-secret node (whatever
+/// `<v>` is — C1 decides what `-`/`@env:` mean), and a secret positional (one
+/// source, or `ms combine`'s group). The private-channel planner
+/// (`form::channels`) reads these; nothing else about a source is inferred
+/// from argv text.
+pub fn assemble_argv_with_sources(
+    schema: &Schema,
+    subcommand: &SubcommandSchema,
+    state: &crate::schema::FormState,
+) -> (Vec<String>, Vec<bool>, Vec<SourceSite>, Option<usize>) {
+    let base = crate::form::channels::key_base(schema, subcommand);
+    let mut eoo_at: Option<usize> = None;
+    let mut sites: Vec<SourceSite> = Vec::new();
     let mut argv: Vec<String> = Vec::new();
     let mut mask: Vec<bool> = Vec::new();
     argv.push(schema.cli_name.to_string());
@@ -395,6 +337,19 @@ pub fn assemble_argv_with_secret_mask(
             // Seedqr / Entropy / Ms1 / Wif / Xprv). `to_slot_argv_masked`
             // carries the per-token bit (the "--slot" token is always false).
             for (token, secret) in state.slots.to_slot_argv_masked() {
+                if secret {
+                    if let Some((lhs, _)) = token.split_once('=') {
+                        let subkey = lhs.split_once('.').map(|(_, k)| k).unwrap_or(lhs);
+                        sites.push(SourceSite {
+                            key: format!("{base} --slot @N.{subkey}="),
+                            form: SourceForm::Node {
+                                prefix: format!("{lhs}="),
+                            },
+                            flag_at: Some(argv.len() - 1),
+                            value_at: vec![argv.len()],
+                        });
+                    }
+                }
                 argv.push(token);
                 mask.push(secret);
             }
@@ -449,6 +404,12 @@ pub fn assemble_argv_with_secret_mask(
                             mask.push(false);
                             argv.push(value.as_str().to_string());
                             mask.push(true); // secret Text value
+                            sites.push(SourceSite {
+                                key: format!("{base} {}", flag.name),
+                                form: SourceForm::Value,
+                                flag_at: Some(argv.len() - 2),
+                                value_at: vec![argv.len() - 1],
+                            });
                         }
                     }
                 }
@@ -463,10 +424,10 @@ pub fn assemble_argv_with_secret_mask(
         }
         if flag.repeating {
             for (_, value) in state.values.iter().filter(|(k, _)| k == flag.name) {
-                emit_one(flag, value, &mut argv, &mut mask);
+                emit_one(flag, value, &mut argv, &mut mask, &base, &mut sites);
             }
         } else if let Some((_, value)) = state.values.iter().find(|(k, _)| k == flag.name) {
-            emit_one(flag, value, &mut argv, &mut mask);
+            emit_one(flag, value, &mut argv, &mut mask, &base, &mut sites);
         }
     }
 
@@ -489,7 +450,8 @@ pub fn assemble_argv_with_secret_mask(
     // drift. It also protects a positional value that begins with `-`. Copy,
     // Preview, the confirm modal and Run all derive from this one argv.
     let mut positionals: Vec<(String, bool)> = Vec::new();
-    if let Some(pos) = subcommand.positional_args.iter().find(|p| p.secret) {
+    let secret_pos = subcommand.positional_args.iter().find(|p| p.secret);
+    if let Some(pos) = secret_pos {
         if let Some(rows) = state.secret_widgets.get(&format!("positional:{}", pos.name)) {
             for w in rows {
                 if !w.is_empty() {
@@ -506,11 +468,36 @@ pub fn assemble_argv_with_secret_mask(
         }
     }
     if !positionals.is_empty() {
+        eoo_at = Some(argv.len());
         argv.push(END_OF_OPTIONS.to_string());
         mask.push(false);
+        let mut secret_at = Vec::new();
         for (token, secret) in positionals {
+            if secret {
+                secret_at.push(argv.len());
+            }
             argv.push(token);
             mask.push(secret);
+        }
+        if let (Some(pos), false) = (secret_pos, secret_at.is_empty()) {
+            let key = format!("{base} <{}>", pos.name);
+            if pos.repeating {
+                sites.push(SourceSite {
+                    key,
+                    form: SourceForm::Group,
+                    flag_at: None,
+                    value_at: secret_at,
+                });
+            } else {
+                for at in secret_at {
+                    sites.push(SourceSite {
+                        key: key.clone(),
+                        form: SourceForm::Pos,
+                        flag_at: None,
+                        value_at: vec![at],
+                    });
+                }
+            }
         }
     }
 
@@ -519,7 +506,7 @@ pub fn assemble_argv_with_secret_mask(
         mask.len(),
         "secret-mask length must track argv length — a push site is missing its mask.push"
     );
-    (argv, mask)
+    (argv, mask, sites, eoo_at)
 }
 
 /// SPEC §6.10.4 v3 PinValue emission helper. Renders the pinned
@@ -556,7 +543,14 @@ fn pin_value_to_argv_token(v: &serde_json::Value) -> Option<String> {
 // - a non-secret Text value of shape `<secret-node>=<value>`
 //   (`restore --from ms1=<card>`), bit
 //   `secrets::text_value_is_secret_node_token(v)`.
-fn emit_one(flag: &FlagSchema, value: &FlagValue, argv: &mut Vec<String>, mask: &mut Vec<bool>) {
+fn emit_one(
+    flag: &FlagSchema,
+    value: &FlagValue,
+    argv: &mut Vec<String>,
+    mask: &mut Vec<bool>,
+    base: &str,
+    sites: &mut Vec<SourceSite>,
+) {
     // v0.10.0 B.3 (D33): default-value suppression. When the user's typed
     // value equals the toolkit-declared default for this flag, omit the
     // flag from argv entirely — the toolkit will pick up the same value
@@ -572,8 +566,20 @@ fn emit_one(flag: &FlagSchema, value: &FlagValue, argv: &mut Vec<String>, mask: 
                 mask.push(false);
                 argv.push(v.clone());
                 // A non-secret Text flag whose VALUE names a secret node
-                // (`restore --from ms1=<card>`) is secret by content.
-                mask.push(crate::secrets::text_value_is_secret_node_token(v));
+                // (`restore --from ms1=<card>`) is a secret SOURCE by
+                // content (DESIGN §A4.1), whatever follows the `=`.
+                let named = crate::form::channels::text_value_names_secret_node(v);
+                mask.push(named.is_some());
+                if let Some((node, _)) = named {
+                    sites.push(SourceSite {
+                        key: format!("{base} {} {node}=", flag.name),
+                        form: SourceForm::Node {
+                            prefix: format!("{node}="),
+                        },
+                        flag_at: Some(argv.len() - 2),
+                        value_at: vec![argv.len() - 1],
+                    });
+                }
             }
         (FlagKind::Number { .. }, FlagValue::Number(n)) => {
             argv.push(flag.name.to_string());
@@ -629,6 +635,16 @@ fn emit_one(flag: &FlagSchema, value: &FlagValue, argv: &mut Vec<String>, mask: 
                     crate::secrets::flag_is_secret(flag)
                         || crate::secrets::node_type_is_argv_secret(node),
                 );
+                if crate::secrets::node_type_is_argv_secret(node) {
+                    sites.push(SourceSite {
+                        key: format!("{base} {} {node}=", flag.name),
+                        form: SourceForm::Node {
+                            prefix: format!("{node}="),
+                        },
+                        flag_at: Some(argv.len() - 2),
+                        value_at: vec![argv.len() - 1],
+                    });
+                }
             }
         (FlagKind::TaggedOrIndexed(_), FlagValue::TaggedOrIndexed(tv)) => {
             argv.push(flag.name.to_string());
@@ -753,7 +769,7 @@ pub fn posix_quote(s: &str) -> String {
 /// escape — it parses as (close-quote, reopen-quote) and the literal `"`
 /// is lost from the resulting argv. The odd-backslash rule is the only
 /// universal encoding.
-fn cmd_quote(s: &str) -> String {
+pub(crate) fn cmd_quote(s: &str) -> String {
     let chars: Vec<char> = s.chars().collect();
     let mut out = String::with_capacity(s.len() + 2);
     out.push('"');

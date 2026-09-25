@@ -42,7 +42,6 @@
 mod ui_harness;
 
 use mnemonic_gui::app::CliTab;
-use mnemonic_gui::form::invocation::assemble_argv_for_run;
 use mnemonic_gui::form::secret_widget::SecretLineEdit;
 use mnemonic_gui::runner;
 use mnemonic_gui::schema::FormState;
@@ -126,7 +125,9 @@ fn drive_json_and_decode(
     // GUI's OWN assembler — no hand-rolled argv (the I4 point).
     // F-679: the RUN argv (`ms decode` of an ms1 positional now needs the
     // GUI-managed --allow-argv-secret the Run path adds).
-    let mut argv = assemble_argv_for_run(schema, sub, h.state());
+    let mut plan = mnemonic_gui::form::channels::plan_for_run(schema, sub, h.state())
+        .unwrap_or_else(|r| panic!("i4 [{}/{sub_name}]: refused: {r}", tab.bin_name()));
+    let argv = &plan.argv;
 
     // Non-vacuity: the driven checkbox actually reached argv. A no-op drive
     // would omit `--json`, the CLI would emit TEXT, and the JSON parse below
@@ -139,8 +140,8 @@ fn drive_json_and_decode(
     );
 
     // Run the configured/pinned binary rather than a $PATH guess.
-    argv[0] = bin;
-    let result = runner::run(argv).unwrap_or_else(|e| {
+    plan.argv[0] = bin;
+    let result = runner::run_plan(&plan).unwrap_or_else(|e| {
         panic!(
             "i4 [{}/{sub_name}]: runner spawn failed: {e}",
             tab.bin_name()

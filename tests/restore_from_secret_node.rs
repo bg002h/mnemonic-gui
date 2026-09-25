@@ -111,10 +111,31 @@ fn site1_public_node_is_not_masked() {
 }
 
 #[test]
-fn site1_private_channel_sentinel_is_not_masked() {
-    // `ms1=-` names stdin; it carries no material and hides nothing.
+fn site1_c1_a_channel_spelling_is_a_source_that_c1_resolves_or_refuses() {
+    // Phase 1a pinned `ms1=-` as "not masked, no material". Under the
+    // secret-channel design (§A3a, §A4.1) `restore --from ms1=<v>` is a secret
+    // SOURCE whatever `<v>` is, and C1 decides what `-` / `@env:VAR` mean: `-`
+    // refuses on every OS (the GUI has no stdin to forward), `@env:VAR` is
+    // resolved GUI-side and argv carries only the planner's reference.
     let (_, bit, _) = from_token_mask("ms1=-");
-    assert!(!bit, "restore --from ms1=- carries no secret");
+    assert!(bit, "ms1=- is a secret source (C1 handles its meaning)");
+    let none = |_: &str| None;
+    for os in ["linux", "macos", "windows"] {
+        let r = mnemonic_gui::form::channels::plan(&schema::mnemonic::SCHEMA, restore(), &from_text("ms1=-"), &none, os);
+        assert_eq!(r.err().map(|e| e.code), Some("C1-dash"), "{os}");
+    }
+    let env = |k: &str| (k == "SEED").then(|| MS1.to_string());
+    let p = mnemonic_gui::form::channels::plan(&schema::mnemonic::SCHEMA, restore(), &from_text("ms1=@env:SEED"), &env, "linux")
+        .expect("resolved");
+    assert!(p.argv.iter().any(|t| t == "ms1=@env:MNEMONIC_GUI_S0"), "{:?}", p.argv);
+    assert!(!p.argv.iter().any(|t| t.contains(MS1) || t.contains("SEED")));
+    assert_eq!(p.env[0].1.as_str(), MS1);
+    // interim: the RESOLVED card on argv, masked, never the typed `@env:` text
+    let p = mnemonic_gui::form::channels::plan(&schema::mnemonic::SCHEMA, restore(), &from_text("ms1=@env:SEED"), &env, "macos")
+        .expect("resolved");
+    let at = p.argv.iter().position(|t| *t == format!("ms1={MS1}")).expect("resolved card on interim argv");
+    assert!(p.mask[at]);
+    assert!(!p.argv.iter().any(|t| t.contains("@env:")));
 }
 
 // ── site 2: run-confirm ──────────────────────────────────────────────────────

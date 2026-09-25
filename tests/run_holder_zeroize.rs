@@ -37,15 +37,16 @@ fn secret_run_result() -> RunResult {
 }
 
 fn secret_pending() -> PendingConfirm {
-    PendingConfirm {
-        argv: vec![
-            "mnemonic".into(),
-            "--passphrase".into(),
-            "abandon abandon abandon ... art".into(),
-        ],
-        mask: vec![false, false, true],
-        stdin: Some(b"secret-stdin-bytes".to_vec()),
-    }
+    let mut plan = mnemonic_gui::form::channels::RunPlan::plain(vec![
+        "mnemonic".into(),
+        "--passphrase".into(),
+        "abandon abandon abandon ... art".into(),
+    ]);
+    plan.mask = vec![false, false, true];
+    plan.stdin = Some(zeroize::Zeroizing::new(b"secret-stdin-bytes".to_vec()));
+    plan.env = vec![("MNEMONIC_GUI_S0".into(), zeroize::Zeroizing::new("secret-env".into()))];
+    plan.fds = vec![(3, zeroize::Zeroizing::new(b"secret-fd".to_vec()))];
+    PendingConfirm { plan }
 }
 
 // ── T1 — RunResult whole-holder scrub ────────────────────────────────────────
@@ -66,13 +67,18 @@ fn t1_run_result_zeroize_empties_all_secret_bearing_fields() {
 fn t3_pending_confirm_zeroize_empties_argv_mask_stdin() {
     let mut pending = secret_pending();
     pending.zeroize();
-    assert!(pending.argv.is_empty(), "argv must be cleared; got {:?}", pending.argv);
-    assert!(pending.mask.is_empty(), "mask must be cleared; got {:?}", pending.mask);
+    let p = &pending.plan;
+    assert!(p.argv.is_empty(), "argv must be cleared; got {:?}", p.argv);
+    assert!(p.mask.is_empty(), "mask must be cleared; got {:?}", p.mask);
     assert!(
-        pending.stdin.is_none() || pending.stdin.as_ref().is_some_and(|b| b.is_empty()),
+        p.stdin.is_none() || p.stdin.as_ref().is_some_and(|b| b.is_empty()),
         "stdin bytes must be cleared; got {:?}",
-        pending.stdin
+        p.stdin
     );
+    // DESIGN secret channels §A4.2: the planned env and pipe payloads carry
+    // secrets too, and scrub with the holder.
+    assert!(p.env.is_empty(), "env must be cleared");
+    assert!(p.fds.is_empty(), "fd payloads must be cleared");
 }
 
 // ── T4 — exit-sweep seam coverage ────────────────────────────────────────────

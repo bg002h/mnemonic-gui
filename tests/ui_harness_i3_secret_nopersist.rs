@@ -579,13 +579,13 @@ fn i3_tree_secret_key_off_preview_and_spec_stdin_scrubbed() {
     // The cleartext stdin lives only in the `PendingConfirm` run-holder, which
     // `Zeroize`s (and `Drop`-scrubs) the bytes — no cleartext residue persists
     // past the confirm. (Whole-holder scrub seam: `run_holder_zeroize.rs`.)
-    let mut pending = PendingConfirm {
-        argv,
-        mask,
-        stdin: Some(stdin),
-    };
+    let mut plan = mnemonic_gui::form::channels::RunPlan::plain(argv);
+    plan.mask = mask;
+    plan.stdin = Some(zeroize::Zeroizing::new(stdin));
+    let mut pending = PendingConfirm { plan };
     pending.zeroize();
     let residue = pending
+        .plan
         .stdin
         .as_ref()
         .map(|b| String::from_utf8_lossy(b).contains(TREE_KEY_FIXTURE))

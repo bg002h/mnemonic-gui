@@ -59,12 +59,11 @@ pub struct MnemonicGuiApp {
     show_stdout: bool,
     show_stderr: bool,
     /// Run-confirm modal state. `None` = no modal; `Some(PendingConfirm {
-    /// argv, mask, stdin })` = pending. v0.32.0: carries the tree-mode
-    /// `--spec -` stdin bytes alongside (build-descriptor has no secret flags
-    /// so tree runs don't confirm TODAY, but the pending state must not
-    /// silently drop the pipe if that ever changes). cycle-15 Lane G: the
-    /// payload is the `Zeroize + Drop` `runner::PendingConfirm` struct (was a
-    /// bare tuple) so the held cleartext argv/stdin scrubs on drop.
+    /// plan })` = pending: the planned invocation (DESIGN secret channels
+    /// §A4.2 — argv, env, stdin, pipe payloads, per-binding provenance),
+    /// including the tree-mode `--spec -` stdin. cycle-15 Lane G: the payload
+    /// is the `Zeroize + Drop` `runner::PendingConfirm` struct so the held
+    /// secrets scrub on drop.
     pending_confirm_argv: Option<PendingConfirm>,
     /// v0.40.0 (Item 3) — set when a secret widget reported an over-threshold
     /// paste this frame (via the `secret_widget::paste_warn_id()` ctx-data
@@ -900,16 +899,29 @@ impl MnemonicGuiApp {
                 }
             }
 
-            // Snapshot argv + secret-status BEFORE the action bar so we can
+            // Snapshot the PLANNED invocation BEFORE the action bar so we can
             // drop the `state` mutable borrow ahead of any `self`-touching
             // callback (Run / pending_confirm_argv).
-            let (mut argv, mut mask) = assemble_argv_with_secret_mask(sch, sub, state);
+            //
+            // DESIGN (secret channels) Part A: every secret source goes over a
+            // private channel (`form::channels::plan`) on an OS in
+            // `private_channels_on`; elsewhere the interim argv path runs. The
+            // plan also resolves C1 (`-` / `@env:VAR` in a secret field) and
+            // applies every refusal — a refused plan disables Run, and the
+            // GUI never falls back to argv.
+            let user_env = crate::form::channels::process_env;
+            let os = crate::form::channels::current_os();
+            let mut run_plan = crate::form::channels::plan(sch, sub, state, &user_env, os);
+            let (copy_posix_state, copy_windows_state) =
+                crate::form::channels::copy::copy_commands(sch, sub, state, &user_env);
+            let (masked_argv, masked_mask) = assemble_argv_with_secret_mask(sch, sub, state);
             // v0.32.0 (node-tree SPEC §2.2 Run leg): in tree mode the host
             // appends `--spec -` (the conditional suppressed any stale
             // --spec/--archetype/param emission) and pipes the generated
             // spec JSON via stdin. Copy-spec + Run are completeness-gated
             // (spec_stdin/spec_copy are None while the tree is incomplete
-            // — R0-r1 M4).
+            // — R0-r1 M4). `--spec -` is a PRE-BOUND stdin (DESIGN §A4.5):
+            // a plan that also needs stdin is refused.
             let tree_mode = sub.name == "build-descriptor"
                 && crate::form::tree_form::tree_enabled(state);
             let spec_stdin = if tree_mode {
@@ -922,11 +934,26 @@ impl MnemonicGuiApp {
             } else {
                 None
             };
+            let mut tree_argv = masked_argv.clone();
             if tree_mode {
-                argv.push("--spec".to_string());
-                mask.push(false);
-                argv.push("-".to_string());
-                mask.push(false); // both tree-mode tokens are non-secret
+                tree_argv.push("--spec".to_string());
+                tree_argv.push("-".to_string());
+                run_plan = match run_plan {
+                    Ok(p) if p.stdin.is_some() => Err(crate::form::channels::Refusal {
+                        code: "two-stdin",
+                        source: "--spec -".into(),
+                        why: "the spec already uses stdin".into(),
+                    }),
+                    Ok(mut p) => {
+                        p.argv.push("--spec".to_string());
+                        p.mask.push(false);
+                        p.argv.push("-".to_string());
+                        p.mask.push(false); // both tree-mode tokens are non-secret
+                        p.stdin = spec_stdin.clone().map(zeroize::Zeroizing::new);
+                        Ok(p)
+                    }
+                    Err(e) => Err(e),
+                };
             }
             // v0.32.0 P3 (SPEC §3): in tree mode the POSIX copy emits a
             // paste-runnable printf pipeline (the spec JSON piped to
@@ -934,19 +961,44 @@ impl MnemonicGuiApp {
             // terminal stdin). Completeness-gated like Copy spec JSON;
             // the Windows copy stays argv + the separate JSON copy.
             let posix_pipeline = if tree_mode {
-                crate::form::tree_form::posix_pipeline_command(state, &argv)
+                crate::form::tree_form::posix_pipeline_command(state, &tree_argv)
             } else {
                 None
             };
-            let needs_confirm = secrets::should_confirm_run(sub, state);
-            // v0.39.0 (Item 1): the on-screen Preview is MASKED; the copy
-            // buttons + Run still use the REAL command (the deliberate-reveal
-            // half of decision (d)). `argv_posix` must NOT alias `preview`
-            // anymore — it is the real clipboard payload.
-            let any_secret = mask.iter().any(|&m| m);
-            let preview = render_copy_command_masked(&argv, &mask, ShellFlavor::Posix);
-            let argv_windows = render_copy_command(&argv, ShellFlavor::WindowsCmd);
-            let argv_posix = render_copy_command(&argv, ShellFlavor::Posix);
+            let needs_confirm = secrets::should_confirm_run(sub, state)
+                || run_plan.as_ref().is_ok_and(|p| p.has_secrets());
+            // The on-screen Preview is the PLANNED argv: on the private path
+            // it carries no secret byte (channel references only); the
+            // interim path's resolved values stay masked (v0.39.0). A refused
+            // plan previews the masked form argv beside the refusal.
+            let (preview, binding_lines, refusal) = match &run_plan {
+                Ok(p) => (
+                    render_copy_command_masked(&p.argv, &p.mask, ShellFlavor::Posix),
+                    p.bindings.iter().map(|b| b.line()).collect::<Vec<_>>(),
+                    None,
+                ),
+                Err(r) => (
+                    render_copy_command_masked(&masked_argv, &masked_mask, ShellFlavor::Posix),
+                    Vec::new(),
+                    Some(r.to_string()),
+                ),
+            };
+            let (copy_posix_text, copy_posix_tip) = if tree_mode {
+                (posix_pipeline.clone(), None)
+            } else {
+                match &copy_posix_state {
+                    crate::form::channels::copy::CopyState::Ready(t) => (Some(t.clone()), None),
+                    crate::form::channels::copy::CopyState::Disabled(w) => (None, Some(w.clone())),
+                }
+            };
+            let (copy_windows_text, copy_windows_tip) = if tree_mode {
+                (Some(render_copy_command(&tree_argv, ShellFlavor::WindowsCmd)), None)
+            } else {
+                match &copy_windows_state {
+                    crate::form::channels::copy::CopyState::Ready(t) => (Some(t.clone()), None),
+                    crate::form::channels::copy::CopyState::Disabled(w) => (None, Some(w.clone())),
+                }
+            };
             let _ = state; // explicit end-of-life for clarity
             // v0.6.0 P4 — update last_template AFTER state borrow ends.
             // `template_changed` was computed inside the state-borrow scope;
@@ -960,30 +1012,30 @@ impl MnemonicGuiApp {
             let mut copy_spec = false;
             let mut run_clicked = false;
             ui.horizontal(|ui| {
-                // v0.32.0 P3: in tree mode the POSIX copy is the printf
-                // pipeline — completeness-gated (same gate as Copy spec
-                // JSON; the pipeline embeds the spec JSON).
-                // v0.39.0: when the command carries a secret value, the copy
-                // reveals it (the Preview is masked) — label the button so the
-                // reveal is a deliberate, informed click.
-                let posix_label = if any_secret {
-                    "Copy command (POSIX) — reveals secret"
-                } else {
-                    "Copy command (POSIX)"
+                // DESIGN §A7: Copy never contains a secret value, so the
+                // buttons no longer warn that they reveal one. A disabled
+                // button's tooltip says why (a refusal, a multi-line typed
+                // value, or a Windows copy that would need a pipe).
+                let posix = ui.add_enabled(
+                    copy_posix_text.is_some(),
+                    egui::Button::new("Copy command (POSIX)"),
+                );
+                let posix = match &copy_posix_tip {
+                    Some(t) => posix.on_disabled_hover_text(t),
+                    None => posix,
                 };
-                let windows_label = if any_secret {
-                    "Copy command (Windows) — reveals secret"
-                } else {
-                    "Copy command (Windows)"
-                };
-                let posix_enabled = !tree_mode || posix_pipeline.is_some();
-                if ui
-                    .add_enabled(posix_enabled, egui::Button::new(posix_label))
-                    .clicked()
-                {
+                if posix.clicked() {
                     copy_posix = true;
                 }
-                if ui.button(windows_label).clicked() {
+                let windows = ui.add_enabled(
+                    copy_windows_text.is_some(),
+                    egui::Button::new("Copy command (Windows)"),
+                );
+                let windows = match &copy_windows_tip {
+                    Some(t) => windows.on_disabled_hover_text(t),
+                    None => windows,
+                };
+                if windows.clicked() {
                     copy_windows = true;
                 }
                 // v0.32.0 (node-tree SPEC §2.2 / brainstorm R0-r1 M4 +
@@ -1005,25 +1057,35 @@ impl MnemonicGuiApp {
                     }
                 }
                 // Run is completeness-gated in tree mode (the same gate as
-                // Validate/Copy-spec — SPEC §1.2).
-                let run_enabled = !tree_mode || spec_stdin.is_some();
-                if ui.add_enabled(run_enabled, egui::Button::new("Run")).clicked() {
+                // Validate/Copy-spec — SPEC §1.2), and disabled while the
+                // plan is refused (DESIGN §A8: never fall back to argv).
+                let run_enabled = (!tree_mode || spec_stdin.is_some()) && run_plan.is_ok();
+                let run = ui.add_enabled(run_enabled, egui::Button::new("Run"));
+                let run = match &refusal {
+                    Some(r) => run.on_disabled_hover_text(r),
+                    None => run,
+                };
+                if run.clicked() {
                     run_clicked = true;
                 }
             });
             ui.label(format!("Preview: {preview}"));
+            for line in &binding_lines {
+                ui.monospace(format!("  {line}"));
+            }
+            if let Some(r) = &refusal {
+                ui.colored_label(egui::Color32::from_rgb(200, 60, 60), format!("Run refused — {r}"));
+            }
 
             if copy_posix {
-                // v0.32.0 P3: tree mode copies the printf pipeline (Some
-                // is guaranteed by the button gate; the argv fallback is
-                // the non-tree path).
-                ctx.copy_text(match posix_pipeline {
-                    Some(pipeline) => pipeline,
-                    None => argv_posix,
-                });
+                if let Some(t) = copy_posix_text {
+                    ctx.copy_text(t);
+                }
             }
             if copy_windows {
-                ctx.copy_text(argv_windows);
+                if let Some(t) = copy_windows_text {
+                    ctx.copy_text(t);
+                }
             }
             if copy_spec {
                 if let Some(spec) = &spec_copy {
@@ -1036,19 +1098,12 @@ impl MnemonicGuiApp {
                 // latched reveal on Run dispatch so nothing stays revealed
                 // behind/around the modal.
                 crate::form::secret_widget::clear_revealed_field(ctx);
-                // F-679: the Run path (and only it — the Copy buttons above
-                // used the unadmitted argv) opts in to secret material on
-                // argv, so the confirm modal shows the flag it will run with.
-                let (argv, mask) =
-                    crate::form::invocation::admit_argv_secret_for_run(sub, argv, mask);
-                if needs_confirm {
-                    self.pending_confirm_argv = Some(PendingConfirm {
-                        argv,
-                        mask,
-                        stdin: spec_stdin,
-                    });
-                } else {
-                    spawn_and_capture(self, argv, mask, spec_stdin);
+                if let Ok(plan) = run_plan {
+                    if needs_confirm {
+                        self.pending_confirm_argv = Some(PendingConfirm { plan });
+                    } else {
+                        spawn_and_capture(self, plan);
+                    }
                 }
             }
         });
@@ -1081,35 +1136,47 @@ impl MnemonicGuiApp {
                 .resizable(false)
                 .anchor(egui::Align2::CENTER_CENTER, [0.0, 0.0])
                 .show(ctx, |ui| {
-                    ui.label(secrets::RUN_CONFIRM_MODAL_PREFIX);
+                    let plan = &pending.plan;
+                    // DESIGN §A7 (Q1): the dialog stays; on the private path
+                    // its first sentence says the secrets go privately.
+                    let prefix = if plan.interim {
+                        secrets::RUN_CONFIRM_MODAL_PREFIX
+                    } else {
+                        secrets::RUN_CONFIRM_PRIVATE_PREFIX
+                    };
+                    ui.label(format!(
+                        "{prefix}{}:",
+                        plan.argv.first().map(String::as_str).unwrap_or("")
+                    ));
                     ui.separator();
                     ui.label("Argv:");
-                    // v0.39.0 (Item 1): the modal that exists BECAUSE a secret
-                    // is present must not print it cleartext — mask each secret
-                    // value token (the real argv still spawns on Run).
+                    // v0.39.0 (Item 1): an interim-path secret value is
+                    // masked; the private path's argv carries none.
                     debug_assert_eq!(
-                        pending.argv.len(),
-                        pending.mask.len(),
+                        plan.argv.len(),
+                        plan.mask.len(),
                         "confirm-modal: mask/argv length mismatch — a secret token may render cleartext"
                     );
-                    for (i, tok) in pending.argv.iter().enumerate() {
-                        let shown = if pending.mask.get(i).copied().unwrap_or(false) {
+                    for (i, tok) in plan.argv.iter().enumerate() {
+                        let shown = if plan.mask.get(i).copied().unwrap_or(false) {
                             crate::form::invocation::SECRET_MASK
                         } else {
                             tok.as_str()
                         };
                         ui.monospace(format!("  {}", shown));
                     }
+                    if plan.has_secrets() {
+                        ui.separator();
+                        ui.label("Secrets:");
+                        for b in &plan.bindings {
+                            ui.monospace(format!("  {}", b.line()));
+                        }
+                    }
                     ui.separator();
                     ui.horizontal(|ui| {
                         if ui.button("Run").clicked() {
                             self.pending_confirm_argv = None; // old struct drops → scrub
-                            spawn_and_capture(
-                                self,
-                                pending.argv.clone(),
-                                pending.mask.clone(),
-                                pending.stdin.clone(),
-                            );
+                            spawn_and_capture(self, pending.plan.clone());
                         }
                         if ui.button("Cancel").clicked() {
                             self.pending_confirm_argv = None; // old struct drops → scrub
@@ -1239,13 +1306,13 @@ fn render_exit_badge(ui: &mut egui::Ui, exit_code: Option<i32>) {
     }
 }
 
-/// v0.32.0: `stdin` carries the tree-mode spec JSON for `--spec -` runs
-/// (`None` for every other subcommand/mode — byte-identical behavior via
-/// `run_with_stdin`'s `None` delegation path).
+/// Run a planned invocation (DESIGN secret channels §A4.2): the plan's argv,
+/// env, stdin (a secret, or the tree-mode spec JSON for `--spec -`) and pipe
+/// payloads, through `runner::run_plan`.
 ///
 /// **SYNCHRONOUS-COMPLETION / populated-pane contract (SPEC §6.5,
 /// `gui_example_tutorial`).** This fn runs the subprocess to completion
-/// INSIDE the Run-click frame (`runner::run_with_stdin` blocks), so
+/// INSIDE the Run-click frame (`runner::run_plan` blocks), so
 /// `app.last_run` / `app.last_run_error` is populated the same frame the
 /// click lands. The GUI tutorial book's snapshot corpus depends on this:
 /// its harness pins a per-step `SAME-FRAME-COMPLETION` assertion
@@ -1256,18 +1323,13 @@ fn render_exit_badge(ui: &mut egui::Ui, exit_code: Option<i32>) {
 /// (SPEC §4 STOP menu; the seeded-`last_run` "fix" in the harness is
 /// exactly the downgrade the user reserved). See
 /// `mnemonic-toolkit/docs/manual-gui/design/SPEC_gui_example_tutorial.md`.
-fn spawn_and_capture(
-    app: &mut MnemonicGuiApp,
-    argv: Vec<String>,
-    mask: Vec<bool>,
-    stdin: Option<Vec<u8>>,
-) {
-    if argv.is_empty() {
+fn spawn_and_capture(app: &mut MnemonicGuiApp, plan: crate::form::channels::RunPlan) {
+    if plan.argv.is_empty() {
         return;
     }
     // SPEC §B.8 class 1: detect-missing-binary path — surface a friendly
     // error rather than crashing.
-    let bin = &argv[0];
+    let bin = &plan.argv[0];
     if !matches!(
         crate::path_detect::detect(bin),
         Detected::Found(_)
@@ -1279,15 +1341,12 @@ fn spawn_and_capture(
         ));
         return;
     }
-    // v0.10.0 B.3 (D33): `--no-auto-repair` is now a first-class
-    // FlagSchema entry per subcommand (toolkit v5 `global: true`); the
-    // form's argv assembly handles it like any other Boolean flag. The
-    // prior `runner::prepend_no_auto_repair` helper has been deleted.
-    match runner::run_with_stdin(argv, stdin) {
-        Ok(mut result) => {
-            // v0.39.0 (R0-r2 I1): the runner layer is mask-oblivious; attach
-            // the assembly-time display mask here, before storing.
-            result.mask = mask;
+    // DESIGN (secret channels) §A4.4/§A6: the runner scrubs inherited
+    // MNEMONIC_GUI_* variables, sets the plan's, writes stdin and the pipe
+    // payloads (write ends closed before spawn). The result carries the
+    // plan's display mask.
+    match runner::run_plan(&plan) {
+        Ok(result) => {
             app.last_run = Some(result);
             app.last_run_error = None;
         }

@@ -107,7 +107,7 @@ pub fn redact_for_persistence(state: &FormState) -> FormState {
             // (`restore --from ms1=<card>`; FOLLOWUP
             // `restore-from-secret-node-unmasked-and-persisted`).
             if let FlagValue::Text(s) = v {
-                if crate::secrets::text_value_is_secret_node_token(s) {
+                if crate::secrets::text_value_is_secret_source(s) {
                     return false;
                 }
             }

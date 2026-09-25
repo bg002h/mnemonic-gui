@@ -177,23 +177,17 @@ pub fn node_type_is_argv_secret(node: &str) -> bool {
 }
 
 /// True iff a plain-Text value has the shape `<node>=<value>` with an
-/// argv-secret node ([`node_type_is_argv_secret`]) and a value that is not a
-/// private-channel sentinel (empty, `-`, `@env:…`). This is the one
-/// classifier for Text values whose secrecy depends on the node the user
-/// typed — `restore --from ms1=<card>` is `FlagKind::Text`, `secret: false`
-/// (FOLLOWUP `restore-from-secret-node-unmasked-and-persisted`). All four
-/// secret-handling sites use it: the argv mask (Preview / Copy / confirm
-/// body), [`should_confirm_run`], `persistence::redact_for_persistence`, and
-/// the Text widget's `.password` mask — plus the Run path's
-/// `--allow-argv-secret` admission. Node matching is exact, as the toolkit's
+/// argv-secret node ([`node_type_is_argv_secret`]), WHATEVER the value is
+/// (DESIGN §A4.1). This is the node-only SOURCE classifier: `restore --from
+/// ms1=<card>` is `FlagKind::Text`, `secret: false`, and is a secret source by
+/// content. What the value MEANS — `-` or `@env:VAR` name a channel, and the
+/// GUI resolves or refuses them — is C1's business (`form::channels`), not
+/// this classifier's; `ms1=-` is a source that C1 refuses. Used by the argv
+/// mask, [`should_confirm_run`], `persistence::redact_for_persistence` and the
+/// Text widget's `.password` mask. Node matching is exact, as the toolkit's
 /// is (`MS1=` is refused upstream as an unknown node).
-pub fn text_value_is_secret_node_token(value: &str) -> bool {
-    match value.split_once('=') {
-        Some((node, v)) => {
-            node_type_is_argv_secret(node) && !v.is_empty() && v != "-" && !v.starts_with("@env:")
-        }
-        None => false,
-    }
+pub fn text_value_is_secret_source(value: &str) -> bool {
+    crate::form::channels::text_value_names_secret_node(value).is_some()
 }
 
 /// Paste-warn modal copy text (SPEC §9 — one-shot per session, per
@@ -215,10 +209,15 @@ per call. egui's internal undo ring retains `String` snapshots that this scheme
 does not cover — a second-tier residue documented in FOLLOWUPS
 `gui-secret-buffer-allocator-residue`.";
 
-/// Run-confirm modal prefix (the full argv preview follows in body
-/// rendering at the call site).
+/// Run-confirm modal prefix for the INTERIM path (secrets on argv; DESIGN
+/// §A6). The full argv preview follows in body rendering at the call site.
 pub const RUN_CONFIRM_MODAL_PREFIX: &str = "\
 This invocation passes secret-bearing arguments to ";
+
+/// Run-confirm modal prefix for the PRIVATE-channel path (DESIGN §A7, Q1):
+/// the dialog stays, and its first sentence says the secrets go privately.
+pub const RUN_CONFIRM_PRIVATE_PREFIX: &str = "\
+This invocation sends these secrets privately to ";
 
 /// Minimum paste length that triggers the paste-warn modal (SPEC §9).
 pub const PASTE_WARN_THRESHOLD: usize = 8;
@@ -270,7 +269,7 @@ pub fn should_confirm_run(
         // A plain Text value whose secrecy is node-dependent
         // (`restore --from ms1=<card>`).
         if let crate::schema::FlagValue::Text(s) = v {
-            if text_value_is_secret_node_token(s) {
+            if text_value_is_secret_source(s) {
                 return true;
             }
         }

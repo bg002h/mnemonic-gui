@@ -10,6 +10,7 @@
 //! build WITHOUT egui. `fixtures` is the shared canonical-fixture source.
 
 // ── Unconditional (egui-free) form model + helpers ──────────────────────────
+pub mod channels;
 pub mod conditional;
 pub mod fixtures;
 pub mod flag_defaults;

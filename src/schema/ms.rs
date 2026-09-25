@@ -82,7 +82,7 @@ const INSPECT_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
     name: "ms1",
     required: false,
     repeating: false,
-    help: "ms1 string to inspect. Use `-` or omit to read from stdin.",
+    help: "ms1 string to inspect. Type the value, or `@env:VAR` (read by the GUI; a value that is `-` or starts with `@env` is refused).",
     secret: true,
 }];
 
@@ -246,7 +246,7 @@ const DECODE_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
     name: "ms1",
     required: false,
     repeating: false,
-    help: "ms1 string to decode. Use `-` or omit to read from stdin.",
+    help: "ms1 string to decode. Type the value, or `@env:VAR` (read by the GUI; a value that is `-` or starts with `@env` is refused).",
     secret: true,
 }];
 
@@ -306,7 +306,7 @@ const VERIFY_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
     name: "ms1",
     required: false,
     repeating: false,
-    help: "ms1 string to verify. Use `-` or omit to read from stdin.",
+    help: "ms1 string to verify. Type the value, or `@env:VAR` (read by the GUI; a value that is `-` or starts with `@env` is refused).",
     secret: true,
 }];
 
@@ -463,7 +463,7 @@ const DERIVE_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
     name: "ms1",
     required: false,
     repeating: false,
-    help: "ms1 string. Use `-` or omit to read from stdin.",
+    help: "ms1 string. Type the value, or `@env:VAR` (read by the GUI; a value that is `-` or starts with `@env` is refused).",
     secret: true,
 }];
 
@@ -476,7 +476,7 @@ const REPAIR_FLAGS: &[FlagSchema] = &[
         // `required: false`) — `--in FILE` is the private alternative.
         required: false,
         repeating: false,
-        help: "ms1 string to repair via BCH error correction. `-` reads stdin.",
+        help: "ms1 string to repair via BCH error correction. Type the value, or `@env:VAR` (read by the GUI; a value that is `-` or starts with `@env` is refused).",
         // v0.33.0 deliberate GUI-side override (audit I4 ms.rs half): the
         // to-be-repaired ms1 IS master-secret material (BCH-corrupted BIP-39
         // entropy; the lone false twin of the 8-site --ms1 census). No
@@ -567,7 +567,7 @@ const SPLIT_FLAGS: &[FlagSchema] = &[
         kind: FlagKind::Text,
         required: false,
         repeating: false,
-        help: "BIP-39 mnemonic to split. `-` reads stdin. XOR with --hex.",
+        help: "BIP-39 mnemonic to split. Type the value, or `@env:VAR` (read by the GUI; a value that is `-` or starts with `@env` is refused). XOR with --hex.",
         secret: true,
         default_value: None,
         global: false,

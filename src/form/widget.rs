@@ -465,7 +465,7 @@ fn render_row(
                 // in front of it, so the TextEdit carries an EXPLICIT id —
                 // with an auto id the eye's insertion would re-key the field
                 // and drop focus mid-card. Non-secret values stay plain.
-                let is_secret_value = crate::secrets::text_value_is_secret_node_token(s);
+                let is_secret_value = crate::secrets::text_value_is_secret_source(s);
                 let ctx = ui.ctx().clone();
                 let field_id = ui.unique_id().with("text_secret_node_reveal");
                 let reveal = if is_secret_value {

@@ -60,34 +60,26 @@ impl Drop for RunResult {
     }
 }
 
-/// Pending run-confirm modal payload: the real argv, its parallel display
-/// secret-mask (v0.39.0), and the optional tree-mode `--spec -` stdin bytes.
+/// Pending run-confirm modal payload: the planned invocation (DESIGN §A4.2)
+/// — argv, display mask, env, stdin and pipe payloads, and the per-binding
+/// provenance the dialog shows.
 ///
-/// cycle-15 Lane G (slug `gui-pending-confirm-argv-not-zeroized`): promoted
-/// from a bare tuple (`(Vec<String>, Vec<bool>, Option<Vec<u8>>)`) to a struct
-/// with `Zeroize + Drop` so the app-level holder scrubs whole on drop — and so
-/// the `secrets::scrub_app_run_holders` exit-sweep seam can name its type
-/// (the struct lives in this public lib module, harness-reachable). The
-/// `main.rs:1064` consumer MUST bind the WHOLE struct (single-name bind is
-/// legal for a `Drop` type) and re-clone inner fields on the Run path — a
-/// field-destructure of a `Drop` type is E0509 (see §3.2 of the plan-doc).
+/// cycle-15 Lane G (slug `gui-pending-confirm-argv-not-zeroized`): a struct
+/// with `Zeroize + Drop` so the app-level holder scrubs whole on drop, and so
+/// the `secrets::scrub_app_run_holders` exit-sweep seam can name its type.
+/// The consumer MUST bind the WHOLE struct (single-name bind is legal for a
+/// `Drop` type) — a field-destructure of a `Drop` type is E0509.
 ///
-/// `Clone` is required for the per-frame `.clone()` at the consume site
-/// (`main.rs`): the cloned transient is exactly the residence `Drop` scrubs.
+/// `Clone` is required for the per-frame `.clone()` at the consume site: the
+/// cloned transient is exactly the residence `Drop` scrubs.
 #[derive(Debug, Clone)]
 pub struct PendingConfirm {
-    pub argv: Vec<String>,
-    pub mask: Vec<bool>,
-    pub stdin: Option<Vec<u8>>,
+    pub plan: crate::form::channels::RunPlan,
 }
 
 impl Zeroize for PendingConfirm {
     fn zeroize(&mut self) {
-        self.argv.zeroize();
-        self.mask.zeroize();
-        // `Option<Vec<u8>>: Zeroize` overwrites the inner bytes then `take()`s
-        // to `None` — same effect as a hand-rolled scrub, uniform with above.
-        self.stdin.zeroize();
+        self.plan.zeroize();
     }
 }
 
@@ -245,6 +237,124 @@ where
     }
 
     Ok(result)
+}
+
+/// DESIGN §A4.4 / §A6 — run a private-channel (or interim) plan.
+///
+/// - **Env hygiene (§A4.4):** every inherited `MNEMONIC_GUI_*` variable is
+///   removed, then exactly the plan's variables are set.
+/// - **stdin:** the stdin-bound binding's target + terminator, written then
+///   closed (EOF); `Stdio::null()` when nothing is stdin-bound.
+/// - **Pipe fds (§A6, Linux):** each payload is written to a fresh
+///   `pipe2(O_CLOEXEC)` pipe whose WRITE END IS CLOSED BEFORE SPAWN (a leaked
+///   write end would hang a child reading to EOF — T7's timeout catches it);
+///   the read end is mapped to the planned child fd with `command-fds`.
+///   Payloads are ≤ `pipe_payload_max` (4096) — far under the pipe buffer, so
+///   the pre-spawn write cannot block.
+///
+/// A pipe that cannot be created is an error whose message starts with
+/// `pipe-failed` (§A8); nothing is spawned.
+pub fn run_plan(plan: &crate::form::channels::RunPlan) -> io::Result<RunResult> {
+    run_plan_with_env_prefix(plan, &crate::form::channels::policy().reserved_env_prefix)
+}
+
+/// [`run_plan`] with an explicit reserved prefix (tests).
+pub fn run_plan_with_env_prefix(
+    plan: &crate::form::channels::RunPlan,
+    reserved_prefix: &str,
+) -> io::Result<RunResult> {
+    let argv = &plan.argv;
+    if argv.is_empty() {
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidInput,
+            "runner::run_plan: argv must contain at least the binary name",
+        ));
+    }
+    debug!(
+        target: "mnemonic_gui::runner",
+        program = %argv[0],
+        argv_len = argv.len(),
+        stdin = plan.stdin.is_some(),
+        env = plan.env.len(),
+        fds = plan.fds.len(),
+        "subprocess spawn (planned channels)",
+    );
+    let mut cmd = Command::new(OsStr::new(&argv[0]));
+    cmd.env("MNEMONIC_FORCE_TTY", "1").args(&argv[1..]);
+    for (k, _) in std::env::vars_os() {
+        if k.as_encoded_bytes().starts_with(reserved_prefix.as_bytes()) {
+            cmd.env_remove(&k);
+        }
+    }
+    for (k, v) in &plan.env {
+        cmd.env(k, v.as_str());
+    }
+    cmd.stdin(if plan.stdin.is_some() {
+        Stdio::piped()
+    } else {
+        Stdio::null()
+    })
+    .stdout(Stdio::piped())
+    .stderr(Stdio::piped());
+
+    #[cfg(unix)]
+    {
+        use command_fds::{CommandFdExt, FdMapping};
+        let mut mappings = Vec::with_capacity(plan.fds.len());
+        for (child_fd, payload) in &plan.fds {
+            let (reader, mut writer) = std::io::pipe()
+                .map_err(|e| io::Error::new(e.kind(), format!("pipe-failed: {e}")))?;
+            std::io::Write::write_all(&mut writer, payload)
+                .map_err(|e| io::Error::new(e.kind(), format!("pipe-failed: {e}")))?;
+            drop(writer); // the write end is closed BEFORE spawn
+            mappings.push(FdMapping {
+                parent_fd: reader.into(),
+                child_fd: *child_fd,
+            });
+        }
+        if !mappings.is_empty() {
+            cmd.fd_mappings(mappings).map_err(|_| {
+                io::Error::new(io::ErrorKind::InvalidInput, "pipe-failed: child fd collision")
+            })?;
+        }
+    }
+    #[cfg(not(unix))]
+    if !plan.fds.is_empty() {
+        return Err(io::Error::new(
+            io::ErrorKind::Unsupported,
+            "pipe-failed: pipe fds are not supported on this platform",
+        ));
+    }
+
+    let mut child = cmd.spawn()?;
+    // The mappings' read ends were moved into `cmd`; drop it so the parent
+    // holds no copy of any pipe while the child runs.
+    drop(cmd);
+    if let Some(bytes) = &plan.stdin {
+        let mut handle = child.stdin.take().expect("stdin was requested piped");
+        if let Err(e) = std::io::Write::write_all(&mut handle, bytes) {
+            warn!(
+                target: "mnemonic_gui::runner",
+                error = %e,
+                "stdin write failed; degrading to collect-output"
+            );
+        }
+        drop(handle);
+    }
+    let output = child.wait_with_output()?;
+    let exit_code = output.status.code();
+    match exit_code {
+        Some(0) => debug!(target: "mnemonic_gui::runner", "subprocess exit 0"),
+        Some(n) => warn!(target: "mnemonic_gui::runner", exit_code = n, "subprocess non-zero exit"),
+        None => warn!(target: "mnemonic_gui::runner", "subprocess killed by signal or no exit code"),
+    }
+    Ok(RunResult {
+        argv: argv.clone(),
+        mask: plan.mask.clone(),
+        exit_code,
+        stdout: output.stdout,
+        stderr: output.stderr,
+    })
 }
 
 #[cfg(test)]

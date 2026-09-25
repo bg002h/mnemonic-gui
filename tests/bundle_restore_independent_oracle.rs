@@ -39,7 +39,6 @@
 //! (never `#[ignore]`, so CI-with-pins actually exercises this cell while
 //! CI-without-binaries just skips it).
 
-use mnemonic_gui::form::invocation::assemble_argv_for_run;
 use mnemonic_gui::form::slot_editor::{SlotRow, SlotState, SlotSubkey};
 use mnemonic_gui::runner;
 use mnemonic_gui::schema::{self, FlagValue, FormState};
@@ -115,10 +114,12 @@ fn subcommand(name: &str) -> &'static schema::SubcommandSchema {
 /// payload is withheld from the panic message on failure).
 fn run_and_parse_json(bin: &str, sub_name: &str, state: &FormState) -> serde_json::Value {
     let sub = subcommand(sub_name);
-    // F-679: the RUN argv — what the GUI's Run button spawns.
-    let mut argv = assemble_argv_for_run(&schema::mnemonic::SCHEMA, sub, state);
-    argv[0] = bin.to_string();
-    let result = runner::run(argv).unwrap_or_else(|e| {
+    // What the GUI's Run button executes: the planned invocation (secrets
+    // over private channels on Linux; DESIGN secret channels Part A).
+    let mut plan = mnemonic_gui::form::channels::plan_for_run(&schema::mnemonic::SCHEMA, sub, state)
+        .unwrap_or_else(|r| panic!("bundle_restore_independent_oracle [{sub_name}]: refused: {r}"));
+    plan.argv[0] = bin.to_string();
+    let result = runner::run_plan(&plan).unwrap_or_else(|e| {
         panic!("bundle_restore_independent_oracle [{sub_name}]: runner spawn failed: {e}")
     });
     let stderr = String::from_utf8_lossy(&result.stderr).into_owned();
