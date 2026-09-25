@@ -7,6 +7,24 @@ mirrors it.
 
 ## Active
 
+### `restore-from-secret-node-unmasked-and-persisted` — `restore --from ms1=<card>` is a plain Text field: unmasked, unconfirmed, and PERSISTED
+
+- **Surfaced:** 2026-09-24, F-679 (the toolkit v0.104.0 argv-secret refusal made it visible: the Run path's secret mask never marked `restore --from ms1=…`, so the toolkit refused the GUI's own restore-from-ms1 run). `restore --from` is `FlagKind::Text`, `secret: false` (upstream `gui-schema` agrees — its secrecy depends on the NODE the user types). Measured on the F-679 tree with `FormState{--from: Text("ms1=…")}`: `redact_for_persistence` KEEPS `--from` (the ms1 reaches the autosave file), `should_confirm_run` is `false` (no run-confirm modal), and `assemble_argv_with_secret_mask` marks nothing (the Preview shows the ms1 in cleartext). Same for any `SECRET_NODE_TYPES_ARGV` node (`phrase=`, `wif=`, `xprv=`, …).
+- **F-679 did:** only the RUN half — `form::invocation::is_secret_node_value_token` makes `admit_argv_secret_for_run` add `--allow-argv-secret` for such a token, so the run works. It did NOT widen masking/confirm/persistence (a secret-handling change with its own tests; out of a pin-bump's scope).
+- **Fix:** classify a Text value of shape `<node>=<v>` with an argv-secret node as secret at all four sites (mask, confirm, persistence redaction, widget masking) — or give `restore --from` a composite node/value widget like `convert --from`.
+- **Severity:** secret-handling — logged, non-gating (operator ruling 2026-08-27). **Status:** OPEN. **Owning phase:** next GUI secret-handling cycle.
+
+### `argv-secret-via-private-channels` — pass secrets over stdin / `--in` / `@env:` instead of the GUI-managed `--allow-argv-secret`
+
+- **Surfaced:** 2026-09-24, F-679. toolkit v0.104.0 and ms 0.19.0 refuse secret material on argv unless `--allow-argv-secret`. F-679's GUI decision: the Run path adds the opt-in itself when (and only when) the argv carries secret material — the GUI spawns with no shell (no history), and every such run already passes the run-confirm modal. What stays exposed is what always was: `/proc/<pid>/cmdline` to the same UID and root while the child runs.
+- **Better end state:** route one secret per run over the child's stdin (`runner::run_with_stdin` exists — tree mode uses it) with the CLI's `-` sentinel (`--slot @N.phrase=-`, `--from ms1=-`, `ms decode -`, …), and a second one via `--in FILE` (ms) or `@env:VAR` (toolkit) — then drop the opt-in. Needs a per-flag table of which sentinel each channel accepts (the toolkit's refusal message names it per flag).
+- **Severity:** secret-handling — logged, non-gating. **Status:** OPEN. **Owning phase:** next GUI secret-handling cycle.
+
+### `md-ms-new-subcommands-unsurfaced` — md `compose` / `shape-key` / `descriptor` / `decompose` and ms `hashlock` have no GUI form
+
+- **Surfaced:** 2026-09-24, F-679 pin bump (md 0.11.0 → 0.20.3, ms 0.16.0 → 0.19.0). The schema mirror is a deliberate SUBSET of each CLI (`Schema.subcommands` doc), and the flag-name gate walks only mirrored subcommands, so these five are invisible to it. F-679 did not add them: each is a new form (compose is the wallet-policy composer; `ms hashlock` takes a hashlock PHRASE, i.e. a secret, and would need the full secret-widget treatment).
+- **Status:** OPEN. **Owning phase:** a GUI feature cycle.
+
 ### `verify-bundle-json-partial-result` — GUI surfaces the toolkit's new exit-4 `result: "partial"` (pathless partial-decode) verdict distinctly
 
 - **Surfaced:** 2026-07-11, toolkit pathless/dead-card partial-decode cycle (`mnemonic-toolkit-v0.88.0`). `verify-bundle` (and `inspect`) now PARTIAL-DECODE a dead card (no canonical origin + elided-unresolvable per-`@N` origin): `verify-bundle --json` gains `result: "partial"` + exit **4**, and both surfaces print an `origin: «unspecified — supply on restore»` marker + a `VERIFY-ME` stderr note. The clap FLAG surface is UNCHANGED, so `schema_mirror` (flag-NAMES) is not triggered — this is a `--json` wire-shape / exit-code change with no automated GUI drift gate, hence the paired-PR obligation.
