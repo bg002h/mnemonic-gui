@@ -3,6 +3,10 @@
 All notable changes to `mnemonic-gui` are recorded here. Follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## Unreleased
+
+- **CHANGELOG:** 0.60.0 and 0.61.0 entries reconstructed (F-685).
+
 ## mnemonic-gui [0.62.0] — 2026-09-24
 
 **SemVer-MINOR — pinned to, and exercised against, today's CLIs (F-679): `mnemonic` 0.104.0, `md` 0.20.3, `ms` 0.19.1, `mk` 0.13.0.** Toolkit dependency tag `mnemonic-toolkit-v0.97.0 → v0.104.0` (the load-bearing pin; `Cargo.toml` now also carries the toolkit's `[patch.crates-io]` rust-miniscript rev, without which md-codec 0.47.0 does not compile); `pinned-upstream.toml` md `v0.11.0 → v0.20.3`, ms `v0.16.0 → v0.19.1`, mk and toolkit as above.
@@ -17,6 +21,27 @@ All notable changes to `mnemonic-gui` are recorded here. Follows
 - **Tutorial:** J4 step 14 no longer refuses — toolkit v0.104.0 exports a depth-2 taptree — so the step becomes `tut-j4-14-depth2-export` (renamed so the GUI manual's include of the old refusal fails loudly). Transcripts re-captured for the new card grouping (unbroken) and the restore descriptors' corrected xpub headers (toolkit v0.102.0; addresses unchanged).
 - **Snapshots:** 17 form PNGs re-pinned — exactly the forms whose flag rows changed.
 - **Release build:** the x86_64-linux-gnu asset is now built with `cross` (old-glibc image) instead of natively on ubuntu-latest, whose glibc 2.39 made v0.59.0–v0.61.0 refuse to start on Debian 12, Ubuntu 22.04 and RHEL 9.
+
+## mnemonic-gui [0.61.0] — 2026-08-09
+
+*Entry reconstructed 2026-09-25 (F-685) from the `mnemonic-gui-v0.61.0` tag message and `git log mnemonic-gui-v0.60.0..mnemonic-gui-v0.61.0` (one commit, `82fc3f8`, PR #38); the release shipped without one.*
+
+**Currency re-pin: `mnemonic-toolkit` v0.91.0 → v0.97.0, plus a tutorial-corpus refresh.** No GUI behavior change; everything between the two toolkit tags is test/docs/hygiene (the BIP-322 security fix landed in 0.60.0).
+
+- **Toolkit deltas picked up:** v0.92.0 P2WSH binding oracle; v0.93.0/v0.94.0 secret hygiene (ms1 payload husks moved, not copied); v0.95.0 md1-card refusal on `verify-bundle`/`compare-cost`; v0.96.0 parity 5-shape coverage; v0.97.0 `verify-bundle` descriptor INPUT errors exit 2 (was 4).
+- **All four pin sites bumped:** `Cargo.toml`, `pinned-upstream.toml`, README, and `schema/mnemonic.rs`'s `pinned_version`. Only the first two are gated (`pin_coherence`).
+- **Tutorial corpus:** the 50 shots re-rendered on CI's lavapipe recipe, because the window's `Pinned:` label shows `pinned_version`. The diff was uniform across all 50 shots; the 33 run transcripts were unchanged.
+
+## mnemonic-gui [0.60.0] — 2026-08-02
+
+*Entry reconstructed 2026-09-25 (F-685) from the `mnemonic-gui-v0.60.0` tag message and `git log mnemonic-gui-v0.59.0..mnemonic-gui-v0.60.0` (`939d170`, PR #37, and `2b0e54e`); the release shipped without one.*
+
+**SECURITY — re-pin `mnemonic-toolkit` v0.75.0 → v0.91.0.** The GUI embeds the toolkit and was exposed transitively to its BIP-322 key-binding forgery: `verify-message` reported VALID (exit 0) for a signature made by a key that does not control the challenged address, for every P2WPKH and every P2SH address under the default `--format auto` (P2TR was never affected). Drops the vulnerable `bip322` 0.0.10 (yanked upstream) for 0.0.11. The same tag also brings md-codec 0.40.0 → 0.42.0 and wc-codec 0.1.0 → 0.1.1.
+
+- **Pin sites:** `Cargo.toml`, `pinned-upstream.toml`, README (whose prose had claimed v0.89.0 while the real pin was v0.75.0), and `schema/mnemonic.rs`'s `pinned_version` — the fourth site, found when the tutorial gate failed on the PR.
+- **`canonicity_drift` fixtures:** the BIP-388 `@N/**` shorthand now parses upstream, so `pkh(@0/**)`, `wpkh(@0/**)` and `tr([deadbeef/86'/0'/0']@0/**)` are Canonical rather than ParseFails; re-captured against the v0.91.0 binary. The GUI's regex already classed them canonical, so GUI and toolkit now agree.
+- **Tutorial corpus:** the 50 shots re-rendered for the new `Pinned:` label (uniform diff, transcripts unchanged; the J1 bundle transcript was reproduced by hand against v0.91.0).
+- **Docs:** README Status section rewritten from v0.3.0 to the then-current v0.59.0 state (`2b0e54e`).
 
 ## mnemonic-gui [0.59.0] — 2026-07-12
 
