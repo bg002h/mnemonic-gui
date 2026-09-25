@@ -461,9 +461,19 @@ pub fn assemble_argv_with_sources(
             }
         }
     } else {
+        let field = subcommand
+            .positional_args
+            .first()
+            .map(|p| format!("positional:{}", p.name))
+            .unwrap_or_default();
+        let maskable = crate::secrets::field_masks_private_key_content(&base, &field);
         for pos in &state.positionals {
             if !pos.is_empty() {
-                positionals.push((pos.clone(), false));
+                // DESIGN §B2–B4: masked by content in the listed fields.
+                positionals.push((
+                    pos.clone(),
+                    maskable && crate::secrets::text_holds_private_key(pos),
+                ));
             }
         }
     }
@@ -569,7 +579,12 @@ fn emit_one(
                 // (`restore --from ms1=<card>`) is a secret SOURCE by
                 // content (DESIGN §A4.1), whatever follows the `=`.
                 let named = crate::form::channels::text_value_names_secret_node(v);
-                mask.push(named.is_some());
+                // DESIGN §B2–B4: a private key pasted into a public md field
+                // is masked in every command display (not a planner source:
+                // md refuses it).
+                let private_key = crate::secrets::field_masks_private_key_content(base, flag.name)
+                    && crate::secrets::text_holds_private_key(v);
+                mask.push(named.is_some() || private_key);
                 if let Some((node, _)) = named {
                     sites.push(SourceSite {
                         key: format!("{base} {} {node}=", flag.name),
@@ -587,8 +602,10 @@ fn emit_one(
             argv.push(n.to_string());
             mask.push(false);
         }
+        // DESIGN §B5: a GUI-only value (hashlock's "all kinds — lookup only")
+        // omits the flag on purpose.
         (FlagKind::Dropdown(_), FlagValue::Dropdown(v))
-            if !v.is_empty() => {
+            if !v.is_empty() && !crate::schema::dropdown_value_is_gui_only(v) => {
                 argv.push(flag.name.to_string());
                 mask.push(false);
                 argv.push(v.clone());

@@ -726,6 +726,202 @@ const GEN_MAN_FLAGS: &[FlagSchema] = &[FlagSchema {
 
 const GEN_MAN_POSITIONALS: &[PositionalArgSchema] = &[];
 
+// ─── hashlock (DESIGN secret channels Part B, B5) ────────────────────────────
+
+// `ms hashlock` (ms-cli v0.19.1): a hashlock preimage/digest from exactly ONE
+// source — a hashlock phrase, `--hex` (a 32-byte preimage), an `<ms1>`
+// preimage plate, `--in FILE`, or `--random` (which needs `--out`). ms's
+// v1 gui-schema carries no secret bit; the phrase, `--hex` and the `<ms1>`
+// positional are HAND-MARKED secret here (DESIGN §A4.1, §B6).
+//
+// - The phrase's only private channel is `--hashlock-phrase-stdin` (measured:
+//   `ms hashlock --hashlock-phrase` has no `-`/`@env:` cell), which the
+//   planner emits; the toggle itself stays rendered disabled (§A4.5). The
+//   phrase is BYTE-VERBATIM: no trim (T9).
+// - `--kind` starts at "(choose)" and Run is disabled until a kind is chosen:
+//   omitting --kind puts a sha256 record on stdout (F-553). "all kinds —
+//   lookup only" omits the flag deliberately, with a banner.
+// - `--separator`: the pinned ms 0.19.1 accepts only `space` (hyphen/comma
+//   exit 64: "ms emits whitespace grouping only"), so the shared ms list.
+// Conditional fn at `form::conditional::ms_hashlock`.
+
+/// The GUI-only `--kind` value that omits the flag on purpose (every kind's
+/// digest listed; stdout is the sha256 record). Never emitted.
+pub const HASHLOCK_KIND_ALL: &str = "all kinds — lookup only";
+/// `--kind`: `""` is the "(choose)" sentinel — Run stays disabled on it.
+pub const HASHLOCK_KINDS: &[&str] = &["", "sha256", "hash256", "ripemd160", "hash160", HASHLOCK_KIND_ALL];
+const HASHLOCK_METHODS: &[&str] = &["hardened", "sha256"];
+
+const HASHLOCK_FLAGS: &[FlagSchema] = &[
+    FlagSchema {
+        name: "--hashlock-phrase",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "The hashlock phrase, byte for byte (never trimmed). Sent privately \
+               over --hashlock-phrase-stdin. Type the value, or `@env:VAR` (read by \
+               the GUI; a value that is `-` or starts with `@env` is refused). One source only.",
+        secret: true,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--hashlock-phrase-stdin",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Read the phrase from stdin. GUI-managed: the Run path uses it for the \
+               phrase field.",
+        secret: true,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--kind",
+        kind: FlagKind::Dropdown(HASHLOCK_KINDS),
+        required: false,
+        repeating: false,
+        help: "Which hash the SCRIPT commits to: sha256, hash256, ripemd160, hash160. \
+               Run stays disabled until one is chosen. \"all kinds — lookup only\" omits \
+               the flag: every kind's digest is listed and stdout is the sha256 record.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--hex",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "A 32-byte preimage as 64 hex characters. Type the value, or `@env:VAR` \
+               (read by the GUI; a value that is `-` or starts with `@env` is refused). \
+               One source only.",
+        secret: true,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--in",
+        kind: FlagKind::Path {
+            stdio_sentinel: false,
+        },
+        required: false,
+        repeating: false,
+        help: "Read the ms1 (preimage plate) string from FILE. One source only.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--random",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "32 bytes from the OS random source. Requires --out FILE. One source only.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--method",
+        kind: FlagKind::Dropdown(HASHLOCK_METHODS),
+        required: false,
+        repeating: false,
+        help: "Phrase -> preimage method (phrase sources only). Default hardened.",
+        secret: false,
+        default_value: Some("hardened"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--out",
+        kind: FlagKind::Path {
+            stdio_sentinel: false,
+        },
+        required: false,
+        repeating: false,
+        help: "Write the preimage ms1 string to FILE, owner-only. Never suppresses stdout.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--json",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "One JSON object on stdout in place of the record line. stdout then CARRIES THE SECRET.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--no-engraving-card",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Suppress the engraving card.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--emit-record",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Also print a `phrase:` record on the card (for `me sysw pack \
+               --pack-preimage`). Phrase source only.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--group-size",
+        kind: FlagKind::Number {
+            min: 0,
+            max: NumberMax::Static(65_535),
+        },
+        required: false,
+        repeating: false,
+        help: "Group the ms1 on the card every N characters (0 = no grouping). Default 5.",
+        secret: false,
+        default_value: Some("5"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--separator",
+        kind: FlagKind::Dropdown(SEPARATORS),
+        required: false,
+        repeating: false,
+        help: "Separator for the card: space (ms emits whitespace grouping only).",
+        secret: false,
+        default_value: Some("space"),
+        global: false,
+    },
+    ALLOW_ARGV_SECRET_FLAG,
+    FlagSchema {
+        name: "--phrase-looks-like-digest-ok",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Accept a phrase that looks like a hex digest (normally refused as a \
+               likely paste mistake).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+];
+
+const HASHLOCK_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
+    name: "ms1",
+    required: false,
+    repeating: false,
+    help: "A preimage-kind ms1 string (a preimage plate), to re-derive the digest. \
+           Type the value, or `@env:VAR` (read by the GUI; a value that is `-` or \
+           starts with `@env` is refused). One source only.",
+    secret: true,
+}];
+
 // ─── SCHEMA constant ─────────────────────────────────────────────────────
 
 const SUBCOMMANDS: &[SubcommandSchema] = &[
@@ -801,6 +997,15 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
         positional_args: COMBINE_POSITIONALS,
         allows_slots: false,
         conditional: Some(crate::form::conditional::ms_combine),
+    },
+    // DESIGN secret channels Part B (B5), built on Part A's StdinToggle channel.
+    SubcommandSchema {
+        name: "hashlock",
+        human_name: "Hashlock (phrase/preimage -> hashlock digest)",
+        flags: HASHLOCK_FLAGS,
+        positional_args: HASHLOCK_POSITIONALS,
+        allows_slots: false,
+        conditional: Some(crate::form::conditional::ms_hashlock),
     },
     SubcommandSchema {
         name: "gen-man",

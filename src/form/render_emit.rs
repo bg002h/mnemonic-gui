@@ -748,8 +748,12 @@ fn kind_label(kind: &FlagKind) -> String {
 /// Comma-join an option list; the `""` UNSET sentinel displays as `(none)`
 /// (mirroring the GUI's `display_or`), so the render stays ASCII + readable.
 fn join_opts(opts: &[&str]) -> String {
+    let unset = crate::schema::dropdown_unset_label(opts);
     opts.iter()
-        .map(|o| if o.is_empty() { "(none)" } else { *o })
+        .map(|o| if o.is_empty() { unset } else { *o })
+        // The render is ASCII: hashlock's "all kinds — lookup only" label
+        // carries an em dash.
+        .map(|o| o.replace('—', "--"))
         .collect::<Vec<_>>()
         .join(",")
 }

@@ -696,6 +696,10 @@ pub struct SourceSite {
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Assembled {
     pub argv: Vec<String>,
+    /// The assembler's display mask (`true` = masked in every display),
+    /// parallel to `argv`; empty = all false. Kept tokens keep their bit
+    /// (e.g. a pasted xprv in a public md field, DESIGN §B2–B4).
+    pub mask: Vec<bool>,
     /// How many subcommand tokens follow `argv[0]` (1, or 2 when nested).
     pub sub_tokens: usize,
     /// The end-of-options `--` token before positionals, if any.
@@ -993,7 +997,7 @@ pub fn materialize(assembled: &Assembled, planned: &Planned) -> RunPlan {
         match &replace[k] {
             None => {
                 argv.push(assembled.argv[k].clone());
-                mask.push(false);
+                mask.push(assembled.mask.get(k).copied().unwrap_or(false));
             }
             Some(toks) => {
                 for (t, m) in toks {
@@ -1069,11 +1073,12 @@ pub fn text_value_names_secret_node(value: &str) -> Option<(&str, &str)> {
 
 /// The form's argv and secret sources (§A4.1).
 pub fn assemble(schema: &Schema, sub: &SubcommandSchema, state: &FormState) -> Assembled {
-    let (argv, _mask, sites, eoo_at) =
+    let (argv, mask, sites, eoo_at) =
         crate::form::invocation::assemble_argv_with_sources(schema, sub, state);
     let sub_tokens = crate::form::invocation::subcommand_tokens(sub.name).len();
     Assembled {
         argv,
+        mask,
         sub_tokens,
         eoo_at,
         sites,
@@ -1123,7 +1128,9 @@ pub fn plan_with(
         policy,
     )?;
     if assembled.sites.is_empty() {
-        return Ok(RunPlan::plain(assembled.argv.clone()));
+        let mut p = RunPlan::plain(assembled.argv.clone());
+        p.mask = assembled.mask.clone();
+        return Ok(p);
     }
     let sources = assembled.sources();
     let planned = plan_sources(

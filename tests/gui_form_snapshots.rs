@@ -148,8 +148,8 @@ fn gui_form_snapshots_all_61() {
     let all = render_emit::all_forms();
     assert_eq!(
         all.len(),
-        61,
-        "expected exactly 61 GUI subcommand forms (mnemonic 32 + md 10 + ms 10 + mk 9)"
+        66,
+        "expected exactly 66 GUI subcommand forms (mnemonic 32 + md 14 + ms 11 + mk 9)"
     );
 
     // Default threshold 0.6 (kittest's dify default — the fleet-proven gate).
@@ -176,10 +176,10 @@ fn gui_form_snapshots_all_61() {
         }
         rendered += 1;
     }
-    assert_eq!(rendered, 61, "census: every one of the 61 forms must render");
+    assert_eq!(rendered, 66, "census: every one of the 66 forms must render");
     assert!(
         failures.is_empty(),
-        "form-snapshot failures ({} of 61):\n{}",
+        "form-snapshot failures ({} of 66):\n{}",
         failures.len(),
         failures.join("\n")
     );
@@ -215,7 +215,7 @@ fn secret_flags_never_carry_a_default_value() {
             }
         }
     }
-    assert_eq!(subs, 61, "census: the hygiene sweep must cover all 61 subcommands");
+    assert_eq!(subs, 66, "census: the hygiene sweep must cover all 66 subcommands");
     assert!(
         secret_flags > 0,
         "vacuous sweep: no secret flags found in any schema table — schema drift?"

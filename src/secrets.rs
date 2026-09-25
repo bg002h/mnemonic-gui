@@ -190,6 +190,35 @@ pub fn text_value_is_secret_source(value: &str) -> bool {
     crate::form::channels::text_value_names_secret_node(value).is_some()
 }
 
+/// DESIGN §B2–B4 (`*`): PUBLIC md fields where a pasted private descriptor or
+/// key (`xprv…`) is masked on screen and never persisted, by content — the
+/// way Phase 1a treats `restore --from ms1=…`. md itself refuses the value
+/// ("public keys must be …", exit 1), but by then it would have shown and
+/// persisted. Keyed `"<cli> <subcommand>"` × field (`positional:<name>` for a
+/// positional).
+pub const PRIVATE_KEY_CONTENT_FIELDS: &[(&str, &str)] = &[
+    ("md shape-key", "--descriptor"),
+    ("md descriptor", "--key"),
+    ("md decompose", "positional:descriptors"),
+];
+
+/// True iff `field` of `"<cli> <subcommand>"` is one of
+/// [`PRIVATE_KEY_CONTENT_FIELDS`].
+pub fn field_masks_private_key_content(base: &str, field: &str) -> bool {
+    PRIVATE_KEY_CONTENT_FIELDS
+        .iter()
+        .any(|(b, f)| *b == base && *f == field)
+}
+
+/// True iff any key-shaped token of `value` (split on everything that is not
+/// ASCII alphanumeric: `(`, `,`, `=`, `[`, `]`, `/`, …) is xprv-like by the
+/// tree form's own classifier (`tree_model::is_xprv_like`: `?prv` prefix).
+pub fn text_holds_private_key(value: &str) -> bool {
+    value
+        .split(|c: char| !c.is_ascii_alphanumeric())
+        .any(crate::form::tree_model::is_xprv_like)
+}
+
 /// Paste-warn modal copy text (SPEC §9 — one-shot per session, per
 /// secret-class flag). Byte-exact per SPEC §9; the `(v0.2 deferred per
 /// FOLLOWUPS ...)` lines name the explicit non-mitigations.

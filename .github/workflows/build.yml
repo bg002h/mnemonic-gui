@@ -143,11 +143,13 @@ jobs:
       - name: snapshot-suite
         run: GUI_SNAPSHOTS=1 cargo test --test gui_form_snapshots -- --nocapture
 
-      - name: census-61
+      # DESIGN secret channels Part B: + md compose/shape-key/descriptor/
+      # decompose and ms hashlock, 61 -> 66.
+      - name: census-66
         run: |
           count="$(find tests/snapshots/forms -name '*.new.png' | wc -l)"
-          echo "census: ${count} .new.png rendered (expect 61)"
-          test "${count}" -eq 61
+          echo "census: ${count} .new.png rendered (expect 66)"
+          test "${count}" -eq 66
 
       - name: upload-diffs
         if: failure()

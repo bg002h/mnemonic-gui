@@ -861,7 +861,15 @@ impl MnemonicGuiApp {
                         while state.positionals.len() <= i {
                             state.positionals.push(String::new());
                         }
-                        ui.text_edit_singleline(&mut state.positionals[i]);
+                        // DESIGN §B2–B4: a private key pasted into a
+                        // public md positional is masked by content.
+                        let masked = crate::secrets::field_masks_private_key_content(
+                            &format!("{} {}", sch.cli_name, sub.name),
+                            &format!("positional:{}", pos.name),
+                        ) && crate::secrets::text_holds_private_key(&state.positionals[i]);
+                        ui.add(
+                            egui::TextEdit::singleline(&mut state.positionals[i]).password(masked),
+                        );
                     });
                 }
                 // v0.32.0 (node-tree SPEC §2.2): the tree form renders
@@ -999,6 +1007,10 @@ impl MnemonicGuiApp {
                     crate::form::channels::copy::CopyState::Disabled(w) => (None, Some(w.clone())),
                 }
             };
+            // DESIGN §B5: a form may block Run until a choice is made (ms
+            // hashlock's --kind), and carry notices beside its result.
+            let run_block = crate::form::conditional::run_blocker(sch.cli_name, sub.name, state);
+            let notices = crate::form::conditional::form_notices(sch.cli_name, sub.name, state);
             let _ = state; // explicit end-of-life for clarity
             // v0.6.0 P4 — update last_template AFTER state borrow ends.
             // `template_changed` was computed inside the state-borrow scope;
@@ -1059,11 +1071,14 @@ impl MnemonicGuiApp {
                 // Run is completeness-gated in tree mode (the same gate as
                 // Validate/Copy-spec — SPEC §1.2), and disabled while the
                 // plan is refused (DESIGN §A8: never fall back to argv).
-                let run_enabled = (!tree_mode || spec_stdin.is_some()) && run_plan.is_ok();
+                let run_enabled = (!tree_mode || spec_stdin.is_some())
+                    && run_plan.is_ok()
+                    && run_block.is_none();
                 let run = ui.add_enabled(run_enabled, egui::Button::new("Run"));
-                let run = match &refusal {
-                    Some(r) => run.on_disabled_hover_text(r),
-                    None => run,
+                let run = match (&refusal, run_block) {
+                    (Some(r), _) => run.on_disabled_hover_text(r),
+                    (None, Some(b)) => run.on_disabled_hover_text(b),
+                    (None, None) => run,
                 };
                 if run.clicked() {
                     run_clicked = true;
@@ -1075,6 +1090,12 @@ impl MnemonicGuiApp {
             }
             if let Some(r) = &refusal {
                 ui.colored_label(egui::Color32::from_rgb(200, 60, 60), format!("Run refused — {r}"));
+            }
+            if let Some(b) = run_block {
+                ui.colored_label(egui::Color32::from_rgb(220, 165, 0), format!("Run disabled — {b}"));
+            }
+            for n in &notices {
+                ui.colored_label(egui::Color32::from_rgb(220, 165, 0), format!("Note: {n}"));
             }
 
             if copy_posix {

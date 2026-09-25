@@ -465,7 +465,11 @@ fn render_row(
                 // in front of it, so the TextEdit carries an EXPLICIT id —
                 // with an auto id the eye's insertion would re-key the field
                 // and drop focus mid-card. Non-secret values stay plain.
-                let is_secret_value = crate::secrets::text_value_is_secret_source(s);
+                let is_secret_value = crate::secrets::text_value_is_secret_source(s)
+                    || (crate::secrets::field_masks_private_key_content(
+                        &format!("{} {}", tab.bin_name(), subcommand),
+                        flag.name,
+                    ) && crate::secrets::text_holds_private_key(s));
                 let ctx = ui.ctx().clone();
                 let field_id = ui.unique_id().with("text_secret_node_reveal");
                 let reveal = if is_secret_value {
@@ -544,14 +548,16 @@ fn render_row(
                 // v0.32.0 R0-r1 M2: both display sites route through the
                 // shared `display_or` helper (the tree form's kind picker
                 // is the third caller, with "(choose…)").
-                let selected_label = display_or("(none)", sel);
+                // DESIGN §B5: `ms hashlock --kind`'s unset row reads "(choose)".
+                let unset_label = crate::schema::dropdown_unset_label(opts);
+                let selected_label = display_or(unset_label, sel);
                 combo
                     .selected_text(selected_label)
                     .show_ui(ui, |ui| {
                         for opt in *opts {
                             let is_disabled =
                                 disabled_options.iter().any(|d| d == *opt);
-                            let display = display_or("(none)", opt);
+                            let display = display_or(unset_label, opt);
                             ui.add_enabled_ui(!is_disabled, |ui| {
                                 ui.selectable_value(sel, (*opt).to_string(), display);
                             });
