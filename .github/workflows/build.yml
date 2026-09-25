@@ -279,9 +279,18 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          # F-679 glibc floor: built with `cross` (its x86_64-gnu image carries
+          # an OLD glibc) rather than natively on ubuntu-latest. glibc symbol
+          # versions are fixed at LINK time by the build host's libc, so the
+          # native ubuntu-latest (24.04, glibc 2.39) build demanded GLIBC_2.39
+          # (`dlopen@GLIBC_2.34`, `stat64@2.33`, …) and refused to start on
+          # Debian 12 / Ubuntu 22.04 / RHEL 9. The aarch64-gnu row below has
+          # always used cross and measures GLIBC_2.18 max (v0.61.0 asset,
+          # `objdump -T`). Same machinery, same row shape.
           - target: x86_64-unknown-linux-gnu
             runner: ubuntu-latest
             artifact_suffix: x86_64-linux.tar.gz
+            cross: true
           - target: aarch64-unknown-linux-gnu
             runner: ubuntu-latest
             artifact_suffix: aarch64-linux.tar.gz
