@@ -5,6 +5,7 @@ All notable changes to `mnemonic-gui` are recorded here. Follows
 
 ## Unreleased
 
+- **`restore --from <secret-node>=…` is now treated as secret everywhere.** `restore --from` is a plain Text flag (`secret: false`; its secrecy depends on the node typed), so `--from ms1=<card>` (or `phrase=`, `wif=`, `xprv=`, any `SECRET_NODE_TYPES_ARGV` node) showed in cleartext in Preview and the field, skipped the run-confirm modal, and was written to `state.json`. One classifier, `secrets::text_value_is_secret_node_token`, now drives all four sites: the argv mask (Preview / confirm body), `should_confirm_run`, `redact_for_persistence`, and a `.password` mask with the reveal eye on the Text field. A public node (`xpub=…`) and a private-channel sentinel (`ms1=-`, `ms1=@env:VAR`) stay plain. Closes FOLLOWUP `restore-from-secret-node-unmasked-and-persisted`.
 - **CHANGELOG:** 0.60.0 and 0.61.0 entries reconstructed (F-685).
 
 ## mnemonic-gui [0.62.0] — 2026-09-24

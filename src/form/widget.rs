@@ -457,14 +457,33 @@ fn render_row(
                 // ghost is the LITERAL `default_value` string; the flag's
                 // help tooltip carries semantics. No-default Text fields are
                 // byte-unchanged. Precedent: `slot_editor.rs` path hint.
-                match flag.default_value {
-                    Some(d) => {
-                        ui.add(egui::TextEdit::singleline(s).hint_text(d));
+                //
+                // A non-secret Text flag whose VALUE names a secret node
+                // (`restore --from ms1=<card>`) is masked by content, with the
+                // same reveal (👁) eye as the composite value cell. The field
+                // flips to masked mid-typing (at `ms1=m`) and the eye appears
+                // in front of it, so the TextEdit carries an EXPLICIT id —
+                // with an auto id the eye's insertion would re-key the field
+                // and drop focus mid-card. Non-secret values stay plain.
+                let is_secret_value = crate::secrets::text_value_is_secret_node_token(s);
+                let ctx = ui.ctx().clone();
+                let field_id = ui.unique_id().with("text_secret_node_reveal");
+                let reveal = if is_secret_value {
+                    crate::form::secret_widget::reveal_toggle(ui, &ctx, field_id)
+                } else {
+                    if crate::form::secret_widget::revealed_field(&ctx) == Some(field_id) {
+                        crate::form::secret_widget::clear_revealed_field(&ctx);
                     }
-                    None => {
-                        ui.text_edit_singleline(s);
-                    }
+                    false
+                };
+                let mut edit = egui::TextEdit::singleline(s)
+                    .id(field_id)
+                    .password(is_secret_value && !reveal);
+                if let Some(d) = flag.default_value {
+                    edit = edit.hint_text(d);
                 }
+                let response = ui.add(edit);
+                crate::form::secret_widget::clear_reveal_on_blur(&ctx, field_id, &response);
             }
             // v0.6.0 P3: Number / Range / Timestamp / TaggedOrIndexed
             // initial-Unset state — render a `Set` affordance that opts the

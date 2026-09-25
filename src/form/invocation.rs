@@ -61,7 +61,7 @@ pub fn is_gui_managed_flag(name: &str) -> bool {
 
 /// F-679 — the RUN path's argv. When `argv` carries at least one secret-masked
 /// token (or a secret `<node>=<value>` token — see
-/// [`is_secret_node_value_token`]) AND the subcommand declares
+/// [`crate::secrets::text_value_is_secret_node_token`]) AND the subcommand declares
 /// [`ALLOW_ARGV_SECRET`], insert that flag
 /// directly after the (possibly nested) subcommand tokens, with a `false` mask
 /// bit. Otherwise return the pair unchanged.
@@ -91,7 +91,10 @@ pub fn admit_argv_secret_for_run(
         .iter()
         .zip(mask.iter())
         .any(|(t, &m)| m && !masked_token_is_private_channel(t))
-        || argv.iter().skip(1).any(|t| is_secret_node_value_token(t));
+        || argv
+            .iter()
+            .skip(1)
+            .any(|t| crate::secrets::text_value_is_secret_node_token(t));
     if !declared || !carries_secret || argv.iter().any(|t| t == ALLOW_ARGV_SECRET) {
         return (argv, mask);
     }
@@ -247,25 +250,6 @@ fn masked_token_is_private_channel(token: &str) -> bool {
     }
 }
 
-/// F-679 — a `<node>=<value>` token whose node is argv-secret-classed
-/// (`SECRET_NODE_TYPES_ARGV`) and whose value is not a private-channel
-/// sentinel (`-`, `@env:…`, empty). This is the shape the toolkit refuses as
-/// `--from <node>=`. It exists because `restore --from` is a plain `Text`
-/// flag (`secret: false` upstream and here — its secrecy depends on the node
-/// the user types), so the secret mask never marks `restore --from ms1=…`
-/// and the Run path would otherwise spawn an argv the toolkit refuses.
-fn is_secret_node_value_token(token: &str) -> bool {
-    match token.split_once('=') {
-        Some((node, value)) => {
-            crate::secrets::node_type_is_argv_secret(node)
-                && !value.is_empty()
-                && value != "-"
-                && !value.starts_with("@env:")
-        }
-        None => false,
-    }
-}
-
 /// F-679 — the argv the GUI's Run button spawns:
 /// [`assemble_argv_with_secret_mask`] followed by
 /// [`admit_argv_secret_for_run`]. Tests that model "what the GUI runs" against
@@ -289,12 +273,14 @@ pub const SECRET_MASK: &str = "••••";
 /// correct-by-construction: every `argv.push` is paired with exactly one
 /// `mask.push`, so `mask.len() == argv.len()` structurally.
 ///
-/// A token is masked `true` at exactly the four secret-VALUE sources — the
-/// same four `secrets::should_confirm_run` classifies: (1) secret Text flag
+/// A token is masked `true` at exactly the five secret-VALUE sources — the
+/// same five `secrets::should_confirm_run` classifies: (1) secret Text flag
 /// value; (2) secret slot row value token (`@N.subkey=value`, subkey
 /// secret-bearing); (3) secret positional value; (4) `NodeValueComposite`
 /// value token whose flag is secret-bearing OR whose node is argv-secret-classed
-/// (`node_type_is_argv_secret` — the wide set, incl. `minikey`). All other
+/// (`node_type_is_argv_secret` — the wide set, incl. `minikey`); (5) a
+/// non-secret Text value of shape `<secret-node>=<value>`
+/// (`secrets::text_value_is_secret_node_token` — `restore --from ms1=…`). All other
 /// tokens (cli/subcommand names, flag
 /// names, PinValue tokens, non-secret values, sentinels) are masked `false`.
 pub fn assemble_argv_with_secret_mask(
@@ -559,13 +545,17 @@ fn pin_value_to_argv_token(v: &serde_json::Value) -> Option<String> {
 }
 
 // v0.39.0: `mask` tracks `argv` 1:1 — every `argv.push` here pairs a
-// `mask.push`. Only the `NodeValueComposite` value token can be secret in
-// this function (secret Text + secret positionals are handled in the caller's
-// secret branch BEFORE reaching emit_one; secret non-Text/non-Composite flags
-// are Boolean-suppressed). Its bit is `flag_is_secret(flag) ||
-// node_type_is_argv_secret(node)` — covering both the secret flag `--share` and
-// the value-dependent `--from phrase=<seed>` / `--from minikey=<key>` (flag
-// non-secret, NODE secret; cycle-3 widened to the argv set so minikey masks).
+// `mask.push`. Two value tokens can be secret in this function (secret Text +
+// secret positionals are handled in the caller's secret branch BEFORE reaching
+// emit_one; secret non-Text/non-Composite flags are Boolean-suppressed):
+// - the `NodeValueComposite` value token, bit `flag_is_secret(flag) ||
+//   node_type_is_argv_secret(node)` — covering both the secret flag `--share`
+//   and the value-dependent `--from phrase=<seed>` / `--from minikey=<key>`
+//   (flag non-secret, NODE secret; cycle-3 widened to the argv set so minikey
+//   masks);
+// - a non-secret Text value of shape `<secret-node>=<value>`
+//   (`restore --from ms1=<card>`), bit
+//   `secrets::text_value_is_secret_node_token(v)`.
 fn emit_one(flag: &FlagSchema, value: &FlagValue, argv: &mut Vec<String>, mask: &mut Vec<bool>) {
     // v0.10.0 B.3 (D33): default-value suppression. When the user's typed
     // value equals the toolkit-declared default for this flag, omit the
@@ -581,7 +571,9 @@ fn emit_one(flag: &FlagSchema, value: &FlagValue, argv: &mut Vec<String>, mask: 
                 argv.push(flag.name.to_string());
                 mask.push(false);
                 argv.push(v.clone());
-                mask.push(false);
+                // A non-secret Text flag whose VALUE names a secret node
+                // (`restore --from ms1=<card>`) is secret by content.
+                mask.push(crate::secrets::text_value_is_secret_node_token(v));
             }
         (FlagKind::Number { .. }, FlagValue::Number(n)) => {
             argv.push(flag.name.to_string());

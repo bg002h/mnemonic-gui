@@ -176,6 +176,26 @@ pub fn node_type_is_argv_secret(node: &str) -> bool {
     SECRET_NODE_TYPES_ARGV.contains(&node)
 }
 
+/// True iff a plain-Text value has the shape `<node>=<value>` with an
+/// argv-secret node ([`node_type_is_argv_secret`]) and a value that is not a
+/// private-channel sentinel (empty, `-`, `@env:…`). This is the one
+/// classifier for Text values whose secrecy depends on the node the user
+/// typed — `restore --from ms1=<card>` is `FlagKind::Text`, `secret: false`
+/// (FOLLOWUP `restore-from-secret-node-unmasked-and-persisted`). All four
+/// secret-handling sites use it: the argv mask (Preview / Copy / confirm
+/// body), [`should_confirm_run`], `persistence::redact_for_persistence`, and
+/// the Text widget's `.password` mask — plus the Run path's
+/// `--allow-argv-secret` admission. Node matching is exact, as the toolkit's
+/// is (`MS1=` is refused upstream as an unknown node).
+pub fn text_value_is_secret_node_token(value: &str) -> bool {
+    match value.split_once('=') {
+        Some((node, v)) => {
+            node_type_is_argv_secret(node) && !v.is_empty() && v != "-" && !v.starts_with("@env:")
+        }
+        None => false,
+    }
+}
+
 /// Paste-warn modal copy text (SPEC §9 — one-shot per session, per
 /// secret-class flag). Byte-exact per SPEC §9; the `(v0.2 deferred per
 /// FOLLOWUPS ...)` lines name the explicit non-mitigations.
@@ -244,6 +264,13 @@ pub fn should_confirm_run(
     for (_, v) in &state.values {
         if let crate::schema::FlagValue::NodeValueComposite { node, value } = v {
             if !value.is_empty() && node_type_is_argv_secret(node) {
+                return true;
+            }
+        }
+        // A plain Text value whose secrecy is node-dependent
+        // (`restore --from ms1=<card>`).
+        if let crate::schema::FlagValue::Text(s) = v {
+            if text_value_is_secret_node_token(s) {
                 return true;
             }
         }
