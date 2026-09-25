@@ -160,8 +160,9 @@ fn every_declaring_subcommand_is_mnemonic_or_ms_and_the_flag_is_gui_managed() {
             }
         }
     }
-    // 32 mnemonic subcommands + the 8 ms material verbs this GUI mirrors.
-    assert_eq!(declaring, 40);
+    // 32 mnemonic subcommands + the 9 ms material verbs this GUI mirrors
+    // (DESIGN secret channels §B5 adds `hashlock`).
+    assert_eq!(declaring, 41);
 }
 
 // ─── real-CLI cells (EARLY-RETURN-SKIP when the pinned binary env is unset,
@@ -311,7 +312,7 @@ fn real_md_decode_in_file() {
 #[test]
 fn real_every_offered_separator_is_accepted() {
     use mnemonic_gui::schema::FlagKind;
-    let cases: [(&'static Schema, &str, &str, Vec<String>); 4] = [
+    let cases: [(&'static Schema, &str, &str, Vec<String>); 6] = [
         (&schema::mnemonic::SCHEMA, "bundle", "MNEMONIC_BIN", vec![]),
         (
             &schema::md::SCHEMA,
@@ -321,6 +322,12 @@ fn real_every_offered_separator_is_accepted() {
         ),
         (&schema::mk::SCHEMA, "encode", "MK_BIN", vec![]),
         (&schema::ms::SCHEMA, "encode", "MS_BIN", vec![]),
+        // DESIGN secret channels Part B: the design's B5 table lists `space,
+        // hyphen, comma`, but the pinned ms 0.19.1 refuses hyphen/comma
+        // (exit 64, "ms emits whitespace grouping only") — the GUI offers
+        // only what the binary accepts, and this pins it.
+        (&schema::ms::SCHEMA, "hashlock", "MS_BIN", vec![]),
+        (&schema::md::SCHEMA, "descriptor", "MD_BIN", vec![]),
     ];
     for (schema, sub_name, env, positionals) in cases {
         let Some(bin) = pinned_bin(env) else { continue };

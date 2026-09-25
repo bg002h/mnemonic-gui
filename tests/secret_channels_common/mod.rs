@@ -310,6 +310,7 @@ pub fn shape_assembled(sh: &Shape, values: &[Vec<String>]) -> Assembled {
     }
     Assembled {
         argv,
+        mask: Vec::new(),
         sub_tokens: sh.sub.len(),
         eoo_at,
         sites,

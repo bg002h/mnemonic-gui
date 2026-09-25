@@ -230,6 +230,7 @@ fn assembled(case: &Case, value: &str) -> Assembled {
     };
     Assembled {
         argv,
+        mask: Vec::new(),
         sub_tokens: 1,
         eoo_at,
         sites: vec![SourceSite {
@@ -405,6 +406,7 @@ fn t2_ms_combine_share_group_cells_equal_the_baseline() {
         ];
         let asm = Assembled {
             argv,
+            mask: Vec::new(),
             sub_tokens: 1,
             eoo_at: Some(2),
             sites: vec![SourceSite {
