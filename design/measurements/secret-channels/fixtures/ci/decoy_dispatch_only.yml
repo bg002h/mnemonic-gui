@@ -1,8 +1,7 @@
-# decoy: the right job, disabled
-on: [push, pull_request]
+# R3 decoy: runs only when someone presses the button
+on: workflow_dispatch
 jobs:
   mac:
-    if: false
     runs-on: macos-latest
     env:
       MNEMONIC_BIN: mnemonic

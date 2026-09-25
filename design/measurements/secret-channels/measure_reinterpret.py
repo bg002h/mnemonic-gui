@@ -42,7 +42,7 @@ with ThreadPoolExecutor(20) as ex:
     res = list(ex.map(measure, labels))
 ver = {}
 for cli in ("mnemonic", "md", "ms", "mk"):
-    ver[cli] = subprocess.run([B + cli, "--version"], capture_output=True, text=True).stdout.split()[1]
+    ver[cli] = subprocess.run([B + cli, "--version"], capture_output=True, text=True, stdin=subprocess.DEVNULL).stdout.split()[1]
 agg = {}
 for r in res:
     a = agg.setdefault(r["cli"], {"version": ver[r["cli"]], "spellings": set(), "inputs": {}})

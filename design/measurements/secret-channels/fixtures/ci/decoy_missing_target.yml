@@ -1,4 +1,5 @@
 # decoy: runs T2 and T3' but not T7
+on: [push, pull_request]
 jobs:
   mac:
     runs-on: macos-latest

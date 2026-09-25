@@ -71,10 +71,15 @@ def cell(p):
 
 
 def a5_markdown(rows):
-    head = (f"Policy: private channels on {POLICY['private_channels_on']}, fd channel on "
-            f"{POLICY['fd_channel_on']}, env_value_rule `{POLICY['env_value_rule']['value']}`, argv re-interprets "
-            + ", ".join(f"{k} {v['version']}: {' '.join('`'+x+'`' for x in v['spellings'])}" for k, v in POLICY['argv_reinterprets'].items())
-            + " (channel_policy.json).\n\n")
+    from collections import Counter
+    from plan import REINTERPRET
+    rules = Counter(str(v.get("cli_env_rule")) for v in TABLE.values())
+    head = (f"Policy (decided): private channels on {POLICY['private_channels_on']}, fd channel on {POLICY['fd_channel_on']}. "
+            f"Derived (measured, CI-regenerated): per-input CLI `@env:` rule "
+            + ", ".join(f"{k} ×{n}" for k, n in sorted(rules.items()))
+            + "; argv re-reads "
+            + ", ".join(f"{k} {v['version']}: {' '.join('`'+x+'`' for x in v['spellings'])}" for k, v in REINTERPRET.items())
+            + ".\n\n")
     out = head + "| shape | Linux plan | macOS | Windows | macOS/Windows once their flag flips |\n|---|---|---|---|---|\n"
     for r in rows:
         mac = "same as Linux" if r["plans"]["macos"] == r["plans"]["linux"] else cell(r["plans"]["macos"])

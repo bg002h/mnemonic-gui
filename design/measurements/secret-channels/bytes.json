@@ -27,7 +27,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": null,
+  "cli_env_rule": "verbatim"
  },
  {
   "label": "mnemonic addresses --from entropy=",
@@ -57,7 +59,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": null,
+  "cli_env_rule": "verbatim"
  },
  {
   "label": "mnemonic addresses --passphrase",
@@ -92,7 +96,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 0
-  }
+  },
+  "argv_eq_exact": true,
+  "cli_env_rule": "verbatim"
  },
  {
   "label": "mnemonic bundle --slot @0.phrase=",
@@ -122,7 +128,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": null,
+  "cli_env_rule": "verbatim"
  },
  {
   "label": "mnemonic bundle --slot @0.entropy=",
@@ -155,7 +163,9 @@
    "'  '": 1,
    "' \\n'": 1,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": null,
+  "cli_env_rule": "verbatim"
  },
  {
   "label": "mnemonic bundle --slot @0.seedqr=",
@@ -185,7 +195,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": null,
+  "cli_env_rule": "verbatim"
  },
  {
   "label": "mnemonic bundle --passphrase",
@@ -220,7 +232,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 0
-  }
+  },
+  "argv_eq_exact": true,
+  "cli_env_rule": "verbatim"
  },
  {
   "label": "mnemonic convert --from phrase=",
@@ -250,7 +264,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": null,
+  "cli_env_rule": "verbatim"
  },
  {
   "label": "mnemonic convert --from entropy=",
@@ -306,7 +322,9 @@
    "'  '": 1,
    "' \\n'": 1,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": null,
+  "cli_env_rule": "verbatim"
  },
  {
   "label": "mnemonic convert --from seedqr=",
@@ -336,7 +354,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": null,
+  "cli_env_rule": "verbatim"
  },
  {
   "label": "mnemonic convert --from xprv=",
@@ -392,7 +412,9 @@
    "'  '": 1,
    "' \\n'": 1,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": null,
+  "cli_env_rule": "verbatim"
  },
  {
   "label": "mnemonic convert --from minikey=",
@@ -440,7 +462,9 @@
    "'  '": 2,
    "' \\n'": 2,
    "'\\nX'": 2
-  }
+  },
+  "argv_eq_exact": null,
+  "cli_env_rule": null
  },
  {
   "label": "mnemonic convert --from ms1=",
@@ -470,7 +494,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": null,
+  "cli_env_rule": "verbatim"
  },
  {
   "label": "mnemonic convert --from electrum-phrase=",
@@ -500,7 +526,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 2
-  }
+  },
+  "argv_eq_exact": null,
+  "cli_env_rule": "verbatim"
  },
  {
   "label": "mnemonic convert --passphrase",
@@ -535,7 +563,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 0
-  }
+  },
+  "argv_eq_exact": true,
+  "cli_env_rule": "verbatim"
  },
  {
   "label": "mnemonic convert --bip38-passphrase",
@@ -570,7 +600,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 0
-  }
+  },
+  "argv_eq_exact": true,
+  "cli_env_rule": "verbatim"
  },
  {
   "label": "mnemonic restore --from phrase=",
@@ -600,7 +632,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": null,
+  "cli_env_rule": "verbatim"
  },
  {
   "label": "mnemonic restore --from entropy=",
@@ -630,7 +664,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": null,
+  "cli_env_rule": "verbatim"
  },
  {
   "label": "mnemonic restore --from seedqr=",
@@ -660,7 +696,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": null,
+  "cli_env_rule": "verbatim"
  },
  {
   "label": "mnemonic restore --from ms1=",
@@ -690,7 +728,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": null,
+  "cli_env_rule": "verbatim"
  },
  {
   "label": "mnemonic restore --passphrase",
@@ -725,7 +765,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 0
-  }
+  },
+  "argv_eq_exact": true,
+  "cli_env_rule": "verbatim"
  },
  {
   "label": "mnemonic derive-child --from phrase=",
@@ -755,7 +797,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": null,
+  "cli_env_rule": "verbatim"
  },
  {
   "label": "mnemonic derive-child --passphrase",
@@ -790,7 +834,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 0
-  }
+  },
+  "argv_eq_exact": true,
+  "cli_env_rule": "verbatim"
  },
  {
   "label": "mnemonic nostr --secret",
@@ -822,7 +868,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": true,
+  "cli_env_rule": null
  },
  {
   "label": "mnemonic silent-payment --secret",
@@ -854,7 +902,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": true,
+  "cli_env_rule": null
  },
  {
   "label": "mnemonic silent-payment --passphrase",
@@ -881,7 +931,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 0
-  }
+  },
+  "argv_eq_exact": true,
+  "cli_env_rule": null
  },
  {
   "label": "mnemonic final-word --from phrase=",
@@ -903,7 +955,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": null,
+  "cli_env_rule": null
  },
  {
   "label": "mnemonic seed-xor split --from phrase=",
@@ -933,7 +987,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": null,
+  "cli_env_rule": "verbatim"
  },
  {
   "label": "mnemonic seed-xor combine --share phrase=",
@@ -963,7 +1019,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": null,
+  "cli_env_rule": "verbatim"
  },
  {
   "label": "mnemonic seedqr encode --from phrase=",
@@ -985,7 +1043,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": null,
+  "cli_env_rule": null
  },
  {
   "label": "mnemonic seedqr decode --from seedqr=",
@@ -1007,7 +1067,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": null,
+  "cli_env_rule": null
  },
  {
   "label": "mnemonic seedqr decode --digits",
@@ -1029,7 +1091,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": true,
+  "cli_env_rule": null
  },
  {
   "label": "mnemonic repair --ms1",
@@ -1051,7 +1115,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 2
-  }
+  },
+  "argv_eq_exact": true,
+  "cli_env_rule": null
  },
  {
   "label": "mnemonic inspect --ms1",
@@ -1083,7 +1149,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": true,
+  "cli_env_rule": null
  },
  {
   "label": "ms encode --phrase",
@@ -1114,7 +1182,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": true,
+  "cli_env_rule": null
  },
  {
   "label": "ms encode --hex",
@@ -1136,7 +1206,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": true,
+  "cli_env_rule": null
  },
  {
   "label": "ms inspect <ms1>",
@@ -1167,7 +1239,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": null,
+  "cli_env_rule": null
  },
  {
   "label": "ms decode <ms1>",
@@ -1198,7 +1272,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": null,
+  "cli_env_rule": null
  },
  {
   "label": "ms verify <ms1>",
@@ -1229,7 +1305,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": null,
+  "cli_env_rule": null
  },
  {
   "label": "ms derive <ms1>",
@@ -1260,7 +1338,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": null,
+  "cli_env_rule": null
  },
  {
   "label": "ms verify --phrase",
@@ -1282,7 +1362,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": true,
+  "cli_env_rule": null
  },
  {
   "label": "ms derive --hex",
@@ -1304,7 +1386,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": true,
+  "cli_env_rule": null
  },
  {
   "label": "ms derive --phrase",
@@ -1326,7 +1410,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": true,
+  "cli_env_rule": null
  },
  {
   "label": "ms derive --passphrase",
@@ -1353,7 +1439,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 0
-  }
+  },
+  "argv_eq_exact": false,
+  "cli_env_rule": null
  },
  {
   "label": "ms repair --ms1",
@@ -1384,7 +1472,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 2
-  }
+  },
+  "argv_eq_exact": true,
+  "cli_env_rule": null
  },
  {
   "label": "mnemonic derive-child --from xprv=",
@@ -1440,7 +1530,9 @@
    "'  '": 1,
    "' \\n'": 1,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": null,
+  "cli_env_rule": "verbatim"
  },
  {
   "label": "mnemonic convert --from wif=",
@@ -1496,7 +1588,9 @@
    "'  '": 1,
    "' \\n'": 1,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": null,
+  "cli_env_rule": "verbatim"
  },
  {
   "label": "mnemonic verify-bundle --slot @0.phrase=",
@@ -1526,7 +1620,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": null,
+  "cli_env_rule": "verbatim"
  },
  {
   "label": "mnemonic verify-bundle --passphrase",
@@ -1560,7 +1656,9 @@
    "'  '": 4,
    "' \\n'": 4,
    "'\\nX'": 4
-  }
+  },
+  "argv_eq_exact": true,
+  "cli_env_rule": "verbatim"
  },
  {
   "label": "mnemonic verify-bundle --ms1",
@@ -1582,7 +1680,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 4
-  }
+  },
+  "argv_eq_exact": true,
+  "cli_env_rule": "verbatim"
  },
  {
   "label": "mnemonic import-wallet --ms1",
@@ -1604,7 +1704,9 @@
    "'  '": 1,
    "' \\n'": 1,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": true,
+  "cli_env_rule": "verbatim"
  },
  {
   "label": "mnemonic import-wallet --slot @0.phrase=",
@@ -1626,7 +1728,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": null,
+  "cli_env_rule": "verbatim"
  },
  {
   "label": "mnemonic electrum-decrypt --decrypt-password",
@@ -1666,7 +1770,9 @@
    "'  '": 1,
    "' \\n'": 1,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": true,
+  "cli_env_rule": null
  },
  {
   "label": "mnemonic xpub-search path-of-xpub --phrase",
@@ -1697,7 +1803,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": true,
+  "cli_env_rule": "verbatim"
  },
  {
   "label": "mnemonic xpub-search path-of-xpub --ms1",
@@ -1746,7 +1854,9 @@
    "'  '": 1,
    "' \\n'": 1,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": true,
+  "cli_env_rule": null
  },
  {
   "label": "mnemonic xpub-search path-of-xpub --passphrase",
@@ -1780,7 +1890,9 @@
    "'  '": 4,
    "' \\n'": 4,
    "'\\nX'": 4
-  }
+  },
+  "argv_eq_exact": true,
+  "cli_env_rule": "verbatim"
  },
  {
   "label": "mnemonic xpub-search account-of-descriptor --phrase",
@@ -1811,7 +1923,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": true,
+  "cli_env_rule": "verbatim"
  },
  {
   "label": "mnemonic xpub-search account-of-descriptor --ms1",
@@ -1860,7 +1974,9 @@
    "'  '": 1,
    "' \\n'": 1,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": true,
+  "cli_env_rule": null
  },
  {
   "label": "mnemonic xpub-search account-of-descriptor --passphrase",
@@ -1894,7 +2010,9 @@
    "'  '": 4,
    "' \\n'": 4,
    "'\\nX'": 4
-  }
+  },
+  "argv_eq_exact": true,
+  "cli_env_rule": "verbatim"
  },
  {
   "label": "mnemonic xpub-search passphrase-of-xpub --passphrase",
@@ -1928,7 +2046,9 @@
    "'  '": 4,
    "' \\n'": 4,
    "'\\nX'": 4
-  }
+  },
+  "argv_eq_exact": true,
+  "cli_env_rule": "verbatim"
  },
  {
   "label": "mnemonic xpub-search passphrase-of-xpub --phrase",
@@ -1959,7 +2079,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": true,
+  "cli_env_rule": "verbatim"
  },
  {
   "label": "mnemonic slip39 split --from phrase=",
@@ -1989,7 +2111,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": null,
+  "cli_env_rule": "verbatim"
  },
  {
   "label": "mnemonic slip39 split --passphrase",
@@ -2024,7 +2148,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 0
-  }
+  },
+  "argv_eq_exact": true,
+  "cli_env_rule": "verbatim"
  },
  {
   "label": "mnemonic slip39 combine --share",
@@ -2054,7 +2180,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": true,
+  "cli_env_rule": "verbatim"
  },
  {
   "label": "mnemonic slip39 combine --passphrase",
@@ -2089,7 +2217,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 0
-  }
+  },
+  "argv_eq_exact": true,
+  "cli_env_rule": "verbatim"
  },
  {
   "label": "mnemonic ms-shares split --from phrase=",
@@ -2119,7 +2249,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": null,
+  "cli_env_rule": "verbatim"
  },
  {
   "label": "mnemonic ms-shares combine --share",
@@ -2149,7 +2281,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": true,
+  "cli_env_rule": "verbatim"
  },
  {
   "label": "ms split --phrase",
@@ -2180,7 +2314,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": true,
+  "cli_env_rule": null
  },
  {
   "label": "ms split --hex",
@@ -2202,7 +2338,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": true,
+  "cli_env_rule": null
  },
  {
   "label": "ms hashlock --hashlock-phrase",
@@ -2229,7 +2367,9 @@
    "'  '": 0,
    "' \\n'": 1,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": false,
+  "cli_env_rule": null
  },
  {
   "label": "ms hashlock --hex",
@@ -2251,7 +2391,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": true,
+  "cli_env_rule": null
  },
  {
   "label": "mnemonic convert --from bip38=",
@@ -2307,7 +2449,9 @@
    "'  '": 1,
    "' \\n'": 1,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": null,
+  "cli_env_rule": "verbatim"
  },
  {
   "label": "mnemonic slip39 split --from entropy=",
@@ -2363,7 +2507,9 @@
    "'  '": 1,
    "' \\n'": 1,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": null,
+  "cli_env_rule": "verbatim"
  },
  {
   "label": "mnemonic ms-shares split --from entropy=",
@@ -2419,7 +2565,9 @@
    "'  '": 1,
    "' \\n'": 1,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": null,
+  "cli_env_rule": "verbatim"
  },
  {
   "label": "mnemonic xpub-search passphrase-of-xpub --ms1",
@@ -2468,7 +2616,9 @@
    "'  '": 1,
    "' \\n'": 1,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": true,
+  "cli_env_rule": null
  },
  {
   "label": "ms hashlock <ms1>",
@@ -2499,7 +2649,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": null,
+  "cli_env_rule": null
  },
  {
   "label": "mnemonic bundle --slot @0.ms1=",
@@ -2529,7 +2681,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": null,
+  "cli_env_rule": "verbatim"
  },
  {
   "label": "mnemonic bundle --slot @0.wif=",
@@ -2562,7 +2716,9 @@
    "'  '": 1,
    "' \\n'": 1,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": null,
+  "cli_env_rule": "verbatim"
  },
  {
   "label": "mnemonic addresses --from seedqr=",
@@ -2592,7 +2748,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": null,
+  "cli_env_rule": "verbatim"
  },
  {
   "label": "mnemonic import-wallet --decrypt-password",
@@ -2632,7 +2790,9 @@
    "'  '": 1,
    "' \\n'": 1,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": true,
+  "cli_env_rule": null
  },
  {
   "label": "mnemonic addresses --from electrum-phrase=",
@@ -2662,7 +2822,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": null,
+  "cli_env_rule": "verbatim"
  },
  {
   "label": "mnemonic verify-bundle --slot @0.entropy=",
@@ -2695,7 +2857,9 @@
    "'  '": 1,
    "' \\n'": 1,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": null,
+  "cli_env_rule": "verbatim"
  },
  {
   "label": "mnemonic verify-bundle --slot @0.seedqr=",
@@ -2725,7 +2889,9 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": null,
+  "cli_env_rule": "verbatim"
  },
  {
   "label": "mnemonic verify-bundle --slot @0.ms1=",
@@ -2755,6 +2921,8 @@
    "'  '": 0,
    "' \\n'": 0,
    "'\\nX'": 1
-  }
+  },
+  "argv_eq_exact": null,
+  "cli_env_rule": "verbatim"
  }
 ]

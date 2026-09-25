@@ -36,26 +36,40 @@ def main():
         table[norm(label)]={"channels":ok,"measured_in":"single-input harness"}
     # R1 NI1: per-channel terminator from run_bytes.py (bytes.json). null = lenient: the channel
     # trims whitespace where argv would not, so it may carry only a CLEAN value (DESIGN §A3c).
-    terms={}
+    terms={}; rules={}; eqx={}
     for r in json.load(open("bytes.json")):
+        rules[norm(r["label"])]=r.get("cli_env_rule")
+        eqx[norm(r["label"])]=r.get("argv_eq_exact")
         for c in r["channels"]:
             terms[(norm(r["label"]), c["kind"], c.get("flag"))]=c["terminator"]
     for label,v in table.items():
         for c in v["channels"]:
             c["terminator"]=terms[(label,c["kind"],c.get("flag"))]
+        # R3 NI7: per-input CLI @env: value rule, DERIVED (run_bytes.py); None = no working CLI @env:
+        v["cli_env_rule"]=rules.get(label)
+        # R3 Nm13: `--flag=VALUE` byte-identical to `--flag VALUE` here (None: not a value-form input)
+        v["argv_eq_exact"]=eqx.get(label)
     for label,chs in json.load(open("groups.json")).items():
-        table[label]={"channels":chs,"measured_in":"measure_groups.py"}
+        table[label]={"channels":chs,"measured_in":"measure_groups.py","cli_env_rule":None,"argv_eq_exact":None}
     json.dump(dict(sorted(table.items())),open("channel_table.json","w"),indent=1)
     print(len(table),"inputs;",sum(1 for v in table.values() if not v["channels"]),"with no OK channel")
 
 
 def record_versions():
-    """measured_with.json: the CLI versions of BIN_DIR, the binaries every measuring script in the
-    §A1 pipeline ran against. test_plan.py's pin check compares it with pinned-upstream.toml."""
-    import os, subprocess
+    """measured_with.json: the IDENTITY of the binaries every measuring script ran against —
+    the pinned tag (pinned-upstream.toml at measure time), the --version string, and the binary's
+    sha256 (R3: a same-version rebuild with different behaviour must not pass). regen_check.py
+    compares the sha256 of the binaries CI installs for the pinned tags with these."""
+    import os, subprocess, hashlib, tomllib
     b=os.environ["BIN_DIR"].rstrip("/")+"/"
-    v={c: subprocess.run([b+c,"--version"],capture_output=True,text=True).stdout.split()[1] for c in ("mnemonic","md","ms","mk")}
-    json.dump(v,open("measured_with.json","w"),indent=1)
+    here=os.path.dirname(os.path.abspath(__file__))
+    pins=tomllib.load(open(os.path.join(here,"..","..","..","pinned-upstream.toml"),"rb"))
+    v={}
+    for c in ("mnemonic","md","ms","mk"):
+        v[c]={"pinned_tag": pins[c]["tag"],
+              "version": subprocess.run([b+c,"--version"],capture_output=True,text=True,stdin=subprocess.DEVNULL).stdout.split()[1],
+              "sha256": hashlib.sha256(open(b+c,"rb").read()).hexdigest()}
+    json.dump(v,open(os.path.join(here,"measured_with.json"),"w"),indent=1)
 
 if __name__=="__main__":
     main()

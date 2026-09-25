@@ -3,8 +3,13 @@ the design's A5 table is GENERATED from this file (gen_plans.py, no CLIs needed)
 `form::channels::plan` must agree with it on every shape and platform (T8), and test_plan.py
 pins its refusals. This is a measurement/spec tool, not GUI code.
 
-Inputs are DATA: channel_table.json (measured channels + per-channel terminator) and
-channel_policy.json (the hand-maintained single entries: env_value_rule, per-OS switches, …).
+Inputs are DATA, in two kinds (R3: the shape change):
+  DERIVED, by measurement against the pinned binaries, regenerated and diffed in CI
+  (regen_check.py) — never hand-edited, never read back as their own oracle:
+    channel_table.json  channels, per-channel terminator, per-input cli_env_rule
+    reinterpret.json    per CLI: the spellings it re-reads as an argv value
+    measured_with.json  pinned tag + version + sha256 of the binaries measured
+  DECIDED, by humans: channel_policy.json (per-OS switches, reserved prefix, name rule, bounds).
 
 A source is one secret input the user filled:
   {"key":   channel-table key, e.g. "mnemonic restore --passphrase",
@@ -17,6 +22,7 @@ import json, os, re
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 POLICY = json.load(open(os.path.join(HERE, "channel_policy.json")))
+REINTERPRET = json.load(open(os.path.join(HERE, "reinterpret.json")))
 
 STDIN_KINDS = ("StdinMulti", "StdinToggle", "DashValue", "PosDash")   # preference order
 FD_KINDS = ("FileFlag", "InFile")                                       # preference order
@@ -30,10 +36,11 @@ class Refusal(Exception):
 
 
 # ── §A3c: the TARGET bytes ────────────────────────────────────────────────────────────────
-def env_value_rule(raw, rule=None):
-    """What the pinned CLIs' own `@env:VAR` makes of the variable (channel_policy.json)."""
-    rule = rule or POLICY["env_value_rule"]["value"]
-    if rule == "verbatim":
+def env_value_rule(raw, rule):
+    """What the pinned CLI's own `@env:VAR` makes of the variable ON THIS INPUT
+    (channel_table.json cli_env_rule, derived per input by run_bytes.py; R3 NI7). None — the
+    input has no working CLI `@env:` — means the GUI treats the variable's bytes as typed."""
+    if rule in (None, "verbatim"):
         return raw
     if rule == "strip-one-trailing-newline":
         return raw[:-2] if raw.endswith("\r\n") else raw[:-1] if raw.endswith("\n") else raw
@@ -46,7 +53,7 @@ def is_clean(v):
 
 
 # ── §A3a: C1 ─────────────────────────────────────────────────────────────────────────────
-def resolve(sources, user_env, rule=None):
+def resolve(sources, user_env, table=None, rule=None):
     """C1. A secret field whose value is a channel spelling means that channel, never those
     characters:
       `@env:VAR` -> the GUI reads VAR from its OWN environment; the TARGET is
@@ -69,7 +76,10 @@ def resolve(sources, user_env, rule=None):
                     raise Refusal("C1-bad-name", s["key"], f"{name!r} is not a valid name ([A-Z_][A-Z0-9_]*)")
                 if name not in user_env:
                     raise Refusal("C1-env-unset", s["key"], f"${name} is not set in the GUI's environment")
-                target = env_value_rule(user_env[name], rule)
+                r_ = rule if rule is not None else ((table or {}).get(s["key"], {}).get("cli_env_rule"))
+                if r_ == "UNKNOWN":
+                    raise Refusal("C1-env-rule-unknown", s["key"], "the CLI's @env: rule for this input did not measure as any known rule")
+                target = env_value_rule(user_env[name], r_)
                 if target == "":        # checked on the TARGET, after the rule (R2 Nit 1)
                     raise Refusal("C1-env-empty", s["key"], f"${name} is empty (after the CLI's @env: rule)")
                 got.append(target); where.append(f"${name}")
@@ -94,7 +104,7 @@ def plan(sources, table, platform="linux", user_env=None, rule=None):
     """Resolve (C1), then plan for `platform`. Returns (bindings, provenance, resolved sources).
     On an OS outside private_channels_on this is the INTERIM path: every source, once resolved
     and measured, goes on argv with --allow-argv-secret (DESIGN §A6)."""
-    res, prov = resolve(sources, user_env or {}, rule)
+    res, prov = resolve(sources, user_env or {}, table, rule)
     for s in res:
         if s["key"] not in table:
             raise Refusal("no-table-entry", s["key"], "input not measured")
@@ -107,13 +117,25 @@ def plan(sources, table, platform="linux", user_env=None, rule=None):
         # second time — a different wallet at exit 0 (R2 NC1). Refuse it.
         for s in res:
             cli = s["key"].split()[0]
-            row = POLICY["argv_reinterprets"].get(cli, {"spellings": [], "version": "?"})
+            row = REINTERPRET.get(cli, {"spellings": [], "version": "?"})
             vals = s["value"] if s["form"] == "group" else [s["value"]]
             for v in vals:
                 if ("-" in row["spellings"] and v == "-") or ("@env:" in row["spellings"] and v.startswith("@env:")):
                     raise Refusal("value-is-a-channel-spelling", s["key"],
                                   f"{cli} {row['version']} reads {v[:5]!r}… on the command line as a channel, not as the secret")
-        return [{"source": i, "key": s["key"], "kind": "Argv", "terminator": ""} for i, s in enumerate(res)], prov, res
+        # R3 Nm13: a value starting with `-` would be parsed as a flag when it is its own argv word.
+        # Use `--flag=VALUE` where that form MEASURED byte-exact for this input; otherwise refuse.
+        forms = []
+        for s in res:
+            v = s["value"]
+            dash = s["form"] == "value" and isinstance(v, str) and v.startswith("-")
+            if dash and not table[s["key"]].get("argv_eq_exact"):
+                raise Refusal("value-starts-with-dash", s["key"],
+                              "on this OS the value goes on the command line, where a leading `-` reads as a flag "
+                              "and `--flag=VALUE` is not byte-exact for this input")
+            forms.append("eq" if dash else "sep")
+        return [{"source": i, "key": s["key"], "kind": "Argv", "terminator": "", "argv_form": forms[i]}
+                for i, s in enumerate(res)], prov, res
     try:
         return _plan(res, table, platform), prov, res
     except Refusal as e:

@@ -65,6 +65,17 @@ for s in shells:
     grp[s] = g == want
 typed_grp = subprocess.run([B + "ms", "combine", "--", "-"], input="\n".join(SH) + "\n", capture_output=True, text=True).stdout == want
 
+# R3 Nm11: a typed value spanning lines. The `read` recipe takes one line; the typed stdin row
+# (value, Enter, Ctrl-D) keeps every line. §A7 therefore DISABLES Copy for a typed EnvRef-bound
+# value holding CR or LF (tooltip), and keeps the stdin row.
+ml = {}
+for v in ("mid\nline", "a\r\nb"):
+    want = argv_exact(v)
+    ml[v] = {"argv": want,
+             "recipe": {s_: shell(s_, RECIPES[s_], v + "\n") for s_ in shells},
+             "stdin_row": fp(subprocess.run([B + "mnemonic", "restore", "--from", "phrase=@env:PHR", "--template", "bip84",
+                                             "--passphrase-stdin"], input=v + "\n", capture_output=True, text=True, env=env).stdout)}
+
 with open("copy_evidence.md", "w") as f:
     f.write("\n".join(rows) + "\n\n")
     f.write(f"§A7 recipe mismatches: {bad} of {len(VALUES) * len(shells)}. "
@@ -72,4 +83,10 @@ with open("copy_evidence.md", "w") as f:
             f"Share group, `printf '%s\\n' \"$S1\" \"$S2\" | ms combine -- -`: "
             + ", ".join(f"{s} {'==' if ok else '!='} argv" for s, ok in grp.items())
             + f"; typed (one share per line, Ctrl-D): {'==' if typed_grp else '!='} argv.\n")
+    f.write("\nMulti-line typed values (R3 Nm11): "
+            + "; ".join(f"`{v!r}`: argv-exact {d['argv']}, `read` recipe "
+                        + ", ".join(f"{s_} {'==' if x == d['argv'] else '**' + x + '**'}" for s_, x in d['recipe'].items())
+                        + f", typed stdin row {'==' if d['stdin_row'] == d['argv'] else '**' + d['stdin_row'] + '**'}"
+                        for v, d in ml.items())
+            + ". So Copy is disabled for a typed EnvRef-bound value holding CR or LF; the stdin row stays.\n")
 print(open("copy_evidence.md").read())

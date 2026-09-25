@@ -17,6 +17,8 @@ from table_build import kind as kind_of
 from channels import ENV
 
 ENDINGS = ["", "\n", "\r\n", "\r", "  ", " \n", "\nX"]
+RULES = [("verbatim", lambda r: r),
+         ("strip-one-trailing-newline", lambda r: r[:-2] if r.endswith("\r\n") else r[:-1] if r.endswith("\n") else r)]
 TERMINATORS = ["\r\n", "\n", ""]
 STDIN_KINDS = ("DashValue", "StdinToggle", "PosDash")
 FD_KINDS = ("FileFlag", "InFile")
@@ -111,6 +113,47 @@ def measure(label):
         b = run([a.replace("{S}", case["S"] + e) for a in case["argv"]])
         base[e] = (b.returncode, chk(b.stdout) if b.returncode in (0, 4) else "")
     out["base_exits"] = {repr(e): base[e][0] for e in ENDINGS}
+    # R3 NI7: the CLI's own `@env:` value rule, PER INPUT, derived here (never hand-kept). Where
+    # the input has an OK EnvRef cell: run the CLI's `@env:VAR` with VAR = S + ending and find the
+    # rule f for which it equals argv-exact(f(S + ending)) on every ending. None = the input has
+    # no working CLI `@env:` (the GUI then treats the variable's bytes as typed).
+    # R3 Nm13: is `--flag=VALUE` byte-identical to `--flag VALUE` on this input? (Measured: NOT on
+    # ms 0.19.1 --passphrase, which trims in the `=` form.) Only value-form inputs; None otherwise.
+    out["argv_eq_exact"] = None
+    if case["mode"] == "value":
+        i_ = next(k for k, a in enumerate(case["argv"]) if "{S}" in a)
+        eq_ok = True
+        for e in ENDINGS:
+            v = case["S"] + e
+            chk = chk_for(v)
+            sep = run([a.replace("{S}", v) for a in case["argv"]])
+            eqa = case["argv"][:i_ - 1] + [case["argv"][i_ - 1] + "=" + v] + case["argv"][i_ + 1:]
+            eqr = run(eqa)
+            if (sep.returncode, chk(sep.stdout) if sep.returncode in (0, 4) else "") != \
+               (eqr.returncode, chk(eqr.stdout) if eqr.returncode in (0, 4) else ""):
+                eq_ok = False
+                break
+        out["argv_eq_exact"] = eq_ok
+    out["cli_env_rule"] = None
+    if any(kind_of(n)["kind"] == "EnvRef" for n, v in rows[label]["channels"].items() if v == "OK"):
+        env_ch = {"kind": "EnvRef"}
+        for rname, f in RULES:
+            rule_ok = True
+            for e in ENDINGS:
+                raw = case["S"] + e
+                chk = chk_for(f(raw))
+                argv, stdin, env_val, fds = invocation(case, env_ch, raw, "")
+                g = run(argv, stdin, env_val, fds)
+                b = run([a.replace("{S}", f(raw)) for a in case["argv"]])
+                if (g.returncode, chk(g.stdout) if g.returncode in (0, 4) else "") != \
+                   (b.returncode, chk(b.stdout) if b.returncode in (0, 4) else ""):
+                    rule_ok = False
+                    break
+            if rule_ok:
+                out["cli_env_rule"] = rname
+                break
+        else:
+            out["cli_env_rule"] = "UNKNOWN"
     for ch in ok:
         # EnvRef tries "" first: today the CLI's @env: is verbatim. After F-687 a stripping @env:
         # shows up here as a non-empty terminator: a data change, not a code change.
@@ -182,5 +225,12 @@ with open("bytes.md", "w") as f:
         f.write(f"| {k} | {t} | {n} |\n")
     f.write(f"\nLenient cells (terminator null; every mismatch is argv-fails/channel-ok, "
             f"{len(dangerous)} are both-ok-different): " + "; ".join(lenient) + ".\n")
+    eqc = Counter(str(r.get("argv_eq_exact")) for r in res)
+    f.write("\n`--flag=VALUE` byte-identical to `--flag VALUE` (R3 Nm13; None = not a value-form input): "
+            + ", ".join(f"{k} {n}" for k, n in sorted(eqc.items())) + "; not exact: "
+            + "; ".join(f"`{r['label']}`" for r in res if r.get("argv_eq_exact") is False) + ".\n")
+    rc = Counter(str(r.get("cli_env_rule")) for r in res)
+    f.write("\nPer-input CLI `@env:` value rule (R3 NI7; None = no working CLI `@env:`, the GUI treats the bytes as typed): "
+            + ", ".join(f"{k} {n}" for k, n in sorted(rc.items())) + ".\n")
     f.write(f"\nWith NO terminator (fold 1's delivery), a wrong output at exit 0/4 on {len(naive_wrong)} cells: "
             + "; ".join(naive_wrong) + ".\n")

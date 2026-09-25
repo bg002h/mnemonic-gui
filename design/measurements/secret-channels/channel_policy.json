@@ -1,29 +1,5 @@
 {
- "_doc": "Hand-maintained policy (DESIGN \u00a7A3c, \u00a7A6). Each key is ONE entry; changing it is the whole change. Rows that describe CLI behaviour carry `measured_with`; test_plan.py's pin check fails when those versions differ from pinned-upstream.toml, so a pin bump forces a re-measure (DESIGN \u00a7A3b).",
- "env_value_rule": {
-  "value": "verbatim",
-  "measured_with": {
-   "mnemonic": "0.104.0",
-   "ms": "0.19.1"
-  }
- },
- "_env_value_rule_doc": "How the pinned CLIs' own `@env:VAR` turns the variable into the secret: `verbatim` (mnemonic 0.104.0, ms 0.19.1, measured) or `strip-one-trailing-newline` (strip exactly one trailing \\n or \\r\\n; the expected F-687 rule). The GUI applies it to a resolved @env:VAR value to get the TARGET bytes.",
- "argv_reinterprets": {
-  "mnemonic": {
-   "version": "0.104.0",
-   "spellings": [
-    "-",
-    "@env:"
-   ]
-  },
-  "ms": {
-   "version": "0.19.1",
-   "spellings": [
-    "-"
-   ]
-  }
- },
- "_argv_reinterprets_doc": "R2 NC1. Per CLI and version: the spellings the CLI re-resolves when they arrive as an argv VALUE (measured by measure_reinterpret.py; must equal reinterpret.json). The interim argv path refuses a resolved value that begins with one of these for that CLI (`value-is-a-channel-spelling`). Expected after F-687: both CLIs list `-` and `@env:`.",
+ "_doc": "Hand-maintained DECISIONS only (DESIGN \u00a7A1). Everything that describes CLI behaviour is DERIVED by measurement and lives in channel_table.json / reinterpret.json / measured_with.json, which regen_check.py regenerates against the pinned binaries and diffs (R3 shape change).",
  "private_channels_on": [
   "linux"
  ],

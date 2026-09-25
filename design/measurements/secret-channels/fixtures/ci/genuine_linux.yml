@@ -1,4 +1,5 @@
 # genuine: the Linux job the implementing change adds to schema-mirror.yml
+on: [push, pull_request]
 jobs:
   secret-channels:
     runs-on: ubuntu-latest

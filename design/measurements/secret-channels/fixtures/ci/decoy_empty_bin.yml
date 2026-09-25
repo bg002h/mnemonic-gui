@@ -1,10 +1,9 @@
-# decoy: the right job, disabled
+# R3 decoy: MNEMONIC_BIN is set but empty
 on: [push, pull_request]
 jobs:
   mac:
-    if: false
     runs-on: macos-latest
     env:
-      MNEMONIC_BIN: mnemonic
+      MNEMONIC_BIN: ""
     steps:
       - run: cargo test --test secret_channels_t2 --test secret_channels_t3prime --test secret_channels_t7

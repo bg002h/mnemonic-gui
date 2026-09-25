@@ -13,3 +13,5 @@
 | `'%s%d'` | 2def6c58 | 2def6c58 | 2def6c58 | 2def6c58 | 2def6c58 | 2def6c58 | 2def6c58 |
 
 §A7 recipe mismatches: 0 of 33. Typed stdin row (`--passphrase-stdin`, value + Enter): 0 mismatches of 11. Share group, `printf '%s\n' "$S1" "$S2" | ms combine -- -`: bash == argv, zsh == argv, fish == argv; typed (one share per line, Ctrl-D): == argv.
+
+Multi-line typed values (R3 Nm11): `'mid\nline'`: argv-exact 74db797b, `read` recipe bash **bdb4bfbc**, zsh **bdb4bfbc**, fish **bdb4bfbc**, typed stdin row ==; `'a\r\nb'`: argv-exact d5e2d0db, `read` recipe bash **e19f2f8f**, zsh **e19f2f8f**, fish **e19f2f8f**, typed stdin row ==. So Copy is disabled for a typed EnvRef-bound value holding CR or LF; the stdin row stays.

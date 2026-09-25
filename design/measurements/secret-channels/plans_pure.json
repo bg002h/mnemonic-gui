@@ -26,13 +26,15 @@
       "source": 0,
       "key": "mnemonic addresses --from phrase=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic addresses --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -42,13 +44,15 @@
       "source": 0,
       "key": "mnemonic addresses --from phrase=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic addresses --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -245,13 +249,15 @@
       "source": 0,
       "key": "mnemonic restore --from phrase=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic restore --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -261,13 +267,15 @@
       "source": 0,
       "key": "mnemonic restore --from phrase=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic restore --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -464,13 +472,15 @@
       "source": 0,
       "key": "mnemonic restore --from ms1=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic restore --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -480,13 +490,15 @@
       "source": 0,
       "key": "mnemonic restore --from ms1=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic restore --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -683,13 +695,15 @@
       "source": 0,
       "key": "mnemonic derive-child --from phrase=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic derive-child --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -699,13 +713,15 @@
       "source": 0,
       "key": "mnemonic derive-child --from phrase=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic derive-child --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -902,13 +918,15 @@
       "source": 0,
       "key": "mnemonic bundle --slot @N.phrase=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic bundle --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -918,13 +936,15 @@
       "source": 0,
       "key": "mnemonic bundle --slot @N.phrase=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic bundle --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -1121,13 +1141,15 @@
       "source": 0,
       "key": "mnemonic bundle --slot @N.phrase=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic bundle --slot @N.phrase=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -1137,13 +1159,15 @@
       "source": 0,
       "key": "mnemonic bundle --slot @N.phrase=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic bundle --slot @N.phrase=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -1347,19 +1371,22 @@
       "source": 0,
       "key": "mnemonic bundle --slot @N.phrase=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic bundle --slot @N.ms1=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 2,
       "key": "mnemonic bundle --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -1369,19 +1396,22 @@
       "source": 0,
       "key": "mnemonic bundle --slot @N.phrase=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic bundle --slot @N.ms1=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 2,
       "key": "mnemonic bundle --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -1669,13 +1699,15 @@
       "source": 0,
       "key": "mnemonic convert --from phrase=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic convert --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -1685,13 +1717,15 @@
       "source": 0,
       "key": "mnemonic convert --from phrase=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic convert --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -1888,13 +1922,15 @@
       "source": 0,
       "key": "mnemonic convert --from wif=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic convert --bip38-passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -1904,13 +1940,15 @@
       "source": 0,
       "key": "mnemonic convert --from wif=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic convert --bip38-passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -2107,13 +2145,15 @@
       "source": 0,
       "key": "mnemonic convert --from bip38=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic convert --bip38-passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -2123,13 +2163,15 @@
       "source": 0,
       "key": "mnemonic convert --from bip38=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic convert --bip38-passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -2326,13 +2368,15 @@
       "source": 0,
       "key": "mnemonic xpub-search path-of-xpub --phrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic xpub-search path-of-xpub --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -2342,13 +2386,15 @@
       "source": 0,
       "key": "mnemonic xpub-search path-of-xpub --phrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic xpub-search path-of-xpub --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -2545,13 +2591,15 @@
       "source": 0,
       "key": "mnemonic xpub-search path-of-xpub --ms1",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic xpub-search path-of-xpub --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -2561,13 +2609,15 @@
       "source": 0,
       "key": "mnemonic xpub-search path-of-xpub --ms1",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic xpub-search path-of-xpub --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -2753,13 +2803,15 @@
       "source": 0,
       "key": "mnemonic xpub-search passphrase-of-xpub --phrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic xpub-search passphrase-of-xpub --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -2769,13 +2821,15 @@
       "source": 0,
       "key": "mnemonic xpub-search passphrase-of-xpub --phrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic xpub-search passphrase-of-xpub --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -2972,13 +3026,15 @@
       "source": 0,
       "key": "mnemonic xpub-search passphrase-of-xpub --ms1",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic xpub-search passphrase-of-xpub --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -2988,13 +3044,15 @@
       "source": 0,
       "key": "mnemonic xpub-search passphrase-of-xpub --ms1",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic xpub-search passphrase-of-xpub --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -3180,13 +3238,15 @@
       "source": 0,
       "key": "mnemonic xpub-search account-of-descriptor --phrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic xpub-search account-of-descriptor --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -3196,13 +3256,15 @@
       "source": 0,
       "key": "mnemonic xpub-search account-of-descriptor --phrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic xpub-search account-of-descriptor --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -3399,13 +3461,15 @@
       "source": 0,
       "key": "mnemonic xpub-search account-of-descriptor --ms1",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic xpub-search account-of-descriptor --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -3415,13 +3479,15 @@
       "source": 0,
       "key": "mnemonic xpub-search account-of-descriptor --ms1",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic xpub-search account-of-descriptor --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -3608,13 +3674,15 @@
       "source": 0,
       "key": "mnemonic silent-payment --secret",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic silent-payment --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -3624,13 +3692,15 @@
       "source": 0,
       "key": "mnemonic silent-payment --secret",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic silent-payment --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -3813,13 +3883,15 @@
       "source": 0,
       "key": "mnemonic slip39 split --from phrase=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic slip39 split --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -3829,13 +3901,15 @@
       "source": 0,
       "key": "mnemonic slip39 split --from phrase=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic slip39 split --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -4039,19 +4113,22 @@
       "source": 0,
       "key": "mnemonic slip39 combine --share",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic slip39 combine --share",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 2,
       "key": "mnemonic slip39 combine --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -4061,19 +4138,22 @@
       "source": 0,
       "key": "mnemonic slip39 combine --share",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic slip39 combine --share",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 2,
       "key": "mnemonic slip39 combine --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -4361,13 +4441,15 @@
       "source": 0,
       "key": "mnemonic slip39 combine --share",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic slip39 combine --share",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -4377,13 +4459,15 @@
       "source": 0,
       "key": "mnemonic slip39 combine --share",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic slip39 combine --share",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -4580,13 +4664,15 @@
       "source": 0,
       "key": "mnemonic seed-xor combine --share phrase=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic seed-xor combine --share phrase=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -4596,13 +4682,15 @@
       "source": 0,
       "key": "mnemonic seed-xor combine --share phrase=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic seed-xor combine --share phrase=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -4799,13 +4887,15 @@
       "source": 0,
       "key": "mnemonic ms-shares combine --share",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic ms-shares combine --share",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -4815,13 +4905,15 @@
       "source": 0,
       "key": "mnemonic ms-shares combine --share",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic ms-shares combine --share",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -5018,13 +5110,15 @@
       "source": 0,
       "key": "mnemonic import-wallet --ms1",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic import-wallet --ms1",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -5034,13 +5128,15 @@
       "source": 0,
       "key": "mnemonic import-wallet --ms1",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic import-wallet --ms1",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -5244,19 +5340,22 @@
       "source": 0,
       "key": "mnemonic verify-bundle --ms1",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic verify-bundle --slot @N.phrase=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 2,
       "key": "mnemonic verify-bundle --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -5266,19 +5365,22 @@
       "source": 0,
       "key": "mnemonic verify-bundle --ms1",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic verify-bundle --slot @N.phrase=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 2,
       "key": "mnemonic verify-bundle --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -5558,7 +5660,8 @@
       "source": 0,
       "key": "ms combine <shares>",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -5568,7 +5671,8 @@
       "source": 0,
       "key": "ms combine <shares>",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -5661,13 +5765,15 @@
       "source": 0,
       "key": "ms verify --phrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "ms verify <ms1>",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -5677,13 +5783,15 @@
       "source": 0,
       "key": "ms verify --phrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "ms verify <ms1>",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -5867,13 +5975,15 @@
       "source": 0,
       "key": "ms derive --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "ms derive <ms1>",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -5883,13 +5993,15 @@
       "source": 0,
       "key": "ms derive --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "ms derive <ms1>",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -6058,13 +6170,15 @@
       "source": 0,
       "key": "ms derive --phrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "ms derive --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -6074,13 +6188,15 @@
       "source": 0,
       "key": "ms derive --phrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "ms derive --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -6216,13 +6332,15 @@
       "source": 0,
       "key": "ms derive --hex",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "ms derive --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -6232,13 +6350,15 @@
       "source": 0,
       "key": "ms derive --hex",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "ms derive --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },

@@ -10,7 +10,9 @@
     "terminator": ""
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
  },
  "mnemonic addresses --from entropy=": {
   "channels": [
@@ -23,7 +25,9 @@
     "terminator": ""
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
  },
  "mnemonic addresses --from phrase=": {
   "channels": [
@@ -36,7 +40,9 @@
     "terminator": ""
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
  },
  "mnemonic addresses --from seedqr=": {
   "channels": [
@@ -49,7 +55,9 @@
     "terminator": ""
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
  },
  "mnemonic addresses --passphrase": {
   "channels": [
@@ -63,7 +71,9 @@
     "terminator": "\r\n"
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": true
  },
  "mnemonic bundle --passphrase": {
   "channels": [
@@ -77,7 +87,9 @@
     "terminator": "\r\n"
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": true
  },
  "mnemonic bundle --slot @N.entropy=": {
   "channels": [
@@ -90,7 +102,9 @@
     "terminator": ""
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
  },
  "mnemonic bundle --slot @N.ms1=": {
   "channels": [
@@ -103,7 +117,9 @@
     "terminator": ""
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
  },
  "mnemonic bundle --slot @N.phrase=": {
   "channels": [
@@ -116,7 +132,9 @@
     "terminator": ""
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
  },
  "mnemonic bundle --slot @N.seedqr=": {
   "channels": [
@@ -129,7 +147,9 @@
     "terminator": ""
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
  },
  "mnemonic bundle --slot @N.wif=": {
   "channels": [
@@ -142,7 +162,9 @@
     "terminator": ""
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
  },
  "mnemonic convert --bip38-passphrase": {
   "channels": [
@@ -156,7 +178,9 @@
     "terminator": "\r\n"
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": true
  },
  "mnemonic convert --from bip38=": {
   "channels": [
@@ -169,7 +193,9 @@
     "terminator": ""
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
  },
  "mnemonic convert --from electrum-phrase=": {
   "channels": [
@@ -182,7 +208,9 @@
     "terminator": ""
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
  },
  "mnemonic convert --from entropy=": {
   "channels": [
@@ -195,7 +223,9 @@
     "terminator": ""
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
  },
  "mnemonic convert --from minikey=": {
   "channels": [
@@ -204,7 +234,9 @@
     "terminator": null
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": null
  },
  "mnemonic convert --from ms1=": {
   "channels": [
@@ -217,7 +249,9 @@
     "terminator": ""
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
  },
  "mnemonic convert --from phrase=": {
   "channels": [
@@ -230,7 +264,9 @@
     "terminator": ""
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
  },
  "mnemonic convert --from seedqr=": {
   "channels": [
@@ -243,7 +279,9 @@
     "terminator": ""
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
  },
  "mnemonic convert --from wif=": {
   "channels": [
@@ -256,7 +294,9 @@
     "terminator": ""
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
  },
  "mnemonic convert --from xprv=": {
   "channels": [
@@ -269,7 +309,9 @@
     "terminator": ""
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
  },
  "mnemonic convert --passphrase": {
   "channels": [
@@ -283,7 +325,9 @@
     "terminator": "\r\n"
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": true
  },
  "mnemonic derive-child --from phrase=": {
   "channels": [
@@ -296,7 +340,9 @@
     "terminator": ""
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
  },
  "mnemonic derive-child --from xprv=": {
   "channels": [
@@ -309,7 +355,9 @@
     "terminator": ""
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
  },
  "mnemonic derive-child --passphrase": {
   "channels": [
@@ -323,7 +371,9 @@
     "terminator": "\r\n"
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": true
  },
  "mnemonic electrum-decrypt --decrypt-password": {
   "channels": [
@@ -338,7 +388,9 @@
     "terminator": "\n"
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": true
  },
  "mnemonic final-word --from phrase=": {
   "channels": [
@@ -347,7 +399,9 @@
     "terminator": "\r\n"
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": null
  },
  "mnemonic import-wallet --decrypt-password": {
   "channels": [
@@ -362,7 +416,9 @@
     "terminator": "\n"
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": true
  },
  "mnemonic import-wallet --ms1": {
   "channels": [
@@ -371,7 +427,9 @@
     "terminator": ""
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": true
  },
  "mnemonic import-wallet --slot @N.phrase=": {
   "channels": [
@@ -380,7 +438,9 @@
     "terminator": ""
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
  },
  "mnemonic inspect --ms1": {
   "channels": [
@@ -389,7 +449,9 @@
     "terminator": null
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": true
  },
  "mnemonic ms-shares combine --share": {
   "channels": [
@@ -402,7 +464,9 @@
     "terminator": ""
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": true
  },
  "mnemonic ms-shares split --from entropy=": {
   "channels": [
@@ -415,7 +479,9 @@
     "terminator": ""
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
  },
  "mnemonic ms-shares split --from phrase=": {
   "channels": [
@@ -428,7 +494,9 @@
     "terminator": ""
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
  },
  "mnemonic nostr --secret": {
   "channels": [
@@ -443,7 +511,9 @@
     "terminator": "\r\n"
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": true
  },
  "mnemonic repair --ms1": {
   "channels": [
@@ -452,7 +522,9 @@
     "terminator": "\r\n"
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": true
  },
  "mnemonic restore --from entropy=": {
   "channels": [
@@ -465,7 +537,9 @@
     "terminator": ""
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
  },
  "mnemonic restore --from ms1=": {
   "channels": [
@@ -478,7 +552,9 @@
     "terminator": ""
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
  },
  "mnemonic restore --from phrase=": {
   "channels": [
@@ -491,7 +567,9 @@
     "terminator": ""
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
  },
  "mnemonic restore --from seedqr=": {
   "channels": [
@@ -504,7 +582,9 @@
     "terminator": ""
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
  },
  "mnemonic restore --passphrase": {
   "channels": [
@@ -518,7 +598,9 @@
     "terminator": "\r\n"
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": true
  },
  "mnemonic seed-xor combine --share phrase=": {
   "channels": [
@@ -531,7 +613,9 @@
     "terminator": ""
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
  },
  "mnemonic seed-xor split --from phrase=": {
   "channels": [
@@ -544,7 +628,9 @@
     "terminator": ""
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
  },
  "mnemonic seedqr decode --digits": {
   "channels": [
@@ -553,7 +639,9 @@
     "terminator": "\r\n"
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": true
  },
  "mnemonic seedqr decode --from seedqr=": {
   "channels": [
@@ -562,7 +650,9 @@
     "terminator": "\r\n"
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": null
  },
  "mnemonic seedqr encode --from phrase=": {
   "channels": [
@@ -571,7 +661,9 @@
     "terminator": "\r\n"
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": null
  },
  "mnemonic silent-payment --passphrase": {
   "channels": [
@@ -581,7 +673,9 @@
     "terminator": "\r\n"
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": true
  },
  "mnemonic silent-payment --secret": {
   "channels": [
@@ -596,7 +690,9 @@
     "terminator": "\r\n"
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": true
  },
  "mnemonic slip39 combine --passphrase": {
   "channels": [
@@ -610,7 +706,9 @@
     "terminator": "\r\n"
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": true
  },
  "mnemonic slip39 combine --share": {
   "channels": [
@@ -623,7 +721,9 @@
     "terminator": ""
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": true
  },
  "mnemonic slip39 split --from entropy=": {
   "channels": [
@@ -636,7 +736,9 @@
     "terminator": ""
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
  },
  "mnemonic slip39 split --from phrase=": {
   "channels": [
@@ -649,7 +751,9 @@
     "terminator": ""
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
  },
  "mnemonic slip39 split --passphrase": {
   "channels": [
@@ -663,7 +767,9 @@
     "terminator": "\r\n"
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": true
  },
  "mnemonic verify-bundle --ms1": {
   "channels": [
@@ -672,7 +778,9 @@
     "terminator": ""
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": true
  },
  "mnemonic verify-bundle --passphrase": {
   "channels": [
@@ -686,7 +794,9 @@
     "terminator": "\r\n"
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": true
  },
  "mnemonic verify-bundle --slot @N.entropy=": {
   "channels": [
@@ -699,7 +809,9 @@
     "terminator": ""
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
  },
  "mnemonic verify-bundle --slot @N.ms1=": {
   "channels": [
@@ -712,7 +824,9 @@
     "terminator": ""
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
  },
  "mnemonic verify-bundle --slot @N.phrase=": {
   "channels": [
@@ -725,7 +839,9 @@
     "terminator": ""
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
  },
  "mnemonic verify-bundle --slot @N.seedqr=": {
   "channels": [
@@ -738,7 +854,9 @@
     "terminator": ""
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
  },
  "mnemonic xpub-search account-of-descriptor --ms1": {
   "channels": [
@@ -748,7 +866,9 @@
     "terminator": null
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": true
  },
  "mnemonic xpub-search account-of-descriptor --passphrase": {
   "channels": [
@@ -762,7 +882,9 @@
     "terminator": "\r\n"
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": true
  },
  "mnemonic xpub-search account-of-descriptor --phrase": {
   "channels": [
@@ -776,7 +898,9 @@
     "terminator": "\r\n"
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": true
  },
  "mnemonic xpub-search passphrase-of-xpub --ms1": {
   "channels": [
@@ -786,7 +910,9 @@
     "terminator": null
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": true
  },
  "mnemonic xpub-search passphrase-of-xpub --passphrase": {
   "channels": [
@@ -800,7 +926,9 @@
     "terminator": "\r\n"
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": true
  },
  "mnemonic xpub-search passphrase-of-xpub --phrase": {
   "channels": [
@@ -814,7 +942,9 @@
     "terminator": "\r\n"
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": true
  },
  "mnemonic xpub-search path-of-xpub --ms1": {
   "channels": [
@@ -824,7 +954,9 @@
     "terminator": null
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": true
  },
  "mnemonic xpub-search path-of-xpub --passphrase": {
   "channels": [
@@ -838,7 +970,9 @@
     "terminator": "\r\n"
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": true
  },
  "mnemonic xpub-search path-of-xpub --phrase": {
   "channels": [
@@ -852,7 +986,9 @@
     "terminator": "\r\n"
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": true
  },
  "ms combine <shares>": {
   "channels": [
@@ -866,7 +1002,9 @@
     "terminator": "\n"
    }
   ],
-  "measured_in": "measure_groups.py"
+  "measured_in": "measure_groups.py",
+  "cli_env_rule": null,
+  "argv_eq_exact": null
  },
  "ms decode <ms1>": {
   "channels": [
@@ -880,7 +1018,9 @@
     "terminator": "\r\n"
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": null
  },
  "ms derive --hex": {
   "channels": [
@@ -889,7 +1029,9 @@
     "terminator": "\r\n"
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": true
  },
  "ms derive --passphrase": {
   "channels": [
@@ -899,7 +1041,9 @@
     "terminator": "\r\n"
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": false
  },
  "ms derive --phrase": {
   "channels": [
@@ -908,7 +1052,9 @@
     "terminator": "\r\n"
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": true
  },
  "ms derive <ms1>": {
   "channels": [
@@ -922,7 +1068,9 @@
     "terminator": "\r\n"
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": null
  },
  "ms encode --hex": {
   "channels": [
@@ -931,7 +1079,9 @@
     "terminator": "\r\n"
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": true
  },
  "ms encode --phrase": {
   "channels": [
@@ -945,7 +1095,9 @@
     "terminator": "\r\n"
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": true
  },
  "ms hashlock --hashlock-phrase": {
   "channels": [
@@ -955,7 +1107,9 @@
     "terminator": "\r\n"
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": false
  },
  "ms hashlock --hex": {
   "channels": [
@@ -964,7 +1118,9 @@
     "terminator": "\r\n"
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": true
  },
  "ms hashlock <ms1>": {
   "channels": [
@@ -978,7 +1134,9 @@
     "terminator": "\r\n"
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": null
  },
  "ms inspect <ms1>": {
   "channels": [
@@ -992,7 +1150,9 @@
     "terminator": "\r\n"
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": null
  },
  "ms repair --ms1": {
   "channels": [
@@ -1006,7 +1166,9 @@
     "terminator": "\r\n"
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": true
  },
  "ms split --hex": {
   "channels": [
@@ -1015,7 +1177,9 @@
     "terminator": "\r\n"
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": true
  },
  "ms split --phrase": {
   "channels": [
@@ -1029,7 +1193,9 @@
     "terminator": "\r\n"
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": true
  },
  "ms verify --phrase": {
   "channels": [
@@ -1038,7 +1204,9 @@
     "terminator": "\r\n"
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": true
  },
  "ms verify <ms1>": {
   "channels": [
@@ -1052,6 +1220,8 @@
     "terminator": "\r\n"
    }
   ],
-  "measured_in": "single-input harness"
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": null
  }
 }

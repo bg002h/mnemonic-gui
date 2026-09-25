@@ -1,9 +1,9 @@
-# decoy: the right job, disabled
+# R3 decoy: the right job, but its failure never fails the workflow
 on: [push, pull_request]
 jobs:
   mac:
-    if: false
     runs-on: macos-latest
+    continue-on-error: true
     env:
       MNEMONIC_BIN: mnemonic
     steps:

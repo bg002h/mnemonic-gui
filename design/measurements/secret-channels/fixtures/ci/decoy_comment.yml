@@ -1,4 +1,5 @@
 # decoy: macOS job that only builds; MNEMONIC_BIN appears in a comment only
+on: [push, pull_request]
 jobs:
   mac:
     runs-on: macos-latest

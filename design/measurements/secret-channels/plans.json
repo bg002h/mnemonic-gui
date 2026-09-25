@@ -28,13 +28,15 @@
       "source": 0,
       "key": "mnemonic addresses --from phrase=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic addresses --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -44,13 +46,15 @@
       "source": 0,
       "key": "mnemonic addresses --from phrase=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic addresses --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -84,48 +88,56 @@
     "source": 0,
     "ending": "",
     "equal": true,
+    "no_oracle": false,
     "effect": "0  bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv"
    },
    {
     "source": 0,
     "ending": "\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "0  bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv"
    },
    {
     "source": 0,
     "ending": "\r\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "0  bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv"
    },
    {
     "source": 0,
     "ending": "  ",
     "equal": true,
+    "no_oracle": false,
     "effect": "0  bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv"
    },
    {
     "source": 1,
     "ending": "",
     "equal": true,
+    "no_oracle": false,
     "effect": "0  bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv"
    },
    {
     "source": 1,
     "ending": "\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "0  bc1qzr4ec5jpay24amf5t7l508l4yak028qnerelv7"
    },
    {
     "source": 1,
     "ending": "\r\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "0  bc1q525j9ez5twzlwjzqfv23p3044ed4jsdkkt9ega"
    },
    {
     "source": 1,
     "ending": "  ",
     "equal": true,
+    "no_oracle": false,
     "effect": "0  bc1qqul54nnz3ae38947p56n67y827mvf0u654xg2a"
    }
   ],
@@ -133,34 +145,63 @@
    {
     "source": 0,
     "content": "@env:OTHER",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 0,
     "content": "-",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 1,
     "content": "@env:OTHER",
-    "linux_exit": 0,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 1,
     "content": "-",
-    "linux_exit": 0,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
+   }
+  ],
+  "dash": [
+   {
+    "source": 1,
+    "value": "-leading",
+    "oracle": true,
+    "linux": 0,
+    "linux_eq_oracle": true,
+    "macos": 0,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 1,
+    "value": "--help",
+    "oracle": true,
+    "linux": 0,
+    "linux_eq_oracle": true,
+    "macos": 0,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 1,
+    "value": "-lead  ",
+    "oracle": true,
+    "linux": 0,
+    "linux_eq_oracle": true,
+    "macos": 0,
+    "macos_eq_oracle": true
    }
   ],
   "swaps": [
@@ -182,9 +223,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "0  bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "0  bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -193,9 +233,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "0  bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "0  bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -204,9 +243,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "0  bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "0  bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -215,9 +253,8 @@
     "provenance": "$USER_SECRET",
     "exit": 1,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -226,9 +263,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "0  bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "0  bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -237,9 +273,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "0  bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "0  bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -248,9 +283,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "0  bc1qzr4ec5jpay24amf5t7l508l4yak028qnerelv7",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "0  bc1qzr4ec5jpay24amf5t7l508l4yak028qnerelv7"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -259,9 +293,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "0  bc1q525j9ez5twzlwjzqfv23p3044ed4jsdkkt9ega",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "0  bc1q525j9ez5twzlwjzqfv23p3044ed4jsdkkt9ega"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -270,9 +303,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "0  bc1qm05s783nuu0euz8qte62xdfp3346ymhfxkky3w",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "0  bc1qm05s783nuu0euz8qte62xdfp3346ymhfxkky3w"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -281,9 +313,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "0  bc1qqul54nnz3ae38947p56n67y827mvf0u654xg2a",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "0  bc1qqul54nnz3ae38947p56n67y827mvf0u654xg2a"
+    "eq_oracle": true,
+    "no_oracle": false
    }
   ]
  },
@@ -316,13 +347,15 @@
       "source": 0,
       "key": "mnemonic restore --from phrase=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic restore --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -332,13 +365,15 @@
       "source": 0,
       "key": "mnemonic restore --from phrase=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic restore --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -372,48 +407,56 @@
     "source": 0,
     "ending": "",
     "equal": true,
+    "no_oracle": false,
     "effect": "master fingerprint: 45fbfbe6  (passphrase: applied)"
    },
    {
     "source": 0,
     "ending": "\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "master fingerprint: 45fbfbe6  (passphrase: applied)"
    },
    {
     "source": 0,
     "ending": "\r\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "master fingerprint: 45fbfbe6  (passphrase: applied)"
    },
    {
     "source": 0,
     "ending": "  ",
     "equal": true,
+    "no_oracle": false,
     "effect": "master fingerprint: 45fbfbe6  (passphrase: applied)"
    },
    {
     "source": 1,
     "ending": "",
     "equal": true,
+    "no_oracle": false,
     "effect": "master fingerprint: 45fbfbe6  (passphrase: applied)"
    },
    {
     "source": 1,
     "ending": "\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "master fingerprint: 5d5b0e1a  (passphrase: applied)"
    },
    {
     "source": 1,
     "ending": "\r\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "master fingerprint: eadf4a6c  (passphrase: applied)"
    },
    {
     "source": 1,
     "ending": "  ",
     "equal": true,
+    "no_oracle": false,
     "effect": "master fingerprint: 220717b3  (passphrase: applied)"
    }
   ],
@@ -421,34 +464,63 @@
    {
     "source": 0,
     "content": "@env:OTHER",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 0,
     "content": "-",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 1,
     "content": "@env:OTHER",
-    "linux_exit": 0,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 1,
     "content": "-",
-    "linux_exit": 0,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
+   }
+  ],
+  "dash": [
+   {
+    "source": 1,
+    "value": "-leading",
+    "oracle": true,
+    "linux": 0,
+    "linux_eq_oracle": true,
+    "macos": 0,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 1,
+    "value": "--help",
+    "oracle": true,
+    "linux": 0,
+    "linux_eq_oracle": true,
+    "macos": 0,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 1,
+    "value": "-lead  ",
+    "oracle": true,
+    "linux": 0,
+    "linux_eq_oracle": true,
+    "macos": 0,
+    "macos_eq_oracle": true
    }
   ],
   "swaps": [
@@ -470,9 +542,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "master fingerprint: 45fbfbe6  (passphrase: applied)",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "master fingerprint: 45fbfbe6  (passphrase: applied)"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -481,9 +552,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "master fingerprint: 45fbfbe6  (passphrase: applied)",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "master fingerprint: 45fbfbe6  (passphrase: applied)"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -492,9 +562,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "master fingerprint: 45fbfbe6  (passphrase: applied)",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "master fingerprint: 45fbfbe6  (passphrase: applied)"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -503,9 +572,8 @@
     "provenance": "$USER_SECRET",
     "exit": 1,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -514,9 +582,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "master fingerprint: 45fbfbe6  (passphrase: applied)",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "master fingerprint: 45fbfbe6  (passphrase: applied)"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -525,9 +592,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "master fingerprint: 45fbfbe6  (passphrase: applied)",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "master fingerprint: 45fbfbe6  (passphrase: applied)"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -536,9 +602,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "master fingerprint: 5d5b0e1a  (passphrase: applied)",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "master fingerprint: 5d5b0e1a  (passphrase: applied)"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -547,9 +612,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "master fingerprint: eadf4a6c  (passphrase: applied)",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "master fingerprint: eadf4a6c  (passphrase: applied)"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -558,9 +622,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "master fingerprint: eecfa1a7  (passphrase: applied)",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "master fingerprint: eecfa1a7  (passphrase: applied)"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -569,9 +632,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "master fingerprint: 220717b3  (passphrase: applied)",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "master fingerprint: 220717b3  (passphrase: applied)"
+    "eq_oracle": true,
+    "no_oracle": false
    }
   ]
  },
@@ -604,13 +666,15 @@
       "source": 0,
       "key": "mnemonic restore --from ms1=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic restore --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -620,13 +684,15 @@
       "source": 0,
       "key": "mnemonic restore --from ms1=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic restore --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -660,48 +726,56 @@
     "source": 0,
     "ending": "",
     "equal": true,
+    "no_oracle": false,
     "effect": "master fingerprint: 45fbfbe6  (passphrase: applied)"
    },
    {
     "source": 0,
     "ending": "\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "master fingerprint: 45fbfbe6  (passphrase: applied)"
    },
    {
     "source": 0,
     "ending": "\r\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "master fingerprint: 45fbfbe6  (passphrase: applied)"
    },
    {
     "source": 0,
     "ending": "  ",
     "equal": true,
+    "no_oracle": false,
     "effect": "master fingerprint: 45fbfbe6  (passphrase: applied)"
    },
    {
     "source": 1,
     "ending": "",
     "equal": true,
+    "no_oracle": false,
     "effect": "master fingerprint: 45fbfbe6  (passphrase: applied)"
    },
    {
     "source": 1,
     "ending": "\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "master fingerprint: 5d5b0e1a  (passphrase: applied)"
    },
    {
     "source": 1,
     "ending": "\r\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "master fingerprint: eadf4a6c  (passphrase: applied)"
    },
    {
     "source": 1,
     "ending": "  ",
     "equal": true,
+    "no_oracle": false,
     "effect": "master fingerprint: 220717b3  (passphrase: applied)"
    }
   ],
@@ -709,34 +783,63 @@
    {
     "source": 0,
     "content": "@env:OTHER",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 0,
     "content": "-",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 1,
     "content": "@env:OTHER",
-    "linux_exit": 0,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 1,
     "content": "-",
-    "linux_exit": 0,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
+   }
+  ],
+  "dash": [
+   {
+    "source": 1,
+    "value": "-leading",
+    "oracle": true,
+    "linux": 0,
+    "linux_eq_oracle": true,
+    "macos": 0,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 1,
+    "value": "--help",
+    "oracle": true,
+    "linux": 0,
+    "linux_eq_oracle": true,
+    "macos": 0,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 1,
+    "value": "-lead  ",
+    "oracle": true,
+    "linux": 0,
+    "linux_eq_oracle": true,
+    "macos": 0,
+    "macos_eq_oracle": true
    }
   ],
   "swaps": [
@@ -758,9 +861,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "master fingerprint: 45fbfbe6  (passphrase: applied)",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "master fingerprint: 45fbfbe6  (passphrase: applied)"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -769,9 +871,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "master fingerprint: 45fbfbe6  (passphrase: applied)",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "master fingerprint: 45fbfbe6  (passphrase: applied)"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -780,9 +881,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "master fingerprint: 45fbfbe6  (passphrase: applied)",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "master fingerprint: 45fbfbe6  (passphrase: applied)"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -791,9 +891,8 @@
     "provenance": "$USER_SECRET",
     "exit": 1,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -802,9 +901,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "master fingerprint: 45fbfbe6  (passphrase: applied)",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "master fingerprint: 45fbfbe6  (passphrase: applied)"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -813,9 +911,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "master fingerprint: 45fbfbe6  (passphrase: applied)",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "master fingerprint: 45fbfbe6  (passphrase: applied)"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -824,9 +921,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "master fingerprint: 5d5b0e1a  (passphrase: applied)",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "master fingerprint: 5d5b0e1a  (passphrase: applied)"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -835,9 +931,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "master fingerprint: eadf4a6c  (passphrase: applied)",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "master fingerprint: eadf4a6c  (passphrase: applied)"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -846,9 +941,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "master fingerprint: eecfa1a7  (passphrase: applied)",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "master fingerprint: eecfa1a7  (passphrase: applied)"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -857,9 +951,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "master fingerprint: 220717b3  (passphrase: applied)",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "master fingerprint: 220717b3  (passphrase: applied)"
+    "eq_oracle": true,
+    "no_oracle": false
    }
   ]
  },
@@ -892,13 +985,15 @@
       "source": 0,
       "key": "mnemonic derive-child --from phrase=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic derive-child --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -908,13 +1003,15 @@
       "source": 0,
       "key": "mnemonic derive-child --from phrase=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic derive-child --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -948,48 +1045,56 @@
     "source": 0,
     "ending": "",
     "equal": true,
+    "no_oracle": false,
     "effect": "target biology midnight canal glass common include trophy glimpse north castle dove"
    },
    {
     "source": 0,
     "ending": "\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "target biology midnight canal glass common include trophy glimpse north castle dove"
    },
    {
     "source": 0,
     "ending": "\r\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "target biology midnight canal glass common include trophy glimpse north castle dove"
    },
    {
     "source": 0,
     "ending": "  ",
     "equal": true,
+    "no_oracle": false,
     "effect": "target biology midnight canal glass common include trophy glimpse north castle dove"
    },
    {
     "source": 1,
     "ending": "",
     "equal": true,
+    "no_oracle": false,
     "effect": "target biology midnight canal glass common include trophy glimpse north castle dove"
    },
    {
     "source": 1,
     "ending": "\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "install jungle blood evolve bird marriage nerve wing salute online empty throw"
    },
    {
     "source": 1,
     "ending": "\r\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "brain outside agree mix oblige despair auction balcony life betray grocery stick"
    },
    {
     "source": 1,
     "ending": "  ",
     "equal": true,
+    "no_oracle": false,
     "effect": "must shop limit screen cereal depend scare sweet hub ridge eagle cement"
    }
   ],
@@ -997,34 +1102,63 @@
    {
     "source": 0,
     "content": "@env:OTHER",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 0,
     "content": "-",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 1,
     "content": "@env:OTHER",
-    "linux_exit": 0,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 1,
     "content": "-",
-    "linux_exit": 0,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
+   }
+  ],
+  "dash": [
+   {
+    "source": 1,
+    "value": "-leading",
+    "oracle": true,
+    "linux": 0,
+    "linux_eq_oracle": true,
+    "macos": 0,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 1,
+    "value": "--help",
+    "oracle": true,
+    "linux": 0,
+    "linux_eq_oracle": true,
+    "macos": 0,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 1,
+    "value": "-lead  ",
+    "oracle": true,
+    "linux": 0,
+    "linux_eq_oracle": true,
+    "macos": 0,
+    "macos_eq_oracle": true
    }
   ],
   "swaps": [
@@ -1046,9 +1180,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "target biology midnight canal glass common include trophy glimpse north castle dove",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "target biology midnight canal glass common include trophy glimpse north castle dove"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -1057,9 +1190,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "target biology midnight canal glass common include trophy glimpse north castle dove",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "target biology midnight canal glass common include trophy glimpse north castle dove"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -1068,9 +1200,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "target biology midnight canal glass common include trophy glimpse north castle dove",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "target biology midnight canal glass common include trophy glimpse north castle dove"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -1079,9 +1210,8 @@
     "provenance": "$USER_SECRET",
     "exit": 1,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -1090,9 +1220,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "target biology midnight canal glass common include trophy glimpse north castle dove",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "target biology midnight canal glass common include trophy glimpse north castle dove"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -1101,9 +1230,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "target biology midnight canal glass common include trophy glimpse north castle dove",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "target biology midnight canal glass common include trophy glimpse north castle dove"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -1112,9 +1240,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "install jungle blood evolve bird marriage nerve wing salute online empty throw",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "install jungle blood evolve bird marriage nerve wing salute online empty throw"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -1123,9 +1250,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "brain outside agree mix oblige despair auction balcony life betray grocery stick",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "brain outside agree mix oblige despair auction balcony life betray grocery stick"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -1134,9 +1260,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "regret annual unusual bicycle river parade foam right chimney erase coconut stairs",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "regret annual unusual bicycle river parade foam right chimney erase coconut stairs"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -1145,9 +1270,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "must shop limit screen cereal depend scare sweet hub ridge eagle cement",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "must shop limit screen cereal depend scare sweet hub ridge eagle cement"
+    "eq_oracle": true,
+    "no_oracle": false
    }
   ]
  },
@@ -1180,13 +1304,15 @@
       "source": 0,
       "key": "mnemonic bundle --slot @N.phrase=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic bundle --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -1196,13 +1322,15 @@
       "source": 0,
       "key": "mnemonic bundle --slot @N.phrase=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic bundle --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -1236,48 +1364,56 @@
     "source": 0,
     "ending": "",
     "equal": true,
+    "no_oracle": false,
     "effect": "mk1qpd2y2pqqsqk4z99gdzlh7lxqvzg3vs7vs57ls3u2nlnjvzn90ffnjpcsauf2eggmpdquu02l9k7dpjhxhs3yaa"
    },
    {
     "source": 0,
     "ending": "\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "mk1qpd2y2pqqsqk4z99gdzlh7lxqvzg3vs7vs57ls3u2nlnjvzn90ffnjpcsauf2eggmpdquu02l9k7dpjhxhs3yaa"
    },
    {
     "source": 0,
     "ending": "\r\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "mk1qpd2y2pqqsqk4z99gdzlh7lxqvzg3vs7vs57ls3u2nlnjvzn90ffnjpcsauf2eggmpdquu02l9k7dpjhxhs3yaa"
    },
    {
     "source": 0,
     "ending": "  ",
     "equal": true,
+    "no_oracle": false,
     "effect": "mk1qpd2y2pqqsqk4z99gdzlh7lxqvzg3vs7vs57ls3u2nlnjvzn90ffnjpcsauf2eggmpdquu02l9k7dpjhxhs3yaa"
    },
    {
     "source": 1,
     "ending": "",
     "equal": true,
+    "no_oracle": false,
     "effect": "mk1qpd2y2pqqsqk4z99gdzlh7lxqvzg3vs7vs57ls3u2nlnjvzn90ffnjpcsauf2eggmpdquu02l9k7dpjhxhs3yaa"
    },
    {
     "source": 1,
     "ending": "\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "mk1qp9hthpqqsqjm4msvdw4krs6qvzg3vs7hx4058cj9u5ju47h4vrzxvn25x8mv0vdwsmfwu3d3e9jujg6x25ecm4"
    },
    {
     "source": 1,
     "ending": "\r\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "mk1qptd9epqqsq4kju7v04d7jnvqvzg3vs7dfj8g5r8quy5c0q0w8da0rpcvpgzwmhggf2r4sv6t45pem9f42xm6dw"
    },
    {
     "source": 1,
     "ending": "  ",
     "equal": true,
+    "no_oracle": false,
     "effect": "mk1qplmvxpqqsqlakrzkc3qw9anqvzg3vs7delyv04s2dzqjutxdj3e96us8j377uuyhg308wv3hmwld46yn0jzq8p"
    }
   ],
@@ -1285,34 +1421,63 @@
    {
     "source": 0,
     "content": "@env:OTHER",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 0,
     "content": "-",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 1,
     "content": "@env:OTHER",
-    "linux_exit": 0,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 1,
     "content": "-",
-    "linux_exit": 0,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
+   }
+  ],
+  "dash": [
+   {
+    "source": 1,
+    "value": "-leading",
+    "oracle": true,
+    "linux": 0,
+    "linux_eq_oracle": true,
+    "macos": 0,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 1,
+    "value": "--help",
+    "oracle": true,
+    "linux": 0,
+    "linux_eq_oracle": true,
+    "macos": 0,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 1,
+    "value": "-lead  ",
+    "oracle": true,
+    "linux": 0,
+    "linux_eq_oracle": true,
+    "macos": 0,
+    "macos_eq_oracle": true
    }
   ],
   "swaps": [
@@ -1334,9 +1499,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "mk1qpd2y2pqqsqk4z99gdzlh7lxqvzg3vs7vs57ls3u2nlnjvzn90ffnjpcsauf2eggmpdquu02l9k7dpjhxhs3yaa",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "mk1qpd2y2pqqsqk4z99gdzlh7lxqvzg3vs7vs57ls3u2nlnjvzn90ffnjpcsauf2eggmpdquu02l9k7dpjhxhs3yaa"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -1345,9 +1509,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "mk1qpd2y2pqqsqk4z99gdzlh7lxqvzg3vs7vs57ls3u2nlnjvzn90ffnjpcsauf2eggmpdquu02l9k7dpjhxhs3yaa",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "mk1qpd2y2pqqsqk4z99gdzlh7lxqvzg3vs7vs57ls3u2nlnjvzn90ffnjpcsauf2eggmpdquu02l9k7dpjhxhs3yaa"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -1356,9 +1519,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "mk1qpd2y2pqqsqk4z99gdzlh7lxqvzg3vs7vs57ls3u2nlnjvzn90ffnjpcsauf2eggmpdquu02l9k7dpjhxhs3yaa",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "mk1qpd2y2pqqsqk4z99gdzlh7lxqvzg3vs7vs57ls3u2nlnjvzn90ffnjpcsauf2eggmpdquu02l9k7dpjhxhs3yaa"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -1367,9 +1529,8 @@
     "provenance": "$USER_SECRET",
     "exit": 1,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -1378,9 +1539,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "mk1qpd2y2pqqsqk4z99gdzlh7lxqvzg3vs7vs57ls3u2nlnjvzn90ffnjpcsauf2eggmpdquu02l9k7dpjhxhs3yaa",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "mk1qpd2y2pqqsqk4z99gdzlh7lxqvzg3vs7vs57ls3u2nlnjvzn90ffnjpcsauf2eggmpdquu02l9k7dpjhxhs3yaa"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -1389,9 +1549,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "mk1qpd2y2pqqsqk4z99gdzlh7lxqvzg3vs7vs57ls3u2nlnjvzn90ffnjpcsauf2eggmpdquu02l9k7dpjhxhs3yaa",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "mk1qpd2y2pqqsqk4z99gdzlh7lxqvzg3vs7vs57ls3u2nlnjvzn90ffnjpcsauf2eggmpdquu02l9k7dpjhxhs3yaa"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -1400,9 +1559,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "mk1qp9hthpqqsqjm4msvdw4krs6qvzg3vs7hx4058cj9u5ju47h4vrzxvn25x8mv0vdwsmfwu3d3e9jujg6x25ecm4",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "mk1qp9hthpqqsqjm4msvdw4krs6qvzg3vs7hx4058cj9u5ju47h4vrzxvn25x8mv0vdwsmfwu3d3e9jujg6x25ecm4"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -1411,9 +1569,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "mk1qptd9epqqsq4kju7v04d7jnvqvzg3vs7dfj8g5r8quy5c0q0w8da0rpcvpgzwmhggf2r4sv6t45pem9f42xm6dw",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "mk1qptd9epqqsq4kju7v04d7jnvqvzg3vs7dfj8g5r8quy5c0q0w8da0rpcvpgzwmhggf2r4sv6t45pem9f42xm6dw"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -1422,9 +1579,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "mk1qpuvpnpqqsq7xqe53thvlgd8qvzg3vs7szatcu0fnwsye5jcgjvk8pprq4zx5jgsme8ef3uh32ys7hlvaaypchx",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "mk1qpuvpnpqqsq7xqe53thvlgd8qvzg3vs7szatcu0fnwsye5jcgjvk8pprq4zx5jgsme8ef3uh32ys7hlvaaypchx"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -1433,9 +1589,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "mk1qplmvxpqqsqlakrzkc3qw9anqvzg3vs7delyv04s2dzqjutxdj3e96us8j377uuyhg308wv3hmwld46yn0jzq8p",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "mk1qplmvxpqqsqlakrzkc3qw9anqvzg3vs7delyv04s2dzqjutxdj3e96us8j377uuyhg308wv3hmwld46yn0jzq8p"
+    "eq_oracle": true,
+    "no_oracle": false
    }
   ]
  },
@@ -1468,13 +1623,15 @@
       "source": 0,
       "key": "mnemonic bundle --slot @N.phrase=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic bundle --slot @N.phrase=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -1484,13 +1641,15 @@
       "source": 0,
       "key": "mnemonic bundle --slot @N.phrase=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic bundle --slot @N.phrase=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -1524,48 +1683,56 @@
     "source": 0,
     "ending": "",
     "equal": true,
+    "no_oracle": false,
     "effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5"
    },
    {
     "source": 0,
     "ending": "\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5"
    },
    {
     "source": 0,
     "ending": "\r\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5"
    },
    {
     "source": 0,
     "ending": "  ",
     "equal": true,
+    "no_oracle": false,
     "effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5"
    },
    {
     "source": 1,
     "ending": "",
     "equal": true,
+    "no_oracle": false,
     "effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5"
    },
    {
     "source": 1,
     "ending": "\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5"
    },
    {
     "source": 1,
     "ending": "\r\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5"
    },
    {
     "source": 1,
     "ending": "  ",
     "equal": true,
+    "no_oracle": false,
     "effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5"
    }
   ],
@@ -1573,36 +1740,37 @@
    {
     "source": 0,
     "content": "@env:OTHER",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 0,
     "content": "-",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 1,
     "content": "@env:OTHER",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 1,
     "content": "-",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    }
   ],
+  "dash": [],
   "swaps": [
    {
     "pair": [
@@ -1622,9 +1790,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -1633,9 +1800,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -1644,9 +1810,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -1655,9 +1820,8 @@
     "provenance": "$USER_SECRET",
     "exit": 1,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -1666,9 +1830,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -1677,9 +1840,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -1688,9 +1850,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -1699,9 +1860,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -1710,9 +1870,8 @@
     "provenance": "$USER_SECRET",
     "exit": 1,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -1721,9 +1880,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5"
+    "eq_oracle": true,
+    "no_oracle": false
    }
   ]
  },
@@ -1763,19 +1921,22 @@
       "source": 0,
       "key": "mnemonic bundle --slot @N.phrase=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic bundle --slot @N.ms1=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 2,
       "key": "mnemonic bundle --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -1785,19 +1946,22 @@
       "source": 0,
       "key": "mnemonic bundle --slot @N.phrase=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic bundle --slot @N.ms1=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 2,
       "key": "mnemonic bundle --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -1838,72 +2002,84 @@
     "source": 0,
     "ending": "",
     "equal": true,
+    "no_oracle": false,
     "effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq"
    },
    {
     "source": 0,
     "ending": "\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq"
    },
    {
     "source": 0,
     "ending": "\r\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq"
    },
    {
     "source": 0,
     "ending": "  ",
     "equal": true,
+    "no_oracle": false,
     "effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq"
    },
    {
     "source": 1,
     "ending": "",
     "equal": true,
+    "no_oracle": false,
     "effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq"
    },
    {
     "source": 1,
     "ending": "\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq"
    },
    {
     "source": 1,
     "ending": "\r\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq"
    },
    {
     "source": 1,
     "ending": "  ",
     "equal": true,
+    "no_oracle": false,
     "effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq"
    },
    {
     "source": 2,
     "ending": "",
     "equal": true,
+    "no_oracle": false,
     "effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq"
    },
    {
     "source": 2,
     "ending": "\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "mk1qp4rvdpqqsp23kxs0z5d35rct4dsuxs8qjyty8534ek0a9wkc8ld25uekznm8z4tvx5nk5l7sl7pumaa3w3zdvt"
    },
    {
     "source": 2,
     "ending": "\r\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "mk1qp8re3pqqspr3uccdsu0xxrvat055mq8qjyty84zdd9eq0p772a7d6dh480gmczp9ep6zp04a0m35yld29pca0z"
    },
    {
     "source": 2,
     "ending": "  ",
     "equal": true,
+    "no_oracle": false,
     "effect": "mk1qpal20pqqspwl48anmhaflv7ygr30vc8qjyty8sd0p6dcpcldwzere3p6tld8mlck2hk9thad8st9wgqy6kals5"
    }
   ],
@@ -1911,50 +2087,79 @@
    {
     "source": 0,
     "content": "@env:OTHER",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 0,
     "content": "-",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 1,
     "content": "@env:OTHER",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 1,
     "content": "-",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 2,
     "content": "@env:OTHER",
-    "linux_exit": 0,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 2,
     "content": "-",
-    "linux_exit": 0,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
+   }
+  ],
+  "dash": [
+   {
+    "source": 2,
+    "value": "-leading",
+    "oracle": true,
+    "linux": 0,
+    "linux_eq_oracle": true,
+    "macos": 0,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 2,
+    "value": "--help",
+    "oracle": true,
+    "linux": 0,
+    "linux_eq_oracle": true,
+    "macos": 0,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 2,
+    "value": "-lead  ",
+    "oracle": true,
+    "linux": 0,
+    "linux_eq_oracle": true,
+    "macos": 0,
+    "macos_eq_oracle": true
    }
   ],
   "swaps": [
@@ -1994,9 +2199,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -2005,9 +2209,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -2016,9 +2219,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -2027,9 +2229,8 @@
     "provenance": "$USER_SECRET",
     "exit": 1,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -2038,9 +2239,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -2049,9 +2249,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -2060,9 +2259,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -2071,9 +2269,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -2082,9 +2279,8 @@
     "provenance": "$USER_SECRET",
     "exit": 1,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -2093,9 +2289,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 2,
@@ -2104,9 +2299,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 2,
@@ -2115,9 +2309,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "mk1qp4rvdpqqsp23kxs0z5d35rct4dsuxs8qjyty8534ek0a9wkc8ld25uekznm8z4tvx5nk5l7sl7pumaa3w3zdvt",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "mk1qp4rvdpqqsp23kxs0z5d35rct4dsuxs8qjyty8534ek0a9wkc8ld25uekznm8z4tvx5nk5l7sl7pumaa3w3zdvt"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 2,
@@ -2126,9 +2319,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "mk1qp8re3pqqspr3uccdsu0xxrvat055mq8qjyty84zdd9eq0p772a7d6dh480gmczp9ep6zp04a0m35yld29pca0z",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "mk1qp8re3pqqspr3uccdsu0xxrvat055mq8qjyty84zdd9eq0p772a7d6dh480gmczp9ep6zp04a0m35yld29pca0z"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 2,
@@ -2137,9 +2329,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "mk1qpxvrhpqqsprxpmkh5eswa4aam86rfc8qjyty8h95xnwfzzzet6dkfsw7ugv3g5x4kdmues907rwg4f82rmeap6",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "mk1qpxvrhpqqsprxpmkh5eswa4aam86rfc8qjyty8h95xnwfzzzet6dkfsw7ugv3g5x4kdmues907rwg4f82rmeap6"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 2,
@@ -2148,9 +2339,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "mk1qpal20pqqspwl48anmhaflv7ygr30vc8qjyty8sd0p6dcpcldwzere3p6tld8mlck2hk9thad8st9wgqy6kals5",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "mk1qpal20pqqspwl48anmhaflv7ygr30vc8qjyty8sd0p6dcpcldwzere3p6tld8mlck2hk9thad8st9wgqy6kals5"
+    "eq_oracle": true,
+    "no_oracle": false
    }
   ]
  },
@@ -2183,13 +2373,15 @@
       "source": 0,
       "key": "mnemonic convert --from phrase=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic convert --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -2199,13 +2391,15 @@
       "source": 0,
       "key": "mnemonic convert --from phrase=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic convert --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -2239,48 +2433,56 @@
     "source": 0,
     "ending": "",
     "equal": true,
+    "no_oracle": false,
     "effect": "xpub: xpub6CPUCVp94gpNs3bS1eGiwSWwZMLNmfr2Uo1t5v8YtY4XVoxhUraBH7sRyVfgwSNCxRVpX1bDREtc5Kri"
    },
    {
     "source": 0,
     "ending": "\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "xpub: xpub6CPUCVp94gpNs3bS1eGiwSWwZMLNmfr2Uo1t5v8YtY4XVoxhUraBH7sRyVfgwSNCxRVpX1bDREtc5Kri"
    },
    {
     "source": 0,
     "ending": "\r\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "xpub: xpub6CPUCVp94gpNs3bS1eGiwSWwZMLNmfr2Uo1t5v8YtY4XVoxhUraBH7sRyVfgwSNCxRVpX1bDREtc5Kri"
    },
    {
     "source": 0,
     "ending": "  ",
     "equal": true,
+    "no_oracle": false,
     "effect": "xpub: xpub6CPUCVp94gpNs3bS1eGiwSWwZMLNmfr2Uo1t5v8YtY4XVoxhUraBH7sRyVfgwSNCxRVpX1bDREtc5Kri"
    },
    {
     "source": 1,
     "ending": "",
     "equal": true,
+    "no_oracle": false,
     "effect": "xpub: xpub6CPUCVp94gpNs3bS1eGiwSWwZMLNmfr2Uo1t5v8YtY4XVoxhUraBH7sRyVfgwSNCxRVpX1bDREtc5Kri"
    },
    {
     "source": 1,
     "ending": "\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "xpub: xpub6D1vNc6xbQZ5QWmFJVKN3MLorEquZeiXshoPh7XT4v4XPMuQX1S6bp6akzBcDHqephtrqGLQ9ECU1QGK"
    },
    {
     "source": 1,
     "ending": "\r\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "xpub: xpub6CS8CxuQagzQEQDG5N3nXhP2eX4Fbk6tgCzN43rJxQ3y34pjXBbcxpEFr4ZJn26xzNvUtyGGDDtsA8LE"
    },
    {
     "source": 1,
     "ending": "  ",
     "equal": true,
+    "no_oracle": false,
     "effect": "xpub: xpub6CTsc3Qb2MvBa1NXzfNhjFW9ebH58qzZL6B4dnVGUYTJqk9e8n6wmjms68BDcxowsnfrnXX6xTXcUBJJ"
    }
   ],
@@ -2288,34 +2490,63 @@
    {
     "source": 0,
     "content": "@env:OTHER",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 0,
     "content": "-",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 1,
     "content": "@env:OTHER",
-    "linux_exit": 0,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 1,
     "content": "-",
-    "linux_exit": 0,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
+   }
+  ],
+  "dash": [
+   {
+    "source": 1,
+    "value": "-leading",
+    "oracle": true,
+    "linux": 0,
+    "linux_eq_oracle": true,
+    "macos": 0,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 1,
+    "value": "--help",
+    "oracle": true,
+    "linux": 0,
+    "linux_eq_oracle": true,
+    "macos": 0,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 1,
+    "value": "-lead  ",
+    "oracle": true,
+    "linux": 0,
+    "linux_eq_oracle": true,
+    "macos": 0,
+    "macos_eq_oracle": true
    }
   ],
   "swaps": [
@@ -2337,9 +2568,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "xpub: xpub6CPUCVp94gpNs3bS1eGiwSWwZMLNmfr2Uo1t5v8YtY4XVoxhUraBH7sRyVfgwSNCxRVpX1bDREtc5Kri",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "xpub: xpub6CPUCVp94gpNs3bS1eGiwSWwZMLNmfr2Uo1t5v8YtY4XVoxhUraBH7sRyVfgwSNCxRVpX1bDREtc5Kri"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -2348,9 +2578,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "xpub: xpub6CPUCVp94gpNs3bS1eGiwSWwZMLNmfr2Uo1t5v8YtY4XVoxhUraBH7sRyVfgwSNCxRVpX1bDREtc5Kri",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "xpub: xpub6CPUCVp94gpNs3bS1eGiwSWwZMLNmfr2Uo1t5v8YtY4XVoxhUraBH7sRyVfgwSNCxRVpX1bDREtc5Kri"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -2359,9 +2588,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "xpub: xpub6CPUCVp94gpNs3bS1eGiwSWwZMLNmfr2Uo1t5v8YtY4XVoxhUraBH7sRyVfgwSNCxRVpX1bDREtc5Kri",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "xpub: xpub6CPUCVp94gpNs3bS1eGiwSWwZMLNmfr2Uo1t5v8YtY4XVoxhUraBH7sRyVfgwSNCxRVpX1bDREtc5Kri"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -2370,9 +2598,8 @@
     "provenance": "$USER_SECRET",
     "exit": 1,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -2381,9 +2608,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "xpub: xpub6CPUCVp94gpNs3bS1eGiwSWwZMLNmfr2Uo1t5v8YtY4XVoxhUraBH7sRyVfgwSNCxRVpX1bDREtc5Kri",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "xpub: xpub6CPUCVp94gpNs3bS1eGiwSWwZMLNmfr2Uo1t5v8YtY4XVoxhUraBH7sRyVfgwSNCxRVpX1bDREtc5Kri"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -2392,9 +2618,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "xpub: xpub6CPUCVp94gpNs3bS1eGiwSWwZMLNmfr2Uo1t5v8YtY4XVoxhUraBH7sRyVfgwSNCxRVpX1bDREtc5Kri",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "xpub: xpub6CPUCVp94gpNs3bS1eGiwSWwZMLNmfr2Uo1t5v8YtY4XVoxhUraBH7sRyVfgwSNCxRVpX1bDREtc5Kri"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -2403,9 +2628,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "xpub: xpub6D1vNc6xbQZ5QWmFJVKN3MLorEquZeiXshoPh7XT4v4XPMuQX1S6bp6akzBcDHqephtrqGLQ9ECU1QGK",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "xpub: xpub6D1vNc6xbQZ5QWmFJVKN3MLorEquZeiXshoPh7XT4v4XPMuQX1S6bp6akzBcDHqephtrqGLQ9ECU1QGK"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -2414,9 +2638,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "xpub: xpub6CS8CxuQagzQEQDG5N3nXhP2eX4Fbk6tgCzN43rJxQ3y34pjXBbcxpEFr4ZJn26xzNvUtyGGDDtsA8LE",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "xpub: xpub6CS8CxuQagzQEQDG5N3nXhP2eX4Fbk6tgCzN43rJxQ3y34pjXBbcxpEFr4ZJn26xzNvUtyGGDDtsA8LE"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -2425,9 +2648,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "xpub: xpub6CbeWheaLWg4fp2VsrXQaBh52MGawRuyp6s9dUBbTfe1gVNDkJgfZPkxNPxRDty1BzKyQ5BMwquLnSc9",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "xpub: xpub6CbeWheaLWg4fp2VsrXQaBh52MGawRuyp6s9dUBbTfe1gVNDkJgfZPkxNPxRDty1BzKyQ5BMwquLnSc9"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -2436,9 +2658,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "xpub: xpub6CTsc3Qb2MvBa1NXzfNhjFW9ebH58qzZL6B4dnVGUYTJqk9e8n6wmjms68BDcxowsnfrnXX6xTXcUBJJ",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "xpub: xpub6CTsc3Qb2MvBa1NXzfNhjFW9ebH58qzZL6B4dnVGUYTJqk9e8n6wmjms68BDcxowsnfrnXX6xTXcUBJJ"
+    "eq_oracle": true,
+    "no_oracle": false
    }
   ]
  },
@@ -2471,13 +2692,15 @@
       "source": 0,
       "key": "mnemonic convert --from wif=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic convert --bip38-passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -2487,13 +2710,15 @@
       "source": 0,
       "key": "mnemonic convert --from wif=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic convert --bip38-passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -2527,48 +2752,56 @@
     "source": 0,
     "ending": "",
     "equal": true,
+    "no_oracle": false,
     "effect": "bip38: 6PYP8fdoVaE3ThLmEnYcGo3nJeBqd8PvB7CRvTz3TX5L9ojoPHKCg7QXG6"
    },
    {
     "source": 0,
     "ending": "\n",
     "equal": true,
+    "no_oracle": false,
     "effect": ""
    },
    {
     "source": 0,
     "ending": "\r\n",
     "equal": true,
+    "no_oracle": false,
     "effect": ""
    },
    {
     "source": 0,
     "ending": "  ",
     "equal": true,
+    "no_oracle": false,
     "effect": ""
    },
    {
     "source": 1,
     "ending": "",
     "equal": true,
+    "no_oracle": false,
     "effect": "bip38: 6PYP8fdoVaE3ThLmEnYcGo3nJeBqd8PvB7CRvTz3TX5L9ojoPHKCg7QXG6"
    },
    {
     "source": 1,
     "ending": "\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "bip38: 6PYP8fdoVjeEov47rHXTY9PeB7tTJTKe8M6KJGb7svmj7CMSuyTy7UjJRC"
    },
    {
     "source": 1,
     "ending": "\r\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "bip38: 6PYP8fdoVeHbypdd6isBEGUNWB77VFc34Puok2SBLBA6FkYk2xHGvwRkLv"
    },
    {
     "source": 1,
     "ending": "  ",
     "equal": true,
+    "no_oracle": false,
     "effect": "bip38: 6PYP8fdoWVzuVFycCFCUHzSGEaQ2KuVtaApk6wUo6rYqh3Y13Tdep4Lzuj"
    }
   ],
@@ -2576,34 +2809,63 @@
    {
     "source": 0,
     "content": "@env:OTHER",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 0,
     "content": "-",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 1,
     "content": "@env:OTHER",
-    "linux_exit": 0,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 1,
     "content": "-",
-    "linux_exit": 0,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
+   }
+  ],
+  "dash": [
+   {
+    "source": 1,
+    "value": "-leading",
+    "oracle": true,
+    "linux": 0,
+    "linux_eq_oracle": true,
+    "macos": 0,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 1,
+    "value": "--help",
+    "oracle": true,
+    "linux": 0,
+    "linux_eq_oracle": true,
+    "macos": 0,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 1,
+    "value": "-lead  ",
+    "oracle": true,
+    "linux": 0,
+    "linux_eq_oracle": true,
+    "macos": 0,
+    "macos_eq_oracle": true
    }
   ],
   "swaps": [
@@ -2625,9 +2887,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "bip38: 6PYP8fdoVaE3ThLmEnYcGo3nJeBqd8PvB7CRvTz3TX5L9ojoPHKCg7QXG6",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "bip38: 6PYP8fdoVaE3ThLmEnYcGo3nJeBqd8PvB7CRvTz3TX5L9ojoPHKCg7QXG6"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -2636,9 +2897,8 @@
     "provenance": "$USER_SECRET",
     "exit": 1,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -2647,9 +2907,8 @@
     "provenance": "$USER_SECRET",
     "exit": 1,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -2658,9 +2917,8 @@
     "provenance": "$USER_SECRET",
     "exit": 1,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -2669,9 +2927,8 @@
     "provenance": "$USER_SECRET",
     "exit": 1,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -2680,9 +2937,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "bip38: 6PYP8fdoVaE3ThLmEnYcGo3nJeBqd8PvB7CRvTz3TX5L9ojoPHKCg7QXG6",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "bip38: 6PYP8fdoVaE3ThLmEnYcGo3nJeBqd8PvB7CRvTz3TX5L9ojoPHKCg7QXG6"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -2691,9 +2947,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "bip38: 6PYP8fdoVjeEov47rHXTY9PeB7tTJTKe8M6KJGb7svmj7CMSuyTy7UjJRC",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "bip38: 6PYP8fdoVjeEov47rHXTY9PeB7tTJTKe8M6KJGb7svmj7CMSuyTy7UjJRC"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -2702,9 +2957,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "bip38: 6PYP8fdoVeHbypdd6isBEGUNWB77VFc34Puok2SBLBA6FkYk2xHGvwRkLv",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "bip38: 6PYP8fdoVeHbypdd6isBEGUNWB77VFc34Puok2SBLBA6FkYk2xHGvwRkLv"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -2713,9 +2967,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "bip38: 6PYP8fdoWnC5x5muG7owLsWSpdjzarXXEhaGJeko53t1sxZ7zMZWARscdK",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "bip38: 6PYP8fdoWnC5x5muG7owLsWSpdjzarXXEhaGJeko53t1sxZ7zMZWARscdK"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -2724,9 +2977,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "bip38: 6PYP8fdoWVzuVFycCFCUHzSGEaQ2KuVtaApk6wUo6rYqh3Y13Tdep4Lzuj",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "bip38: 6PYP8fdoWVzuVFycCFCUHzSGEaQ2KuVtaApk6wUo6rYqh3Y13Tdep4Lzuj"
+    "eq_oracle": true,
+    "no_oracle": false
    }
   ]
  },
@@ -2759,13 +3011,15 @@
       "source": 0,
       "key": "mnemonic convert --from bip38=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic convert --bip38-passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -2775,13 +3029,15 @@
       "source": 0,
       "key": "mnemonic convert --from bip38=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic convert --bip38-passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -2815,48 +3071,56 @@
     "source": 0,
     "ending": "",
     "equal": true,
+    "no_oracle": false,
     "effect": "wif: KyZpNDKnfs94vbrwhJneDi77V6jF64PWPF8x5cdJb8ifgg2DUc9d"
    },
    {
     "source": 0,
     "ending": "\n",
     "equal": true,
+    "no_oracle": false,
     "effect": ""
    },
    {
     "source": 0,
     "ending": "\r\n",
     "equal": true,
+    "no_oracle": false,
     "effect": ""
    },
    {
     "source": 0,
     "ending": "  ",
     "equal": true,
+    "no_oracle": false,
     "effect": ""
    },
    {
     "source": 1,
     "ending": "",
     "equal": true,
+    "no_oracle": false,
     "effect": "wif: KyZpNDKnfs94vbrwhJneDi77V6jF64PWPF8x5cdJb8ifgg2DUc9d"
    },
    {
     "source": 1,
     "ending": "\n",
     "equal": true,
+    "no_oracle": false,
     "effect": ""
    },
    {
     "source": 1,
     "ending": "\r\n",
     "equal": true,
+    "no_oracle": false,
     "effect": ""
    },
    {
     "source": 1,
     "ending": "  ",
     "equal": true,
+    "no_oracle": false,
     "effect": ""
    }
   ],
@@ -2864,34 +3128,63 @@
    {
     "source": 0,
     "content": "@env:OTHER",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 0,
     "content": "-",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 1,
     "content": "@env:OTHER",
-    "linux_exit": 2,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 1,
     "content": "-",
-    "linux_exit": 2,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
+   }
+  ],
+  "dash": [
+   {
+    "source": 1,
+    "value": "-leading",
+    "oracle": true,
+    "linux": 2,
+    "linux_eq_oracle": true,
+    "macos": 2,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 1,
+    "value": "--help",
+    "oracle": true,
+    "linux": 2,
+    "linux_eq_oracle": true,
+    "macos": 2,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 1,
+    "value": "-lead  ",
+    "oracle": true,
+    "linux": 2,
+    "linux_eq_oracle": true,
+    "macos": 2,
+    "macos_eq_oracle": true
    }
   ],
   "swaps": [
@@ -2913,9 +3206,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "wif: KyZpNDKnfs94vbrwhJneDi77V6jF64PWPF8x5cdJb8ifgg2DUc9d",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "wif: KyZpNDKnfs94vbrwhJneDi77V6jF64PWPF8x5cdJb8ifgg2DUc9d"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -2924,9 +3216,8 @@
     "provenance": "$USER_SECRET",
     "exit": 1,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -2935,9 +3226,8 @@
     "provenance": "$USER_SECRET",
     "exit": 1,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -2946,9 +3236,8 @@
     "provenance": "$USER_SECRET",
     "exit": 1,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -2957,9 +3246,8 @@
     "provenance": "$USER_SECRET",
     "exit": 1,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -2968,9 +3256,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "wif: KyZpNDKnfs94vbrwhJneDi77V6jF64PWPF8x5cdJb8ifgg2DUc9d",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "wif: KyZpNDKnfs94vbrwhJneDi77V6jF64PWPF8x5cdJb8ifgg2DUc9d"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -2979,9 +3266,8 @@
     "provenance": "$USER_SECRET",
     "exit": 2,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -2990,9 +3276,8 @@
     "provenance": "$USER_SECRET",
     "exit": 2,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -3001,9 +3286,8 @@
     "provenance": "$USER_SECRET",
     "exit": 2,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -3012,9 +3296,8 @@
     "provenance": "$USER_SECRET",
     "exit": 2,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    }
   ]
  },
@@ -3047,13 +3330,15 @@
       "source": 0,
       "key": "mnemonic xpub-search path-of-xpub --phrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic xpub-search path-of-xpub --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -3063,13 +3348,15 @@
       "source": 0,
       "key": "mnemonic xpub-search path-of-xpub --phrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic xpub-search path-of-xpub --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -3103,48 +3390,56 @@
     "source": 0,
     "ending": "",
     "equal": true,
+    "no_oracle": false,
     "effect": "match: m/84'/0'/0'  (template=bip84, account=0)"
    },
    {
     "source": 0,
     "ending": "\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "match: m/84'/0'/0'  (template=bip84, account=0)"
    },
    {
     "source": 0,
     "ending": "\r\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "match: m/84'/0'/0'  (template=bip84, account=0)"
    },
    {
     "source": 0,
     "ending": "  ",
     "equal": true,
+    "no_oracle": false,
     "effect": "match: m/84'/0'/0'  (template=bip84, account=0)"
    },
    {
     "source": 1,
     "ending": "",
     "equal": true,
+    "no_oracle": false,
     "effect": "match: m/84'/0'/0'  (template=bip84, account=0)"
    },
    {
     "source": 1,
     "ending": "\n",
     "equal": true,
+    "no_oracle": false,
     "effect": ""
    },
    {
     "source": 1,
     "ending": "\r\n",
     "equal": true,
+    "no_oracle": false,
     "effect": ""
    },
    {
     "source": 1,
     "ending": "  ",
     "equal": true,
+    "no_oracle": false,
     "effect": ""
    }
   ],
@@ -3152,34 +3447,90 @@
    {
     "source": 0,
     "content": "@env:OTHER",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 0,
     "content": "-",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 1,
     "content": "@env:OTHER",
-    "linux_exit": 4,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 1,
     "content": "-",
-    "linux_exit": 4,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
+   }
+  ],
+  "dash": [
+   {
+    "source": 0,
+    "value": "-leading",
+    "oracle": true,
+    "linux": 1,
+    "linux_eq_oracle": true,
+    "macos": 1,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 0,
+    "value": "--help",
+    "oracle": true,
+    "linux": 1,
+    "linux_eq_oracle": true,
+    "macos": 1,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 0,
+    "value": "-lead  ",
+    "oracle": true,
+    "linux": 1,
+    "linux_eq_oracle": true,
+    "macos": 1,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 1,
+    "value": "-leading",
+    "oracle": true,
+    "linux": 4,
+    "linux_eq_oracle": true,
+    "macos": 4,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 1,
+    "value": "--help",
+    "oracle": true,
+    "linux": 4,
+    "linux_eq_oracle": true,
+    "macos": 4,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 1,
+    "value": "-lead  ",
+    "oracle": true,
+    "linux": 4,
+    "linux_eq_oracle": true,
+    "macos": 4,
+    "macos_eq_oracle": true
    }
   ],
   "swaps": [
@@ -3201,9 +3552,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "match: m/84'/0'/0'  (template=bip84, account=0)",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "match: m/84'/0'/0'  (template=bip84, account=0)"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -3212,9 +3562,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "match: m/84'/0'/0'  (template=bip84, account=0)",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "match: m/84'/0'/0'  (template=bip84, account=0)"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -3223,9 +3572,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "match: m/84'/0'/0'  (template=bip84, account=0)",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "match: m/84'/0'/0'  (template=bip84, account=0)"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -3234,9 +3582,8 @@
     "provenance": "$USER_SECRET",
     "exit": 1,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -3245,9 +3592,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "match: m/84'/0'/0'  (template=bip84, account=0)",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "match: m/84'/0'/0'  (template=bip84, account=0)"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -3256,9 +3602,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "match: m/84'/0'/0'  (template=bip84, account=0)",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "match: m/84'/0'/0'  (template=bip84, account=0)"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -3267,9 +3612,8 @@
     "provenance": "$USER_SECRET",
     "exit": 4,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -3278,9 +3622,8 @@
     "provenance": "$USER_SECRET",
     "exit": 4,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -3289,9 +3632,8 @@
     "provenance": "$USER_SECRET",
     "exit": 4,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -3300,9 +3642,8 @@
     "provenance": "$USER_SECRET",
     "exit": 4,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    }
   ]
  },
@@ -3335,13 +3676,15 @@
       "source": 0,
       "key": "mnemonic xpub-search path-of-xpub --ms1",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic xpub-search path-of-xpub --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -3351,13 +3694,15 @@
       "source": 0,
       "key": "mnemonic xpub-search path-of-xpub --ms1",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic xpub-search path-of-xpub --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -3391,48 +3736,56 @@
     "source": 0,
     "ending": "",
     "equal": true,
+    "no_oracle": false,
     "effect": "match: m/84'/0'/0'  (template=bip84, account=0)"
    },
    {
     "source": 0,
     "ending": "\n",
     "equal": true,
+    "no_oracle": false,
     "effect": ""
    },
    {
     "source": 0,
     "ending": "\r\n",
     "equal": true,
+    "no_oracle": false,
     "effect": ""
    },
    {
     "source": 0,
     "ending": "  ",
     "equal": true,
+    "no_oracle": false,
     "effect": ""
    },
    {
     "source": 1,
     "ending": "",
     "equal": true,
+    "no_oracle": false,
     "effect": "match: m/84'/0'/0'  (template=bip84, account=0)"
    },
    {
     "source": 1,
     "ending": "\n",
     "equal": true,
+    "no_oracle": false,
     "effect": ""
    },
    {
     "source": 1,
     "ending": "\r\n",
     "equal": true,
+    "no_oracle": false,
     "effect": ""
    },
    {
     "source": 1,
     "ending": "  ",
     "equal": true,
+    "no_oracle": false,
     "effect": ""
    }
   ],
@@ -3440,32 +3793,82 @@
    {
     "source": 0,
     "content": "@env:OTHER",
-    "linux_exit": 2,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "interim": "value-is-a-channel-spelling"
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 0,
     "content": "-",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "interim": "value-is-a-channel-spelling"
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 1,
     "content": "@env:OTHER",
-    "linux_exit": 4,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 1,
     "content": "-",
-    "linux_exit": 4,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
+   }
+  ],
+  "dash": [
+   {
+    "source": 0,
+    "value": "-leading",
+    "oracle": false,
+    "linux": 2,
+    "macos": 2
+   },
+   {
+    "source": 0,
+    "value": "--help",
+    "oracle": false,
+    "linux": 2,
+    "macos": 2
+   },
+   {
+    "source": 0,
+    "value": "-lead  ",
+    "oracle": false,
+    "linux": "value-not-byte-exact",
+    "macos": 2
+   },
+   {
+    "source": 1,
+    "value": "-leading",
+    "oracle": true,
+    "linux": 4,
+    "linux_eq_oracle": true,
+    "macos": 4,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 1,
+    "value": "--help",
+    "oracle": true,
+    "linux": 4,
+    "linux_eq_oracle": true,
+    "macos": 4,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 1,
+    "value": "-lead  ",
+    "oracle": true,
+    "linux": 4,
+    "linux_eq_oracle": true,
+    "macos": 4,
+    "macos_eq_oracle": true
    }
   ],
   "swaps": [
@@ -3487,7 +3890,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "match: m/84'/0'/0'  (template=bip84, account=0)",
-    "eq_argv_exact": true
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -3516,9 +3920,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "match: m/84'/0'/0'  (template=bip84, account=0)",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "match: m/84'/0'/0'  (template=bip84, account=0)"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -3527,9 +3930,8 @@
     "provenance": "$USER_SECRET",
     "exit": 4,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -3538,9 +3940,8 @@
     "provenance": "$USER_SECRET",
     "exit": 4,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -3549,9 +3950,8 @@
     "provenance": "$USER_SECRET",
     "exit": 4,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -3560,9 +3960,8 @@
     "provenance": "$USER_SECRET",
     "exit": 4,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    }
   ]
  },
@@ -3595,13 +3994,15 @@
       "source": 0,
       "key": "mnemonic xpub-search passphrase-of-xpub --phrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic xpub-search passphrase-of-xpub --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -3611,13 +4012,15 @@
       "source": 0,
       "key": "mnemonic xpub-search passphrase-of-xpub --phrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic xpub-search passphrase-of-xpub --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -3651,48 +4054,56 @@
     "source": 0,
     "ending": "",
     "equal": true,
+    "no_oracle": false,
     "effect": "match: m/84'/0'/0'  (template=bip84, account=0)"
    },
    {
     "source": 0,
     "ending": "\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "match: m/84'/0'/0'  (template=bip84, account=0)"
    },
    {
     "source": 0,
     "ending": "\r\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "match: m/84'/0'/0'  (template=bip84, account=0)"
    },
    {
     "source": 0,
     "ending": "  ",
     "equal": true,
+    "no_oracle": false,
     "effect": "match: m/84'/0'/0'  (template=bip84, account=0)"
    },
    {
     "source": 1,
     "ending": "",
     "equal": true,
+    "no_oracle": false,
     "effect": "match: m/84'/0'/0'  (template=bip84, account=0)"
    },
    {
     "source": 1,
     "ending": "\n",
     "equal": true,
+    "no_oracle": false,
     "effect": ""
    },
    {
     "source": 1,
     "ending": "\r\n",
     "equal": true,
+    "no_oracle": false,
     "effect": ""
    },
    {
     "source": 1,
     "ending": "  ",
     "equal": true,
+    "no_oracle": false,
     "effect": ""
    }
   ],
@@ -3700,34 +4111,90 @@
    {
     "source": 0,
     "content": "@env:OTHER",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 0,
     "content": "-",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 1,
     "content": "@env:OTHER",
-    "linux_exit": 4,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 1,
     "content": "-",
-    "linux_exit": 4,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
+   }
+  ],
+  "dash": [
+   {
+    "source": 0,
+    "value": "-leading",
+    "oracle": true,
+    "linux": 1,
+    "linux_eq_oracle": true,
+    "macos": 1,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 0,
+    "value": "--help",
+    "oracle": true,
+    "linux": 1,
+    "linux_eq_oracle": true,
+    "macos": 1,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 0,
+    "value": "-lead  ",
+    "oracle": true,
+    "linux": 1,
+    "linux_eq_oracle": true,
+    "macos": 1,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 1,
+    "value": "-leading",
+    "oracle": true,
+    "linux": 4,
+    "linux_eq_oracle": true,
+    "macos": 4,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 1,
+    "value": "--help",
+    "oracle": true,
+    "linux": 4,
+    "linux_eq_oracle": true,
+    "macos": 4,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 1,
+    "value": "-lead  ",
+    "oracle": true,
+    "linux": 4,
+    "linux_eq_oracle": true,
+    "macos": 4,
+    "macos_eq_oracle": true
    }
   ],
   "swaps": [
@@ -3749,9 +4216,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "match: m/84'/0'/0'  (template=bip84, account=0)",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "match: m/84'/0'/0'  (template=bip84, account=0)"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -3760,9 +4226,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "match: m/84'/0'/0'  (template=bip84, account=0)",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "match: m/84'/0'/0'  (template=bip84, account=0)"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -3771,9 +4236,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "match: m/84'/0'/0'  (template=bip84, account=0)",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "match: m/84'/0'/0'  (template=bip84, account=0)"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -3782,9 +4246,8 @@
     "provenance": "$USER_SECRET",
     "exit": 1,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -3793,9 +4256,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "match: m/84'/0'/0'  (template=bip84, account=0)",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "match: m/84'/0'/0'  (template=bip84, account=0)"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -3804,9 +4266,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "match: m/84'/0'/0'  (template=bip84, account=0)",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "match: m/84'/0'/0'  (template=bip84, account=0)"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -3815,9 +4276,8 @@
     "provenance": "$USER_SECRET",
     "exit": 4,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -3826,9 +4286,8 @@
     "provenance": "$USER_SECRET",
     "exit": 4,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -3837,9 +4296,8 @@
     "provenance": "$USER_SECRET",
     "exit": 4,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -3848,9 +4306,8 @@
     "provenance": "$USER_SECRET",
     "exit": 4,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    }
   ]
  },
@@ -3883,13 +4340,15 @@
       "source": 0,
       "key": "mnemonic xpub-search passphrase-of-xpub --ms1",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic xpub-search passphrase-of-xpub --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -3899,13 +4358,15 @@
       "source": 0,
       "key": "mnemonic xpub-search passphrase-of-xpub --ms1",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic xpub-search passphrase-of-xpub --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -3939,48 +4400,56 @@
     "source": 0,
     "ending": "",
     "equal": true,
+    "no_oracle": false,
     "effect": "match: m/84'/0'/0'  (template=bip84, account=0)"
    },
    {
     "source": 0,
     "ending": "\n",
     "equal": true,
+    "no_oracle": false,
     "effect": ""
    },
    {
     "source": 0,
     "ending": "\r\n",
     "equal": true,
+    "no_oracle": false,
     "effect": ""
    },
    {
     "source": 0,
     "ending": "  ",
     "equal": true,
+    "no_oracle": false,
     "effect": ""
    },
    {
     "source": 1,
     "ending": "",
     "equal": true,
+    "no_oracle": false,
     "effect": "match: m/84'/0'/0'  (template=bip84, account=0)"
    },
    {
     "source": 1,
     "ending": "\n",
     "equal": true,
+    "no_oracle": false,
     "effect": ""
    },
    {
     "source": 1,
     "ending": "\r\n",
     "equal": true,
+    "no_oracle": false,
     "effect": ""
    },
    {
     "source": 1,
     "ending": "  ",
     "equal": true,
+    "no_oracle": false,
     "effect": ""
    }
   ],
@@ -3988,32 +4457,82 @@
    {
     "source": 0,
     "content": "@env:OTHER",
-    "linux_exit": 2,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "interim": "value-is-a-channel-spelling"
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 0,
     "content": "-",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "interim": "value-is-a-channel-spelling"
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 1,
     "content": "@env:OTHER",
-    "linux_exit": 4,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 1,
     "content": "-",
-    "linux_exit": 4,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
+   }
+  ],
+  "dash": [
+   {
+    "source": 0,
+    "value": "-leading",
+    "oracle": false,
+    "linux": 2,
+    "macos": 2
+   },
+   {
+    "source": 0,
+    "value": "--help",
+    "oracle": false,
+    "linux": 2,
+    "macos": 2
+   },
+   {
+    "source": 0,
+    "value": "-lead  ",
+    "oracle": false,
+    "linux": "value-not-byte-exact",
+    "macos": 2
+   },
+   {
+    "source": 1,
+    "value": "-leading",
+    "oracle": true,
+    "linux": 4,
+    "linux_eq_oracle": true,
+    "macos": 4,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 1,
+    "value": "--help",
+    "oracle": true,
+    "linux": 4,
+    "linux_eq_oracle": true,
+    "macos": 4,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 1,
+    "value": "-lead  ",
+    "oracle": true,
+    "linux": 4,
+    "linux_eq_oracle": true,
+    "macos": 4,
+    "macos_eq_oracle": true
    }
   ],
   "swaps": [
@@ -4035,7 +4554,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "match: m/84'/0'/0'  (template=bip84, account=0)",
-    "eq_argv_exact": true
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -4064,9 +4584,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "match: m/84'/0'/0'  (template=bip84, account=0)",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "match: m/84'/0'/0'  (template=bip84, account=0)"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -4075,9 +4594,8 @@
     "provenance": "$USER_SECRET",
     "exit": 4,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -4086,9 +4604,8 @@
     "provenance": "$USER_SECRET",
     "exit": 4,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -4097,9 +4614,8 @@
     "provenance": "$USER_SECRET",
     "exit": 4,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -4108,9 +4624,8 @@
     "provenance": "$USER_SECRET",
     "exit": 4,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    }
   ]
  },
@@ -4143,13 +4658,15 @@
       "source": 0,
       "key": "mnemonic xpub-search account-of-descriptor --phrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic xpub-search account-of-descriptor --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -4159,13 +4676,15 @@
       "source": 0,
       "key": "mnemonic xpub-search account-of-descriptor --phrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic xpub-search account-of-descriptor --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -4199,48 +4718,56 @@
     "source": 0,
     "ending": "",
     "equal": true,
+    "no_oracle": false,
     "effect": "match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)"
    },
    {
     "source": 0,
     "ending": "\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)"
    },
    {
     "source": 0,
     "ending": "\r\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)"
    },
    {
     "source": 0,
     "ending": "  ",
     "equal": true,
+    "no_oracle": false,
     "effect": "match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)"
    },
    {
     "source": 1,
     "ending": "",
     "equal": true,
+    "no_oracle": false,
     "effect": "match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)"
    },
    {
     "source": 1,
     "ending": "\n",
     "equal": true,
+    "no_oracle": false,
     "effect": ""
    },
    {
     "source": 1,
     "ending": "\r\n",
     "equal": true,
+    "no_oracle": false,
     "effect": ""
    },
    {
     "source": 1,
     "ending": "  ",
     "equal": true,
+    "no_oracle": false,
     "effect": ""
    }
   ],
@@ -4248,34 +4775,90 @@
    {
     "source": 0,
     "content": "@env:OTHER",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 0,
     "content": "-",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 1,
     "content": "@env:OTHER",
-    "linux_exit": 4,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 1,
     "content": "-",
-    "linux_exit": 4,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
+   }
+  ],
+  "dash": [
+   {
+    "source": 0,
+    "value": "-leading",
+    "oracle": true,
+    "linux": 1,
+    "linux_eq_oracle": true,
+    "macos": 1,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 0,
+    "value": "--help",
+    "oracle": true,
+    "linux": 1,
+    "linux_eq_oracle": true,
+    "macos": 1,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 0,
+    "value": "-lead  ",
+    "oracle": true,
+    "linux": 1,
+    "linux_eq_oracle": true,
+    "macos": 1,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 1,
+    "value": "-leading",
+    "oracle": true,
+    "linux": 4,
+    "linux_eq_oracle": true,
+    "macos": 4,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 1,
+    "value": "--help",
+    "oracle": true,
+    "linux": 4,
+    "linux_eq_oracle": true,
+    "macos": 4,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 1,
+    "value": "-lead  ",
+    "oracle": true,
+    "linux": 4,
+    "linux_eq_oracle": true,
+    "macos": 4,
+    "macos_eq_oracle": true
    }
   ],
   "swaps": [
@@ -4297,9 +4880,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -4308,9 +4890,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -4319,9 +4900,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -4330,9 +4910,8 @@
     "provenance": "$USER_SECRET",
     "exit": 1,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -4341,9 +4920,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -4352,9 +4930,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -4363,9 +4940,8 @@
     "provenance": "$USER_SECRET",
     "exit": 4,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -4374,9 +4950,8 @@
     "provenance": "$USER_SECRET",
     "exit": 4,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -4385,9 +4960,8 @@
     "provenance": "$USER_SECRET",
     "exit": 4,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -4396,9 +4970,8 @@
     "provenance": "$USER_SECRET",
     "exit": 4,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    }
   ]
  },
@@ -4431,13 +5004,15 @@
       "source": 0,
       "key": "mnemonic xpub-search account-of-descriptor --ms1",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic xpub-search account-of-descriptor --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -4447,13 +5022,15 @@
       "source": 0,
       "key": "mnemonic xpub-search account-of-descriptor --ms1",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic xpub-search account-of-descriptor --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -4487,48 +5064,56 @@
     "source": 0,
     "ending": "",
     "equal": true,
+    "no_oracle": false,
     "effect": "match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)"
    },
    {
     "source": 0,
     "ending": "\n",
     "equal": true,
+    "no_oracle": false,
     "effect": ""
    },
    {
     "source": 0,
     "ending": "\r\n",
     "equal": true,
+    "no_oracle": false,
     "effect": ""
    },
    {
     "source": 0,
     "ending": "  ",
     "equal": true,
+    "no_oracle": false,
     "effect": ""
    },
    {
     "source": 1,
     "ending": "",
     "equal": true,
+    "no_oracle": false,
     "effect": "match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)"
    },
    {
     "source": 1,
     "ending": "\n",
     "equal": true,
+    "no_oracle": false,
     "effect": ""
    },
    {
     "source": 1,
     "ending": "\r\n",
     "equal": true,
+    "no_oracle": false,
     "effect": ""
    },
    {
     "source": 1,
     "ending": "  ",
     "equal": true,
+    "no_oracle": false,
     "effect": ""
    }
   ],
@@ -4536,32 +5121,82 @@
    {
     "source": 0,
     "content": "@env:OTHER",
-    "linux_exit": 2,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "interim": "value-is-a-channel-spelling"
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 0,
     "content": "-",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "interim": "value-is-a-channel-spelling"
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 1,
     "content": "@env:OTHER",
-    "linux_exit": 4,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 1,
     "content": "-",
-    "linux_exit": 4,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
+   }
+  ],
+  "dash": [
+   {
+    "source": 0,
+    "value": "-leading",
+    "oracle": false,
+    "linux": 2,
+    "macos": 2
+   },
+   {
+    "source": 0,
+    "value": "--help",
+    "oracle": false,
+    "linux": 2,
+    "macos": 2
+   },
+   {
+    "source": 0,
+    "value": "-lead  ",
+    "oracle": false,
+    "linux": "value-not-byte-exact",
+    "macos": 2
+   },
+   {
+    "source": 1,
+    "value": "-leading",
+    "oracle": true,
+    "linux": 4,
+    "linux_eq_oracle": true,
+    "macos": 4,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 1,
+    "value": "--help",
+    "oracle": true,
+    "linux": 4,
+    "linux_eq_oracle": true,
+    "macos": 4,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 1,
+    "value": "-lead  ",
+    "oracle": true,
+    "linux": 4,
+    "linux_eq_oracle": true,
+    "macos": 4,
+    "macos_eq_oracle": true
    }
   ],
   "swaps": [
@@ -4583,7 +5218,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)",
-    "eq_argv_exact": true
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -4612,9 +5248,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -4623,9 +5258,8 @@
     "provenance": "$USER_SECRET",
     "exit": 4,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -4634,9 +5268,8 @@
     "provenance": "$USER_SECRET",
     "exit": 4,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -4645,9 +5278,8 @@
     "provenance": "$USER_SECRET",
     "exit": 4,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -4656,9 +5288,8 @@
     "provenance": "$USER_SECRET",
     "exit": 4,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    }
   ]
  },
@@ -4692,13 +5323,15 @@
       "source": 0,
       "key": "mnemonic silent-payment --secret",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic silent-payment --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -4708,13 +5341,15 @@
       "source": 0,
       "key": "mnemonic silent-payment --secret",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic silent-payment --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -4734,48 +5369,56 @@
     "source": 0,
     "ending": "",
     "equal": true,
+    "no_oracle": false,
     "effect": "address:      sp1qq2d73kpx36h7r08gmawe6slzxkntu2tw0as7pkqe0hvv3k38mkvckqsp6dmrwxvd6mumfqj9"
    },
    {
     "source": 0,
     "ending": "\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "address:      sp1qq2d73kpx36h7r08gmawe6slzxkntu2tw0as7pkqe0hvv3k38mkvckqsp6dmrwxvd6mumfqj9"
    },
    {
     "source": 0,
     "ending": "\r\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "address:      sp1qq2d73kpx36h7r08gmawe6slzxkntu2tw0as7pkqe0hvv3k38mkvckqsp6dmrwxvd6mumfqj9"
    },
    {
     "source": 0,
     "ending": "  ",
     "equal": true,
+    "no_oracle": false,
     "effect": "address:      sp1qq2d73kpx36h7r08gmawe6slzxkntu2tw0as7pkqe0hvv3k38mkvckqsp6dmrwxvd6mumfqj9"
    },
    {
     "source": 1,
     "ending": "",
     "equal": true,
+    "no_oracle": false,
     "effect": "address:      sp1qq2d73kpx36h7r08gmawe6slzxkntu2tw0as7pkqe0hvv3k38mkvckqsp6dmrwxvd6mumfqj9"
    },
    {
     "source": 1,
     "ending": "\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "address:      sp1qq2kaah96lmtwyv3p0njq2vx3t339vfh2jqkfdxkhqnqkyvxm393swqszc832uxcfjh2dpuna"
    },
    {
     "source": 1,
     "ending": "\r\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "address:      sp1qqgq8qren0nkwf9cskjhh2h55jlsqtaukv7c0s8s0hweu7thy3hhlsq4zmj3az677yexxutyt"
    },
    {
     "source": 1,
     "ending": "  ",
     "equal": true,
+    "no_oracle": false,
     "effect": "address:      sp1qqdrcjvk6ncuk4uq5zpvum6x6mw9hm9t3yg6zvkekkur0uwzu0q57cq343pst9qftlngjdyve"
    }
   ],
@@ -4783,30 +5426,90 @@
    {
     "source": 0,
     "content": "@env:OTHER",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 0,
     "content": "-",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 1,
     "content": "@env:OTHER",
-    "linux_exit": 0,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 1,
     "content": "-",
-    "linux_exit": 0,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
+   }
+  ],
+  "dash": [
+   {
+    "source": 0,
+    "value": "-leading",
+    "oracle": true,
+    "linux": 1,
+    "linux_eq_oracle": true,
+    "macos": 1,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 0,
+    "value": "--help",
+    "oracle": true,
+    "linux": 1,
+    "linux_eq_oracle": true,
+    "macos": 1,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 0,
+    "value": "-lead  ",
+    "oracle": true,
+    "linux": 1,
+    "linux_eq_oracle": true,
+    "macos": 1,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 1,
+    "value": "-leading",
+    "oracle": true,
+    "linux": 0,
+    "linux_eq_oracle": true,
+    "macos": 0,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 1,
+    "value": "--help",
+    "oracle": true,
+    "linux": 0,
+    "linux_eq_oracle": true,
+    "macos": 0,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 1,
+    "value": "-lead  ",
+    "oracle": true,
+    "linux": 0,
+    "linux_eq_oracle": true,
+    "macos": 0,
+    "macos_eq_oracle": true
    }
   ],
   "swaps": [
@@ -4828,7 +5531,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "address:      sp1qq2d73kpx36h7r08gmawe6slzxkntu2tw0as7pkqe0hvv3k38mkvckqsp6dmrwxvd6mumfqj9",
-    "eq_argv_exact": true
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -4837,7 +5541,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "address:      sp1qq2d73kpx36h7r08gmawe6slzxkntu2tw0as7pkqe0hvv3k38mkvckqsp6dmrwxvd6mumfqj9",
-    "eq_argv_exact": true
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -4846,7 +5551,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "address:      sp1qq2d73kpx36h7r08gmawe6slzxkntu2tw0as7pkqe0hvv3k38mkvckqsp6dmrwxvd6mumfqj9",
-    "eq_argv_exact": true
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -4855,7 +5561,8 @@
     "provenance": "$USER_SECRET",
     "exit": 1,
     "effect": "",
-    "eq_argv_exact": true
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -4864,7 +5571,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "address:      sp1qq2d73kpx36h7r08gmawe6slzxkntu2tw0as7pkqe0hvv3k38mkvckqsp6dmrwxvd6mumfqj9",
-    "eq_argv_exact": true
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -4873,7 +5581,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "address:      sp1qq2d73kpx36h7r08gmawe6slzxkntu2tw0as7pkqe0hvv3k38mkvckqsp6dmrwxvd6mumfqj9",
-    "eq_argv_exact": true
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -4882,7 +5591,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "address:      sp1qq2kaah96lmtwyv3p0njq2vx3t339vfh2jqkfdxkhqnqkyvxm393swqszc832uxcfjh2dpuna",
-    "eq_argv_exact": true
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -4891,7 +5601,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "address:      sp1qqgq8qren0nkwf9cskjhh2h55jlsqtaukv7c0s8s0hweu7thy3hhlsq4zmj3az677yexxutyt",
-    "eq_argv_exact": true
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -4900,7 +5611,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "address:      sp1qqgdkc3aqtmmy6nh8ay0sl3dfhrp89w07s8ghy2yt7hd697yk4lvfvq44suzyp3qle7xjy80c",
-    "eq_argv_exact": true
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -4909,7 +5621,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "address:      sp1qqdrcjvk6ncuk4uq5zpvum6x6mw9hm9t3yg6zvkekkur0uwzu0q57cq343pst9qftlngjdyve",
-    "eq_argv_exact": true
+    "eq_oracle": true,
+    "no_oracle": false
    }
   ]
  },
@@ -4942,13 +5655,15 @@
       "source": 0,
       "key": "mnemonic slip39 split --from phrase=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic slip39 split --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -4958,13 +5673,15 @@
       "source": 0,
       "key": "mnemonic slip39 split --from phrase=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic slip39 split --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -4998,48 +5715,56 @@
     "source": 0,
     "ending": "",
     "equal": true,
+    "no_oracle": false,
     "effect": "00000000000000000000000000000000"
    },
    {
     "source": 0,
     "ending": "\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "00000000000000000000000000000000"
    },
    {
     "source": 0,
     "ending": "\r\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "00000000000000000000000000000000"
    },
    {
     "source": 0,
     "ending": "  ",
     "equal": true,
+    "no_oracle": false,
     "effect": "00000000000000000000000000000000"
    },
    {
     "source": 1,
     "ending": "",
     "equal": true,
+    "no_oracle": false,
     "effect": "00000000000000000000000000000000"
    },
    {
     "source": 1,
     "ending": "\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "00000000000000000000000000000000"
    },
    {
     "source": 1,
     "ending": "\r\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "00000000000000000000000000000000"
    },
    {
     "source": 1,
     "ending": "  ",
     "equal": true,
+    "no_oracle": false,
     "effect": "00000000000000000000000000000000"
    }
   ],
@@ -5047,34 +5772,63 @@
    {
     "source": 0,
     "content": "@env:OTHER",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 0,
     "content": "-",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 1,
     "content": "@env:OTHER",
-    "linux_exit": 0,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 1,
     "content": "-",
-    "linux_exit": 0,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
+   }
+  ],
+  "dash": [
+   {
+    "source": 1,
+    "value": "-leading",
+    "oracle": true,
+    "linux": 0,
+    "linux_eq_oracle": true,
+    "macos": 0,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 1,
+    "value": "--help",
+    "oracle": true,
+    "linux": 0,
+    "linux_eq_oracle": true,
+    "macos": 0,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 1,
+    "value": "-lead  ",
+    "oracle": true,
+    "linux": 0,
+    "linux_eq_oracle": true,
+    "macos": 0,
+    "macos_eq_oracle": true
    }
   ],
   "swaps": [
@@ -5096,9 +5850,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "00000000000000000000000000000000",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "00000000000000000000000000000000"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -5107,9 +5860,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "00000000000000000000000000000000",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "00000000000000000000000000000000"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -5118,9 +5870,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "00000000000000000000000000000000",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "00000000000000000000000000000000"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -5129,9 +5880,8 @@
     "provenance": "$USER_SECRET",
     "exit": 1,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -5140,9 +5890,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "00000000000000000000000000000000",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "00000000000000000000000000000000"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -5151,9 +5900,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "00000000000000000000000000000000",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "00000000000000000000000000000000"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -5162,9 +5910,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "00000000000000000000000000000000",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "00000000000000000000000000000000"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -5173,9 +5920,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "00000000000000000000000000000000",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "00000000000000000000000000000000"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -5184,9 +5930,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "00000000000000000000000000000000",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "00000000000000000000000000000000"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -5195,9 +5940,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "00000000000000000000000000000000",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "00000000000000000000000000000000"
+    "eq_oracle": true,
+    "no_oracle": false
    }
   ]
  },
@@ -5242,19 +5986,22 @@
       "source": 0,
       "key": "mnemonic slip39 combine --share",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic slip39 combine --share",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 2,
       "key": "mnemonic slip39 combine --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -5264,19 +6011,22 @@
       "source": 0,
       "key": "mnemonic slip39 combine --share",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic slip39 combine --share",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 2,
       "key": "mnemonic slip39 combine --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -5317,72 +6067,84 @@
     "source": 0,
     "ending": "",
     "equal": true,
+    "no_oracle": false,
     "effect": "8ab7aa39cd427130e225ed43c34f5b5a"
    },
    {
     "source": 0,
     "ending": "\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "8ab7aa39cd427130e225ed43c34f5b5a"
    },
    {
     "source": 0,
     "ending": "\r\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "8ab7aa39cd427130e225ed43c34f5b5a"
    },
    {
     "source": 0,
     "ending": "  ",
     "equal": true,
+    "no_oracle": false,
     "effect": "8ab7aa39cd427130e225ed43c34f5b5a"
    },
    {
     "source": 1,
     "ending": "",
     "equal": true,
+    "no_oracle": false,
     "effect": "8ab7aa39cd427130e225ed43c34f5b5a"
    },
    {
     "source": 1,
     "ending": "\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "8ab7aa39cd427130e225ed43c34f5b5a"
    },
    {
     "source": 1,
     "ending": "\r\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "8ab7aa39cd427130e225ed43c34f5b5a"
    },
    {
     "source": 1,
     "ending": "  ",
     "equal": true,
+    "no_oracle": false,
     "effect": "8ab7aa39cd427130e225ed43c34f5b5a"
    },
    {
     "source": 2,
     "ending": "",
     "equal": true,
+    "no_oracle": false,
     "effect": "8ab7aa39cd427130e225ed43c34f5b5a"
    },
    {
     "source": 2,
     "ending": "\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "cf82be07d39e98000f98a7562b0b552c"
    },
    {
     "source": 2,
     "ending": "\r\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "49b27d94e62a3822d0c57035c2859529"
    },
    {
     "source": 2,
     "ending": "  ",
     "equal": true,
+    "no_oracle": false,
     "effect": "9627ef753a433f56e779f6ca6d22353d"
    }
   ],
@@ -5390,50 +6152,133 @@
    {
     "source": 0,
     "content": "@env:OTHER",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 0,
     "content": "-",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 1,
     "content": "@env:OTHER",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 1,
     "content": "-",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 2,
     "content": "@env:OTHER",
-    "linux_exit": 0,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 2,
     "content": "-",
-    "linux_exit": 0,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
+   }
+  ],
+  "dash": [
+   {
+    "source": 0,
+    "value": "-leading",
+    "oracle": true,
+    "linux": 1,
+    "linux_eq_oracle": true,
+    "macos": 1,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 0,
+    "value": "--help",
+    "oracle": true,
+    "linux": 1,
+    "linux_eq_oracle": true,
+    "macos": 1,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 0,
+    "value": "-lead  ",
+    "oracle": true,
+    "linux": 1,
+    "linux_eq_oracle": true,
+    "macos": 1,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 1,
+    "value": "-leading",
+    "oracle": true,
+    "linux": 1,
+    "linux_eq_oracle": true,
+    "macos": 1,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 1,
+    "value": "--help",
+    "oracle": true,
+    "linux": 1,
+    "linux_eq_oracle": true,
+    "macos": 1,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 1,
+    "value": "-lead  ",
+    "oracle": true,
+    "linux": 1,
+    "linux_eq_oracle": true,
+    "macos": 1,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 2,
+    "value": "-leading",
+    "oracle": true,
+    "linux": 0,
+    "linux_eq_oracle": true,
+    "macos": 0,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 2,
+    "value": "--help",
+    "oracle": true,
+    "linux": 0,
+    "linux_eq_oracle": true,
+    "macos": 0,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 2,
+    "value": "-lead  ",
+    "oracle": true,
+    "linux": 0,
+    "linux_eq_oracle": true,
+    "macos": 0,
+    "macos_eq_oracle": true
    }
   ],
   "swaps": [
@@ -5473,9 +6318,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "8ab7aa39cd427130e225ed43c34f5b5a",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "8ab7aa39cd427130e225ed43c34f5b5a"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -5484,9 +6328,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "8ab7aa39cd427130e225ed43c34f5b5a",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "8ab7aa39cd427130e225ed43c34f5b5a"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -5495,9 +6338,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "8ab7aa39cd427130e225ed43c34f5b5a",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "8ab7aa39cd427130e225ed43c34f5b5a"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -5506,9 +6348,8 @@
     "provenance": "$USER_SECRET",
     "exit": 1,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -5517,9 +6358,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "8ab7aa39cd427130e225ed43c34f5b5a",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "8ab7aa39cd427130e225ed43c34f5b5a"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -5528,9 +6368,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "8ab7aa39cd427130e225ed43c34f5b5a",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "8ab7aa39cd427130e225ed43c34f5b5a"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -5539,9 +6378,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "8ab7aa39cd427130e225ed43c34f5b5a",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "8ab7aa39cd427130e225ed43c34f5b5a"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -5550,9 +6388,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "8ab7aa39cd427130e225ed43c34f5b5a",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "8ab7aa39cd427130e225ed43c34f5b5a"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -5561,9 +6398,8 @@
     "provenance": "$USER_SECRET",
     "exit": 1,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -5572,9 +6408,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "8ab7aa39cd427130e225ed43c34f5b5a",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "8ab7aa39cd427130e225ed43c34f5b5a"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 2,
@@ -5583,9 +6418,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "8ab7aa39cd427130e225ed43c34f5b5a",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "8ab7aa39cd427130e225ed43c34f5b5a"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 2,
@@ -5594,9 +6428,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "cf82be07d39e98000f98a7562b0b552c",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "cf82be07d39e98000f98a7562b0b552c"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 2,
@@ -5605,9 +6438,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "49b27d94e62a3822d0c57035c2859529",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "49b27d94e62a3822d0c57035c2859529"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 2,
@@ -5616,9 +6448,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "e2dfef77918a033f56649333bb7e0898",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "e2dfef77918a033f56649333bb7e0898"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 2,
@@ -5627,9 +6458,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "9627ef753a433f56e779f6ca6d22353d",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "9627ef753a433f56e779f6ca6d22353d"
+    "eq_oracle": true,
+    "no_oracle": false
    }
   ]
  },
@@ -5667,13 +6497,15 @@
       "source": 0,
       "key": "mnemonic slip39 combine --share",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic slip39 combine --share",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -5683,13 +6515,15 @@
       "source": 0,
       "key": "mnemonic slip39 combine --share",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic slip39 combine --share",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -5723,48 +6557,56 @@
     "source": 0,
     "ending": "",
     "equal": true,
+    "no_oracle": false,
     "effect": "00000000000000000000000000000000"
    },
    {
     "source": 0,
     "ending": "\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "00000000000000000000000000000000"
    },
    {
     "source": 0,
     "ending": "\r\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "00000000000000000000000000000000"
    },
    {
     "source": 0,
     "ending": "  ",
     "equal": true,
+    "no_oracle": false,
     "effect": "00000000000000000000000000000000"
    },
    {
     "source": 1,
     "ending": "",
     "equal": true,
+    "no_oracle": false,
     "effect": "00000000000000000000000000000000"
    },
    {
     "source": 1,
     "ending": "\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "00000000000000000000000000000000"
    },
    {
     "source": 1,
     "ending": "\r\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "00000000000000000000000000000000"
    },
    {
     "source": 1,
     "ending": "  ",
     "equal": true,
+    "no_oracle": false,
     "effect": "00000000000000000000000000000000"
    }
   ],
@@ -5772,34 +6614,90 @@
    {
     "source": 0,
     "content": "@env:OTHER",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 0,
     "content": "-",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 1,
     "content": "@env:OTHER",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 1,
     "content": "-",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
+   }
+  ],
+  "dash": [
+   {
+    "source": 0,
+    "value": "-leading",
+    "oracle": true,
+    "linux": 1,
+    "linux_eq_oracle": true,
+    "macos": 1,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 0,
+    "value": "--help",
+    "oracle": true,
+    "linux": 1,
+    "linux_eq_oracle": true,
+    "macos": 1,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 0,
+    "value": "-lead  ",
+    "oracle": true,
+    "linux": 1,
+    "linux_eq_oracle": true,
+    "macos": 1,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 1,
+    "value": "-leading",
+    "oracle": true,
+    "linux": 1,
+    "linux_eq_oracle": true,
+    "macos": 1,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 1,
+    "value": "--help",
+    "oracle": true,
+    "linux": 1,
+    "linux_eq_oracle": true,
+    "macos": 1,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 1,
+    "value": "-lead  ",
+    "oracle": true,
+    "linux": 1,
+    "linux_eq_oracle": true,
+    "macos": 1,
+    "macos_eq_oracle": true
    }
   ],
   "swaps": [
@@ -5821,9 +6719,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "00000000000000000000000000000000",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "00000000000000000000000000000000"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -5832,9 +6729,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "00000000000000000000000000000000",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "00000000000000000000000000000000"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -5843,9 +6739,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "00000000000000000000000000000000",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "00000000000000000000000000000000"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -5854,9 +6749,8 @@
     "provenance": "$USER_SECRET",
     "exit": 1,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -5865,9 +6759,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "00000000000000000000000000000000",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "00000000000000000000000000000000"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -5876,9 +6769,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "00000000000000000000000000000000",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "00000000000000000000000000000000"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -5887,9 +6779,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "00000000000000000000000000000000",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "00000000000000000000000000000000"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -5898,9 +6789,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "00000000000000000000000000000000",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "00000000000000000000000000000000"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -5909,9 +6799,8 @@
     "provenance": "$USER_SECRET",
     "exit": 1,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -5920,9 +6809,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "00000000000000000000000000000000",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "00000000000000000000000000000000"
+    "eq_oracle": true,
+    "no_oracle": false
    }
   ]
  },
@@ -5960,13 +6848,15 @@
       "source": 0,
       "key": "mnemonic seed-xor combine --share phrase=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic seed-xor combine --share phrase=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -5976,13 +6866,15 @@
       "source": 0,
       "key": "mnemonic seed-xor combine --share phrase=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic seed-xor combine --share phrase=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -6016,48 +6908,56 @@
     "source": 0,
     "ending": "",
     "equal": true,
+    "no_oracle": false,
     "effect": "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
    },
    {
     "source": 0,
     "ending": "\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
    },
    {
     "source": 0,
     "ending": "\r\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
    },
    {
     "source": 0,
     "ending": "  ",
     "equal": true,
+    "no_oracle": false,
     "effect": "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
    },
    {
     "source": 1,
     "ending": "",
     "equal": true,
+    "no_oracle": false,
     "effect": "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
    },
    {
     "source": 1,
     "ending": "\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
    },
    {
     "source": 1,
     "ending": "\r\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
    },
    {
     "source": 1,
     "ending": "  ",
     "equal": true,
+    "no_oracle": false,
     "effect": "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
    }
   ],
@@ -6065,36 +6965,37 @@
    {
     "source": 0,
     "content": "@env:OTHER",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 0,
     "content": "-",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 1,
     "content": "@env:OTHER",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 1,
     "content": "-",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    }
   ],
+  "dash": [],
   "swaps": [
    {
     "pair": [
@@ -6114,9 +7015,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -6125,9 +7025,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -6136,9 +7035,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -6147,9 +7045,8 @@
     "provenance": "$USER_SECRET",
     "exit": 1,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -6158,9 +7055,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -6169,9 +7065,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -6180,9 +7075,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -6191,9 +7085,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -6202,9 +7095,8 @@
     "provenance": "$USER_SECRET",
     "exit": 1,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -6213,9 +7105,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
+    "eq_oracle": true,
+    "no_oracle": false
    }
   ]
  },
@@ -6253,13 +7144,15 @@
       "source": 0,
       "key": "mnemonic ms-shares combine --share",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic ms-shares combine --share",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -6269,13 +7162,15 @@
       "source": 0,
       "key": "mnemonic ms-shares combine --share",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic ms-shares combine --share",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -6309,48 +7204,56 @@
     "source": 0,
     "ending": "",
     "equal": true,
+    "no_oracle": false,
     "effect": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab"
    },
    {
     "source": 0,
     "ending": "\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab"
    },
    {
     "source": 0,
     "ending": "\r\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab"
    },
    {
     "source": 0,
     "ending": "  ",
     "equal": true,
+    "no_oracle": false,
     "effect": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab"
    },
    {
     "source": 1,
     "ending": "",
     "equal": true,
+    "no_oracle": false,
     "effect": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab"
    },
    {
     "source": 1,
     "ending": "\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab"
    },
    {
     "source": 1,
     "ending": "\r\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab"
    },
    {
     "source": 1,
     "ending": "  ",
     "equal": true,
+    "no_oracle": false,
     "effect": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab"
    }
   ],
@@ -6358,34 +7261,90 @@
    {
     "source": 0,
     "content": "@env:OTHER",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 0,
     "content": "-",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 1,
     "content": "@env:OTHER",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 1,
     "content": "-",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
+   }
+  ],
+  "dash": [
+   {
+    "source": 0,
+    "value": "-leading",
+    "oracle": true,
+    "linux": 1,
+    "linux_eq_oracle": true,
+    "macos": 1,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 0,
+    "value": "--help",
+    "oracle": true,
+    "linux": 1,
+    "linux_eq_oracle": true,
+    "macos": 1,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 0,
+    "value": "-lead  ",
+    "oracle": true,
+    "linux": 1,
+    "linux_eq_oracle": true,
+    "macos": 1,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 1,
+    "value": "-leading",
+    "oracle": true,
+    "linux": 1,
+    "linux_eq_oracle": true,
+    "macos": 1,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 1,
+    "value": "--help",
+    "oracle": true,
+    "linux": 1,
+    "linux_eq_oracle": true,
+    "macos": 1,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 1,
+    "value": "-lead  ",
+    "oracle": true,
+    "linux": 1,
+    "linux_eq_oracle": true,
+    "macos": 1,
+    "macos_eq_oracle": true
    }
   ],
   "swaps": [
@@ -6407,9 +7366,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -6418,9 +7376,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -6429,9 +7386,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -6440,9 +7396,8 @@
     "provenance": "$USER_SECRET",
     "exit": 1,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -6451,9 +7406,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -6462,9 +7416,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -6473,9 +7426,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -6484,9 +7436,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -6495,9 +7446,8 @@
     "provenance": "$USER_SECRET",
     "exit": 1,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -6506,9 +7456,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab"
+    "eq_oracle": true,
+    "no_oracle": false
    }
   ]
  },
@@ -6541,13 +7490,15 @@
       "source": 0,
       "key": "mnemonic import-wallet --ms1",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic import-wallet --ms1",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -6557,13 +7508,15 @@
       "source": 0,
       "key": "mnemonic import-wallet --ms1",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic import-wallet --ms1",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -6597,48 +7550,56 @@
     "source": 0,
     "ending": "",
     "equal": true,
+    "no_oracle": false,
     "effect": "\"descriptor\": \"wsh(sortedmulti(2,[5436d724/48'/0'/0'/2']xpub6E79FaRWLSJCAgA2jDHRvyrWKwT6aS"
    },
    {
     "source": 0,
     "ending": "\n",
     "equal": true,
+    "no_oracle": false,
     "effect": ""
    },
    {
     "source": 0,
     "ending": "\r\n",
     "equal": true,
+    "no_oracle": false,
     "effect": ""
    },
    {
     "source": 0,
     "ending": "  ",
     "equal": true,
+    "no_oracle": false,
     "effect": ""
    },
    {
     "source": 1,
     "ending": "",
     "equal": true,
+    "no_oracle": false,
     "effect": "\"descriptor\": \"wsh(sortedmulti(2,[5436d724/48'/0'/0'/2']xpub6E79FaRWLSJCAgA2jDHRvyrWKwT6aS"
    },
    {
     "source": 1,
     "ending": "\n",
     "equal": true,
+    "no_oracle": false,
     "effect": ""
    },
    {
     "source": 1,
     "ending": "\r\n",
     "equal": true,
+    "no_oracle": false,
     "effect": ""
    },
    {
     "source": 1,
     "ending": "  ",
     "equal": true,
+    "no_oracle": false,
     "effect": ""
    }
   ],
@@ -6646,34 +7607,90 @@
    {
     "source": 0,
     "content": "@env:OTHER",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 0,
     "content": "-",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 1,
     "content": "@env:OTHER",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 1,
     "content": "-",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
+   }
+  ],
+  "dash": [
+   {
+    "source": 0,
+    "value": "-leading",
+    "oracle": true,
+    "linux": 1,
+    "linux_eq_oracle": true,
+    "macos": 1,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 0,
+    "value": "--help",
+    "oracle": true,
+    "linux": 1,
+    "linux_eq_oracle": true,
+    "macos": 1,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 0,
+    "value": "-lead  ",
+    "oracle": true,
+    "linux": 1,
+    "linux_eq_oracle": true,
+    "macos": 1,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 1,
+    "value": "-leading",
+    "oracle": true,
+    "linux": 1,
+    "linux_eq_oracle": true,
+    "macos": 1,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 1,
+    "value": "--help",
+    "oracle": true,
+    "linux": 1,
+    "linux_eq_oracle": true,
+    "macos": 1,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 1,
+    "value": "-lead  ",
+    "oracle": true,
+    "linux": 1,
+    "linux_eq_oracle": true,
+    "macos": 1,
+    "macos_eq_oracle": true
    }
   ],
   "swaps": [
@@ -6695,9 +7712,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "\"descriptor\": \"wsh(sortedmulti(2,[5436d724/48'/0'/0'/2']xpub6E79FaRWLSJCAgA2jDHRvyrWKwT6aS",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "\"descriptor\": \"wsh(sortedmulti(2,[5436d724/48'/0'/0'/2']xpub6E79FaRWLSJCAgA2jDHRvyrWKwT6aS"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -6706,9 +7722,8 @@
     "provenance": "$USER_SECRET",
     "exit": 1,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -6717,9 +7732,8 @@
     "provenance": "$USER_SECRET",
     "exit": 1,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -6728,9 +7742,8 @@
     "provenance": "$USER_SECRET",
     "exit": 1,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -6739,9 +7752,8 @@
     "provenance": "$USER_SECRET",
     "exit": 1,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -6750,9 +7762,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "\"descriptor\": \"wsh(sortedmulti(2,[5436d724/48'/0'/0'/2']xpub6E79FaRWLSJCAgA2jDHRvyrWKwT6aS",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "\"descriptor\": \"wsh(sortedmulti(2,[5436d724/48'/0'/0'/2']xpub6E79FaRWLSJCAgA2jDHRvyrWKwT6aS"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -6761,9 +7772,8 @@
     "provenance": "$USER_SECRET",
     "exit": 1,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -6772,9 +7782,8 @@
     "provenance": "$USER_SECRET",
     "exit": 1,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -6783,9 +7792,8 @@
     "provenance": "$USER_SECRET",
     "exit": 1,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -6794,9 +7802,8 @@
     "provenance": "$USER_SECRET",
     "exit": 1,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    }
   ]
  },
@@ -6836,19 +7843,22 @@
       "source": 0,
       "key": "mnemonic verify-bundle --ms1",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic verify-bundle --slot @N.phrase=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 2,
       "key": "mnemonic verify-bundle --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -6858,19 +7868,22 @@
       "source": 0,
       "key": "mnemonic verify-bundle --ms1",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "mnemonic verify-bundle --slot @N.phrase=",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 2,
       "key": "mnemonic verify-bundle --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -6911,72 +7924,84 @@
     "source": 0,
     "ending": "",
     "equal": true,
+    "no_oracle": false,
     "effect": "result: ok"
    },
    {
     "source": 0,
     "ending": "\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "result: ok"
    },
    {
     "source": 0,
     "ending": "\r\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "result: ok"
    },
    {
     "source": 0,
     "ending": "  ",
     "equal": true,
+    "no_oracle": false,
     "effect": "result: ok"
    },
    {
     "source": 1,
     "ending": "",
     "equal": true,
+    "no_oracle": false,
     "effect": "result: ok"
    },
    {
     "source": 1,
     "ending": "\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "result: ok"
    },
    {
     "source": 1,
     "ending": "\r\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "result: ok"
    },
    {
     "source": 1,
     "ending": "  ",
     "equal": true,
+    "no_oracle": false,
     "effect": "result: ok"
    },
    {
     "source": 2,
     "ending": "",
     "equal": true,
+    "no_oracle": false,
     "effect": "result: ok"
    },
    {
     "source": 2,
     "ending": "\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "result: mismatch"
    },
    {
     "source": 2,
     "ending": "\r\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "result: mismatch"
    },
    {
     "source": 2,
     "ending": "  ",
     "equal": true,
+    "no_oracle": false,
     "effect": "result: mismatch"
    }
   ],
@@ -6984,50 +8009,106 @@
    {
     "source": 0,
     "content": "@env:OTHER",
-    "linux_exit": 2,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 0,
     "content": "-",
-    "linux_exit": 4,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 1,
     "content": "@env:OTHER",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 1,
     "content": "-",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 2,
     "content": "@env:OTHER",
-    "linux_exit": 4,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 2,
     "content": "-",
-    "linux_exit": 4,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "linux_eq_cli_env": true,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
+   }
+  ],
+  "dash": [
+   {
+    "source": 0,
+    "value": "-leading",
+    "oracle": true,
+    "linux": 2,
+    "linux_eq_oracle": true,
+    "macos": 2,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 0,
+    "value": "--help",
+    "oracle": true,
+    "linux": 2,
+    "linux_eq_oracle": true,
+    "macos": 2,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 0,
+    "value": "-lead  ",
+    "oracle": true,
+    "linux": 2,
+    "linux_eq_oracle": true,
+    "macos": 2,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 2,
+    "value": "-leading",
+    "oracle": true,
+    "linux": 4,
+    "linux_eq_oracle": true,
+    "macos": 4,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 2,
+    "value": "--help",
+    "oracle": true,
+    "linux": 4,
+    "linux_eq_oracle": true,
+    "macos": 4,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 2,
+    "value": "-lead  ",
+    "oracle": true,
+    "linux": 4,
+    "linux_eq_oracle": true,
+    "macos": 4,
+    "macos_eq_oracle": true
    }
   ],
   "swaps": [
@@ -7067,9 +8148,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "result: ok",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "result: ok"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -7078,9 +8158,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "result: ok",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "result: ok"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -7089,9 +8168,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "result: ok",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "result: ok"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -7100,9 +8178,8 @@
     "provenance": "$USER_SECRET",
     "exit": 4,
     "effect": "result: mismatch",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "result: mismatch"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -7111,9 +8188,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "result: ok",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "result: ok"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -7122,9 +8198,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "result: ok",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "result: ok"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -7133,9 +8208,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "result: ok",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "result: ok"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -7144,9 +8218,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "result: ok",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "result: ok"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -7155,9 +8228,8 @@
     "provenance": "$USER_SECRET",
     "exit": 1,
     "effect": "",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": ""
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -7166,9 +8238,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "result: ok",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "result: ok"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 2,
@@ -7177,9 +8248,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "result: ok",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "result: ok"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 2,
@@ -7188,9 +8258,8 @@
     "provenance": "$USER_SECRET",
     "exit": 4,
     "effect": "result: mismatch",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "result: mismatch"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 2,
@@ -7199,9 +8268,8 @@
     "provenance": "$USER_SECRET",
     "exit": 4,
     "effect": "result: mismatch",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "result: mismatch"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 2,
@@ -7210,9 +8278,8 @@
     "provenance": "$USER_SECRET",
     "exit": 4,
     "effect": "result: mismatch",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "result: mismatch"
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 2,
@@ -7221,9 +8288,8 @@
     "provenance": "$USER_SECRET",
     "exit": 4,
     "effect": "result: mismatch",
-    "eq_argv_exact": true,
-    "eq_cli_env": true,
-    "cli_env_effect": "result: mismatch"
+    "eq_oracle": true,
+    "no_oracle": false
    }
   ]
  },
@@ -7248,7 +8314,8 @@
       "source": 0,
       "key": "ms combine <shares>",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -7258,7 +8325,8 @@
       "source": 0,
       "key": "ms combine <shares>",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -7281,6 +8349,7 @@
   "plan_err": "",
   "interim": [],
   "nc1": [],
+  "dash": [],
   "swaps": [],
   "env_endings": []
  },
@@ -7313,13 +8382,15 @@
       "source": 0,
       "key": "ms verify --phrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "ms verify <ms1>",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -7329,13 +8400,15 @@
       "source": 0,
       "key": "ms verify --phrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "ms verify <ms1>",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -7355,48 +8428,56 @@
     "source": 0,
     "ending": "",
     "equal": true,
+    "no_oracle": false,
     "effect": "OK: round-trip valid (12 words, language=english)"
    },
    {
     "source": 0,
     "ending": "\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "OK: round-trip valid (12 words, language=english)"
    },
    {
     "source": 0,
     "ending": "\r\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "OK: round-trip valid (12 words, language=english)"
    },
    {
     "source": 0,
     "ending": "  ",
     "equal": true,
+    "no_oracle": false,
     "effect": "OK: round-trip valid (12 words, language=english)"
    },
    {
     "source": 1,
     "ending": "",
     "equal": true,
+    "no_oracle": false,
     "effect": "OK: round-trip valid (12 words, language=english)"
    },
    {
     "source": 1,
     "ending": "\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "OK: round-trip valid (12 words, language=english)"
    },
    {
     "source": 1,
     "ending": "\r\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "OK: round-trip valid (12 words, language=english)"
    },
    {
     "source": 1,
     "ending": "  ",
     "equal": true,
+    "no_oracle": false,
     "effect": "OK: round-trip valid (12 words, language=english)"
    }
   ],
@@ -7404,32 +8485,55 @@
    {
     "source": 0,
     "content": "@env:OTHER",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "interim": "planned",
-    "interim_should_refuse": false
+    "macos": "ran",
+    "macos_is_other_wallet": false
    },
    {
     "source": 0,
     "content": "-",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "interim": "value-is-a-channel-spelling"
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 1,
     "content": "@env:OTHER",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "interim": "planned",
-    "interim_should_refuse": false
+    "macos": "ran",
+    "macos_is_other_wallet": false
    },
    {
     "source": 1,
     "content": "-",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "interim": "value-is-a-channel-spelling"
+    "macos": "value-is-a-channel-spelling"
+   }
+  ],
+  "dash": [
+   {
+    "source": 0,
+    "value": "-leading",
+    "oracle": false,
+    "linux": 1,
+    "macos": 1
+   },
+   {
+    "source": 0,
+    "value": "--help",
+    "oracle": false,
+    "linux": 1,
+    "macos": 1
+   },
+   {
+    "source": 0,
+    "value": "-lead  ",
+    "oracle": false,
+    "linux": 1,
+    "macos": 1
    }
   ],
   "swaps": [
@@ -7451,7 +8555,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "OK: round-trip valid (12 words, language=english)",
-    "eq_argv_exact": true
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -7460,7 +8565,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "OK: round-trip valid (12 words, language=english)",
-    "eq_argv_exact": true
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -7469,7 +8575,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "OK: round-trip valid (12 words, language=english)",
-    "eq_argv_exact": true
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -7478,7 +8585,8 @@
     "provenance": "$USER_SECRET",
     "exit": 1,
     "effect": "",
-    "eq_argv_exact": true
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -7487,7 +8595,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "OK: round-trip valid (12 words, language=english)",
-    "eq_argv_exact": true
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -7496,7 +8605,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "OK: round-trip valid (12 words, language=english)",
-    "eq_argv_exact": true
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -7505,7 +8615,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "OK: round-trip valid (12 words, language=english)",
-    "eq_argv_exact": true
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -7514,7 +8625,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "OK: round-trip valid (12 words, language=english)",
-    "eq_argv_exact": true
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -7523,7 +8635,8 @@
     "provenance": "$USER_SECRET",
     "exit": 1,
     "effect": "",
-    "eq_argv_exact": true
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -7532,7 +8645,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "OK: round-trip valid (12 words, language=english)",
-    "eq_argv_exact": true
+    "eq_oracle": true,
+    "no_oracle": false
    }
   ]
  },
@@ -7566,13 +8680,15 @@
       "source": 0,
       "key": "ms derive --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "ms derive <ms1>",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -7582,13 +8698,15 @@
       "source": 0,
       "key": "ms derive --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "ms derive <ms1>",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -7608,48 +8726,56 @@
     "source": 0,
     "ending": "",
     "equal": true,
+    "no_oracle": false,
     "effect": "master_fingerprint:  45fbfbe6"
    },
    {
     "source": 0,
     "ending": "\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "master_fingerprint:  5d5b0e1a"
    },
    {
     "source": 0,
     "ending": "\r\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "master_fingerprint:  eadf4a6c"
    },
    {
     "source": 0,
     "ending": "  ",
     "equal": true,
+    "no_oracle": false,
     "effect": "master_fingerprint:  220717b3"
    },
    {
     "source": 1,
     "ending": "",
     "equal": true,
+    "no_oracle": false,
     "effect": "master_fingerprint:  45fbfbe6"
    },
    {
     "source": 1,
     "ending": "\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "master_fingerprint:  45fbfbe6"
    },
    {
     "source": 1,
     "ending": "\r\n",
     "equal": true,
+    "no_oracle": false,
     "effect": "master_fingerprint:  45fbfbe6"
    },
    {
     "source": 1,
     "ending": "  ",
     "equal": true,
+    "no_oracle": false,
     "effect": "master_fingerprint:  45fbfbe6"
    }
   ],
@@ -7657,32 +8783,61 @@
    {
     "source": 0,
     "content": "@env:OTHER",
-    "linux_exit": 0,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "interim": "planned",
-    "interim_should_refuse": false
+    "linux_eq_oracle": true,
+    "macos": "ran",
+    "macos_is_other_wallet": false,
+    "macos_eq_oracle": true
    },
    {
     "source": 0,
     "content": "-",
-    "linux_exit": 0,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "interim": "value-is-a-channel-spelling"
+    "linux_eq_oracle": true,
+    "macos": "value-is-a-channel-spelling"
    },
    {
     "source": 1,
     "content": "@env:OTHER",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "interim": "planned",
-    "interim_should_refuse": false
+    "macos": "ran",
+    "macos_is_other_wallet": false
    },
    {
     "source": 1,
     "content": "-",
-    "linux_exit": 1,
+    "linux": "ran",
     "linux_is_other_wallet": false,
-    "interim": "value-is-a-channel-spelling"
+    "macos": "value-is-a-channel-spelling"
+   }
+  ],
+  "dash": [
+   {
+    "source": 0,
+    "value": "-leading",
+    "oracle": true,
+    "linux": 0,
+    "linux_eq_oracle": true,
+    "macos": "value-starts-with-dash"
+   },
+   {
+    "source": 0,
+    "value": "--help",
+    "oracle": true,
+    "linux": 0,
+    "linux_eq_oracle": true,
+    "macos": "value-starts-with-dash"
+   },
+   {
+    "source": 0,
+    "value": "-lead  ",
+    "oracle": true,
+    "linux": 0,
+    "linux_eq_oracle": true,
+    "macos": "value-starts-with-dash"
    }
   ],
   "swaps": [
@@ -7704,7 +8859,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "master_fingerprint:  45fbfbe6",
-    "eq_argv_exact": true
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -7713,7 +8869,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "master_fingerprint:  5d5b0e1a",
-    "eq_argv_exact": true
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -7722,7 +8879,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "master_fingerprint:  eadf4a6c",
-    "eq_argv_exact": true
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -7731,7 +8889,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "master_fingerprint:  eecfa1a7",
-    "eq_argv_exact": true
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 0,
@@ -7740,7 +8899,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "master_fingerprint:  220717b3",
-    "eq_argv_exact": true
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -7749,7 +8909,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "master_fingerprint:  45fbfbe6",
-    "eq_argv_exact": true
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -7758,7 +8919,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "master_fingerprint:  45fbfbe6",
-    "eq_argv_exact": true
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -7767,7 +8929,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "master_fingerprint:  45fbfbe6",
-    "eq_argv_exact": true
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -7776,7 +8939,8 @@
     "provenance": "$USER_SECRET",
     "exit": 1,
     "effect": "",
-    "eq_argv_exact": true
+    "eq_oracle": true,
+    "no_oracle": false
    },
    {
     "source": 1,
@@ -7785,7 +8949,8 @@
     "provenance": "$USER_SECRET",
     "exit": 0,
     "effect": "master_fingerprint:  45fbfbe6",
-    "eq_argv_exact": true
+    "eq_oracle": true,
+    "no_oracle": false
    }
   ]
  },
@@ -7804,13 +8969,15 @@
       "source": 0,
       "key": "ms derive --phrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "ms derive --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -7820,13 +8987,15 @@
       "source": 0,
       "key": "ms derive --phrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "ms derive --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -7851,13 +9020,15 @@
       "source": 0,
       "key": "ms derive --hex",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "ms derive --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },
@@ -7867,13 +9038,15 @@
       "source": 0,
       "key": "ms derive --hex",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      },
      {
       "source": 1,
       "key": "ms derive --passphrase",
       "kind": "Argv",
-      "terminator": ""
+      "terminator": "",
+      "argv_form": "sep"
      }
     ]
    },

@@ -19,7 +19,7 @@ a5 = gen_plans.a5_markdown(_rows).rstrip("\n")
 _t8_stale = json.load(open(os.path.join(HERE, "plans_pure.json"))) != json.loads(json.dumps(_rows))
 BLOCKS = {"A2_TABLE": rd("table.md"), "NO_ENTRY": rd("missing_sources.md"), "C1_EVIDENCE": rd("c1_evidence.out"),
           "BYTES": rd("bytes.md"), "A5_PLANS": a5, "T3_EVIDENCE": rd("t3.md"),
-          "COPY_EVIDENCE": rd("copy_evidence.md")}
+          "COPY_EVIDENCE": rd("copy_evidence.md"), "NI5_DEMO": rd("ni5_demo.out")}
 if len(sys.argv) == 3 and sys.argv[1] == "--fill":
     doc = open(sys.argv[2]).read()
     for k, v in BLOCKS.items():

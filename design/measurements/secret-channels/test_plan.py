@@ -17,11 +17,15 @@ def check(name, cond):
 
 
 def refusal(fn):
+    """The refusal code, None if planned, or `crash:<Type>` — so a crash under a mutation is an
+    ASSERTION failure here, never an uncaught exception (R3 NI6)."""
     try:
         fn()
         return None
     except P.Refusal as e:
         return e.code
+    except Exception as e:
+        return f"crash:{type(e).__name__}"
 
 
 def with_value(sh, i, v):
@@ -50,8 +54,17 @@ src = [{"key": "mnemonic restore --passphrase", "form": "value", "flag": "--pass
 for raw, rule, want in [("pw\n", "verbatim", "pw\n"), ("pw\r\n", "verbatim", "pw\r\n"), ("pw\n", "strip-one-trailing-newline", "pw"),
                         ("pw\r\n", "strip-one-trailing-newline", "pw"), ("pw\n\n", "strip-one-trailing-newline", "pw\n"),
                         ("a\nb", "strip-one-trailing-newline", "a\nb"), ("pw  ", "verbatim", "pw  ")]:
-    res, prov = P.resolve(src, {"MY_PW": raw}, rule)
+    res, prov = P.resolve(src, {"MY_PW": raw}, None, rule)
     check(f"resolve {raw!r} {rule}", res[0]["value"] == want and prov[0] == "$MY_PW")
+# Per-input rule (R3 NI7): with no override, resolve() applies THIS input's derived cli_env_rule.
+for key, v in TABLE.items():
+    if v["cli_env_rule"] in (None, "verbatim", "strip-one-trailing-newline"):
+        one = [{"key": key, "form": "value", "flag": "--x", "prefix": "", "value": "@env:MY_PW"}]
+        got = refusal(lambda: P.resolve(one, {"MY_PW": "pw\n"}, TABLE))
+        res, _ = P.resolve(one, {"MY_PW": "pw\n"}, TABLE) if got is None else ([{"value": None}], None)
+        check(f"per-input rule {key}", res[0]["value"] == P.env_value_rule("pw\n", v["cli_env_rule"]))
+check("no input's CLI @env: rule measured UNKNOWN (an unmodelled rule must stop the bump)",
+      not any(v["cli_env_rule"] == "UNKNOWN" for v in TABLE.values()))
 
 # Nm1: the reserved prefix is refused in pass-through (non-secret) fields too.
 check("guard refuses", refusal(lambda: P.guard_passthrough(["xpub=@env:MNEMONIC_GUI_S0"])) == "C1-reserved-name")
@@ -99,8 +112,14 @@ check("payload-too-large", refusal(lambda: P.plan(big, TABLE, "linux")) == "payl
 import os_gate
 TARGETS = P.POLICY["real_binary_test_targets"]
 CI = os.path.join(HERE, "fixtures", "ci")
-for f, want in [("decoy_comment", {}), ("decoy_if_false", {}), ("decoy_missing_target", {}),
-                ("genuine_matrix", {"linux", "macos", "windows"}), ("genuine_linux", {"linux"})]:
+GATE_FIXTURES = [("decoy_comment", {}), ("decoy_if_false", {}), ("decoy_missing_target", {}),
+                 # R3 Nm10's seven
+                 ("decoy_continue_on_error", {}), ("decoy_echo", {}), ("decoy_build_only", {}),
+                 ("decoy_shell_comment", {}), ("decoy_dispatch_only", {}), ("decoy_matrix_exclude", {"linux"}),
+                 ("decoy_empty_bin", {}),
+                 ("genuine_matrix", {"linux", "macos", "windows"}), ("genuine_linux", {"linux"}),
+                 ("genuine_workflow_env", {"macos"})]      # R3's false red
+for f, want in GATE_FIXTURES:
     for o in PLATFORMS:
         check(f"os gate fixture {f} {o}", os_gate.gate([os.path.join(CI, f + ".yml")], o, TARGETS) == (o in want))
 # The repo's own workflows: the named targets do not exist until the implementing change adds
@@ -133,7 +152,9 @@ for sh in SHAPES:
         if s["form"] == "group":
             continue
         cli = s["key"].split()[0]
-        sp = P.POLICY["argv_reinterprets"].get(cli, {"spellings": []})["spellings"]
+        # planner-follows-data consistency only; the INDEPENDENT oracle for NC1 is run_plans.py's
+        # executed interim leg and regen_check.py (R3 NI5)
+        sp = P.REINTERPRET.get(cli, {"spellings": []})["spellings"]
         for content, spelling in (("@env:OTHER", "@env:"), ("-", "-")):
             uenv = {"USER_SECRET": content, "OTHER": "hunter2"}
             srcs = with_value(sh, i, "@env:USER_SECRET")
@@ -144,35 +165,46 @@ for sh in SHAPES:
                 check(f"NC1 {sh['name']} src{i} {content!r} {plat}: got {got}, want {want}", got == want)
 print(f"NC1 interim legs: {nc1}")
 
+# R3 Nm13: on the interim path a leading-dash value uses `--flag=VALUE` only where that form
+# measured byte-exact for the input; elsewhere it refuses. Every value-form source of every shape.
+for sh in SHAPES:
+    for i, s in enumerate(sh["sources"]):
+        if s["form"] != "value":
+            continue
+        for plat in ("macos", "windows"):
+            got = refusal(lambda: P.plan(with_value(sh, i, "-lead  "), TABLE, plat))
+            if TABLE[s["key"]]["argv_eq_exact"]:
+                form = refusal(lambda: (_ for _ in ()).throw(P.Refusal(
+                    P.plan(with_value(sh, i, "-lead  "), TABLE, plat)[0][i].get("argv_form", "none"), "", ""))) if got is None else got
+                check(f"Nm13 {sh['name']} src{i} {plat}: eq form, got {form}", form == "eq")
+            else:
+                check(f"Nm13 {sh['name']} src{i} {plat}: refuse, got {got}", got == "value-starts-with-dash")
+
 # R2 Nit 1: C1-env-empty is judged on the TARGET; NUL refuses on every OS.
-check("env-empty after rule", refusal(lambda: P.resolve(src, {"MY_PW": "\n"}, "strip-one-trailing-newline")) == "C1-env-empty")
-check("env not empty verbatim", refusal(lambda: P.resolve(src, {"MY_PW": "\n"}, "verbatim")) is None)
+check("env-empty after rule", refusal(lambda: P.resolve(src, {"MY_PW": "\n"}, None, "strip-one-trailing-newline")) == "C1-env-empty")
+check("env not empty verbatim", refusal(lambda: P.resolve(src, {"MY_PW": "\n"}, None, "verbatim")) is None)
 nul = [{"key": "mnemonic restore --passphrase", "form": "value", "flag": "--passphrase", "prefix": "", "value": "a\0b"}]
 for p_ in PLATFORMS:
     check(f"nul-in-value {p_}", refusal(lambda: P.plan(nul, TABLE, p_)) == "nul-in-value")
 
-# Pin check (controller): every measured artifact and every CLI-behaviour policy row must carry
-# the versions the GUI pins; a pin bump without a re-measure goes red here.
+# Pin check (R3: identity by CONTENT). measured_with.json records, per CLI, the pinned tag it was
+# measured under plus the binary's sha256. Here: the tags must equal pinned-upstream.toml.
+# regen_check.py (CI, with the pinned binaries installed) checks the sha256 and re-derives every
+# behavioural file; a same-version rebuild with different behaviour fails there.
 import tomllib
-pins = {sec: v["tag"].rsplit("-v", 1)[1]
-        for sec, v in tomllib.load(open(os.path.join(HERE, "..", "..", "..", "pinned-upstream.toml"), "rb")).items()
+pins = {sec: v["tag"] for sec, v in tomllib.load(open(os.path.join(HERE, "..", "..", "..", "pinned-upstream.toml"), "rb")).items()
         if isinstance(v, dict) and "tag" in v}
 mw = json.load(open(os.path.join(HERE, "measured_with.json")))
-check(f"pin: measured_with {mw} == pinned {pins}", mw == pins)
-for cli, v in P.POLICY["env_value_rule"]["measured_with"].items():
-    check(f"pin: env_value_rule measured with {cli} {v}, pinned {pins.get(cli)}", v == pins.get(cli))
-RE = json.load(open(os.path.join(HERE, "reinterpret.json")))
-for cli, row in P.POLICY["argv_reinterprets"].items():
-    check(f"pin: argv_reinterprets {cli} {row['version']}, pinned {pins.get(cli)}", row["version"] == pins.get(cli))
-    check(f"argv_reinterprets {cli} == measurement", row["spellings"] == RE[cli]["spellings"] and row["version"] == RE[cli]["version"])
+for cli, tag in pins.items():
+    check(f"pin: {cli} measured under {mw.get(cli, {}).get('pinned_tag')}, pinned {tag}", mw.get(cli, {}).get("pinned_tag") == tag)
+    check(f"pin: {cli} sha256 recorded", len(mw.get(cli, {}).get("sha256", "")) == 64)
 
-# Copy gate (R1 Nm7, DESIGN §A7): Copy spells a $VAR-provenance binding as the CLI's own
-# `@env:VAR` where the input has a measured-OK EnvRef, else as `printf '%s<terminator>' "$VAR" |`,
-# which reproduces the target only while env_value_rule is verbatim. A rule change therefore
-# requires every stdin-only secret input to have an EnvRef cell, or a new Copy rule.
-if P.POLICY["env_value_rule"]["value"] != "verbatim":
-    for k, v in TABLE.items():
-        check(f"copy gate: {k} needs an EnvRef cell under {P.POLICY["env_value_rule"]["value"]}",
+# Copy gate (per input, R3 NI7): Copy spells a $VAR-provenance binding as the CLI's own `@env:VAR`
+# where the input has an OK EnvRef, else `printf '%s<T>' "$VAR" |`, which delivers the RAW bytes —
+# right only where the input's CLI @env: rule is verbatim (or absent: bytes as typed).
+for k, v in TABLE.items():
+    if v["cli_env_rule"] not in (None, "verbatim"):
+        check(f"copy gate: {k} ({v['cli_env_rule']}) needs an EnvRef cell",
               any(c["kind"] == "EnvRef" for c in v["channels"]))
 
 print(f"{len(FAIL)} failures")

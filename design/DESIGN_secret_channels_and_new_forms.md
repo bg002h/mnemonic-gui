@@ -1,17 +1,78 @@
 # DESIGN — secrets over private channels, and the five unsurfaced forms
 
 **Status:** design only, nothing implemented.
-- **Fold 3** answers R2 (`mnemonic-engrave/design/agent-reports/gui-design-r2.md`, 1C/2I/2M/2N) and the F-687 CLI implementation now under review (ms `e534917`, toolkit `9846a784`); the map is `gui-design-fold3.md`.
+- **Fold 4** answers R3 (`mnemonic-engrave/design/agent-reports/gui-design-r3.md`, 0C/3I/4M/1N) by **changing the shape** (§A0): every behavioural fact is derived by measurement and regenerated in CI, never hand-kept, never its own oracle. The map is `gui-design-fold4.md`.
+- **Fold 3** answered R2 (`mnemonic-engrave/design/agent-reports/gui-design-r2.md`, 1C/2I/2M/2N) and the F-687 CLI implementation now under review (ms `e534917`, toolkit `9846a784`); the map is `gui-design-fold3.md`.
 - **Fold 2** answered R1 (`mnemonic-engrave/design/agent-reports/gui-design-r1.md`, 0C/2I/7M/4N); the map is `gui-design-fold2.md`.
 - **Fold 1** answered R0 and the operator's F-687 ruling; its map is `gui-design-fold1.md`.
 
-**Baseline:** mnemonic-gui `gui-followups`, fold 2 at `f1f9ef3`.
-**Measured against the release binaries:** mnemonic 0.104.0, md 0.20.3, ms 0.19.1, mk 0.13.0, installed with `mnemonic-toolkit/scripts/install.sh --no-gui --no-man`. These binaries **predate** the F-687 CLI change (§A3b). Every CLI-behaviour row records the versions it was measured with, and a pin check fails when they differ from `pinned-upstream.toml`.
+**Baseline:** mnemonic-gui `gui-followups`, fold 3 at `42dacaa`.
+**Measured against the release binaries:** mnemonic 0.104.0, md 0.20.3, ms 0.19.1, mk 0.13.0, installed with `mnemonic-toolkit/scripts/install.sh --no-gui --no-man`. These binaries **predate** the F-687 CLI change (§A3b). The F-687 builds (toolkit `9846a784`, ms `e534917`) report **the same version strings**, so binaries are identified by **pinned tag + sha256** (§A0).
 **Follow-ups this covers:** `argv-secret-via-private-channels` (Part A), `md-ms-new-subcommands-unsurfaced` (Part B).
 
 ---
 
 ## Part A — every secret over a private channel
+
+### A0. The shape: decisions are kept, behaviour is derived (R3)
+
+Four review rounds each found the same defect one level deeper:
+- R1 NI1: the newline rule;
+- R2 NC1: argv re-reads;
+- R3 NI5: a stale re-read row;
+- R3 NI7: a per-flag rule that the design had made global.
+
+Each time, a policy row described CLI behaviour, a human kept it in sync, and the tests took their expected answer **from that same row**. A stale row therefore passed every gate. Fold 4 removes the class rather than the instance:
+
+1. **Behaviour is data derived by measurement, never hand-kept.** Every fact about what a CLI does is produced by the measurement pipeline against the pinned binaries:
+   - `channel_table.json`: channels, terminators, the **per-input** `@env:` value rule, and whether `--flag=VALUE` is exact;
+   - `reinterpret.json`: which argv values each CLI re-reads;
+   - `measured_with.json`: pinned tag, version and **sha256** of each binary.
+
+   The committed JSON is a **cache**. `channel_policy.json` now holds **decisions only**: per-OS switches, the reserved prefix, the name rule, bounds, and the CI test targets.
+2. **CI regenerates the cache and diffs it** (`regen_check.py`, T4). It installs the binaries for the tags in `pinned-upstream.toml` and checks their **sha256** against `measured_with.json`. It re-derives every behavioural file in a scratch copy of the repo layout, and any difference is red. A same-version rebuild with different behaviour (exactly the F-687 builds) fails on identity and on the diff.
+3. **Expected answers come from independent oracles, never from the data.** The real-runner legs (T3′) compare the GUI's run with one of two things:
+   - the CLI's **own `@env:VAR`** run, which by definition is what `@env:VAR` means;
+   - where the input has no working CLI `@env:`, **known bytes**: argv-exact, or, for bytes argv would re-read, a non-lenient `--X-stdin` toggle.
+
+   The NC1 leg **executes** every interim plan it admits and requires "never `$OTHER`'s wallet". It no longer derives "should refuse" from the row.
+
+**R3's NI5 scenario, run against the F-687 builds** (`demo_ni5.sh`):
+- **(A)** the committed cache against the F-687 binaries;
+- **(C)** a complete, correct re-derivation on F-687: **GREEN**, so the bump is data-only;
+- **(B)** everything re-derived on F-687, but ms's re-read row left at `[-]`. It is red twice, **independently**: on the diff, and on the oracle leg, which executes the admitted interim plan and finds `$OTHER`'s wallet.
+
+```
+F-687 binaries: mnemonic 0.104.0, ms 0.19.1
+
+=== (A) committed cache vs F-687 binaries: BIN_DIR=F687 regen_check.py --plans
+RED  identity: mnemonic binary sha256 72ff4a36d704e5b3… (mnemonic 0.104.0) != measured c894bee53193cfe6… (same version string: True)
+RED  identity: ms binary sha256 72f044bd6a6e84ed… (ms 0.19.1) != measured a6d748119b0ee25a… (same version string: True)
+RED  derived: channel_table.json differs from a regeneration. 13 inputs differ, e.g. ['mnemonic addresses --passphrase', 'mnemonic bundle --passphrase', 'mnemonic convert --passphrase', 'mnemonic derive-child --passphrase']
+RED  derived: reinterpret.json differs from a regeneration. ms: committed ['-'] vs measured ['-', '@env:']
+RED  derived: measured_with.json differs from a regeneration. 
+RED  derived: bytes.json differs from a regeneration. 
+RED  T3' run_plans.py: FAILURES: ['addresses phrase+passphrase', 'restore phrase+passphrase', 'restore ms1+passphrase', 'derive-child phrase+passphrase', 'bundle slot+passphrase', 'bundle wsh-multi 2 slots+passphrase', 'convert phrase+passphrase', 'xpub-search path-of-xpub phrase+passphrase', 'xpub-search path-of-xpub ms1+passphrase', 'xpub-search passphrase-of-xpub phrase+passphrase', 'xpub-search passphrase-of-xpub ms1+passphrase', 'xpub-search account-of-descriptor phrase+passphrase', 'xpub-search account-of-descriptor ms1+passphrase', 'slip39 split phrase+passphrase', 'slip39 combine 2 shares+passphrase', 'verify-bundle ms1+slot+passphrase', 'ms derive ms1+passphrase']
+RED    NC1 OTHER's wallet: ms derive ms1+passphrase source 0 content '@env:OTHER'
+regen_check: 8 red
+exit 1
+
+=== (B) re-derived on F-687, ms row left at [-]: regen_check.py --data-from STALE --plans
+
+=== (C) the bump done right: everything re-derived on F-687: regen_check.py --data-from FRESH --plans
+regen_check: GREEN
+exit 0
+
+=== (B) continued: the stale variant
+  F-687 measured ms re-reads: ['-', '@env:']; the stale bump leaves it at ['-']
+RED  derived: reinterpret.json differs from a regeneration. ms: committed ['-'] vs measured ['-', '@env:']
+RED  T3' run_plans.py: FAILURES: ['ms derive ms1+passphrase', 'ms derive phrase+passphrase', 'ms derive hex+passphrase']
+RED    NC1 OTHER's wallet: ms derive ms1+passphrase source 0 content '@env:OTHER'
+RED    NC1 OTHER's wallet: ms derive phrase+passphrase source 1 content '@env:OTHER'
+RED    NC1 OTHER's wallet: ms derive hex+passphrase source 1 content '@env:OTHER'
+regen_check: 5 red
+exit 1
+```
 
 ### A1. What is measured, and how to re-run it
 
@@ -22,12 +83,12 @@ Everything is in `design/measurements/secret-channels/`. Every table in Part A i
 
 **Data** (the planner reads only these):
 
-| file | what it holds |
-|---|---|
-| `channel_table.json` | Generated. For each input: its measured-OK channels and each channel's measured **terminator** (§A3c). |
-| `channel_policy.json` | Hand-maintained, **one entry per decision**: `env_value_rule` (§A3c) and `argv_reinterprets` (§A6, R2 NC1), each with the CLI versions it was measured with; `private_channels_on` and `fd_channel_on` (§A6); `real_binary_test_targets` (T10); the reserved env prefix; the env-name rule; `pipe_payload_max`. |
-| `measured_with.json` | Generated. The CLI versions the whole pipeline ran against. |
-| `reinterpret.json` | Generated by `measure_reinterpret.py`: per input and per CLI, the spellings the CLI re-resolves when they arrive as an argv value. `argv_reinterprets` must equal its aggregate. |
+| file | kind | what it holds |
+|---|---|---|
+| `channel_table.json` | **derived** | For each input: its measured-OK channels; each channel's **terminator** (§A3c); the input's **`cli_env_rule`**, i.e. what the CLI's own `@env:` does to the variable (`verbatim`, `strip-one-trailing-newline`, or `null` for no working CLI `@env:`; R3 NI7); and **`argv_eq_exact`**, whether `--flag=VALUE` is byte-identical to `--flag VALUE` (R3 Nm13). |
+| `reinterpret.json` | **derived** | Per CLI: the spellings it re-reads when they arrive as an argv value (R2 NC1). |
+| `measured_with.json` | **derived** | Per CLI: pinned tag, `--version`, and **sha256** of the binary measured. |
+| `channel_policy.json` | **decided** | `private_channels_on`, `fd_channel_on` (§A6); `real_binary_test_targets` (T10); the reserved env prefix; the env-name rule; `pipe_payload_max`. Nothing about CLI behaviour. |
 
 **Re-run, in dependency order:**
 
@@ -36,7 +97,7 @@ export BIN_DIR=<dir holding mnemonic, md, ms, mk>
 python3 run_all.py > channels.txt; python3 run2.py > channels2.txt; python3 run3.py > channels3.txt
 python3 measure_groups.py                  # ms combine's share group
 python3 run_bytes.py                       # byte fidelity per channel -> bytes.json, bytes.md (§A3c)
-python3 table_build.py                     # -> channel_table.json, measured_with.json
+python3 table_build.py                     # -> channel_table.json (+ cli_env_rule, argv_eq_exact), measured_with.json (tag+sha256)
 python3 measure_reinterpret.py             # -> reinterpret.json (§A6, R2 NC1)
 python3 table.py > table.md                # -> §A2
 python3 gen_plans.py                       # PURE: plan.py on every shape x OS -> plans_pure.json (§A5)
@@ -45,9 +106,11 @@ python3 probe_missing.py                   # -> missing_sources.md (§A2b)
 ./c1_evidence.sh > c1_evidence.out         # -> §A3a
 bash combos.sh > combos.out; python3 refusals.py > refusals.txt   # fold-0 combos and refusal probe
 python3 copy_evidence.py                   # Copy recipes in bash, zsh, fish -> copy_evidence.md (§A7)
-python3 test_plan.py                       # PURE: refusal, interim-value, NC1, per-OS, pin, OS-gate legs
-python3 mutations.py                       # 15 planner mutations, each must go red (NI3's also through run_plans.py)
-python3 check_design_tables.py             # the gate
+python3 test_plan.py                       # PURE: refusal, interim-value, NC1, per-input rule, per-OS, pin, OS-gate legs
+python3 mutations.py                       # 16 planner mutations killed BY ASSERTION + a no-op control that must survive
+python3 regen_check.py [--plans]           # T4 (CI): identity by sha256 + every derived file re-derived and diffed
+F687_BIN_DIR=... ./demo_ni5.sh             # §A0: the NI5 scenario against the F-687 builds -> ni5_demo.out
+python3 check_design_tables.py             # the document gate
 ```
 
 **What each script measures:**
@@ -56,7 +119,10 @@ python3 check_design_tables.py             # the gate
   - *Baseline:* the secret on argv plus `--allow-argv-secret`.
   - *Dependence control:* a different secret must change the output.
   - *Channel variants:* each channel without the opt-in. **OK** = exit and stdout equal the baseline.
-- **Byte fidelity** (`run_bytes.py`). Every OK channel of every input is run with seven value endings: none, `\n`, `\r\n`, `\r`, two trailing spaces, space+`\n`, and an interior `\nX`. The result must equal argv carrying **the exact same bytes**. The script finds the terminator that makes each channel exact (§A3c).
+- **Byte fidelity** (`run_bytes.py`). Every OK channel of every input is run with seven value endings: none, `\n`, `\r\n`, `\r`, two trailing spaces, space+`\n`, and an interior `\nX`. The result must equal argv carrying **the exact same bytes**. The script derives three things:
+  - the terminator that makes each channel exact;
+  - **per input**, the CLI's own `@env:` rule, by testing whether `@env:VAR` equals argv-exact of `f(raw)` for each candidate rule `f`;
+  - whether `--flag=VALUE` is exact.
 - **Schema coverage** (`secret_sources.txt` from `enumerate_sources.rs`, then `probe_missing.py`): the 124 secret sources the mirror can produce (§A4.1).
 - **Plans** (`plan.py`, `gen_plans.py`, `shapes.py`, `run_plans.py`, `test_plan.py`, `mutations.py`):
   - `plan.py` is the rule, executable.
@@ -67,7 +133,8 @@ python3 check_design_tables.py             # the gate
   - `mutations.py` shows each of those tests can fail.
 - **Argv re-interpretation** (`measure_reinterpret.py`): for every input, is a value of `@env:VAR` or `-` on argv resolved a second time? mnemonic 0.104.0: `-` and `@env:`; ms 0.19.1: `-`.
 - **Copy recipes** (`copy_evidence.py`): the §A7 recipes run in bash, zsh and fish, compared against argv-exact.
-- **T10** (`os_gate.py`, `fixtures/ci/`): the OS gate, pinned against decoy and genuine workflow fixtures.
+- **T10** (`os_gate.py`, `fixtures/ci/`): the OS gate, pinned against 10 decoy and 3 genuine workflow fixtures.
+- **T4** (`regen_check.py`): identity and re-derivation (§A0). `demo_ni5.sh` runs it against the F-687 builds.
 
 ### A2. The measured single-input table
 
@@ -236,7 +303,7 @@ The operator's final ruling on F-687 is that `-` reads stdin and `@env:VAR` read
 
 | the user typed | the GUI does |
 |---|---|
-| `@env:VAR` | Reads `VAR` from the GUI's own environment at Run time. The **target bytes** are `env_value_rule(raw)` (§A3c), byte-identical to what the pinned CLI's own `@env:VAR` would use. They are delivered through the planned channel, then zeroized. |
+| `@env:VAR` | Reads `VAR` from the GUI's own environment at Run time. The **target bytes** are `env_value_rule(raw, this input's cli_env_rule)` (§A3c), byte-identical to what the pinned CLI's own `@env:VAR` would use **on this input**. They are delivered through the planned channel, then zeroized. |
 | `@env:VAR`, `VAR` unset | Refuse `C1-env-unset`, naming the field and `$VAR`. |
 | `@env:VAR`, empty **after** `env_value_rule` | Refuse `C1-env-empty`. The CLI would take it as *no passphrase* (measured: fingerprint `73c5da0a`, exit 0), a different wallet. It is judged on the target, so a variable holding only `\n` refuses under the F-687 rule too (R2 Nit 1). |
 | any value holding NUL | Refuse `nul-in-value` on every OS. argv and env cannot carry NUL, so there is one message everywhere (R2 Nit 1). |
@@ -292,40 +359,45 @@ A user whose real secret is literally `-` or begins with `@env:` cannot type it 
 **A resolved value that is itself a channel spelling (R2 NC1).** `$MY_PW` may *contain* `@env:OTHER` or `-`.
 - **On the private path** these are just bytes. The CLI resolves the planner's `@env:MNEMONIC_GUI_S<i>` **once** and does not look inside, and stdin/fd content is never resolved. This is measured: Linux equals the CLI's own `@env:MY_PW` on every shape and never gives `$OTHER`'s wallet (§A9 NC1 column).
 - **On the interim argv path** the CLI would resolve them a second time. This is measured below: an unguarded interim run gives `$OTHER`'s wallet, `ca2c62d2`. So the interim path refuses them: `value-is-a-channel-spelling`, naming the field and saying "`<cli> <version>` reads this on the command line as a channel, not as the secret".
-- Which spellings each CLI re-interprets is **one policy row, `argv_reinterprets`**, keyed by CLI and version and measured by `measure_reinterpret.py`. Today: mnemonic 0.104.0 `-` and `@env:`; ms 0.19.1 `-`. After F-687 both CLIs are expected to list both. The pin bump updates the row as data.
+- Which spellings each CLI re-interprets is **derived** (`reinterpret.json`, by `measure_reinterpret.py`), not a policy row. Today: mnemonic 0.104.0 `-` and `@env:`; ms 0.19.1 `-`. **Measured on F-687:** ms gains `@env:`. CI re-derives the file and diffs it (§A0). The oracle leg catches a stale file independently, by executing the admitted plan.
 - The operator ruled that nobody wants these as passphrases.
 
 #### A3b. F-687 on the pinned binaries, and the pin bump
 
 Until the GUI pins ms and toolkit releases that implement F-687, the CLI's own `-`/`@env:` spellings are written only where the table measured them OK. The planner guarantees this: user text never becomes a channel token (§A3a).
 
-**The pin check forces a re-measure.** `test_plan.py` compares the pinned versions in `pinned-upstream.toml` with three things:
-- `measured_with.json` (the pipeline's binaries);
-- every `measured_with`/`version` in the policy's CLI-behaviour rows (`env_value_rule`, `argv_reinterprets`);
-- `reinterpret.json`.
+**Identity is checked by content.**
+- `test_plan.py` checks that `measured_with.json`'s pinned tags equal `pinned-upstream.toml`'s, and that a sha256 is recorded.
+- `regen_check.py` (CI) checks the installed binaries' **sha256** against those recorded.
 
-Any difference is red. So a pin bump cannot land on stale measurements.
+A bump that changes a tag, or a rebuild that changes a binary, is red until the cache is re-derived.
 
-**What F-687 changes, as implemented** (ms `e534917`, toolkit `9846a784`, under review):
-- `-`, `--passphrase-stdin` and `@env:` strip exactly one trailing `\n` or `\r\n`;
+**What F-687 changes, measured on the builds** (ms `e534917`, toolkit `9846a784`, under review):
+- `-`, `--passphrase-stdin` and `@env:` strip exactly one trailing `\n` or `\r\n` **on `--passphrase`**;
 - an argv literal is verbatim;
-- `-` = stdin and `@env:VAR` = environment on every `--passphrase`.
+- ms gains `@env:` on `--passphrase`.
 
-**The bump is a data edit.** No planner code changes:
-1. Re-run §A1 against the new binaries. `measured_with.json`, `channel_table.json`, `reinterpret.json` and the terminators all regenerate.
-2. If the CLIs' `@env:` value rule changed, edit the **single entry** `env_value_rule` in `channel_policy.json` (expected under F-687: `strip-one-trailing-newline`). `run_bytes.py` then re-derives every channel's terminator, `EnvRef` included, against the new target.
-3. Update `argv_reinterprets` to the new `reinterpret.json` (expected: ms gains `@env:`), with the new versions.
-4. Review the `channel_table.json` diff. Expected: the WRONG cells F-687 covers flip to OK. `--bip38-passphrase -` and `verify-bundle --ms1 -` flip only if F-687/F-689 widen to them.
-5. Commit it with the regenerated blocks; `check_design_tables.py`, the pin check and T4 are red until then.
-6. The Copy gate in `test_plan.py` (§A7) goes red if the new rule leaves a stdin-only input without an exact Copy spelling.
+Re-derived per input, the `@env:` rule is `strip-one-trailing-newline` on the 13 `--passphrase` inputs and **stays `verbatim` on `--bip38-passphrase`** and the other `@env:` inputs. The operator may extend F-687 to `--bip38-passphrase` and `--decrypt-password` (pending). Either outcome is a re-derivation with no code change: the rule is per input and measured (R3 NI7).
+
+**The bump procedure**, all data, all enforced:
+1. Bump the tags.
+2. Re-run the §A1 derive steps against the new binaries and commit the cache.
+3. `regen_check.py` must be green. It is red if any step was skipped or hand-edited, on identity, on the diff, or on the oracle legs (§A0 (B)).
+4. Review the cache diff: new OK cells, new re-reads, rule changes, and any shape whose plan changed in §A5.
+5. The Copy gate (§A7) and the UNKNOWN-rule guard (`test_plan.py`) are red if a newly measured rule has no exact Copy spelling or matches no known rule.
+
+`demo_ni5.sh` (C) is this procedure against the F-687 builds, and it is green.
 
 #### A3c. Byte-exact delivery (R1 NI1)
 
 **The target.** The bytes the CLI must end up with are:
 - for a typed value, the typed text;
-- for `@env:VAR`, `env_value_rule(raw)`, where `raw` is the variable's content.
+- for `@env:VAR`, `env_value_rule(raw, rule)`, where `raw` is the variable's content and `rule` is **this input's** derived `cli_env_rule` (R3 NI7).
 
-`env_value_rule` is **one entry** in `channel_policy.json`. Today it is `verbatim`, measured: the CLI's own `@env:` equals argv-exact on every `EnvRef` cell, for all seven endings. It tracks the CLIs' F-687 ruling.
+`cli_env_rule` is `null` where the input has no working CLI `@env:`; the variable's bytes are then taken as typed.
+- **Today:** `verbatim` on 53 inputs and `null` on the rest.
+- **On the F-687 builds:** `strip-one-trailing-newline` on the 13 `--passphrase` inputs, `verbatim` elsewhere (§A3b).
+- A rule that matches no known candidate is recorded `UNKNOWN`: `@env:` on that input refuses (`C1-env-rule-unknown`) and `test_plan.py` is red.
 
 **The terminator.** Each channel cell in `channel_table.json` carries a measured `terminator`, which the GUI appends after the target. The channel's own strip then removes exactly that terminator:
 - `\r\n` for the stripping stdin channels. The GUI sends `target + "\r\n"`, and the CLI strips one `\r?\n`, so a target that itself ends in `\n`, `\r\n` or `\r` survives intact.
@@ -349,6 +421,10 @@ Endings: '', '\n', '\r\n', '\r', '  ', ' \n', '\nX'; 146 channel cells.
 | StdinToggle | lenient (null) | 3 |
 
 Lenient cells (terminator null; every mismatch is argv-fails/channel-ok, 0 are both-ok-different): `mnemonic convert --from entropy=` DashValue; `mnemonic convert --from xprv=` DashValue; `mnemonic convert --from minikey=` DashValue; `mnemonic inspect --ms1` DashValue; `mnemonic derive-child --from xprv=` DashValue; `mnemonic convert --from wif=` DashValue; `mnemonic xpub-search path-of-xpub --ms1` StdinToggle(--ms1-stdin); `mnemonic xpub-search account-of-descriptor --ms1` StdinToggle(--ms1-stdin); `mnemonic convert --from bip38=` DashValue; `mnemonic slip39 split --from entropy=` DashValue; `mnemonic ms-shares split --from entropy=` DashValue; `mnemonic xpub-search passphrase-of-xpub --ms1` StdinToggle(--ms1-stdin).
+
+`--flag=VALUE` byte-identical to `--flag VALUE` (R3 Nm13; None = not a value-form input): False 2, None 43, True 39; not exact: `ms derive --passphrase`; `ms hashlock --hashlock-phrase`.
+
+Per-input CLI `@env:` value rule (R3 NI7; None = no working CLI `@env:`, the GUI treats the bytes as typed): None 31, verbatim 53.
 
 With NO terminator (fold 1's delivery), a wrong output at exit 0/4 on 14 cells: `mnemonic addresses --passphrase` StdinToggle(--passphrase-stdin); `mnemonic bundle --passphrase` StdinToggle(--passphrase-stdin); `mnemonic convert --passphrase` StdinToggle(--passphrase-stdin); `mnemonic convert --bip38-passphrase` StdinToggle(--bip38-passphrase-stdin); `mnemonic restore --passphrase` StdinToggle(--passphrase-stdin); `mnemonic derive-child --passphrase` StdinToggle(--passphrase-stdin); `mnemonic silent-payment --passphrase` StdinToggle(--passphrase-stdin); `ms derive --passphrase` StdinToggle(--passphrase-stdin); `mnemonic verify-bundle --passphrase` StdinToggle(--passphrase-stdin); `mnemonic xpub-search path-of-xpub --passphrase` StdinToggle(--passphrase-stdin); `mnemonic xpub-search account-of-descriptor --passphrase` StdinToggle(--passphrase-stdin); `mnemonic xpub-search passphrase-of-xpub --passphrase` StdinToggle(--passphrase-stdin); `mnemonic slip39 split --passphrase` StdinToggle(--passphrase-stdin); `mnemonic slip39 combine --passphrase` StdinToggle(--passphrase-stdin).
 
@@ -381,14 +457,16 @@ RunPlan { argv:  Vec<String>,                       // no secret byte (private p
           bindings: Vec<Binding> }                  // (source, channel, argv index, terminator, provenance)
 ```
 
-`channel_table.rs` and `channel_policy.rs` are generated from the two JSON files. A missing table entry is a refusal, on every OS.
+`channel_table.rs`, `reinterpret.rs` and `channel_policy.rs` are generated from the JSON files; the first two are derived caches (§A0). A missing table entry is a refusal, on every OS.
 
 #### A4.3. The rule (`plan.py` is its executable form)
 
 0. **Resolve C1** (§A3a), on every OS. Then:
    - an unmeasured source refuses `no-table-entry`;
    - a value holding NUL refuses `nul-in-value`;
-   - on an OS **not in `private_channels_on`**, refuse `value-is-a-channel-spelling` for a value its CLI re-interprets on argv (`argv_reinterprets`), and otherwise return the **interim plan** (§A6);
+   - on an OS **not in `private_channels_on`**, return the **interim plan** (§A6), refusing:
+     - `value-is-a-channel-spelling` for a value its CLI re-reads on argv (`reinterpret.json`);
+     - `value-starts-with-dash` for a leading-dash value where `--flag=VALUE` did not measure exact;
    - otherwise drop the channels this source cannot use exactly: fd outside `fd_channel_on`; lenient channels for a non-clean value (§A3c).
 1. **Forced stdin.** Sources whose every remaining channel is a stdin channel: two or more → refuse `two-stdin`; exactly one → it takes stdin.
 2. **Stdin toggle.** If stdin is free, the first source in argv order that has a `--X-stdin` toggle takes it.
@@ -408,7 +486,7 @@ The `*-stdin` toggles stay rendered disabled; only the planner emits them. `buil
 
 `gen_plans.py` applies `plan.py` to every shape in `shapes.py`, using `channel_table.json` and `channel_policy.json`. `check_design_tables.py` regenerates this block on every run (R1 Nm3). The Rust planner must produce these on every shape and OS (T8). The last column shows what macOS and Windows get the day their `private_channels_on` entry flips; fd stays Linux-only.
 
-Policy: private channels on ['linux'], fd channel on ['linux'], env_value_rule `verbatim`, argv re-interprets mnemonic 0.104.0: `-` `@env:`, ms 0.19.1: `-` (channel_policy.json).
+Policy (decided): private channels on ['linux'], fd channel on ['linux']. Derived (measured, CI-regenerated): per-input CLI `@env:` rule None ×32, verbatim ×53; argv re-reads mnemonic 0.104.0: `-` `@env:`, ms 0.19.1: `-`.
 
 | shape | Linux plan | macOS | Windows | macOS/Windows once their flag flips |
 |---|---|---|---|---|
@@ -453,32 +531,36 @@ The two Linux refusals are `ms derive` with `--phrase`/`--hex` plus `--passphras
 **On every other OS, the interim path runs:**
 1. C1 resolution (§A3a);
 2. `no-table-entry` and `nul-in-value` refusals;
-3. a `value-is-a-channel-spelling` refusal for any target the command's CLI would re-interpret on argv (R2 NC1: `argv_reinterprets`);
-4. the target bytes of every other source on argv, with `--allow-argv-secret`.
+3. a `value-is-a-channel-spelling` refusal for any target the command's CLI would re-read on argv (R2 NC1: derived `reinterpret.json`);
+4. a leading-dash value (R3 Nm13) goes as `--flag=VALUE` where that form measured byte-exact (`argv_eq_exact`); otherwise it refuses `value-starts-with-dash`. Measured: `--flag=VALUE` is exact on 39 inputs and **not** on `ms derive --passphrase` and `ms hashlock --hashlock-phrase`, where ms trims the `=` form (`--passphrase=pw\n` derives `pw`'s wallet);
+5. the target bytes of every other source on argv as separate words, with `--allow-argv-secret`.
 
 That is today's admission path minus its pass-through of `-` and `@env:`, and minus its double resolution. Nothing typed as `-` or `@env:`, no unmeasured source, and no value the CLI would re-read reaches argv on any OS.
 
 argv is byte-transparent **only** for values the CLI does not re-interpret. That is why step 3 exists, and why fold 2's "the interim invocation *is* the argv baseline by construction" was wrong (R2 NC1).
 
-**Testing the interim path (R2 NI3):**
-- **Pure** (`test_plan.py`): for every source of every shape on macOS and Windows, typed as `@env:USER_SECRET` under both `env_value_rule` values, the interim plan carries `env_value_rule(raw)` and never the typed text. The NC1 refusal fires exactly where `argv_reinterprets` says, 236 legs.
-- **Real runner** (`run_plans.py`): the interim plan is **executed on Linux by forcing the OS**, with endings `""`, `\n`, `\r\n` and trailing spaces. It is compared by fingerprint/address against argv-exact of a target computed independently of `plan.py`.
-- **The reviewer's mutation** (the interim plan sends the typed `@env:MY_PW`) fails both: `mutations.py` reports `run_plans FAIL, test_plan fail`.
-- **T8's** `plans_pure.json` now pins **values**: the exact bytes each binding delivers, for the typed case and for each source typed as `@env:` with a trailing `\n`, on every OS.
+**Testing the interim path (R2 NI3; oracles per §A0):**
+- **Pure** (`test_plan.py`): for every source of every shape on macOS and Windows, typed as `@env:USER_SECRET`, the interim plan carries `env_value_rule(raw)` and never the typed text. Also covered: the NC1 refusal follows the derived data, and the leading-dash rule follows `argv_eq_exact`.
+- **Real runner** (`run_plans.py`), with the interim plan **executed on Linux by forcing the OS**:
+  - with endings `""`, `\n`, `\r\n` and trailing spaces, **compared with the oracle**: the CLI's own `@env:` run, or known bytes;
+  - with the variable holding `@env:OTHER` or `-`, executed whenever admitted: it must equal the oracle and **never** be `$OTHER`'s wallet;
+  - with typed `-leading`, `--help` and `-lead  ` values against the oracle.
+- **Mutations:** R2's mutation (the interim plan sends the typed text), the NC1 refusal off, and the Nm13 refusal off are each killed **by assertion** in `run_plans.py` as well as in `test_plan.py`.
+- **T8's** `plans_pure.json` pins **values**: the exact bytes each binding delivers, per OS.
 
-**Flipping an OS is one list edit, and it is gated (T10, hardened for R2 Nm8).** An OS may be in `private_channels_on` only if some workflow job passes every one of these checks (`os_gate.py`, parsed YAML):
-- it has no `if:`;
-- it runs on that OS: a literal `runs-on`, or `${{ matrix.<k> }}` resolved through `strategy.matrix`, `include` included;
-- it has a step whose `run:` invokes **every** target in `real_binary_test_targets` (`secret_channels_t2`, `_t3prime`, `_t7`) through cargo;
-- it has `MNEMONIC_BIN` in that step's or the job's `env:`.
+**Flipping an OS is one list edit, and it is gated (T10, hardened for R3 Nm10).** An OS may be in `private_channels_on` only if some workflow **triggered on `push` or `pull_request`** has a job that meets all of these (`os_gate.py`, parsed YAML):
+- **no guards:** it has no `if:` and no `continue-on-error`, on the job or the qualifying step;
+- **the right OS:** it runs on that OS, with a literal `runs-on` or `${{ matrix.<k> }}` resolved through `strategy.matrix` (`include` added, **`exclude` removed**);
+- **a real test command:** a step whose `run:` contains a **shell command line**, not a comment or an `echo`. The program must be `cargo` and the subcommand `test` or `nextest run`, naming **every** target in `real_binary_test_targets` (`secret_channels_t2`, `_t3prime`, `_t7`). Leading `VAR=value` assignments are allowed;
+- **the binaries:** a **non-empty** `MNEMONIC_BIN` in the step's, the job's or the **workflow's** `env:`.
 
-The gate is pinned against fixtures in `fixtures/ci/`:
-- **rejected:** a comment-only mention, an `if: false` job, and a job missing a target;
-- **accepted:** a genuine matrix job, and the genuine Linux job the implementing change adds.
+It is pinned against `fixtures/ci/`:
+- **rejected:** 10 decoys, namely a comment-only mention, `if: false`, a missing target, and R3's seven (`continue-on-error`, `echo cargo test`, `cargo build --test`, a shell-commented line, `workflow_dispatch` only, a matrix `exclude`, and an empty `MNEMONIC_BIN`);
+- **accepted:** a matrix job, the Linux job, and a workflow-level `env:` (R3's false red).
 
-**CI wiring:** the implementing change adds `secret_channels_t10` to that same Linux job (`schema-mirror.yml`), so the gate runs in CI.
+**Why not a signed-artifact scheme:** flipping an OS is a reviewed one-line edit and the decoys are accidents, so a signing key would add key management for no threat we have.
 
-Until those targets exist, the repo's own workflows cannot pass. The prototype therefore **reports** the repo status (`linux: pending`) instead of failing; the Rust T10 is hard from the implementing change onward.
+**CI wiring:** the implementing change adds T4 (`regen_check.py --plans`) and T10 (`secret_channels_t10`) to the Linux `schema-mirror.yml` job, which installs the pinned binaries. Until the T2/T3′/T7 targets exist, the repo's own workflows cannot pass T10, so the prototype reports `linux: pending`. The acceptance criterion is in §A9 T10.
 
 **`fd_channel_on`** (today `["linux"]`) is separate. Even after macOS's flip, the three fd shapes refuse there (`fd-not-on-platform`) until a macOS measurement adds it. Windows has no `/dev/fd`, and there are **no temp files** (Q3).
 
@@ -523,7 +605,10 @@ Measured by `copy_evidence.py` against argv-exact, in bash, zsh and fish (the ty
 
 §A7 recipe mismatches: 0 of 33. Typed stdin row (`--passphrase-stdin`, value + Enter): 0 mismatches of 11. Share group, `printf '%s\n' "$S1" "$S2" | ms combine -- -`: bash == argv, zsh == argv, fish == argv; typed (one share per line, Ctrl-D): == argv.
 
-- **Copy gate:** this `printf` form reproduces the target only while `env_value_rule` is `verbatim`. `test_plan.py` fails if the rule changes while any input lacks an exact `EnvRef` cell.
+Multi-line typed values (R3 Nm11): `'mid\nline'`: argv-exact 74db797b, `read` recipe bash **bdb4bfbc**, zsh **bdb4bfbc**, fish **bdb4bfbc**, typed stdin row ==; `'a\r\nb'`: argv-exact d5e2d0db, `read` recipe bash **e19f2f8f**, zsh **e19f2f8f**, fish **e19f2f8f**, typed stdin row ==. So Copy is disabled for a typed EnvRef-bound value holding CR or LF; the stdin row stays.
+
+- **Copy gate (per input, R3 NI7):** the `printf` form delivers the raw bytes, so it is exact only where the input's `cli_env_rule` is `verbatim` or `null`. `test_plan.py` fails if any input with another rule lacks an OK `EnvRef` cell, which is where Copy spells `@env:VAR` and lets the CLI apply its own rule. On the F-687 builds every stripping input has one (§A0 (C) is green).
+- **Multi-line typed values (R3 Nm11):** a shell `read` takes one line, which is measured below: `mid\nline` through the `read` recipe gives `mid`'s wallet. So **Copy is disabled** for a typed EnvRef-bound value holding CR or LF, with the tooltip "this value spans lines; use Run, or paste it into the command's own stdin prompt". The typed stdin row (value, Enter, Ctrl-D) keeps every line and stays.
 - **Windows Copy (cmd):** env-bound bindings use `@env:` with `REM set …` lines. A stdin-bound binding disables the Windows Copy, with the tooltip "needs a pipe; use the POSIX copy".
 - **When the plan is refused**, Copy is disabled and its tooltip shows the refusal (R0 M3).
 
@@ -533,7 +618,9 @@ Measured by `copy_evidence.py` against argv-exact, in bash, zsh and fish (the ty
 |---|---|
 | `C1-dash`, `C1-env-unset`, `C1-env-empty`, `C1-bad-name`, `C1-reserved-name` | §A3a (reserved: any field; empty: judged on the target) |
 | `nul-in-value` | any value holding NUL, on every OS |
-| `value-is-a-channel-spelling` | interim path only: a target the CLI would re-interpret on argv (`argv_reinterprets`, R2 NC1) |
+| `value-is-a-channel-spelling` | interim path only: a target the CLI would re-read on argv (derived `reinterpret.json`, R2 NC1) |
+| `value-starts-with-dash` | interim path only: a leading-dash value where `--flag=VALUE` did not measure exact (R3 Nm13) |
+| `C1-env-rule-unknown` | `@env:` on an input whose CLI rule matched no known rule (R3 NI7) |
 | `no-table-entry` | an unmeasured source (§A2b), on every OS |
 | `value-not-byte-exact` | a non-clean value on an input whose channels are all lenient (§A3c) |
 | `no-channel-on-platform` / `fd-not-on-platform` | §A6 |
@@ -542,79 +629,96 @@ Measured by `copy_evidence.py` against argv-exact, in bash, zsh and fish (the ty
 
 ### A9. Testing: every secret reaches exactly the flag the user filled, as the exact bytes
 
+**Oracle rule (§A0).** No test takes its expected answer from the data it is testing.
+- **Pure tests (T1, T8)** check that the planner follows the data.
+- **Real-binary tests (T2, T2b, T3′, T9)** check the data and the planner against an **independent oracle**: the CLI's own `@env:` run, argv-exact, or known bytes over a non-lenient stdin toggle.
+- **T4** checks that the data is the measurement.
+
 - **T1: plan property (pure).** Prototype: `test_plan.py`, 0 failures.
   - For each shape, and each combination of a subcommand's secret sources filled with **distinct** sentinels:
     - no argv token contains a sentinel;
     - each binding sits at its own source's flag or slot;
     - each channel carries its own source's target plus terminator;
     - env names are unique, with at most one stdin.
-  - **C1 legs:** all seven refusal spellings on every source on **all three OSes** (1260 legs).
-  - **Resolution:** under both `env_value_rule` values.
+  - **C1 legs:** all seven refusal spellings on every source on **all three OSes** (1260 legs). A crash under a mutation is an assertion failure here (`refusal()` catches it), never an uncaught exception.
+  - **Resolution:** under both rules, and **per input** with the derived `cli_env_rule` (R3 NI7). No input may be `UNKNOWN`.
   - **Pass-through guard.**
-  - **Interim:** macOS and Windows plans are all `Argv` **and carry the resolved target, never the typed text** (R2 NI3).
-  - **NC1:** the interim refusal fires exactly where `argv_reinterprets` says (236 legs).
-  - **Refusals added in fold 3:** empty-after-rule, `nul-in-value` on every OS.
-  - **Pin check:** `measured_with.json`, the policy rows and `reinterpret.json` all match `pinned-upstream.toml`, and `argv_reinterprets` matches `reinterpret.json`.
+  - **Interim:** macOS and Windows plans are all `Argv`, carry the resolved target and never the typed text. A leading-dash value uses `--flag=` exactly where `argv_eq_exact` (R3 Nm13).
+  - **NC1:** the interim refusal follows the derived `reinterpret.json` (236 legs). This is a consistency check; the independent check is T3′.
+  - **Refusals:** empty-after-rule, and `nul-in-value` on every OS.
+  - **Identity:** `measured_with.json`'s pinned tags equal `pinned-upstream.toml`, with a sha256 recorded (checked against the binaries in T4).
   - **M5:** permutations.
   - **Lenient:** the non-clean refusal.
   - **Bounds:** `payload-too-large`.
+  - **Copy gate:** per input.
 - **T2: single-input real-binary equivalence.** Every table cell equals the argv baseline, **with dependence**.
-- **T2b: byte fidelity** (`run_bytes.py`). Every channel cell, with the seven endings and its terminator, equals argv-exact (§A3c).
-- **T3′: multi-secret real-runner baseline** (`run_plans.py`). Every runnable shape through the real runner equals the argv baseline, with its effect line. Two further legs:
+- **T2b: byte fidelity** (`run_bytes.py`). Every channel cell, with the seven endings and its terminator, equals argv-exact. The same pass derives `cli_env_rule` and `argv_eq_exact`.
+- **T3′: multi-secret real-runner legs** (`run_plans.py`). Every leg compares against the **oracle**:
+  - **Baseline:** every plannable shape through the real runner equals the argv baseline, with its effect line. A shape's `expect` field is informational; a plan must pass, and a refusal is always safe.
   - **Swap leg:** every source pair swapped must differ from the baseline, except the 4 symmetric pairs.
-  - **NI1 leg:** each source typed as `@env:USER_SECRET` with endings `\n`, `\r\n`, `\nX` and trailing spaces must equal argv-exact, **and** the CLI's own `@env:USER_SECRET` wherever that cell's `EnvRef` is OK. Fingerprints and addresses are in the effect lines.
-  - **Interim leg (R2 NI3):** the interim plan, executed on Linux, equals argv-exact of the independently computed target.
-  - **NC1 leg (R2):** the variable holds `@env:OTHER` or `-`. Linux must equal the CLI's own `@env:USER_SECRET` and must **never** be `$OTHER`'s wallet; the interim plan must refuse where its CLI re-interprets.
-- **T7: runner echo test** (portable, no CLIs). The real runner executes each plan against a helper that **parses its own argv** for `@env:NAME`, `/dev/fd/N` and `-`/`--X-stdin` (R1 Nit), and prints the bytes it received on each. They must equal each source's target plus terminator. This catches runner swaps (symmetric shapes included), an argv/env name mismatch, and a leaked write end (timeout).
-- **T4: drift gate.**
-  - `channel_table.rs` == the regenerated `channel_table.json` at the pinned binaries, terminators included.
-  - The Rust source enumeration == `secret_sources.txt`.
-  - Every source has an entry or is in §A2b.
-- **T8: plan parity.** The Rust `plan()` == `plans_pure.json` on every shape × OS. `check_design_tables.py` regenerates that file from `plan.py` on every run, so a planner edit that is not re-generated goes red (R1 Nm3).
-- **T9: `ms hashlock` phrase fidelity.** With the real `ms`, `"  pad  "` ≠ `"pad"`, and the planned run (`--hashlock-phrase-stdin` + `\r\n`) == argv-exact for `"  pad  "`, `"pad\n"` and `"pad\r\n"`.
-- **T10: OS gate** (`os_gate.py`, run by `test_plan.py`; in CI as `secret_channels_t10`). Hardened as §A6 describes, and pinned against decoy and genuine workflow fixtures.
-- **T11: pin check** (`test_plan.py`). Every measured artifact and CLI-behaviour policy row carries the pinned CLI versions.
-- **T5: mutations.** Prototype: `mutations.py` applies 15 planner mutations, and **all 15 are killed**. They are: `-` not refused; reserved, bad-name, unset and empty names allowed; NUL allowed; `env_value_rule` ignored; pass-through guard off; interim path off; the NC1 refusal off; **the interim path sends the typed text** (also red through `run_plans.py`); lenient filter off; step 1 removed; payload bound off; `no-table-entry` off. The runner-side mutations go to T3′ and T7: swap bindings; write stdin from the wrong binding; drop the terminator (NI1, which the T3′ NI1 leg kills); drop the env scrub; leave the write end open; restore the admission.
+  - **NI1 leg:** each source typed as `@env:USER_SECRET` with endings `""`, `\n`, `\r\n`, `\nX` and trailing spaces must equal the oracle.
+  - **Interim leg (R2 NI3):** the interim plan, executed on Linux, must equal the oracle.
+  - **NC1 leg (R2, R3 NI5):** the variable holds `@env:OTHER` or `-`. **Both** paths are executed whenever they plan. Each must equal the oracle and must **never** be `$OTHER`'s wallet. This leg caught the stale ms row on the F-687 builds by itself (§A0 (B)).
+  - **Nm13 leg:** typed `-leading`, `--help` and `-lead  ` on both paths must equal the oracle.
+- **T4: derived-data gate** (`regen_check.py`, CI; R3 shape change):
+  - the installed binaries for the pinned tags must match `measured_with.json` by **sha256**;
+  - every derived file must equal a re-derivation against them (`channel_table.json`, `reinterpret.json`, `measured_with.json`, `groups.json`, `bytes.json`);
+  - `--plans` also runs T1 and T3′ on that data;
+  - the Rust source enumeration must equal `secret_sources.txt`, and every source must have an entry or be in §A2b.
+
+  **Shown red** on the F-687 builds for the stale cache and for R3's NI5 scenario, and **green** for the complete re-derivation (§A0).
+- **T7: runner echo test** (portable, no CLIs). The real runner executes each plan against a helper that **parses its own argv** for `@env:NAME`, `/dev/fd/N` and `-`/`--X-stdin`, and prints the bytes it received on each. They must equal each source's target plus terminator.
+- **T8: plan parity.** The Rust `plan()` == `plans_pure.json` (bindings and payload values) on every shape × OS. `check_design_tables.py` regenerates it from `plan.py`.
+- **T9: `ms hashlock` phrase fidelity.** With the real `ms`, `"  pad  "` ≠ `"pad"`, and the planned run == the oracle for `"  pad  "`, `"pad\n"` and `"pad\r\n"`.
+- **T10: OS gate** (`os_gate.py`; in CI as `secret_channels_t10`, in the same Linux job as T4). Hardened as §A6 describes, and pinned against 10 decoys and 3 genuine fixtures.
+
+  **Acceptance criterion (R3 Nit 3):** the change that implements Part A must make T10 **pass against the repo's own workflows** for every OS in `private_channels_on`, which means it adds the Linux job running `secret_channels_t2`, `_t3prime` and `_t7` with the pinned binaries. From that change on, T10's "pending" report becomes a **hard failure**. That change is not complete while T10 reports pending.
+- **T5: mutations** (`mutations.py`; R3 NI6):
+  - Each mutation runs in a scratch copy that **keeps the repo layout** (pin file, workflows, design doc). A mutation counts as killed **only by an assertion failure**: `test_plan.py` printing `N failures` with N > 0, a changed §A5, or `run_plans.py` printing `FAILURES: [...]`. A crash counts as **survived**.
+  - A **no-op control** must survive, or the harness fails.
+  - Result: **16/16 killed by assertion; control survived.** The new harness found one gap on its first run: turning off the Nm13 refusal survived, because `-leading` has no whitespace for ms's `=` form to trim. The `-lead  ` value and a pure leg were added.
+  - Runner-side mutations go to T3′ and T7: swap bindings; write stdin from the wrong binding; drop the terminator; drop the env scrub; leave the write end open; restore the admission.
 - **T6: UI.** Preview, the confirm dialog and Copy contain no sentinel, and do contain each binding with its provenance. Copy spellings match §A7.
-  - **Shell leg (R2 NI4):** the printed recipes run in bash, zsh and fish with edge-space, tab, backslash, quote and glob values, and must equal argv-exact. `copy_evidence.py` is the prototype: 0 of 33 mismatches, plus the share-group rows.
+  - **Shell leg:** the printed recipes in bash, zsh and fish must equal argv-exact (0 of 33 mismatches). Copy is disabled for multi-line typed values.
   - The tutorial J1 modal re-pin is deliberate.
 - **Where they run.**
-  - T1, T8, T10, T11, the pure T5 half and T7: plain `cargo test`, Linux job. T7 is also the first leg of any macOS or Windows job.
-  - T2, T2b, T3′, T9 and T6's shell leg: the `schema-mirror` job, which installs the pinned binaries. T10 runs there too.
+  - T1, T8, the pure T5 half and T7: plain `cargo test`, Linux job.
+  - T2, T2b, T3′, T4, T9, T10 and T6's shell leg: **one** Linux job (`schema-mirror.yml`), which installs the pinned binaries (R3 Nit 3: one job, not two).
+  - T7 is also the first leg of any macOS or Windows job.
 
 `run_plans.py` is T3′'s prototype. Its result:
 
-| shape | baseline exit | planned exit | planned == baseline | effect (baseline) | source values swapped (i↔j) vs baseline | T1 | NI1: `@env:` + endings == argv-exact / == CLI's own `@env:` | interim (NI3) == argv-exact of the target | NC1: Linux == CLI's `@env:`, never OTHER's wallet; interim refusals |
-|---|---|---|---|---|---|---|---|---|---|
-| addresses phrase+passphrase | 0 | 0 | **yes** | `0  bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv` | 0↔1: differs (exit 1) | ok | 10/10; 10/10 | 8/8 | 4/4 eq, 0 OTHER, 4 refused |
-| restore phrase+passphrase | 0 | 0 | **yes** | `master fingerprint: 45fbfbe6  (passphrase: applied)` | 0↔1: differs (exit 1) | ok | 10/10; 10/10 | 8/8 | 4/4 eq, 0 OTHER, 4 refused |
-| restore ms1+passphrase | 0 | 0 | **yes** | `master fingerprint: 45fbfbe6  (passphrase: applied)` | 0↔1: differs (exit 1) | ok | 10/10; 10/10 | 8/8 | 4/4 eq, 0 OTHER, 4 refused |
-| derive-child phrase+passphrase | 0 | 0 | **yes** | `target biology midnight canal glass common include trophy glimpse north castle dove` | 0↔1: differs (exit 1) | ok | 10/10; 10/10 | 8/8 | 4/4 eq, 0 OTHER, 4 refused |
-| bundle slot+passphrase | 0 | 0 | **yes** | `mk1qpd2y2pqqsqk4z99gdzlh7lxqvzg3vs7vs57ls3u2nlnjvzn90ffnjpcsauf2eggmpdquu02l9k7dpjhxhs3yaa` | 0↔1: differs (exit 1) | ok | 10/10; 10/10 | 8/8 | 4/4 eq, 0 OTHER, 4 refused |
-| bundle wsh-multi 2 slots | 0 | 0 | **yes** | `mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5` | 0↔1: differs (exit 0) | ok | 10/10; 10/10 | 8/8 | 4/4 eq, 0 OTHER, 4 refused |
-| bundle wsh-multi 2 slots+passphrase | 0 | 0 | **yes** | `mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq` | 0↔1: differs (exit 1); 0↔2: differs (exit 1); 1↔2: differs (exit 1) | ok | 15/15; 15/15 | 12/12 | 6/6 eq, 0 OTHER, 6 refused |
-| convert phrase+passphrase | 0 | 0 | **yes** | `xpub: xpub6CPUCVp94gpNs3bS1eGiwSWwZMLNmfr2Uo1t5v8YtY4XVoxhUraBH7sRyVfgwSNCxRVpX1bDREtc5Kri` | 0↔1: differs (exit 1) | ok | 10/10; 10/10 | 8/8 | 4/4 eq, 0 OTHER, 4 refused |
-| convert wif+bip38-passphrase | 0 | 0 | **yes** | `bip38: 6PYP8fdoVaE3ThLmEnYcGo3nJeBqd8PvB7CRvTz3TX5L9ojoPHKCg7QXG6` | 0↔1: differs (exit 1) | ok | 10/10; 10/10 | 8/8 | 4/4 eq, 0 OTHER, 4 refused |
-| convert bip38+bip38-passphrase | 0 | 0 | **yes** | `wif: KyZpNDKnfs94vbrwhJneDi77V6jF64PWPF8x5cdJb8ifgg2DUc9d` | 0↔1: differs (exit 1) | ok | 10/10; 10/10 | 8/8 | 4/4 eq, 0 OTHER, 4 refused |
-| xpub-search path-of-xpub phrase+passphrase | 0 | 0 | **yes** | `match: m/84'/0'/0'  (template=bip84, account=0)` | 0↔1: differs (exit 1) | ok | 10/10; 10/10 | 8/8 | 4/4 eq, 0 OTHER, 4 refused |
-| xpub-search path-of-xpub ms1+passphrase | 0 | 0 | **yes** | `match: m/84'/0'/0'  (template=bip84, account=0)` | 0↔1: differs (exit 2) | ok | 6/6; 5/5 | 8/8 | 4/4 eq, 0 OTHER, 4 refused |
-| xpub-search passphrase-of-xpub phrase+passphrase | 0 | 0 | **yes** | `match: m/84'/0'/0'  (template=bip84, account=0)` | 0↔1: differs (exit 1) | ok | 10/10; 10/10 | 8/8 | 4/4 eq, 0 OTHER, 4 refused |
-| xpub-search passphrase-of-xpub ms1+passphrase | 0 | 0 | **yes** | `match: m/84'/0'/0'  (template=bip84, account=0)` | 0↔1: differs (exit 2) | ok | 6/6; 5/5 | 8/8 | 4/4 eq, 0 OTHER, 4 refused |
-| xpub-search account-of-descriptor phrase+passphrase | 0 | 0 | **yes** | `match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)` | 0↔1: differs (exit 1) | ok | 10/10; 10/10 | 8/8 | 4/4 eq, 0 OTHER, 4 refused |
-| xpub-search account-of-descriptor ms1+passphrase | 0 | 0 | **yes** | `match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)` | 0↔1: differs (exit 2) | ok | 6/6; 5/5 | 8/8 | 4/4 eq, 0 OTHER, 4 refused |
-| silent-payment secret+passphrase | 0 | 0 | **yes** | `address:      sp1qq2d73kpx36h7r08gmawe6slzxkntu2tw0as7pkqe0hvv3k38mkvckqsp6dmrwxvd6mumfqj9` | 0↔1: differs (exit 1) | ok | 10/10; 0/0 | 8/8 | 4/4 eq, 0 OTHER, 4 refused |
-| slip39 split phrase+passphrase | 0 | 0 | **yes** | `00000000000000000000000000000000` | 0↔1: differs (exit 1) | ok | 10/10; 10/10 | 8/8 | 4/4 eq, 0 OTHER, 4 refused |
-| slip39 combine 2 shares+passphrase | 0 | 0 | **yes** | `8ab7aa39cd427130e225ed43c34f5b5a` | 0↔1: **same** (symmetric); 0↔2: differs (exit 1); 1↔2: differs (exit 1) | ok | 15/15; 15/15 | 12/12 | 6/6 eq, 0 OTHER, 6 refused |
-| slip39 combine 2 shares | 0 | 0 | **yes** | `00000000000000000000000000000000` | 0↔1: **same** (symmetric) | ok | 10/10; 10/10 | 8/8 | 4/4 eq, 0 OTHER, 4 refused |
-| seed-xor combine 2 shares | 0 | 0 | **yes** | `zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong` | 0↔1: **same** (symmetric) | ok | 10/10; 10/10 | 8/8 | 4/4 eq, 0 OTHER, 4 refused |
-| ms-shares combine 2 shares | 0 | 0 | **yes** | `abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab` | 0↔1: **same** (symmetric) | ok | 10/10; 10/10 | 8/8 | 4/4 eq, 0 OTHER, 4 refused |
-| import-wallet 2 cosigner ms1 | 0 | 0 | **yes** | `"descriptor": "wsh(sortedmulti(2,[5436d724/48'/0'/0'/2']xpub6E79FaRWLSJCAgA2jDHRvyrWKwT6aS` | 0↔1: differs (exit 4) | ok | 10/10; 10/10 | 8/8 | 4/4 eq, 0 OTHER, 4 refused |
-| verify-bundle ms1+slot+passphrase | 0 | 0 | **yes** | `result: ok` | 0↔1: differs (exit 2); 0↔2: differs (exit 2); 1↔2: differs (exit 1) | ok | 15/15; 15/15 | 12/12 | 6/6 eq, 0 OTHER, 6 refused |
-| ms combine share group | 0 | 0 | **yes** | `entropy: 00000000000000000000000000000000` | n/a (one source) | ok | 0/0; 0/0 | 0/0 | 0/0 eq, 0 OTHER, 0 refused |
-| ms verify phrase+ms1 | 0 | 0 | **yes** | `OK: round-trip valid (12 words, language=english)` | 0↔1: differs (exit 1) | ok | 10/10; 0/0 | 8/8 | 4/4 eq, 0 OTHER, 2 refused |
-| ms derive ms1+passphrase | 0 | 0 | **yes** | `master_fingerprint:  45fbfbe6` | 0↔1: differs (exit 1) | ok | 10/10; 0/0 | 8/8 | 4/4 eq, 0 OTHER, 2 refused |
-| ms derive phrase+passphrase | — | — | refused (expected: refuse) | — | — | — | — | — | — |
-| ms derive hex+passphrase | — | — | refused (expected: refuse) | — | — | — | — | — | — |
+| shape | baseline exit | planned exit | planned == baseline | effect (baseline) | source values swapped (i↔j) vs baseline | T1 | NI1: `@env:` + endings == oracle | interim (NI3) == oracle | NC1: OTHER's wallet; == oracle; refused Linux/interim | Nm13 leading dash == oracle (Linux, interim) |
+|---|---|---|---|---|---|---|---|---|---|---|
+| addresses phrase+passphrase | 0 | 0 | **yes** | `0  bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv` | 0↔1: differs (exit 1) | ok | 10/10 | 8/8 | 0 OTHER; 4/4 eq; 0/4 refused | 3/3, 3/3 |
+| restore phrase+passphrase | 0 | 0 | **yes** | `master fingerprint: 45fbfbe6  (passphrase: applied)` | 0↔1: differs (exit 1) | ok | 10/10 | 8/8 | 0 OTHER; 4/4 eq; 0/4 refused | 3/3, 3/3 |
+| restore ms1+passphrase | 0 | 0 | **yes** | `master fingerprint: 45fbfbe6  (passphrase: applied)` | 0↔1: differs (exit 1) | ok | 10/10 | 8/8 | 0 OTHER; 4/4 eq; 0/4 refused | 3/3, 3/3 |
+| derive-child phrase+passphrase | 0 | 0 | **yes** | `target biology midnight canal glass common include trophy glimpse north castle dove` | 0↔1: differs (exit 1) | ok | 10/10 | 8/8 | 0 OTHER; 4/4 eq; 0/4 refused | 3/3, 3/3 |
+| bundle slot+passphrase | 0 | 0 | **yes** | `mk1qpd2y2pqqsqk4z99gdzlh7lxqvzg3vs7vs57ls3u2nlnjvzn90ffnjpcsauf2eggmpdquu02l9k7dpjhxhs3yaa` | 0↔1: differs (exit 1) | ok | 10/10 | 8/8 | 0 OTHER; 4/4 eq; 0/4 refused | 3/3, 3/3 |
+| bundle wsh-multi 2 slots | 0 | 0 | **yes** | `mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5` | 0↔1: differs (exit 0) | ok | 10/10 | 8/8 | 0 OTHER; 4/4 eq; 0/4 refused | n/a |
+| bundle wsh-multi 2 slots+passphrase | 0 | 0 | **yes** | `mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq` | 0↔1: differs (exit 1); 0↔2: differs (exit 1); 1↔2: differs (exit 1) | ok | 15/15 | 12/12 | 0 OTHER; 6/6 eq; 0/6 refused | 3/3, 3/3 |
+| convert phrase+passphrase | 0 | 0 | **yes** | `xpub: xpub6CPUCVp94gpNs3bS1eGiwSWwZMLNmfr2Uo1t5v8YtY4XVoxhUraBH7sRyVfgwSNCxRVpX1bDREtc5Kri` | 0↔1: differs (exit 1) | ok | 10/10 | 8/8 | 0 OTHER; 4/4 eq; 0/4 refused | 3/3, 3/3 |
+| convert wif+bip38-passphrase | 0 | 0 | **yes** | `bip38: 6PYP8fdoVaE3ThLmEnYcGo3nJeBqd8PvB7CRvTz3TX5L9ojoPHKCg7QXG6` | 0↔1: differs (exit 1) | ok | 10/10 | 8/8 | 0 OTHER; 4/4 eq; 0/4 refused | 3/3, 3/3 |
+| convert bip38+bip38-passphrase | 0 | 0 | **yes** | `wif: KyZpNDKnfs94vbrwhJneDi77V6jF64PWPF8x5cdJb8ifgg2DUc9d` | 0↔1: differs (exit 1) | ok | 10/10 | 8/8 | 0 OTHER; 4/4 eq; 0/4 refused | 3/3, 3/3 |
+| xpub-search path-of-xpub phrase+passphrase | 0 | 0 | **yes** | `match: m/84'/0'/0'  (template=bip84, account=0)` | 0↔1: differs (exit 1) | ok | 10/10 | 8/8 | 0 OTHER; 4/4 eq; 0/4 refused | 6/6, 6/6 |
+| xpub-search path-of-xpub ms1+passphrase | 0 | 0 | **yes** | `match: m/84'/0'/0'  (template=bip84, account=0)` | 0↔1: differs (exit 2) | ok | 6/6 | 8/8 | 0 OTHER; 2/2 eq; 0/4 refused | 3/3, 3/3 |
+| xpub-search passphrase-of-xpub phrase+passphrase | 0 | 0 | **yes** | `match: m/84'/0'/0'  (template=bip84, account=0)` | 0↔1: differs (exit 1) | ok | 10/10 | 8/8 | 0 OTHER; 4/4 eq; 0/4 refused | 6/6, 6/6 |
+| xpub-search passphrase-of-xpub ms1+passphrase | 0 | 0 | **yes** | `match: m/84'/0'/0'  (template=bip84, account=0)` | 0↔1: differs (exit 2) | ok | 6/6 | 8/8 | 0 OTHER; 2/2 eq; 0/4 refused | 3/3, 3/3 |
+| xpub-search account-of-descriptor phrase+passphrase | 0 | 0 | **yes** | `match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)` | 0↔1: differs (exit 1) | ok | 10/10 | 8/8 | 0 OTHER; 4/4 eq; 0/4 refused | 6/6, 6/6 |
+| xpub-search account-of-descriptor ms1+passphrase | 0 | 0 | **yes** | `match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)` | 0↔1: differs (exit 2) | ok | 6/6 | 8/8 | 0 OTHER; 2/2 eq; 0/4 refused | 3/3, 3/3 |
+| silent-payment secret+passphrase | 0 | 0 | **yes** | `address:      sp1qq2d73kpx36h7r08gmawe6slzxkntu2tw0as7pkqe0hvv3k38mkvckqsp6dmrwxvd6mumfqj9` | 0↔1: differs (exit 1) | ok | 10/10 | 8/8 | 0 OTHER; 4/4 eq; 0/4 refused | 6/6, 6/6 |
+| slip39 split phrase+passphrase | 0 | 0 | **yes** | `00000000000000000000000000000000` | 0↔1: differs (exit 1) | ok | 10/10 | 8/8 | 0 OTHER; 4/4 eq; 0/4 refused | 3/3, 3/3 |
+| slip39 combine 2 shares+passphrase | 0 | 0 | **yes** | `8ab7aa39cd427130e225ed43c34f5b5a` | 0↔1: **same** (symmetric); 0↔2: differs (exit 1); 1↔2: differs (exit 1) | ok | 15/15 | 12/12 | 0 OTHER; 6/6 eq; 0/6 refused | 9/9, 9/9 |
+| slip39 combine 2 shares | 0 | 0 | **yes** | `00000000000000000000000000000000` | 0↔1: **same** (symmetric) | ok | 10/10 | 8/8 | 0 OTHER; 4/4 eq; 0/4 refused | 6/6, 6/6 |
+| seed-xor combine 2 shares | 0 | 0 | **yes** | `zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong` | 0↔1: **same** (symmetric) | ok | 10/10 | 8/8 | 0 OTHER; 4/4 eq; 0/4 refused | n/a |
+| ms-shares combine 2 shares | 0 | 0 | **yes** | `abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab` | 0↔1: **same** (symmetric) | ok | 10/10 | 8/8 | 0 OTHER; 4/4 eq; 0/4 refused | 6/6, 6/6 |
+| import-wallet 2 cosigner ms1 | 0 | 0 | **yes** | `"descriptor": "wsh(sortedmulti(2,[5436d724/48'/0'/0'/2']xpub6E79FaRWLSJCAgA2jDHRvyrWKwT6aS` | 0↔1: differs (exit 4) | ok | 10/10 | 8/8 | 0 OTHER; 4/4 eq; 0/4 refused | 6/6, 6/6 |
+| verify-bundle ms1+slot+passphrase | 0 | 0 | **yes** | `result: ok` | 0↔1: differs (exit 2); 0↔2: differs (exit 2); 1↔2: differs (exit 1) | ok | 15/15 | 12/12 | 0 OTHER; 6/6 eq; 0/6 refused | 6/6, 6/6 |
+| ms combine share group | 0 | 0 | **yes** | `entropy: 00000000000000000000000000000000` | n/a (one source) | ok | 0/0 | 0/0 | 0 OTHER; 0/0 eq; 0/0 refused | n/a |
+| ms verify phrase+ms1 | 0 | 0 | **yes** | `OK: round-trip valid (12 words, language=english)` | 0↔1: differs (exit 1) | ok | 10/10 | 8/8 | 0 OTHER; 0/0 eq; 0/2 refused | 0/0, 0/0 |
+| ms derive ms1+passphrase | 0 | 0 | **yes** | `master_fingerprint:  45fbfbe6` | 0↔1: differs (exit 1) | ok | 10/10 | 8/8 | 0 OTHER; 3/3 eq; 0/2 refused | 3/3, 0/0 (+3 refused) |
+| ms derive phrase+passphrase | — | — | refused (expected: refuse) | — | — | — | — | — | — | — |
+| ms derive hex+passphrase | — | — | refused (expected: refuse) | — | — | — | — | — | — | — |
 
 ### A10. Follow-ups (not this design)
 
