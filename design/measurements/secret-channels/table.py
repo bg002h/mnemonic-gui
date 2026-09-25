@@ -1,8 +1,10 @@
 import json, subprocess
-from cases2 import C, C2, sub, run
+from cases3 import C, C2, C3, sub, run
 res={r["label"]:r for r in json.load(open("channels.json"))}
 res.update({r["label"]:r for r in json.load(open("channels2.json"))})
-cases={c["label"]:c for c in C}; cases.update({c["label"]:c for c in C2})
+res.update({r["label"]:r for r in json.load(open("channels3.json"))})
+cases={c["label"]:c for c in C}; cases.update({c["label"]:c for c in C2}); cases.update({c["label"]:c for c in C3})
+del cases["ms combine <shares> (first)"]   # superseded by the group row (measure_groups.py)
 def refused(c):
     a=[x for x in sub(c["argv"],c["S"]) if x!="--allow-argv-secret"]
     rc,so,se=run(a)
@@ -11,7 +13,7 @@ def cell(r,prefix):
     for k,v in r["channels"].items():
         if k.startswith(prefix) or prefix in k:
             if v=="OK": return "OK"
-            if "DIFFERENT" in v: return "**WRONG (exit 0/4, literal)**"
+            if "DIFFERENT" in v: return f"**WRONG (exit {v.split()[1]}, literal)**"
             if "unexpected argument" in v: return "—"
             return "fails closed"
     return "n/a"

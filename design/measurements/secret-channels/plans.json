@@ -1,0 +1,2721 @@
+[
+ {
+  "name": "addresses phrase+passphrase",
+  "symmetric": [],
+  "expect": "run",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic addresses --from phrase=",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic addresses --passphrase",
+      "kind": "StdinToggle",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic addresses --from phrase=",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic addresses --passphrase",
+      "kind": "StdinToggle",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic addresses --from phrase=",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic addresses --passphrase",
+      "kind": "StdinToggle",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   }
+  },
+  "c1_failures": [],
+  "t1_problems": [],
+  "planned_argv": [
+   "mnemonic",
+   "addresses",
+   "--address-type",
+   "p2wpkh",
+   "--count",
+   "1",
+   "--from",
+   "phrase=@env:MNEMONIC_GUI_S0",
+   "--passphrase-stdin"
+  ],
+  "base_exit": 0,
+  "plan_exit": 0,
+  "base_effect": "0  bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv",
+  "plan_effect": "0  bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv",
+  "equal": true,
+  "plan_err": "",
+  "c1_env_runs": [
+   {
+    "source": 0,
+    "provenance": "$USER_SECRET_0",
+    "equal_baseline": true
+   },
+   {
+    "source": 1,
+    "provenance": "$USER_SECRET_1",
+    "equal_baseline": true
+   }
+  ],
+  "swaps": [
+   {
+    "pair": [
+     0,
+     1
+    ],
+    "same_as_baseline": false,
+    "expected_same": false,
+    "exit": 1,
+    "effect": ""
+   }
+  ]
+ },
+ {
+  "name": "restore phrase+passphrase",
+  "symmetric": [],
+  "expect": "run",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic restore --from phrase=",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic restore --passphrase",
+      "kind": "StdinToggle",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic restore --from phrase=",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic restore --passphrase",
+      "kind": "StdinToggle",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic restore --from phrase=",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic restore --passphrase",
+      "kind": "StdinToggle",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   }
+  },
+  "c1_failures": [],
+  "t1_problems": [],
+  "planned_argv": [
+   "mnemonic",
+   "restore",
+   "--template",
+   "bip84",
+   "--from",
+   "phrase=@env:MNEMONIC_GUI_S0",
+   "--passphrase-stdin"
+  ],
+  "base_exit": 0,
+  "plan_exit": 0,
+  "base_effect": "master fingerprint: 45fbfbe6  (passphrase: applied)",
+  "plan_effect": "master fingerprint: 45fbfbe6  (passphrase: applied)",
+  "equal": true,
+  "plan_err": "",
+  "c1_env_runs": [
+   {
+    "source": 0,
+    "provenance": "$USER_SECRET_0",
+    "equal_baseline": true
+   },
+   {
+    "source": 1,
+    "provenance": "$USER_SECRET_1",
+    "equal_baseline": true
+   }
+  ],
+  "swaps": [
+   {
+    "pair": [
+     0,
+     1
+    ],
+    "same_as_baseline": false,
+    "expected_same": false,
+    "exit": 1,
+    "effect": ""
+   }
+  ]
+ },
+ {
+  "name": "restore ms1+passphrase",
+  "symmetric": [],
+  "expect": "run",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic restore --from ms1=",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic restore --passphrase",
+      "kind": "StdinToggle",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic restore --from ms1=",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic restore --passphrase",
+      "kind": "StdinToggle",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic restore --from ms1=",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic restore --passphrase",
+      "kind": "StdinToggle",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   }
+  },
+  "c1_failures": [],
+  "t1_problems": [],
+  "planned_argv": [
+   "mnemonic",
+   "restore",
+   "--template",
+   "bip84",
+   "--from",
+   "ms1=@env:MNEMONIC_GUI_S0",
+   "--passphrase-stdin"
+  ],
+  "base_exit": 0,
+  "plan_exit": 0,
+  "base_effect": "master fingerprint: 45fbfbe6  (passphrase: applied)",
+  "plan_effect": "master fingerprint: 45fbfbe6  (passphrase: applied)",
+  "equal": true,
+  "plan_err": "",
+  "c1_env_runs": [
+   {
+    "source": 0,
+    "provenance": "$USER_SECRET_0",
+    "equal_baseline": true
+   },
+   {
+    "source": 1,
+    "provenance": "$USER_SECRET_1",
+    "equal_baseline": true
+   }
+  ],
+  "swaps": [
+   {
+    "pair": [
+     0,
+     1
+    ],
+    "same_as_baseline": false,
+    "expected_same": false,
+    "exit": 1,
+    "effect": ""
+   }
+  ]
+ },
+ {
+  "name": "derive-child phrase+passphrase",
+  "symmetric": [],
+  "expect": "run",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic derive-child --from phrase=",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic derive-child --passphrase",
+      "kind": "StdinToggle",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic derive-child --from phrase=",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic derive-child --passphrase",
+      "kind": "StdinToggle",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic derive-child --from phrase=",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic derive-child --passphrase",
+      "kind": "StdinToggle",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   }
+  },
+  "c1_failures": [],
+  "t1_problems": [],
+  "planned_argv": [
+   "mnemonic",
+   "derive-child",
+   "--application",
+   "bip39",
+   "--length",
+   "12",
+   "--index",
+   "0",
+   "--from",
+   "phrase=@env:MNEMONIC_GUI_S0",
+   "--passphrase-stdin"
+  ],
+  "base_exit": 0,
+  "plan_exit": 0,
+  "base_effect": "target biology midnight canal glass common include trophy glimpse north castle dove",
+  "plan_effect": "target biology midnight canal glass common include trophy glimpse north castle dove",
+  "equal": true,
+  "plan_err": "",
+  "c1_env_runs": [
+   {
+    "source": 0,
+    "provenance": "$USER_SECRET_0",
+    "equal_baseline": true
+   },
+   {
+    "source": 1,
+    "provenance": "$USER_SECRET_1",
+    "equal_baseline": true
+   }
+  ],
+  "swaps": [
+   {
+    "pair": [
+     0,
+     1
+    ],
+    "same_as_baseline": false,
+    "expected_same": false,
+    "exit": 1,
+    "effect": ""
+   }
+  ]
+ },
+ {
+  "name": "bundle slot+passphrase",
+  "symmetric": [],
+  "expect": "run",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic bundle --slot @N.phrase=",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic bundle --passphrase",
+      "kind": "StdinToggle",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic bundle --slot @N.phrase=",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic bundle --passphrase",
+      "kind": "StdinToggle",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic bundle --slot @N.phrase=",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic bundle --passphrase",
+      "kind": "StdinToggle",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   }
+  },
+  "c1_failures": [],
+  "t1_problems": [],
+  "planned_argv": [
+   "mnemonic",
+   "bundle",
+   "--network",
+   "mainnet",
+   "--template",
+   "bip84",
+   "--slot",
+   "@0.phrase=@env:MNEMONIC_GUI_S0",
+   "--passphrase-stdin"
+  ],
+  "base_exit": 0,
+  "plan_exit": 0,
+  "base_effect": "mk1qpd2y2pqqsqk4z99gdzlh7lxqvzg3vs7vs57ls3u2nlnjvzn90ffnjpcsauf2eggmpdquu02l9k7dpjhxhs3yaa",
+  "plan_effect": "mk1qpd2y2pqqsqk4z99gdzlh7lxqvzg3vs7vs57ls3u2nlnjvzn90ffnjpcsauf2eggmpdquu02l9k7dpjhxhs3yaa",
+  "equal": true,
+  "plan_err": "",
+  "c1_env_runs": [
+   {
+    "source": 0,
+    "provenance": "$USER_SECRET_0",
+    "equal_baseline": true
+   },
+   {
+    "source": 1,
+    "provenance": "$USER_SECRET_1",
+    "equal_baseline": true
+   }
+  ],
+  "swaps": [
+   {
+    "pair": [
+     0,
+     1
+    ],
+    "same_as_baseline": false,
+    "expected_same": false,
+    "exit": 1,
+    "effect": ""
+   }
+  ]
+ },
+ {
+  "name": "bundle wsh-multi 2 slots",
+  "symmetric": [],
+  "expect": "run",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic bundle --slot @N.phrase=",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic bundle --slot @N.phrase=",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic bundle --slot @N.phrase=",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic bundle --slot @N.phrase=",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic bundle --slot @N.phrase=",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic bundle --slot @N.phrase=",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   }
+  },
+  "c1_failures": [],
+  "t1_problems": [],
+  "planned_argv": [
+   "mnemonic",
+   "bundle",
+   "--network",
+   "mainnet",
+   "--template",
+   "wsh-multi",
+   "--threshold",
+   "2",
+   "--slot",
+   "@0.phrase=@env:MNEMONIC_GUI_S0",
+   "--slot",
+   "@1.phrase=@env:MNEMONIC_GUI_S1"
+  ],
+  "base_exit": 0,
+  "plan_exit": 0,
+  "base_effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5",
+  "plan_effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5",
+  "equal": true,
+  "plan_err": "",
+  "c1_env_runs": [
+   {
+    "source": 0,
+    "provenance": "$USER_SECRET_0",
+    "equal_baseline": true
+   },
+   {
+    "source": 1,
+    "provenance": "$USER_SECRET_1",
+    "equal_baseline": true
+   }
+  ],
+  "swaps": [
+   {
+    "pair": [
+     0,
+     1
+    ],
+    "same_as_baseline": false,
+    "expected_same": false,
+    "exit": 0,
+    "effect": "mk1qplmpxpqqsp0asnw8hlvym3a8a345cc8qjyty8hmtpvuu9ha34aj9f4k8fpg3ey6r2xqexagzjsnpuwyku0fh4c"
+   }
+  ]
+ },
+ {
+  "name": "bundle wsh-multi 2 slots+passphrase",
+  "symmetric": [],
+  "expect": "run",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic bundle --slot @N.phrase=",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic bundle --slot @N.ms1=",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S1"
+     },
+     {
+      "source": 2,
+      "key": "mnemonic bundle --passphrase",
+      "kind": "StdinToggle",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic bundle --slot @N.phrase=",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic bundle --slot @N.ms1=",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S1"
+     },
+     {
+      "source": 2,
+      "key": "mnemonic bundle --passphrase",
+      "kind": "StdinToggle",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic bundle --slot @N.phrase=",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic bundle --slot @N.ms1=",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S1"
+     },
+     {
+      "source": 2,
+      "key": "mnemonic bundle --passphrase",
+      "kind": "StdinToggle",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   }
+  },
+  "c1_failures": [],
+  "t1_problems": [],
+  "planned_argv": [
+   "mnemonic",
+   "bundle",
+   "--network",
+   "mainnet",
+   "--template",
+   "wsh-multi",
+   "--threshold",
+   "2",
+   "--slot",
+   "@0.phrase=@env:MNEMONIC_GUI_S0",
+   "--slot",
+   "@1.ms1=@env:MNEMONIC_GUI_S1",
+   "--passphrase-stdin"
+  ],
+  "base_exit": 0,
+  "plan_exit": 0,
+  "base_effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq",
+  "plan_effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq",
+  "equal": true,
+  "plan_err": "",
+  "c1_env_runs": [
+   {
+    "source": 0,
+    "provenance": "$USER_SECRET_0",
+    "equal_baseline": true
+   },
+   {
+    "source": 1,
+    "provenance": "$USER_SECRET_1",
+    "equal_baseline": true
+   },
+   {
+    "source": 2,
+    "provenance": "$USER_SECRET_2",
+    "equal_baseline": true
+   }
+  ],
+  "swaps": [
+   {
+    "pair": [
+     0,
+     1
+    ],
+    "same_as_baseline": false,
+    "expected_same": false,
+    "exit": 1,
+    "effect": ""
+   },
+   {
+    "pair": [
+     0,
+     2
+    ],
+    "same_as_baseline": false,
+    "expected_same": false,
+    "exit": 1,
+    "effect": ""
+   },
+   {
+    "pair": [
+     1,
+     2
+    ],
+    "same_as_baseline": false,
+    "expected_same": false,
+    "exit": 1,
+    "effect": ""
+   }
+  ]
+ },
+ {
+  "name": "convert phrase+passphrase",
+  "symmetric": [],
+  "expect": "run",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic convert --from phrase=",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic convert --passphrase",
+      "kind": "StdinToggle",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic convert --from phrase=",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic convert --passphrase",
+      "kind": "StdinToggle",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic convert --from phrase=",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic convert --passphrase",
+      "kind": "StdinToggle",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   }
+  },
+  "c1_failures": [],
+  "t1_problems": [],
+  "planned_argv": [
+   "mnemonic",
+   "convert",
+   "--to",
+   "xpub",
+   "--template",
+   "bip84",
+   "--from",
+   "phrase=@env:MNEMONIC_GUI_S0",
+   "--passphrase-stdin"
+  ],
+  "base_exit": 0,
+  "plan_exit": 0,
+  "base_effect": "xpub: xpub6CPUCVp94gpNs3bS1eGiwSWwZMLNmfr2Uo1t5v8YtY4XVoxhUraBH7sRyVfgwSNCxRVpX1bDREtc5Kri",
+  "plan_effect": "xpub: xpub6CPUCVp94gpNs3bS1eGiwSWwZMLNmfr2Uo1t5v8YtY4XVoxhUraBH7sRyVfgwSNCxRVpX1bDREtc5Kri",
+  "equal": true,
+  "plan_err": "",
+  "c1_env_runs": [
+   {
+    "source": 0,
+    "provenance": "$USER_SECRET_0",
+    "equal_baseline": true
+   },
+   {
+    "source": 1,
+    "provenance": "$USER_SECRET_1",
+    "equal_baseline": true
+   }
+  ],
+  "swaps": [
+   {
+    "pair": [
+     0,
+     1
+    ],
+    "same_as_baseline": false,
+    "expected_same": false,
+    "exit": 1,
+    "effect": ""
+   }
+  ]
+ },
+ {
+  "name": "convert wif+bip38-passphrase",
+  "symmetric": [],
+  "expect": "run",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic convert --from wif=",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic convert --bip38-passphrase",
+      "kind": "StdinToggle",
+      "flag": "--bip38-passphrase-stdin"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic convert --from wif=",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic convert --bip38-passphrase",
+      "kind": "StdinToggle",
+      "flag": "--bip38-passphrase-stdin"
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic convert --from wif=",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic convert --bip38-passphrase",
+      "kind": "StdinToggle",
+      "flag": "--bip38-passphrase-stdin"
+     }
+    ]
+   }
+  },
+  "c1_failures": [],
+  "t1_problems": [],
+  "planned_argv": [
+   "mnemonic",
+   "convert",
+   "--to",
+   "bip38",
+   "--from",
+   "wif=@env:MNEMONIC_GUI_S0",
+   "--bip38-passphrase-stdin"
+  ],
+  "base_exit": 0,
+  "plan_exit": 0,
+  "base_effect": "bip38: 6PYP8fdoVaE3ThLmEnYcGo3nJeBqd8PvB7CRvTz3TX5L9ojoPHKCg7QXG6",
+  "plan_effect": "bip38: 6PYP8fdoVaE3ThLmEnYcGo3nJeBqd8PvB7CRvTz3TX5L9ojoPHKCg7QXG6",
+  "equal": true,
+  "plan_err": "",
+  "c1_env_runs": [
+   {
+    "source": 0,
+    "provenance": "$USER_SECRET_0",
+    "equal_baseline": true
+   },
+   {
+    "source": 1,
+    "provenance": "$USER_SECRET_1",
+    "equal_baseline": true
+   }
+  ],
+  "swaps": [
+   {
+    "pair": [
+     0,
+     1
+    ],
+    "same_as_baseline": false,
+    "expected_same": false,
+    "exit": 1,
+    "effect": ""
+   }
+  ]
+ },
+ {
+  "name": "convert bip38+bip38-passphrase",
+  "symmetric": [],
+  "expect": "run",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic convert --from bip38=",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic convert --bip38-passphrase",
+      "kind": "StdinToggle",
+      "flag": "--bip38-passphrase-stdin"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic convert --from bip38=",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic convert --bip38-passphrase",
+      "kind": "StdinToggle",
+      "flag": "--bip38-passphrase-stdin"
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic convert --from bip38=",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic convert --bip38-passphrase",
+      "kind": "StdinToggle",
+      "flag": "--bip38-passphrase-stdin"
+     }
+    ]
+   }
+  },
+  "c1_failures": [],
+  "t1_problems": [],
+  "planned_argv": [
+   "mnemonic",
+   "convert",
+   "--to",
+   "wif",
+   "--from",
+   "bip38=@env:MNEMONIC_GUI_S0",
+   "--bip38-passphrase-stdin"
+  ],
+  "base_exit": 0,
+  "plan_exit": 0,
+  "base_effect": "wif: KyZpNDKnfs94vbrwhJneDi77V6jF64PWPF8x5cdJb8ifgg2DUc9d",
+  "plan_effect": "wif: KyZpNDKnfs94vbrwhJneDi77V6jF64PWPF8x5cdJb8ifgg2DUc9d",
+  "equal": true,
+  "plan_err": "",
+  "c1_env_runs": [
+   {
+    "source": 0,
+    "provenance": "$USER_SECRET_0",
+    "equal_baseline": true
+   },
+   {
+    "source": 1,
+    "provenance": "$USER_SECRET_1",
+    "equal_baseline": true
+   }
+  ],
+  "swaps": [
+   {
+    "pair": [
+     0,
+     1
+    ],
+    "same_as_baseline": false,
+    "expected_same": false,
+    "exit": 1,
+    "effect": ""
+   }
+  ]
+ },
+ {
+  "name": "xpub-search path-of-xpub phrase+passphrase",
+  "symmetric": [],
+  "expect": "run",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search path-of-xpub --phrase",
+      "kind": "StdinToggle",
+      "flag": "--phrase-stdin"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search path-of-xpub --passphrase",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search path-of-xpub --phrase",
+      "kind": "StdinToggle",
+      "flag": "--phrase-stdin"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search path-of-xpub --passphrase",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search path-of-xpub --phrase",
+      "kind": "StdinToggle",
+      "flag": "--phrase-stdin"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search path-of-xpub --passphrase",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   }
+  },
+  "c1_failures": [],
+  "t1_problems": [],
+  "planned_argv": [
+   "mnemonic",
+   "xpub-search",
+   "path-of-xpub",
+   "--target-xpub",
+   "xpub6CPUCVp94gpNs3bS1eGiwSWwZMLNmfr2Uo1t5v8YtY4XVoxhUraBH7sRyVfgwSNCxRVpX1bDREtc5KriC7smtjYco8w57agUrg1nLawsNFG",
+   "--phrase-stdin",
+   "--passphrase",
+   "@env:MNEMONIC_GUI_S1"
+  ],
+  "base_exit": 0,
+  "plan_exit": 0,
+  "base_effect": "match: m/84'/0'/0'  (template=bip84, account=0)",
+  "plan_effect": "match: m/84'/0'/0'  (template=bip84, account=0)",
+  "equal": true,
+  "plan_err": "",
+  "c1_env_runs": [
+   {
+    "source": 0,
+    "provenance": "$USER_SECRET_0",
+    "equal_baseline": true
+   },
+   {
+    "source": 1,
+    "provenance": "$USER_SECRET_1",
+    "equal_baseline": true
+   }
+  ],
+  "swaps": [
+   {
+    "pair": [
+     0,
+     1
+    ],
+    "same_as_baseline": false,
+    "expected_same": false,
+    "exit": 1,
+    "effect": ""
+   }
+  ]
+ },
+ {
+  "name": "xpub-search path-of-xpub ms1+passphrase",
+  "symmetric": [],
+  "expect": "run",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search path-of-xpub --ms1",
+      "kind": "StdinToggle",
+      "flag": "--ms1-stdin"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search path-of-xpub --passphrase",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search path-of-xpub --ms1",
+      "kind": "StdinToggle",
+      "flag": "--ms1-stdin"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search path-of-xpub --passphrase",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search path-of-xpub --ms1",
+      "kind": "StdinToggle",
+      "flag": "--ms1-stdin"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search path-of-xpub --passphrase",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   }
+  },
+  "c1_failures": [],
+  "t1_problems": [],
+  "planned_argv": [
+   "mnemonic",
+   "xpub-search",
+   "path-of-xpub",
+   "--target-xpub",
+   "xpub6CPUCVp94gpNs3bS1eGiwSWwZMLNmfr2Uo1t5v8YtY4XVoxhUraBH7sRyVfgwSNCxRVpX1bDREtc5KriC7smtjYco8w57agUrg1nLawsNFG",
+   "--ms1-stdin",
+   "--passphrase",
+   "@env:MNEMONIC_GUI_S1"
+  ],
+  "base_exit": 0,
+  "plan_exit": 0,
+  "base_effect": "match: m/84'/0'/0'  (template=bip84, account=0)",
+  "plan_effect": "match: m/84'/0'/0'  (template=bip84, account=0)",
+  "equal": true,
+  "plan_err": "",
+  "c1_env_runs": [
+   {
+    "source": 0,
+    "provenance": "$USER_SECRET_0",
+    "equal_baseline": true
+   },
+   {
+    "source": 1,
+    "provenance": "$USER_SECRET_1",
+    "equal_baseline": true
+   }
+  ],
+  "swaps": [
+   {
+    "pair": [
+     0,
+     1
+    ],
+    "same_as_baseline": false,
+    "expected_same": false,
+    "exit": 2,
+    "effect": ""
+   }
+  ]
+ },
+ {
+  "name": "xpub-search passphrase-of-xpub phrase+passphrase",
+  "symmetric": [],
+  "expect": "run",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search passphrase-of-xpub --phrase",
+      "kind": "StdinToggle",
+      "flag": "--phrase-stdin"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search passphrase-of-xpub --passphrase",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search passphrase-of-xpub --phrase",
+      "kind": "StdinToggle",
+      "flag": "--phrase-stdin"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search passphrase-of-xpub --passphrase",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search passphrase-of-xpub --phrase",
+      "kind": "StdinToggle",
+      "flag": "--phrase-stdin"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search passphrase-of-xpub --passphrase",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   }
+  },
+  "c1_failures": [],
+  "t1_problems": [],
+  "planned_argv": [
+   "mnemonic",
+   "xpub-search",
+   "passphrase-of-xpub",
+   "--target-xpub",
+   "xpub6CPUCVp94gpNs3bS1eGiwSWwZMLNmfr2Uo1t5v8YtY4XVoxhUraBH7sRyVfgwSNCxRVpX1bDREtc5KriC7smtjYco8w57agUrg1nLawsNFG",
+   "--phrase-stdin",
+   "--passphrase",
+   "@env:MNEMONIC_GUI_S1"
+  ],
+  "base_exit": 0,
+  "plan_exit": 0,
+  "base_effect": "match: m/84'/0'/0'  (template=bip84, account=0)",
+  "plan_effect": "match: m/84'/0'/0'  (template=bip84, account=0)",
+  "equal": true,
+  "plan_err": "",
+  "c1_env_runs": [
+   {
+    "source": 0,
+    "provenance": "$USER_SECRET_0",
+    "equal_baseline": true
+   },
+   {
+    "source": 1,
+    "provenance": "$USER_SECRET_1",
+    "equal_baseline": true
+   }
+  ],
+  "swaps": [
+   {
+    "pair": [
+     0,
+     1
+    ],
+    "same_as_baseline": false,
+    "expected_same": false,
+    "exit": 1,
+    "effect": ""
+   }
+  ]
+ },
+ {
+  "name": "xpub-search passphrase-of-xpub ms1+passphrase",
+  "symmetric": [],
+  "expect": "run",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search passphrase-of-xpub --ms1",
+      "kind": "StdinToggle",
+      "flag": "--ms1-stdin"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search passphrase-of-xpub --passphrase",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search passphrase-of-xpub --ms1",
+      "kind": "StdinToggle",
+      "flag": "--ms1-stdin"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search passphrase-of-xpub --passphrase",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search passphrase-of-xpub --ms1",
+      "kind": "StdinToggle",
+      "flag": "--ms1-stdin"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search passphrase-of-xpub --passphrase",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   }
+  },
+  "c1_failures": [],
+  "t1_problems": [],
+  "planned_argv": [
+   "mnemonic",
+   "xpub-search",
+   "passphrase-of-xpub",
+   "--target-xpub",
+   "xpub6CPUCVp94gpNs3bS1eGiwSWwZMLNmfr2Uo1t5v8YtY4XVoxhUraBH7sRyVfgwSNCxRVpX1bDREtc5KriC7smtjYco8w57agUrg1nLawsNFG",
+   "--ms1-stdin",
+   "--passphrase",
+   "@env:MNEMONIC_GUI_S1"
+  ],
+  "base_exit": 0,
+  "plan_exit": 0,
+  "base_effect": "match: m/84'/0'/0'  (template=bip84, account=0)",
+  "plan_effect": "match: m/84'/0'/0'  (template=bip84, account=0)",
+  "equal": true,
+  "plan_err": "",
+  "c1_env_runs": [
+   {
+    "source": 0,
+    "provenance": "$USER_SECRET_0",
+    "equal_baseline": true
+   },
+   {
+    "source": 1,
+    "provenance": "$USER_SECRET_1",
+    "equal_baseline": true
+   }
+  ],
+  "swaps": [
+   {
+    "pair": [
+     0,
+     1
+    ],
+    "same_as_baseline": false,
+    "expected_same": false,
+    "exit": 2,
+    "effect": ""
+   }
+  ]
+ },
+ {
+  "name": "xpub-search account-of-descriptor phrase+passphrase",
+  "symmetric": [],
+  "expect": "run",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search account-of-descriptor --phrase",
+      "kind": "StdinToggle",
+      "flag": "--phrase-stdin"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search account-of-descriptor --passphrase",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search account-of-descriptor --phrase",
+      "kind": "StdinToggle",
+      "flag": "--phrase-stdin"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search account-of-descriptor --passphrase",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search account-of-descriptor --phrase",
+      "kind": "StdinToggle",
+      "flag": "--phrase-stdin"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search account-of-descriptor --passphrase",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   }
+  },
+  "c1_failures": [],
+  "t1_problems": [],
+  "planned_argv": [
+   "mnemonic",
+   "xpub-search",
+   "account-of-descriptor",
+   "--descriptor",
+   "wpkh(xpub6CPUCVp94gpNs3bS1eGiwSWwZMLNmfr2Uo1t5v8YtY4XVoxhUraBH7sRyVfgwSNCxRVpX1bDREtc5KriC7smtjYco8w57agUrg1nLawsNFG/0/*)",
+   "--phrase-stdin",
+   "--passphrase",
+   "@env:MNEMONIC_GUI_S1"
+  ],
+  "base_exit": 0,
+  "plan_exit": 0,
+  "base_effect": "match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)",
+  "plan_effect": "match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)",
+  "equal": true,
+  "plan_err": "",
+  "c1_env_runs": [
+   {
+    "source": 0,
+    "provenance": "$USER_SECRET_0",
+    "equal_baseline": true
+   },
+   {
+    "source": 1,
+    "provenance": "$USER_SECRET_1",
+    "equal_baseline": true
+   }
+  ],
+  "swaps": [
+   {
+    "pair": [
+     0,
+     1
+    ],
+    "same_as_baseline": false,
+    "expected_same": false,
+    "exit": 1,
+    "effect": ""
+   }
+  ]
+ },
+ {
+  "name": "xpub-search account-of-descriptor ms1+passphrase",
+  "symmetric": [],
+  "expect": "run",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search account-of-descriptor --ms1",
+      "kind": "StdinToggle",
+      "flag": "--ms1-stdin"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search account-of-descriptor --passphrase",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search account-of-descriptor --ms1",
+      "kind": "StdinToggle",
+      "flag": "--ms1-stdin"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search account-of-descriptor --passphrase",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search account-of-descriptor --ms1",
+      "kind": "StdinToggle",
+      "flag": "--ms1-stdin"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search account-of-descriptor --passphrase",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   }
+  },
+  "c1_failures": [],
+  "t1_problems": [],
+  "planned_argv": [
+   "mnemonic",
+   "xpub-search",
+   "account-of-descriptor",
+   "--descriptor",
+   "wpkh(xpub6CPUCVp94gpNs3bS1eGiwSWwZMLNmfr2Uo1t5v8YtY4XVoxhUraBH7sRyVfgwSNCxRVpX1bDREtc5KriC7smtjYco8w57agUrg1nLawsNFG/0/*)",
+   "--ms1-stdin",
+   "--passphrase",
+   "@env:MNEMONIC_GUI_S1"
+  ],
+  "base_exit": 0,
+  "plan_exit": 0,
+  "base_effect": "match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)",
+  "plan_effect": "match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)",
+  "equal": true,
+  "plan_err": "",
+  "c1_env_runs": [
+   {
+    "source": 0,
+    "provenance": "$USER_SECRET_0",
+    "equal_baseline": true
+   },
+   {
+    "source": 1,
+    "provenance": "$USER_SECRET_1",
+    "equal_baseline": true
+   }
+  ],
+  "swaps": [
+   {
+    "pair": [
+     0,
+     1
+    ],
+    "same_as_baseline": false,
+    "expected_same": false,
+    "exit": 2,
+    "effect": ""
+   }
+  ]
+ },
+ {
+  "name": "silent-payment secret+passphrase",
+  "symmetric": [],
+  "expect": "run",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic silent-payment --secret",
+      "kind": "FileFlag",
+      "flag": "--secret-file",
+      "fd": 3
+     },
+     {
+      "source": 1,
+      "key": "mnemonic silent-payment --passphrase",
+      "kind": "StdinToggle",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   },
+   "macos": {
+    "refusal": "fd-not-on-platform",
+    "detail": "fd-not-on-platform: mnemonic silent-payment --secret + mnemonic silent-payment --passphrase: needs a pipe fd; not enabled on macos"
+   },
+   "windows": {
+    "refusal": "fd-not-on-platform",
+    "detail": "fd-not-on-platform: mnemonic silent-payment --secret + mnemonic silent-payment --passphrase: needs a pipe fd; not enabled on windows"
+   }
+  },
+  "c1_failures": [],
+  "t1_problems": [],
+  "planned_argv": [
+   "mnemonic",
+   "silent-payment",
+   "--secret-file",
+   "/dev/fd/3",
+   "--passphrase-stdin"
+  ],
+  "base_exit": 0,
+  "plan_exit": 0,
+  "base_effect": "address:      sp1qq2d73kpx36h7r08gmawe6slzxkntu2tw0as7pkqe0hvv3k38mkvckqsp6dmrwxvd6mumfqj9",
+  "plan_effect": "address:      sp1qq2d73kpx36h7r08gmawe6slzxkntu2tw0as7pkqe0hvv3k38mkvckqsp6dmrwxvd6mumfqj9",
+  "equal": true,
+  "plan_err": "",
+  "c1_env_runs": [
+   {
+    "source": 0,
+    "provenance": "$USER_SECRET_0",
+    "equal_baseline": true
+   },
+   {
+    "source": 1,
+    "provenance": "$USER_SECRET_1",
+    "equal_baseline": true
+   }
+  ],
+  "swaps": [
+   {
+    "pair": [
+     0,
+     1
+    ],
+    "same_as_baseline": false,
+    "expected_same": false,
+    "exit": 1,
+    "effect": ""
+   }
+  ]
+ },
+ {
+  "name": "slip39 split phrase+passphrase",
+  "symmetric": [],
+  "expect": "run",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic slip39 split --from phrase=",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic slip39 split --passphrase",
+      "kind": "StdinToggle",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic slip39 split --from phrase=",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic slip39 split --passphrase",
+      "kind": "StdinToggle",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic slip39 split --from phrase=",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic slip39 split --passphrase",
+      "kind": "StdinToggle",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   }
+  },
+  "c1_failures": [],
+  "t1_problems": [],
+  "planned_argv": [
+   "mnemonic",
+   "slip39",
+   "split",
+   "--group-threshold",
+   "1",
+   "--group",
+   "3,2",
+   "--from",
+   "phrase=@env:MNEMONIC_GUI_S0",
+   "--passphrase-stdin"
+  ],
+  "base_exit": 0,
+  "plan_exit": 0,
+  "base_effect": "00000000000000000000000000000000",
+  "plan_effect": "00000000000000000000000000000000",
+  "equal": true,
+  "plan_err": "",
+  "c1_env_runs": [
+   {
+    "source": 0,
+    "provenance": "$USER_SECRET_0",
+    "equal_baseline": true
+   },
+   {
+    "source": 1,
+    "provenance": "$USER_SECRET_1",
+    "equal_baseline": true
+   }
+  ],
+  "swaps": [
+   {
+    "pair": [
+     0,
+     1
+    ],
+    "same_as_baseline": false,
+    "expected_same": false,
+    "exit": 1,
+    "effect": ""
+   }
+  ]
+ },
+ {
+  "name": "slip39 combine 2 shares+passphrase",
+  "symmetric": [
+   [
+    0,
+    1
+   ]
+  ],
+  "expect": "run",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic slip39 combine --share",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic slip39 combine --share",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S1"
+     },
+     {
+      "source": 2,
+      "key": "mnemonic slip39 combine --passphrase",
+      "kind": "StdinToggle",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic slip39 combine --share",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic slip39 combine --share",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S1"
+     },
+     {
+      "source": 2,
+      "key": "mnemonic slip39 combine --passphrase",
+      "kind": "StdinToggle",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic slip39 combine --share",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic slip39 combine --share",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S1"
+     },
+     {
+      "source": 2,
+      "key": "mnemonic slip39 combine --passphrase",
+      "kind": "StdinToggle",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   }
+  },
+  "c1_failures": [],
+  "t1_problems": [],
+  "planned_argv": [
+   "mnemonic",
+   "slip39",
+   "combine",
+   "--share",
+   "@env:MNEMONIC_GUI_S0",
+   "--share",
+   "@env:MNEMONIC_GUI_S1",
+   "--passphrase-stdin"
+  ],
+  "base_exit": 0,
+  "plan_exit": 0,
+  "base_effect": "8ab7aa39cd427130e225ed43c34f5b5a",
+  "plan_effect": "8ab7aa39cd427130e225ed43c34f5b5a",
+  "equal": true,
+  "plan_err": "",
+  "c1_env_runs": [
+   {
+    "source": 0,
+    "provenance": "$USER_SECRET_0",
+    "equal_baseline": true
+   },
+   {
+    "source": 1,
+    "provenance": "$USER_SECRET_1",
+    "equal_baseline": true
+   },
+   {
+    "source": 2,
+    "provenance": "$USER_SECRET_2",
+    "equal_baseline": true
+   }
+  ],
+  "swaps": [
+   {
+    "pair": [
+     0,
+     1
+    ],
+    "same_as_baseline": true,
+    "expected_same": true,
+    "exit": 0,
+    "effect": "8ab7aa39cd427130e225ed43c34f5b5a"
+   },
+   {
+    "pair": [
+     0,
+     2
+    ],
+    "same_as_baseline": false,
+    "expected_same": false,
+    "exit": 1,
+    "effect": ""
+   },
+   {
+    "pair": [
+     1,
+     2
+    ],
+    "same_as_baseline": false,
+    "expected_same": false,
+    "exit": 1,
+    "effect": ""
+   }
+  ]
+ },
+ {
+  "name": "slip39 combine 2 shares",
+  "symmetric": [
+   [
+    0,
+    1
+   ]
+  ],
+  "expect": "run",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic slip39 combine --share",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic slip39 combine --share",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic slip39 combine --share",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic slip39 combine --share",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic slip39 combine --share",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic slip39 combine --share",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   }
+  },
+  "c1_failures": [],
+  "t1_problems": [],
+  "planned_argv": [
+   "mnemonic",
+   "slip39",
+   "combine",
+   "--share",
+   "@env:MNEMONIC_GUI_S0",
+   "--share",
+   "@env:MNEMONIC_GUI_S1"
+  ],
+  "base_exit": 0,
+  "plan_exit": 0,
+  "base_effect": "00000000000000000000000000000000",
+  "plan_effect": "00000000000000000000000000000000",
+  "equal": true,
+  "plan_err": "",
+  "c1_env_runs": [
+   {
+    "source": 0,
+    "provenance": "$USER_SECRET_0",
+    "equal_baseline": true
+   },
+   {
+    "source": 1,
+    "provenance": "$USER_SECRET_1",
+    "equal_baseline": true
+   }
+  ],
+  "swaps": [
+   {
+    "pair": [
+     0,
+     1
+    ],
+    "same_as_baseline": true,
+    "expected_same": true,
+    "exit": 0,
+    "effect": "00000000000000000000000000000000"
+   }
+  ]
+ },
+ {
+  "name": "seed-xor combine 2 shares",
+  "symmetric": [
+   [
+    0,
+    1
+   ]
+  ],
+  "expect": "run",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic seed-xor combine --share phrase=",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic seed-xor combine --share phrase=",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic seed-xor combine --share phrase=",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic seed-xor combine --share phrase=",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic seed-xor combine --share phrase=",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic seed-xor combine --share phrase=",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   }
+  },
+  "c1_failures": [],
+  "t1_problems": [],
+  "planned_argv": [
+   "mnemonic",
+   "seed-xor",
+   "combine",
+   "--shares",
+   "2",
+   "--share",
+   "phrase=@env:MNEMONIC_GUI_S0",
+   "--share",
+   "phrase=@env:MNEMONIC_GUI_S1"
+  ],
+  "base_exit": 0,
+  "plan_exit": 0,
+  "base_effect": "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong",
+  "plan_effect": "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong",
+  "equal": true,
+  "plan_err": "",
+  "c1_env_runs": [
+   {
+    "source": 0,
+    "provenance": "$USER_SECRET_0",
+    "equal_baseline": true
+   },
+   {
+    "source": 1,
+    "provenance": "$USER_SECRET_1",
+    "equal_baseline": true
+   }
+  ],
+  "swaps": [
+   {
+    "pair": [
+     0,
+     1
+    ],
+    "same_as_baseline": true,
+    "expected_same": true,
+    "exit": 0,
+    "effect": "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
+   }
+  ]
+ },
+ {
+  "name": "ms-shares combine 2 shares",
+  "symmetric": [
+   [
+    0,
+    1
+   ]
+  ],
+  "expect": "run",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic ms-shares combine --share",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic ms-shares combine --share",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic ms-shares combine --share",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic ms-shares combine --share",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic ms-shares combine --share",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic ms-shares combine --share",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   }
+  },
+  "c1_failures": [],
+  "t1_problems": [],
+  "planned_argv": [
+   "mnemonic",
+   "ms-shares",
+   "combine",
+   "--to",
+   "phrase",
+   "--share",
+   "@env:MNEMONIC_GUI_S0",
+   "--share",
+   "@env:MNEMONIC_GUI_S1"
+  ],
+  "base_exit": 0,
+  "plan_exit": 0,
+  "base_effect": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab",
+  "plan_effect": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab",
+  "equal": true,
+  "plan_err": "",
+  "c1_env_runs": [
+   {
+    "source": 0,
+    "provenance": "$USER_SECRET_0",
+    "equal_baseline": true
+   },
+   {
+    "source": 1,
+    "provenance": "$USER_SECRET_1",
+    "equal_baseline": true
+   }
+  ],
+  "swaps": [
+   {
+    "pair": [
+     0,
+     1
+    ],
+    "same_as_baseline": true,
+    "expected_same": true,
+    "exit": 0,
+    "effect": "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab"
+   }
+  ]
+ },
+ {
+  "name": "import-wallet 2 cosigner ms1",
+  "symmetric": [],
+  "expect": "run",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic import-wallet --ms1",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic import-wallet --ms1",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic import-wallet --ms1",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic import-wallet --ms1",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic import-wallet --ms1",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic import-wallet --ms1",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   }
+  },
+  "c1_failures": [],
+  "t1_problems": [],
+  "planned_argv": [
+   "mnemonic",
+   "import-wallet",
+   "--blob",
+   "/scratch/code/shibboleth/gui-worktrees/followups/design/measurements/secret-channels/fixtures/blob-2of2.bsms",
+   "--format",
+   "bsms",
+   "--json",
+   "--ms1",
+   "@env:MNEMONIC_GUI_S0",
+   "--ms1",
+   "@env:MNEMONIC_GUI_S1"
+  ],
+  "base_exit": 0,
+  "plan_exit": 0,
+  "base_effect": "\"descriptor\": \"wsh(sortedmulti(2,[5436d724/48'/0'/0'/2']xpub6E79FaRWLSJCAgA2jDHRvyrWKwT6aS",
+  "plan_effect": "\"descriptor\": \"wsh(sortedmulti(2,[5436d724/48'/0'/0'/2']xpub6E79FaRWLSJCAgA2jDHRvyrWKwT6aS",
+  "equal": true,
+  "plan_err": "",
+  "c1_env_runs": [
+   {
+    "source": 0,
+    "provenance": "$USER_SECRET_0",
+    "equal_baseline": true
+   },
+   {
+    "source": 1,
+    "provenance": "$USER_SECRET_1",
+    "equal_baseline": true
+   }
+  ],
+  "swaps": [
+   {
+    "pair": [
+     0,
+     1
+    ],
+    "same_as_baseline": false,
+    "expected_same": false,
+    "exit": 4,
+    "effect": ""
+   }
+  ]
+ },
+ {
+  "name": "verify-bundle ms1+slot+passphrase",
+  "symmetric": [],
+  "expect": "run",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic verify-bundle --ms1",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic verify-bundle --slot @N.phrase=",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S1"
+     },
+     {
+      "source": 2,
+      "key": "mnemonic verify-bundle --passphrase",
+      "kind": "StdinToggle",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic verify-bundle --ms1",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic verify-bundle --slot @N.phrase=",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S1"
+     },
+     {
+      "source": 2,
+      "key": "mnemonic verify-bundle --passphrase",
+      "kind": "StdinToggle",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic verify-bundle --ms1",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic verify-bundle --slot @N.phrase=",
+      "kind": "EnvRef",
+      "env": "MNEMONIC_GUI_S1"
+     },
+     {
+      "source": 2,
+      "key": "mnemonic verify-bundle --passphrase",
+      "kind": "StdinToggle",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   }
+  },
+  "c1_failures": [],
+  "t1_problems": [],
+  "planned_argv": [
+   "mnemonic",
+   "verify-bundle",
+   "--network",
+   "mainnet",
+   "--template",
+   "bip84",
+   "--mk1",
+   "mk1qpd2y2pqqsqk4z99gdzlh7lxqvzg3vs7vs57ls3u2nlnjvzn90ffnjpcsauf2eggmpdquu02l9k7dpjhxhs3yaa99gptc4a2n52g8ural6ka",
+   "mk1qpd2y2ppkg4avpw5epus8t6arq6ygqxwxkzwazx3nhhjuzyy0x4vgpjuujemj3nrnnvwpnk2w7n5y",
+   "--md1",
+   "md1fmgqkpqpqpm6jzzqqvqpdqghalhes4gyrc48l8yc9x27jn8yr3qr6g5je08dpvln",
+   "md1fmgqkpqth39t9prv95rn3atukme5x2u67zynh554q909j90tqt5jseywjj6mcg8d",
+   "md1fmgqkpqjvs7gr4aw3sdzyqr8rtp8w3rgemmewpzz8n2kyqewwgqw2esfh8sa6p0g",
+   "--ms1",
+   "@env:MNEMONIC_GUI_S0",
+   "--slot",
+   "@0.phrase=@env:MNEMONIC_GUI_S1",
+   "--passphrase-stdin"
+  ],
+  "base_exit": 0,
+  "plan_exit": 0,
+  "base_effect": "result: ok",
+  "plan_effect": "result: ok",
+  "equal": true,
+  "plan_err": "",
+  "c1_env_runs": [
+   {
+    "source": 0,
+    "provenance": "$USER_SECRET_0",
+    "equal_baseline": true
+   },
+   {
+    "source": 1,
+    "provenance": "$USER_SECRET_1",
+    "equal_baseline": true
+   },
+   {
+    "source": 2,
+    "provenance": "$USER_SECRET_2",
+    "equal_baseline": true
+   }
+  ],
+  "swaps": [
+   {
+    "pair": [
+     0,
+     1
+    ],
+    "same_as_baseline": false,
+    "expected_same": false,
+    "exit": 2,
+    "effect": ""
+   },
+   {
+    "pair": [
+     0,
+     2
+    ],
+    "same_as_baseline": false,
+    "expected_same": false,
+    "exit": 2,
+    "effect": ""
+   },
+   {
+    "pair": [
+     1,
+     2
+    ],
+    "same_as_baseline": false,
+    "expected_same": false,
+    "exit": 1,
+    "effect": ""
+   }
+  ]
+ },
+ {
+  "name": "ms combine share group",
+  "symmetric": [],
+  "expect": "run",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "ms combine <shares>",
+      "kind": "StdinMulti"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "ms combine <shares>",
+      "kind": "StdinMulti"
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "ms combine <shares>",
+      "kind": "StdinMulti"
+     }
+    ]
+   }
+  },
+  "c1_failures": [],
+  "t1_problems": [],
+  "planned_argv": [
+   "ms",
+   "combine",
+   "--",
+   "-"
+  ],
+  "base_exit": 0,
+  "plan_exit": 0,
+  "base_effect": "entropy: 00000000000000000000000000000000",
+  "plan_effect": "entropy: 00000000000000000000000000000000",
+  "equal": true,
+  "plan_err": "",
+  "c1_env_runs": [
+   {
+    "source": 0,
+    "provenance": [
+     "$USER_SECRET_0",
+     "typed"
+    ],
+    "equal_baseline": true
+   }
+  ],
+  "swaps": []
+ },
+ {
+  "name": "ms verify phrase+ms1",
+  "symmetric": [],
+  "expect": "run",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "ms verify --phrase",
+      "kind": "DashValue"
+     },
+     {
+      "source": 1,
+      "key": "ms verify <ms1>",
+      "kind": "InFile",
+      "flag": "--in",
+      "fd": 3
+     }
+    ]
+   },
+   "macos": {
+    "refusal": "fd-not-on-platform",
+    "detail": "fd-not-on-platform: ms verify --phrase + ms verify <ms1>: needs a pipe fd; not enabled on macos"
+   },
+   "windows": {
+    "refusal": "fd-not-on-platform",
+    "detail": "fd-not-on-platform: ms verify --phrase + ms verify <ms1>: needs a pipe fd; not enabled on windows"
+   }
+  },
+  "c1_failures": [],
+  "t1_problems": [],
+  "planned_argv": [
+   "ms",
+   "verify",
+   "--phrase",
+   "-",
+   "--in",
+   "/dev/fd/3"
+  ],
+  "base_exit": 0,
+  "plan_exit": 0,
+  "base_effect": "OK: round-trip valid (12 words, language=english)",
+  "plan_effect": "OK: round-trip valid (12 words, language=english)",
+  "equal": true,
+  "plan_err": "",
+  "c1_env_runs": [
+   {
+    "source": 0,
+    "provenance": "$USER_SECRET_0",
+    "equal_baseline": true
+   },
+   {
+    "source": 1,
+    "provenance": "$USER_SECRET_1",
+    "equal_baseline": true
+   }
+  ],
+  "swaps": [
+   {
+    "pair": [
+     0,
+     1
+    ],
+    "same_as_baseline": false,
+    "expected_same": false,
+    "exit": 1,
+    "effect": ""
+   }
+  ]
+ },
+ {
+  "name": "ms derive ms1+passphrase",
+  "symmetric": [],
+  "expect": "run",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "ms derive --passphrase",
+      "kind": "StdinToggle",
+      "flag": "--passphrase-stdin"
+     },
+     {
+      "source": 1,
+      "key": "ms derive <ms1>",
+      "kind": "InFile",
+      "flag": "--in",
+      "fd": 3
+     }
+    ]
+   },
+   "macos": {
+    "refusal": "fd-not-on-platform",
+    "detail": "fd-not-on-platform: ms derive --passphrase + ms derive <ms1>: needs a pipe fd; not enabled on macos"
+   },
+   "windows": {
+    "refusal": "fd-not-on-platform",
+    "detail": "fd-not-on-platform: ms derive --passphrase + ms derive <ms1>: needs a pipe fd; not enabled on windows"
+   }
+  },
+  "c1_failures": [],
+  "t1_problems": [],
+  "planned_argv": [
+   "ms",
+   "derive",
+   "--passphrase-stdin",
+   "--in",
+   "/dev/fd/3"
+  ],
+  "base_exit": 0,
+  "plan_exit": 0,
+  "base_effect": "master_fingerprint:  45fbfbe6",
+  "plan_effect": "master_fingerprint:  45fbfbe6",
+  "equal": true,
+  "plan_err": "",
+  "c1_env_runs": [
+   {
+    "source": 0,
+    "provenance": "$USER_SECRET_0",
+    "equal_baseline": true
+   },
+   {
+    "source": 1,
+    "provenance": "$USER_SECRET_1",
+    "equal_baseline": true
+   }
+  ],
+  "swaps": [
+   {
+    "pair": [
+     0,
+     1
+    ],
+    "same_as_baseline": false,
+    "expected_same": false,
+    "exit": 1,
+    "effect": ""
+   }
+  ]
+ },
+ {
+  "name": "ms derive phrase+passphrase",
+  "symmetric": [],
+  "expect": "refuse",
+  "plans": {
+   "linux": {
+    "refusal": "two-stdin",
+    "detail": "two-stdin: ms derive --phrase + ms derive --passphrase: each has stdin as its only channel"
+   },
+   "macos": {
+    "refusal": "two-stdin",
+    "detail": "two-stdin: ms derive --phrase + ms derive --passphrase: each has stdin as its only channel"
+   },
+   "windows": {
+    "refusal": "two-stdin",
+    "detail": "two-stdin: ms derive --phrase + ms derive --passphrase: each has stdin as its only channel"
+   }
+  },
+  "c1_failures": []
+ },
+ {
+  "name": "ms derive hex+passphrase",
+  "symmetric": [],
+  "expect": "refuse",
+  "plans": {
+   "linux": {
+    "refusal": "two-stdin",
+    "detail": "two-stdin: ms derive --hex + ms derive --passphrase: each has stdin as its only channel"
+   },
+   "macos": {
+    "refusal": "two-stdin",
+    "detail": "two-stdin: ms derive --hex + ms derive --passphrase: each has stdin as its only channel"
+   },
+   "windows": {
+    "refusal": "two-stdin",
+    "detail": "two-stdin: ms derive --hex + ms derive --passphrase: each has stdin as its only channel"
+   }
+  },
+  "c1_failures": []
+ }
+]

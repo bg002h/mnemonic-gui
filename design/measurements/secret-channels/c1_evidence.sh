@@ -1,0 +1,23 @@
+#!/bin/bash
+# C1 evidence: what a user-typed `-` / `@env:NAME` in a secret field yields under each reading,
+# against the release binaries (which predate the F-687 CLI change).
+# restore --from phrase=<abandon…about> --template bip84; the user's intended passphrase is "hunter2".
+set -u
+M=${BIN_DIR:?set BIN_DIR}/mnemonic
+P="abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
+fp() { grep -o 'master fingerprint: [0-9a-f]*' | awk '{print $3}'; }
+A=--allow-argv-secret
+echo "intended (argv 'hunter2')                                      : $($M restore $A --from "phrase=$P" --template bip84 --passphrase hunter2 2>/dev/null | fp)"
+echo "no passphrase                                                  : $($M restore $A --from "phrase=$P" --template bip84 2>/dev/null | fp)"
+echo "today's pass-through: --passphrase @env:MY_PW (MY_PW=hunter2)    : $(MY_PW=hunter2 $M restore $A --from "phrase=$P" --template bip84 --passphrase @env:MY_PW 2>/dev/null | fp)"
+echo "reading 1, typed text is the bytes: S1='@env:MY_PW' via @env:S1   : $(MY_PW=hunter2 MNEMONIC_GUI_S1='@env:MY_PW' $M restore $A --from "phrase=$P" --template bip84 --passphrase @env:MNEMONIC_GUI_S1 2>/dev/null | fp)"
+echo "reading 1, typed text is the bytes: '@env:MY_PW' via -stdin       : $(printf '@env:MY_PW' | MY_PW=hunter2 $M restore $A --from "phrase=$P" --template bip84 --passphrase-stdin 2>/dev/null | fp)"
+echo "reading 2, sentinel passed through: --passphrase -  (stdin=hunter2): $(printf 'hunter2' | $M restore $A --from "phrase=$P" --template bip84 --passphrase - 2>/dev/null | fp)"
+echo "  = the literal passphrase '-' on argv                              : $($M restore $A --from "phrase=$P" --template bip84 --passphrase - 2>/dev/null | fp)"
+echo "DESIGN (GUI resolves \$MY_PW itself), bytes via @env:MNEMONIC_GUI_S1 : $(MNEMONIC_GUI_S1=hunter2 $M restore $A --from "phrase=$P" --template bip84 --passphrase @env:MNEMONIC_GUI_S1 2>/dev/null | fp)"
+echo "DESIGN (GUI resolves \$MY_PW itself), bytes via --passphrase-stdin   : $(printf 'hunter2' | $M restore $A --from "phrase=$P" --template bip84 --passphrase-stdin 2>/dev/null | fp)"
+S=${BIN_DIR}/mnemonic
+echo "reading 2 on silent-payment: --passphrase @env:MY_PW (MY_PW=hunter2) vs argv hunter2:"
+a=$($S silent-payment $A --secret "$P" --passphrase hunter2 2>/dev/null | grep -m1 address)
+b=$(MY_PW=hunter2 $S silent-payment $A --secret "$P" --passphrase @env:MY_PW 2>/dev/null | grep -m1 address)
+[ "$a" = "$b" ] && echo "  same" || echo "  DIFFERENT: the @env: text is taken literally"
