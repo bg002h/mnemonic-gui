@@ -43,6 +43,9 @@ fn subcommand_argv_tokens(name: &str) -> Vec<&str> {
     vec![name]
 }
 
+/// F-679 fold 1 — the end-of-options marker emitted before positionals.
+pub const END_OF_OPTIONS: &str = "--";
+
 /// F-679 — the CLI's opt-in for secret material on argv. `mnemonic` (toolkit
 /// v0.104.0+) and `ms` (v0.19.0+) REFUSE a secret on the command line unless
 /// this flag is present.
@@ -81,8 +84,14 @@ pub fn admit_argv_secret_for_run(
 ) -> (Vec<String>, Vec<bool>) {
     debug_assert_eq!(argv.len(), mask.len());
     let declared = subcommand.flags.iter().any(|f| f.name == ALLOW_ARGV_SECRET);
-    let carries_secret =
-        mask.iter().any(|&m| m) || argv.iter().skip(1).any(|t| is_secret_node_value_token(t));
+    // F-679 fold 1 (review N1): a masked token that only NAMES a private
+    // channel (`-`, `@env:VAR`) carries no material, and the CLI does not
+    // refuse it — so it does not earn the opt-in.
+    let carries_secret = argv
+        .iter()
+        .zip(mask.iter())
+        .any(|(t, &m)| m && !masked_token_is_private_channel(t))
+        || argv.iter().skip(1).any(|t| is_secret_node_value_token(t));
     if !declared || !carries_secret || argv.iter().any(|t| t == ALLOW_ARGV_SECRET) {
         return (argv, mask);
     }
@@ -213,6 +222,29 @@ pub fn assemble_argv(
     state: &crate::schema::FormState,
 ) -> Vec<String> {
     assemble_argv_with_secret_mask(schema, subcommand, state).0
+}
+
+fn is_private_channel_value(v: &str) -> bool {
+    v.is_empty() || v == "-" || v.starts_with("@env:")
+}
+
+/// F-679 fold 1 — a secret-masked token whose VALUE is a private-channel
+/// sentinel: the whole token (`--passphrase -`, an ms1 positional `-`), a slot
+/// row `@N.<subkey>=<sentinel>`, or a composite `<node>=<sentinel>` for an
+/// argv-secret node. Any other `=` inside a masked value (a passphrase may
+/// contain one) is NOT split on, so such a value still earns the opt-in.
+fn masked_token_is_private_channel(token: &str) -> bool {
+    if is_private_channel_value(token) {
+        return true;
+    }
+    match token.split_once('=') {
+        Some((lhs, rhs)) => {
+            let slot = lhs.starts_with('@') && lhs.contains('.');
+            let node = crate::secrets::node_type_is_argv_secret(lhs);
+            (slot || node) && is_private_channel_value(rhs)
+        }
+        None => false,
+    }
 }
 
 /// F-679 — a `<node>=<value>` token whose node is argv-secret-classed
@@ -459,22 +491,40 @@ pub fn assemble_argv_with_secret_mask(
     // path is authoritative — mirrors the v0.31.1 kind-gated flag
     // discipline). Non-secret positionals keep the `state.positionals`
     // path, skipping empty strings (SPEC §6.7 parity).
+    //
+    // F-679 fold 1 (review I2): positionals go after an end-of-options `--`
+    // whenever at least one is emitted. Without it a multi-value option
+    // emitted just before them (`md address --from-mk1 <STRING>...`) swallows
+    // the positional as one more of its values. `--` is emitted
+    // UNCONDITIONALLY (not only after a multi-value option) because every
+    // mirrored subcommand that takes positionals was measured to accept it
+    // with byte-identical output (md/ms/mk/mnemonic release binaries), and a
+    // rule keyed on "which options are multi-value" is one more hand list to
+    // drift. It also protects a positional value that begins with `-`. Copy,
+    // Preview, the confirm modal and Run all derive from this one argv.
+    let mut positionals: Vec<(String, bool)> = Vec::new();
     if let Some(pos) = subcommand.positional_args.iter().find(|p| p.secret) {
         if let Some(rows) = state.secret_widgets.get(&format!("positional:{}", pos.name)) {
             for w in rows {
                 if !w.is_empty() {
                     let value = w.as_string();
-                    argv.push(value.as_str().to_string());
-                    mask.push(true); // secret positional value
+                    positionals.push((value.as_str().to_string(), true)); // secret positional value
                 }
             }
         }
     } else {
         for pos in &state.positionals {
             if !pos.is_empty() {
-                argv.push(pos.clone());
-                mask.push(false);
+                positionals.push((pos.clone(), false));
             }
+        }
+    }
+    if !positionals.is_empty() {
+        argv.push(END_OF_OPTIONS.to_string());
+        mask.push(false);
+        for (token, secret) in positionals {
+            argv.push(token);
+            mask.push(secret);
         }
     }
 

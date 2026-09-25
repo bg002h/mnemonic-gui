@@ -116,6 +116,24 @@ fn argv(tab: CliTab, sub_name: &str, h: &Harness<'static, FormState>) -> Vec<Str
 
 fn s_noop(_st: &mut FormState, _sub: &'static SubcommandSchema) {}
 
+// F-679 fold 1: ms input-source exclusivity seeds.
+fn s_ms_positional_ms1(st: &mut FormState, _sub: &'static SubcommandSchema) {
+    st.secret_widgets.insert(
+        "positional:ms1".into(),
+        vec![mnemonic_gui::form::secret_widget::SecretLineEdit::from_text("ms10x")],
+    );
+}
+fn s_ms_derive_in_and_hex(st: &mut FormState, sub: &'static SubcommandSchema) {
+    seed(st, sub, "--in", "card.ms1");
+    seed(st, sub, "--hex", "00");
+}
+fn s_ms_combine_shares(st: &mut FormState, _sub: &'static SubcommandSchema) {
+    st.secret_widgets.insert(
+        "positional:shares".into(),
+        vec![mnemonic_gui::form::secret_widget::SecretLineEdit::from_text("ms1x")],
+    );
+}
+
 fn s_bundle_descriptor(st: &mut FormState, sub: &'static SubcommandSchema) {
     // wpkh(@0) classifies CANONICAL → the --account PinValue(0) pin fires.
     seed(st, sub, "--descriptor", "wpkh(@0)");
@@ -751,6 +769,12 @@ const CASES: &[(CliTab, &str, SeedFn)] = &[
     (CliTab::Md, "compile", s_md_compile_segwit),
     (CliTab::Md, "address", s_md_address_positional),
     (CliTab::Ms, "encode", s_ms_encode_hex),
+    (CliTab::Ms, "inspect", s_ms_positional_ms1),
+    (CliTab::Ms, "decode", s_ms_positional_ms1),
+    (CliTab::Ms, "verify", s_ms_positional_ms1),
+    (CliTab::Ms, "derive", s_ms_derive_in_and_hex),
+    (CliTab::Ms, "repair", s_noop),
+    (CliTab::Ms, "combine", s_ms_combine_shares),
     (CliTab::Mk, "encode", s_mk_encode_fp),
 ];
 
@@ -760,7 +784,7 @@ fn i1_render_matches_conditional_projection_over_all_17() {
     // must equal `conditional(settled_state)`'s effect for it. Breadth check
     // that pins the per-effect→AccessKit translation + the form-loop gate's
     // fidelity across all 17 conditional subs and all their flags.
-    assert_eq!(CASES.len(), 17, "CASES must cover all 17 conditional subcommands");
+    assert_eq!(CASES.len(), 23, "CASES must cover all 23 conditional subcommands");
     let mut total_checked = 0usize;
     let mut non_visible = 0usize;
     for (tab, sub_name, seed_fn) in CASES.iter().copied() {
@@ -1091,15 +1115,17 @@ fn the_17_conditional_subcommands_are_enumerated() {
             }
         }
     }
+    // F-679 fold 1: ms gains 6 (inspect/decode/verify/derive/repair/combine
+    // — the `--in` input-source exclusivity), 17 -> 23.
     assert_eq!(
         found.len(),
-        17,
-        "expected exactly 17 conditional subcommands (mnemonic 12 + md 3 + ms 1 + mk 1); got {found:?}"
+        23,
+        "expected exactly 23 conditional subcommands (mnemonic 12 + md 3 + ms 7 + mk 1); got {found:?}"
     );
     // Spot-pin the per-CLI counts.
     let mn = found.iter().filter(|s| s.starts_with("mnemonic/")).count();
     let md = found.iter().filter(|s| s.starts_with("md/")).count();
     let ms = found.iter().filter(|s| s.starts_with("ms/")).count();
     let mk = found.iter().filter(|s| s.starts_with("mk/")).count();
-    assert_eq!((mn, md, ms, mk), (12, 3, 1, 1), "per-CLI conditional counts drifted: {found:?}");
+    assert_eq!((mn, md, ms, mk), (12, 3, 7, 1), "per-CLI conditional counts drifted: {found:?}");
 }

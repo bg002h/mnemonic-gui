@@ -864,6 +864,11 @@ pub fn md_address(state: &FormState) -> FlagVisibility {
         vis.push(("--from-mk1-file", Visibility::Disabled));
         vis.push(("--seat", Visibility::Disabled));
     }
+    // F-679 fold 1 (review M2): key cards need the KEYLESS policy card's
+    // phrases on the positional — mark it Required when only mk1 is given.
+    if has_mk1 && !has_phrases_pos {
+        vis.push(("positional:phrases", Visibility::Required));
+    }
     if !has_phrases_pos && !has_template && !has_mk1 {
         vis.push(("--template", Visibility::Required));
         // positional Required handled at widget layer.
@@ -1035,4 +1040,61 @@ pub fn restore(state: &FormState) -> FlagVisibility {
         vis.push(("--from", Visibility::Required));
     }
     vis
+}
+
+// ─── F-679 fold 1 (review M1): ms input-source exclusivity ────────────────
+//
+// ms 0.19.0 added `--in FILE` to every material verb, and clap refuses it
+// together with the verb's other input (exit 64). Positionals cannot be
+// disabled (they always render and emit), so the rule is PRECEDENCE: the
+// first present source in `order` wins and every later FLAG source is
+// Disabled (suppressed from argv). A positional is listed first, so a filled
+// positional always wins. `required_group`: when nothing is present, mark
+// every source Required (the verbs whose clap group is required).
+fn ms_one_input_source(
+    state: &FormState,
+    order: &[&'static str],
+    required_group: bool,
+) -> FlagVisibility {
+    let mut vis = Vec::new();
+    match order.iter().position(|n| state.has_value(n)) {
+        Some(winner) => {
+            for n in order.iter().skip(winner + 1) {
+                if n.starts_with("--") {
+                    vis.push((*n, Visibility::Disabled));
+                }
+            }
+        }
+        None if required_group => {
+            for n in order {
+                vis.push((*n, Visibility::Required));
+            }
+        }
+        None => {}
+    }
+    vis
+}
+
+/// `ms inspect|decode|verify`: `[MS1]` XOR `--in`.
+pub fn ms_ms1_or_in(state: &FormState) -> FlagVisibility {
+    ms_one_input_source(state, &["positional:ms1", "--in"], false)
+}
+
+/// `ms derive`: one of `[MS1]`, `--in`, `--phrase`, `--hex`.
+pub fn ms_derive(state: &FormState) -> FlagVisibility {
+    ms_one_input_source(
+        state,
+        &["positional:ms1", "--in", "--phrase", "--hex"],
+        false,
+    )
+}
+
+/// `ms repair`: `<--ms1|--in>` (required group).
+pub fn ms_repair(state: &FormState) -> FlagVisibility {
+    ms_one_input_source(state, &["--ms1", "--in"], true)
+}
+
+/// `ms combine`: `<SHARES|--in>` (required group).
+pub fn ms_combine(state: &FormState) -> FlagVisibility {
+    ms_one_input_source(state, &["positional:shares", "--in"], true)
 }

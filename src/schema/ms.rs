@@ -735,7 +735,7 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
         flags: INSPECT_FLAGS,
         positional_args: INSPECT_POSITIONALS,
         allows_slots: false,
-        conditional: None,
+        conditional: Some(crate::form::conditional::ms_ms1_or_in),
     },
     SubcommandSchema {
         name: "encode",
@@ -751,7 +751,7 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
         flags: DECODE_FLAGS,
         positional_args: DECODE_POSITIONALS,
         allows_slots: false,
-        conditional: None,
+        conditional: Some(crate::form::conditional::ms_ms1_or_in),
     },
     SubcommandSchema {
         name: "verify",
@@ -759,7 +759,7 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
         flags: VERIFY_FLAGS,
         positional_args: VERIFY_POSITIONALS,
         allows_slots: false,
-        conditional: None,
+        conditional: Some(crate::form::conditional::ms_ms1_or_in),
     },
     SubcommandSchema {
         name: "vectors",
@@ -775,7 +775,7 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
         flags: DERIVE_FLAGS,
         positional_args: DERIVE_POSITIONALS,
         allows_slots: false,
-        conditional: None,
+        conditional: Some(crate::form::conditional::ms_derive),
     },
     SubcommandSchema {
         name: "repair",
@@ -783,7 +783,7 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
         flags: REPAIR_FLAGS,
         positional_args: REPAIR_POSITIONALS,
         allows_slots: false,
-        conditional: None,
+        conditional: Some(crate::form::conditional::ms_repair),
     },
     // v0.7.0: BIP-93 codex32 K-of-N share split / combine.
     SubcommandSchema {
@@ -800,7 +800,7 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
         flags: COMBINE_FLAGS,
         positional_args: COMBINE_POSITIONALS,
         allows_slots: false,
-        conditional: None,
+        conditional: Some(crate::form::conditional::ms_combine),
     },
     SubcommandSchema {
         name: "gen-man",

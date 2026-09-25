@@ -75,7 +75,7 @@ fn render_one_positional_harness(
 ) -> Harness<'static, FormState> {
     Harness::new_ui_state(
         move |ui, state: &mut FormState| {
-            ui_harness::render_one_positional(ui, pos, 0, state);
+            ui_harness::render_one_positional(ui, pos, 0, state, pos.required);
         },
         base,
     )

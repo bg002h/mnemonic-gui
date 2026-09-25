@@ -9,7 +9,7 @@
 
 use mnemonic_gui::form::invocation::{
     admit_argv_secret_for_run, assemble_argv, assemble_argv_for_run,
-    assemble_argv_with_secret_mask, is_gui_managed_flag, ALLOW_ARGV_SECRET,
+    assemble_argv_with_secret_mask, is_gui_managed_flag, ALLOW_ARGV_SECRET, END_OF_OPTIONS,
 };
 use mnemonic_gui::form::secret_widget::SecretLineEdit;
 use mnemonic_gui::schema::{self, FlagValue, FormState, Schema, SubcommandSchema};
@@ -324,4 +324,108 @@ fn real_every_offered_separator_is_accepted() {
             );
         }
     }
+}
+
+// ─── F-679 fold 1 (review I2): `--` before positionals ─────────────────────
+
+/// A keyless wpkh policy card (md 0.20.3) and the two mk1 cards of the BIP-84
+/// account-0 xpub of the published "abandon … about" vector (mk 0.13.0,
+/// `--policy-id-stub 00000000`). Watch-only; the composed first address is the
+/// well-known `bc1qcr8te4…`.
+const MD1_KEYLESS_WPKH: &str = "md1yq802gggqpsqwgtua24e7ssf3";
+const MK1_ACCT0_A: &str = "mk1qpe9m4pqqsqsqqqqqpeutks2qvzg3vs70mejhk622ws2kgdemj2cd8zwj2skzx2wq0qw70l4q99vdyh5x0z8v4yslsp8qjt8k8r9fgxmzmht";
+const MK1_ACCT0_B: &str =
+    "mk1qpe9m4pp0f30mtxzd65mvwcur9usdatwuqvq6z70r9nwrgk6xn6l8gy6n0yhwh6mr79jfqallmwff";
+const ACCT0_FIRST_ADDRESS: &str = "bc1qcr8te4kr609gcawutmrza0j4xv80jy8z306fyu";
+
+fn md_address_from_mk1_state() -> FormState {
+    FormState::from_pairs(vec![
+        ("--from-mk1", FlagValue::Text(MK1_ACCT0_A.into())),
+        ("--from-mk1", FlagValue::Text(MK1_ACCT0_B.into())),
+    ])
+    .with_positionals([MD1_KEYLESS_WPKH])
+}
+
+#[test]
+fn positionals_follow_an_end_of_options_marker() {
+    let s = sub(&schema::md::SCHEMA, "address");
+    let argv = assemble_argv(&schema::md::SCHEMA, s, &md_address_from_mk1_state());
+    let at = argv
+        .iter()
+        .position(|t| t == MD1_KEYLESS_WPKH)
+        .expect("md1 in argv");
+    assert_eq!(argv[at - 1], END_OF_OPTIONS, "{argv:?}");
+    assert_eq!(argv.iter().filter(|t| *t == END_OF_OPTIONS).count(), 1);
+    // No positionals → no marker.
+    let bare = assemble_argv(&schema::md::SCHEMA, s, &FormState::default());
+    assert!(!bare.iter().any(|t| t == END_OF_OPTIONS), "{bare:?}");
+    // A secret positional keeps its mask bit after the marker.
+    let d = sub(&schema::ms::SCHEMA, "decode");
+    let (argv, mask) = assemble_argv_with_secret_mask(&schema::ms::SCHEMA, d, &ms_decode_state());
+    let at = argv.iter().position(|t| t == MS1).unwrap();
+    assert_eq!(argv[at - 1], END_OF_OPTIONS);
+    assert!(mask[at] && !mask[at - 1]);
+}
+
+/// The review's I2 reproduction, through the GUI's own assembler: before the
+/// fold the md1 policy card landed after `--from-mk1 <STRING>...` and md
+/// refused it as a third key card (exit 1). Copy, Preview and Run agree here
+/// (md declares no opt-in), so this argv is also what the user copies.
+#[test]
+fn real_md_address_from_mk1_with_the_policy_positional() {
+    let Some(bin) = pinned_bin("MD_BIN") else {
+        return;
+    };
+    let s = sub(&schema::md::SCHEMA, "address");
+    let state = md_address_from_mk1_state();
+    let copy = assemble_argv(&schema::md::SCHEMA, s, &state);
+    let run_argv = assemble_argv_for_run(&schema::md::SCHEMA, s, &state);
+    assert_eq!(copy, run_argv, "md has no opt-in: copy == run");
+    let r = run_for(&schema::md::SCHEMA, "address", bin, &state);
+    assert_eq!(
+        r.exit_code,
+        Some(0),
+        "stderr: {}",
+        String::from_utf8_lossy(&r.stderr)
+    );
+    assert!(
+        String::from_utf8_lossy(&r.stdout).contains(ACCT0_FIRST_ADDRESS),
+        "stdout: {}",
+        String::from_utf8_lossy(&r.stdout)
+    );
+}
+
+/// F-679 fold 1 (review N1): a secret field holding only a private-channel
+/// sentinel gets no opt-in; a real value (even one containing `=`) does.
+#[test]
+fn private_channel_sentinels_in_secret_fields_need_no_opt_in() {
+    let s = sub(&schema::mnemonic::SCHEMA, "convert");
+    for (value, expect) in [
+        ("@env:SEED", false),
+        ("-", false),
+        ("abandon abandon", true),
+    ] {
+        let state = FormState::from_pairs(vec![(
+            "--from",
+            FlagValue::NodeValueComposite {
+                node: "phrase".into(),
+                value: value.into(),
+            },
+        )]);
+        let run = assemble_argv_for_run(&schema::mnemonic::SCHEMA, s, &state);
+        assert_eq!(
+            run.iter().any(|t| t == ALLOW_ARGV_SECRET),
+            expect,
+            "{value}: {run:?}"
+        );
+    }
+    // A passphrase that merely contains `=` is still material.
+    let x = sub(&schema::mnemonic::SCHEMA, "xpub-search-passphrase-of-xpub");
+    let mut state = FormState::default();
+    state.secret_widgets.insert(
+        "--passphrase".into(),
+        vec![SecretLineEdit::from_text("a=-")],
+    );
+    let run = assemble_argv_for_run(&schema::mnemonic::SCHEMA, x, &state);
+    assert!(run.iter().any(|t| t == ALLOW_ARGV_SECRET), "{run:?}");
 }

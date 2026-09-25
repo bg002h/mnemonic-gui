@@ -494,11 +494,12 @@ pub fn render_one_positional(
     pos: &'static PositionalArgSchema,
     idx: usize,
     state: &mut FormState,
+    required: bool,
 ) {
     let label = format!(
         "{} {}{}",
         pos.name,
-        if pos.required { "*" } else { "" },
+        if required { "*" } else { "" },
         if pos.repeating { "..." } else { "" }
     );
     if pos.secret {
@@ -529,8 +530,18 @@ pub fn render_positionals(
     sub: &'static SubcommandSchema,
     state: &mut FormState,
 ) {
+    // F-679 fold 1: the conditional may mark `positional:<name>` Required
+    // (app_window reads the same via `render_emit::positional_required`).
+    let vis = sub.conditional.map(|f| f(state)).unwrap_or_default();
+    let visibility_of = |name: &str| -> Visibility {
+        vis.iter()
+            .find(|(k, _)| *k == name)
+            .map(|(_, v)| v.clone())
+            .unwrap_or(Visibility::Visible)
+    };
     for (i, pos) in sub.positional_args.iter().enumerate() {
-        render_one_positional(ui, pos, i, state);
+        let required = mnemonic_gui::form::render_emit::positional_required(pos, &visibility_of);
+        render_one_positional(ui, pos, i, state, required);
     }
 }
 

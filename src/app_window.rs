@@ -814,6 +814,9 @@ impl MnemonicGuiApp {
                 // SecretLineEdit::show — do NOT route through the
                 // FlagSchema-coupled render_with_dispatch.
                 for (i, pos) in sub.positional_args.iter().enumerate() {
+                    // F-679 fold 1: conditional Required on `positional:<name>`.
+                    let pos_required =
+                        crate::form::render_emit::positional_required(pos, &visibility_of);
                     if pos.secret {
                         let key = format!("positional:{}", pos.name);
                         let rows = state
@@ -825,7 +828,7 @@ impl MnemonicGuiApp {
                         let label = format!(
                             "{} {}{}",
                             pos.name,
-                            if pos.required { "*" } else { "" },
+                            if pos_required { "*" } else { "" },
                             if pos.repeating { "..." } else { "" }
                         );
                         let mut remove: Option<usize> = None;
@@ -853,7 +856,7 @@ impl MnemonicGuiApp {
                         ui.label(format!(
                             "{} {}{}",
                             pos.name,
-                            if pos.required { "*" } else { "" },
+                            if pos_required { "*" } else { "" },
                             if pos.repeating { "..." } else { "" }
                         ));
                         while state.positionals.len() <= i {
