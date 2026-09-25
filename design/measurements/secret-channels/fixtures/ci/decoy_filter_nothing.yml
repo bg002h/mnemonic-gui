@@ -1,0 +1,8 @@
+# R4 decoy: a test-name filter that matches nothing (0 tests, exit 0)
+on: [push, pull_request]
+jobs:
+  mac:
+    runs-on: macos-latest
+    env: {MNEMONIC_BIN: mnemonic}
+    steps:
+      - run: cargo test --test secret_channels_t2 --test secret_channels_t3prime --test secret_channels_t7 -- no_such_test_name

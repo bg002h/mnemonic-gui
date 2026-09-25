@@ -23,14 +23,14 @@ def payloads(bindings, res):
 
 
 def value_cases(sh):
-    """Per OS: the typed case, and each source typed as `@env:USER_SECRET` holding value + '\\n'."""
+    """Per OS: the typed case, and each source typed as `@env:USER_SECRET` holding value + two spaces."""
     cases = []
     variants = [("typed", sh["sources"], {})]
     for i, s in enumerate(sh["sources"]):
         if s["form"] != "group":
             srcs = [dict(x) for x in sh["sources"]]
             srcs[i]["value"] = "@env:USER_SECRET"
-            variants.append((f"src{i} as @env:USER_SECRET", srcs, {"USER_SECRET": s["value"] + "\n"}))
+            variants.append((f"src{i} as @env:USER_SECRET", srcs, {"USER_SECRET": s["value"] + "  "}))
     for name, srcs, uenv in variants:
         for p in PLATFORMS:
             try:
@@ -72,12 +72,12 @@ def cell(p):
 
 def a5_markdown(rows):
     from collections import Counter
-    from plan import REINTERPRET
+    REINTERPRET = json.load(open(os.path.join(HERE, "reinterpret.json")))   # measurement, shown for context
     rules = Counter(str(v.get("cli_env_rule")) for v in TABLE.values())
     head = (f"Policy (decided): private channels on {POLICY['private_channels_on']}, fd channel on {POLICY['fd_channel_on']}. "
             f"Derived (measured, CI-regenerated): per-input CLI `@env:` rule "
             + ", ".join(f"{k} ×{n}" for k, n in sorted(rules.items()))
-            + "; argv re-reads "
+            + "; measured argv re-reads (informational; safety is the broad predicate) "
             + ", ".join(f"{k} {v['version']}: {' '.join('`'+x+'`' for x in v['spellings'])}" for k, v in REINTERPRET.items())
             + ".\n\n")
     out = head + "| shape | Linux plan | macOS | Windows | macOS/Windows once their flag flips |\n|---|---|---|---|---|\n"

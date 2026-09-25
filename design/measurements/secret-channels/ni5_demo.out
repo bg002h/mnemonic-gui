@@ -1,15 +1,13 @@
 F-687 binaries: mnemonic 0.104.0, ms 0.19.1
 
 === (A) committed cache vs F-687 binaries: BIN_DIR=F687 regen_check.py --plans
-RED  identity: mnemonic binary sha256 72ff4a36d704e5b3… (mnemonic 0.104.0) != measured c894bee53193cfe6… (same version string: True)
-RED  identity: ms binary sha256 72f044bd6a6e84ed… (ms 0.19.1) != measured a6d748119b0ee25a… (same version string: True)
+RED  identity: mnemonic binary sha256 88cb9fbf420f7ded… (mnemonic 0.104.0) != measured c894bee53193cfe6… (same version string: True)
+RED  identity: ms binary sha256 1d13f0f84cdf1a05… (ms 0.19.1) != measured a6d748119b0ee25a… (same version string: True)
 RED  derived: channel_table.json differs from a regeneration. 13 inputs differ, e.g. ['mnemonic addresses --passphrase', 'mnemonic bundle --passphrase', 'mnemonic convert --passphrase', 'mnemonic derive-child --passphrase']
-RED  derived: reinterpret.json differs from a regeneration. ms: committed ['-'] vs measured ['-', '@env:']
+RED  derived: reinterpret.json differs from a regeneration. ms: committed ['-'] vs measured ['-', '@env:{V}']
 RED  derived: measured_with.json differs from a regeneration. 
 RED  derived: bytes.json differs from a regeneration. 
-RED  T3' run_plans.py: FAILURES: ['addresses phrase+passphrase', 'restore phrase+passphrase', 'restore ms1+passphrase', 'derive-child phrase+passphrase', 'bundle slot+passphrase', 'bundle wsh-multi 2 slots+passphrase', 'convert phrase+passphrase', 'xpub-search path-of-xpub phrase+passphrase', 'xpub-search path-of-xpub ms1+passphrase', 'xpub-search passphrase-of-xpub phrase+passphrase', 'xpub-search passphrase-of-xpub ms1+passphrase', 'xpub-search account-of-descriptor phrase+passphrase', 'xpub-search account-of-descriptor ms1+passphrase', 'slip39 split phrase+passphrase', 'slip39 combine 2 shares+passphrase', 'verify-bundle ms1+slot+passphrase', 'ms derive ms1+passphrase']
-RED    NC1 OTHER's wallet: ms derive ms1+passphrase source 0 content '@env:OTHER'
-regen_check: 8 red
+regen_check: 6 red
 exit 1
 
 === (B) re-derived on F-687, ms row left at [-]: regen_check.py --data-from STALE --plans
@@ -19,11 +17,7 @@ regen_check: GREEN
 exit 0
 
 === (B) continued: the stale variant
-  F-687 measured ms re-reads: ['-', '@env:']; the stale bump leaves it at ['-']
-RED  derived: reinterpret.json differs from a regeneration. ms: committed ['-'] vs measured ['-', '@env:']
-RED  T3' run_plans.py: FAILURES: ['ms derive ms1+passphrase', 'ms derive phrase+passphrase', 'ms derive hex+passphrase']
-RED    NC1 OTHER's wallet: ms derive ms1+passphrase source 0 content '@env:OTHER'
-RED    NC1 OTHER's wallet: ms derive phrase+passphrase source 1 content '@env:OTHER'
-RED    NC1 OTHER's wallet: ms derive hex+passphrase source 1 content '@env:OTHER'
-regen_check: 5 red
+  F-687 measured ms re-reads: ['-', '@env:{V}']; the stale bump leaves it at ['-']
+RED  derived: reinterpret.json differs from a regeneration. ms: committed ['-'] vs measured ['-', '@env:{V}']
+regen_check: 1 red
 exit 1

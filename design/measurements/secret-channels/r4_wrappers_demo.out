@@ -1,0 +1,23 @@
+=== wrappers behave as R4 describes (OTHER = hunter2-passphrase):
+  W2 ms derive --passphrase ' @env:OTHER' (argv) : master_fingerprint:  45fbfbe6   (OTHER's wallet is 45fbfbe6)
+  real   ms derive --passphrase ' @env:OTHER' (argv) : master_fingerprint:  8d31199c
+  W1 restore --passphrase @env:X, X='hunter2-passphrase\n\n' : 45fbfbe6
+  real  restore --passphrase @env:X, same X                  : 5d5b0e1a
+
+=== w2: full correct re-derivation, then regen_check --data-from it --plans
+  derived: rules {'verbatim': 42, 'strip-one-trailing-newline': 13, 'None': 30} | ms re-reads ['\t-', '\t@env:{V}', '\n@env:{V}', ' -', ' @env:{V}', '-', '-\n', '-\r\n', '- ', '@env:{V}', '@env:{V}\n', '@env:{V}\r\n', '@env:{V} ']
+regen_check: GREEN
+  exit 0
+
+=== w1: full correct re-derivation, then regen_check --data-from it --plans
+  derived: rules {'verbatim': 42, 'UNKNOWN': 12, 'None': 30, 'strip-one-trailing-newline': 1} | ms re-reads ['-', '@env:{V}']
+RED  test_plan.py on this data:   FAIL C1 convert phrase+passphrase src1 '@env:EMPTY' macos: got C1-env-rule-unknown, want C1-env-empty — FAIL C1 addresses phrase+passphrase src1 '@env:EMPTY' linux: got C1-env-rule-unknown, want C1-env-empty; FAIL C1 addresses phrase+passphrase src1 '@env:EMPTY' macos: got C1-env-rule-unknown, want C1-env-empty; FAIL C1 addresses phrase+passphrase src1 '@env:EMPTY
+RED  T3' run_plans.py: FAILURES: ['addresses phrase+passphrase', 'restore phrase+passphrase', 'restore ms1+passphrase', 'derive-child phrase+passphrase', 'bundle slot+passphrase', 'bundle wsh-multi 2 slots+passphrase', 'convert phrase+passphrase', 'xpub-search path-of-xpub phrase+passphrase', 'xpub-search path-of-xpub ms1+passphrase', 'xpub-search passphrase-of-xpub phrase+passphrase', 'xpub-searc
+regen_check: 2 red
+  exit 1
+
+=== the planner on R4's cases, fold 5 (pure; any OS):
+  ms derive ms1+passphrase, variable = ' @env:OTHER', linux: refused value-looks-like-a-channel
+  ms derive ms1+passphrase, variable = ' @env:OTHER', macos: refused value-looks-like-a-channel
+  restore phrase+passphrase, variable = 'hunter2-passphrase\n\n', linux: refused value-ends-in-newline
+  restore phrase+passphrase, variable = 'hunter2-passphrase\n\n', macos: refused value-ends-in-newline

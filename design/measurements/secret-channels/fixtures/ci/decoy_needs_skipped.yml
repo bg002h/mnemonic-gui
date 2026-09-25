@@ -1,0 +1,14 @@
+# R4 decoy: depends on a job that never runs, so it is skipped too
+on: [push, pull_request]
+jobs:
+  gate:
+    if: false
+    runs-on: ubuntu-latest
+    steps:
+      - run: "true"
+  mac:
+    needs: gate
+    runs-on: macos-latest
+    env: {MNEMONIC_BIN: mnemonic}
+    steps:
+      - run: cargo test --test secret_channels_t2 --test secret_channels_t3prime --test secret_channels_t7

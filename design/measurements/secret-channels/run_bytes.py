@@ -16,9 +16,10 @@ from cases3 import C, C2, C3
 from table_build import kind as kind_of
 from channels import ENV
 
-ENDINGS = ["", "\n", "\r\n", "\r", "  ", " \n", "\nX"]
-RULES = [("verbatim", lambda r: r),
-         ("strip-one-trailing-newline", lambda r: r[:-2] if r.endswith("\r\n") else r[:-1] if r.endswith("\n") else r)]
+# R4 NI9: the ONE shared corpus (corpus.py) and the ONE rule implementation (plan.RULES).
+from corpus import VARIANTS as ENDINGS, apply
+from plan import RULES as _RULES
+RULES = list(_RULES.items())
 TERMINATORS = ["\r\n", "\n", ""]
 STDIN_KINDS = ("DashValue", "StdinToggle", "PosDash")
 FD_KINDS = ("FileFlag", "InFile")
@@ -109,8 +110,8 @@ def measure(label):
     out = {"label": label, "channels": []}
     base = {}
     for e in ENDINGS:
-        chk = chk_for(case["S"] + e)
-        b = run([a.replace("{S}", case["S"] + e) for a in case["argv"]])
+        chk = chk_for(apply(case["S"], e))
+        b = run([a.replace("{S}", apply(case["S"], e)) for a in case["argv"]])
         base[e] = (b.returncode, chk(b.stdout) if b.returncode in (0, 4) else "")
     out["base_exits"] = {repr(e): base[e][0] for e in ENDINGS}
     # R3 NI7: the CLI's own `@env:` value rule, PER INPUT, derived here (never hand-kept). Where
@@ -124,7 +125,7 @@ def measure(label):
         i_ = next(k for k, a in enumerate(case["argv"]) if "{S}" in a)
         eq_ok = True
         for e in ENDINGS:
-            v = case["S"] + e
+            v = apply(case["S"], e)
             chk = chk_for(v)
             sep = run([a.replace("{S}", v) for a in case["argv"]])
             eqa = case["argv"][:i_ - 1] + [case["argv"][i_ - 1] + "=" + v] + case["argv"][i_ + 1:]
@@ -140,7 +141,7 @@ def measure(label):
         for rname, f in RULES:
             rule_ok = True
             for e in ENDINGS:
-                raw = case["S"] + e
+                raw = apply(case["S"], e)
                 chk = chk_for(f(raw))
                 argv, stdin, env_val, fds = invocation(case, env_ch, raw, "")
                 g = run(argv, stdin, env_val, fds)
@@ -162,8 +163,8 @@ def measure(label):
         for t in terms:
             bad = []
             for e in ENDINGS:
-                chk = chk_for(case["S"] + e)
-                argv, stdin, env_val, fds = invocation(case, ch, case["S"] + e, t)
+                chk = chk_for(apply(case["S"], e))
+                argv, stdin, env_val, fds = invocation(case, ch, apply(case["S"], e), t)
                 g = run(argv, stdin, env_val, fds)
                 got = (g.returncode, chk(g.stdout) if g.returncode in (0, 4) else "")
                 how = classify(base[e], got)
@@ -178,8 +179,8 @@ def measure(label):
             # NI1 evidence: the same channel with NO terminator (what fold 1 specified)
             naive = []
             for e in ENDINGS:
-                chk = chk_for(case["S"] + e)
-                argv, stdin, env_val, fds = invocation(case, ch, case["S"] + e, "")
+                chk = chk_for(apply(case["S"], e))
+                argv, stdin, env_val, fds = invocation(case, ch, apply(case["S"], e), "")
                 g = run(argv, stdin, env_val, fds)
                 how = classify(base[e], (g.returncode, chk(g.stdout) if g.returncode in (0, 4) else ""))
                 if how:
@@ -219,7 +220,8 @@ for r in res:
         if any("BOTH-OK-DIFFERENT" in m for m in (c["naive_no_terminator"] or [])):
             naive_wrong.append(f"`{r['label']}` {name}")
 with open("bytes.md", "w") as f:
-    f.write(f"Endings: {', '.join(repr(e) for e in ENDINGS)}; {sum(cnt.values())} channel cells.\n\n")
+    f.write(f"Value variants (corpus.py, shared): suffixes {', '.join(repr(e[1]) for e in ENDINGS if e[0] == 'suffix')}; "
+            f"prefixes {', '.join(repr(e[1]) for e in ENDINGS if e[0] == 'prefix')}; {sum(cnt.values())} channel cells.\n\n")
     f.write("| channel kind | measured terminator | cells |\n|---|---|---|\n")
     for (k, t), n in sorted(cnt.items()):
         f.write(f"| {k} | {t} | {n} |\n")

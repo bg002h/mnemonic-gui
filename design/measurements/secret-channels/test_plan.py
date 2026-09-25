@@ -97,7 +97,7 @@ for plat, enabled in [("linux", saved), ("macos", list(PLATFORMS))]:
 P.POLICY["private_channels_on"][:] = saved
 
 # NI1 lenient rule: a non-clean value on an input whose every channel is lenient refuses.
-ms1 = [{"key": "mnemonic xpub-search path-of-xpub --ms1", "form": "value", "flag": "--ms1", "prefix": "", "value": "ms10abc\n"}]
+ms1 = [{"key": "mnemonic xpub-search path-of-xpub --ms1", "form": "value", "flag": "--ms1", "prefix": "", "value": "ms10abc "}]
 check("lenient refuses non-clean", refusal(lambda: P.plan(ms1, TABLE, "linux")) == "value-not-byte-exact")
 ms1[0]["value"] = "ms10abc"
 check("lenient accepts clean", refusal(lambda: P.plan(ms1, TABLE, "linux")) is None)
@@ -118,7 +118,10 @@ GATE_FIXTURES = [("decoy_comment", {}), ("decoy_if_false", {}), ("decoy_missing_
                  ("decoy_shell_comment", {}), ("decoy_dispatch_only", {}), ("decoy_matrix_exclude", {"linux"}),
                  ("decoy_empty_bin", {}),
                  ("genuine_matrix", {"linux", "macos", "windows"}), ("genuine_linux", {"linux"}),
-                 ("genuine_workflow_env", {"macos"})]      # R3's false red
+                 ("genuine_workflow_env", {"macos"}),      # R3's false red
+                 # R4 Nm14's four
+                 ("decoy_or_true", {}), ("decoy_no_run", {}), ("decoy_needs_skipped", {}), ("decoy_filter_nothing", {}),
+                 ("genuine_nocapture", {"macos"})]
 for f, want in GATE_FIXTURES:
     for o in PLATFORMS:
         check(f"os gate fixture {f} {o}", os_gate.gate([os.path.join(CI, f + ".yml")], o, TARGETS) == (o in want))
@@ -134,7 +137,8 @@ for sh in SHAPES:
         if s["form"] == "group":
             continue
         for rule in ("verbatim", "strip-one-trailing-newline"):
-            raw = s["value"] + "\n"
+            # a raw value the rule maps to a target the NI9 decision still admits
+            raw = s["value"] + ("  " if rule == "verbatim" else "\n")
             for plat in ("macos", "windows"):
                 try:
                     b, prov, res = P.plan(with_value(sh, i, "@env:USER_SECRET"), TABLE, plat, {"USER_SECRET": raw}, rule)
@@ -144,26 +148,41 @@ for sh in SHAPES:
                 check(f"NI3 {sh['name']} src{i} {plat} {rule}: interim value",
                       res[i]["value"] == P.env_value_rule(raw, rule) and b[i]["kind"] == "Argv" and prov[i] == "$USER_SECRET")
 
-# NC1 (R2): a resolved value the CLI would re-interpret on argv is refused on the interim path,
-# per the measured argv_reinterprets row; the private path (Linux) carries it as bytes.
+# NC1 / R4 NI8: every channel-lookalike spelling in the shared corpus, held by the user's variable,
+# is refused on EVERY path (the broad predicate is a decision, independent of any CLI).
+from corpus import CHANNEL_VARIANTS
 nc1 = 0
 for sh in SHAPES:
     for i, s in enumerate(sh["sources"]):
         if s["form"] == "group":
             continue
-        cli = s["key"].split()[0]
-        # planner-follows-data consistency only; the INDEPENDENT oracle for NC1 is run_plans.py's
-        # executed interim leg and regen_check.py (R3 NI5)
-        sp = P.REINTERPRET.get(cli, {"spellings": []})["spellings"]
-        for content, spelling in (("@env:OTHER", "@env:"), ("-", "-")):
+        for tmpl in CHANNEL_VARIANTS:
+            content = tmpl.replace("{V}", "OTHER")
             uenv = {"USER_SECRET": content, "OTHER": "hunter2"}
             srcs = with_value(sh, i, "@env:USER_SECRET")
-            for plat in ("macos", "windows"):
+            for plat in PLATFORMS:
                 nc1 += 1
                 got = refusal(lambda: P.plan(srcs, TABLE, plat, uenv))
-                want = "value-is-a-channel-spelling" if spelling in sp else None
-                check(f"NC1 {sh['name']} src{i} {content!r} {plat}: got {got}, want {want}", got == want)
-print(f"NC1 interim legs: {nc1}")
+                check(f"NI8 {sh['name']} src{i} {content!r} {plat}: got {got}", got == "value-looks-like-a-channel")
+# consistency with the MEASUREMENT: every spelling a pinned CLI was measured to re-read on argv
+# must be inside the broad predicate (a CLI re-reading something new and odd shows up here).
+RE = json.load(open(os.path.join(HERE, "reinterpret.json")))
+for cli, row in RE.items():
+    for sp in row["spellings"]:
+        check(f"NI8 consistency: {cli} re-reads {sp!r}, which the predicate must refuse",
+              P.looks_like_channel(sp.replace("{V}", "X")))
+# the predicate must not refuse ordinary secrets
+for ok in ["hunter2", "--", "-leading", "a-b", "env:X", "@en v", "pass@env:X"]:
+    check(f"NI8 does not refuse {ok!r}", not P.looks_like_channel(ok))
+# NI9: a target ending in CR or LF is refused on every path, typed or resolved, either rule
+for plat in PLATFORMS:
+    for raw, rule in [("pw\n", "verbatim"), ("pw\r", "verbatim"), ("pw\n\n", "strip-one-trailing-newline"),
+                      ("pw\r\n\r\n", "strip-one-trailing-newline"), ("pw\r\r\n", "strip-one-trailing-newline")]:
+        got = refusal(lambda: P.plan(src, TABLE, plat, {"MY_PW": raw}, rule))
+        check(f"NI9 {raw!r} {rule} {plat}: got {got}", got == "value-ends-in-newline")
+    got = refusal(lambda: P.plan(src, TABLE, plat, {"MY_PW": "pw\n"}, "strip-one-trailing-newline"))
+    check(f"NI9 'pw\\n' under strip-one plans ({plat}): got {got}", got is None)
+print(f"NI8 channel-lookalike legs: {nc1}")
 
 # R3 Nm13: on the interim path a leading-dash value uses `--flag=VALUE` only where that form
 # measured byte-exact for the input; elsewhere it refuses. Every value-form source of every shape.

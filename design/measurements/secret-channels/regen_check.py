@@ -3,7 +3,12 @@ binaries for the tags in pinned-upstream.toml, re-derives every behavioural file
 of the repo layout, and diffs against the committed copies; ANY difference is red. It also checks
 binary IDENTITY by content: the installed binaries' sha256 must equal measured_with.json's.
 
-  BIN_DIR=<pinned binaries> python3 regen_check.py [--data-from DIR] [--plans]
+  BIN_DIR=<pinned binaries> python3 regen_check.py [--data-from DIR] [--plans] [--no-enumerate]
+
+Also (R4 Nm15) SCHEMA COVERAGE: the GUI's secret sources are re-enumerated from the schema mirror
+(enumerate_sources.rs, built against this repo) and diffed with secret_sources.txt; §A2b's verdicts
+(probe_missing.py) are re-derived and diffed; and every source must have a channel-table entry or a
+§A2b row. A missing cache file is a named RED line, not a traceback (R4 N4).
 
 --data-from DIR : compare against the derived files in DIR instead of this folder (the NI5 demo
                   uses it to present a deliberately stale cache).
@@ -21,6 +26,7 @@ PIPELINE = [["run_all.py"], ["run2.py"], ["run3.py"], ["measure_groups.py"], ["r
 ap = argparse.ArgumentParser()
 ap.add_argument("--data-from")
 ap.add_argument("--plans", action="store_true")
+ap.add_argument("--no-enumerate", action="store_true", help="skip the Rust schema enumeration (needs cargo)")
 a = ap.parse_args()
 B = os.environ["BIN_DIR"].rstrip("/") + "/"
 data_dir = os.path.abspath(a.data_from) if a.data_from else HERE
@@ -46,6 +52,16 @@ def scratch(copy_data_from=None):
 
 
 fails = []
+# 0. every cache file present (R4 N4)
+COVERAGE = ["secret_sources.txt", "missing_sources.txt", "missing_sources.md"]
+missing = [f for f in DERIVED + COVERAGE if not os.path.exists(os.path.join(data_dir, f))]
+for f in missing:
+    fails.append(f"derived: {f} missing from {data_dir}")
+if "measured_with.json" in missing:
+    for f in fails:
+        print("RED ", f)
+    print(f"regen_check: {len(fails)} red")
+    sys.exit(1)
 # 1. identity by content
 mw = json.load(open(os.path.join(data_dir, "measured_with.json")))
 pins = {k: v["tag"] for k, v in tomllib.load(open(os.path.join(REPO, "pinned-upstream.toml"), "rb")).items()
@@ -65,7 +81,10 @@ try:
         p = subprocess.run([sys.executable] + step, cwd=d, capture_output=True, text=True, env=dict(os.environ, BIN_DIR=B))
         if p.returncode:
             fails.append(f"derive: {step[0]} exit {p.returncode}: {(p.stderr.strip().splitlines() or [''])[-1][:200]}")
-    for f in DERIVED:
+    subprocess.run([sys.executable, "probe_missing.py"], cwd=d, capture_output=True, text=True, env=dict(os.environ, BIN_DIR=B))
+    for f in DERIVED + ["missing_sources.txt", "missing_sources.md"]:
+        if f in missing:
+            continue
         new, old = norm(open(os.path.join(d, f)).read()), norm(open(os.path.join(data_dir, f)).read())
         if new != old:
             detail = ""
@@ -80,6 +99,34 @@ try:
             fails.append(f"derived: {f} differs from a regeneration. {detail}")
 finally:
     shutil.rmtree(root, ignore_errors=True)
+# 2b. schema coverage (R4 Nm15)
+if not a.no_enumerate:
+    crate = tempfile.mkdtemp()
+    try:
+        os.makedirs(os.path.join(crate, "src"))
+        shutil.copy(os.path.join(HERE, "enumerate_sources.rs"), os.path.join(crate, "src", "main.rs"))
+        shutil.copy(os.path.join(REPO, "Cargo.lock"), crate)
+        patch = open(os.path.join(REPO, "Cargo.toml")).read().split("[patch.crates-io]", 1)[1].split("\n[", 1)[0]
+        open(os.path.join(crate, "Cargo.toml"), "w").write(
+            '[package]\nname = "enumerate-secret-sources"\nversion = "0.0.0"\nedition = "2021"\n'
+            f'[dependencies]\nmnemonic-gui = {{ path = "{REPO}", default-features = false }}\n[workspace]\n'
+            f'[patch.crates-io]{patch}\n')
+        tgt = os.environ.get("ENUM_TARGET_DIR", os.path.join(REPO, "target", "secret-sources-enum"))
+        e = subprocess.run(["cargo", "run", "-q"], cwd=crate, capture_output=True, text=True, env=dict(os.environ, CARGO_TARGET_DIR=tgt))
+        if e.returncode:
+            fails.append(f"coverage: enumeration build failed: {(e.stderr.strip().splitlines() or [''])[-1][:200]}")
+        elif "secret_sources.txt" not in missing and e.stdout != open(os.path.join(data_dir, "secret_sources.txt")).read():
+            now_, was_ = set(e.stdout.splitlines()), set(open(os.path.join(data_dir, "secret_sources.txt")).read().splitlines())
+            fails.append(f"coverage: the schema mirror's secret sources differ from secret_sources.txt; "
+                         f"in the mirror only: {sorted(now_ - was_)[:6]}; in the file only: {sorted(was_ - now_)[:6]}")
+    finally:
+        shutil.rmtree(crate, ignore_errors=True)
+if not {"secret_sources.txt", "missing_sources.txt", "channel_table.json"} & set(missing):
+    table = json.load(open(os.path.join(data_dir, "channel_table.json")))
+    a2b = {l.split("\t")[0] for l in open(os.path.join(data_dir, "missing_sources.txt")) if l.strip()}
+    for src in (l.strip().replace(" [group]", "") for l in open(os.path.join(data_dir, "secret_sources.txt")) if l.strip()):
+        if src not in table and src not in a2b:
+            fails.append(f"coverage: secret source {src!r} has no channel-table entry and no §A2b row")
 # 3. optional runtime half: T3' oracle legs against these binaries with the given data
 if a.plans:
     root, d = scratch(copy_data_from=data_dir)

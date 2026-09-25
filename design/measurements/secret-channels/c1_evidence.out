@@ -18,4 +18,4 @@ R2 NC1: MY_PW='@env:OTHER', OTHER=hunter2 ($OTHER's wallet is ca2c62d2):
   CLI's own --passphrase @env:MY_PW (resolves once)                 : a1c20c4f
   GUI Linux plan: resolved bytes over --passphrase-stdin + \r\n      : a1c20c4f
   UNGUARDED interim: resolved bytes on argv (re-resolved by the CLI) : ca2c62d2
-  GUI interim (fold 3): refused value-is-a-channel-spelling (plan.py; test_plan.py NC1 legs)
+  GUI, fold 5: refused value-looks-like-a-channel on EVERY path (plan.py; test_plan.py NI8 legs)

@@ -18,11 +18,12 @@ A source is one secret input the user filled:
    "prefix":"phrase=" / "@0.phrase=" / "" (node form only),
    "value": the text in the field (str; a list of str for a group)}
 """
-import json, os, re
+import json, os, re, unicodedata
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 POLICY = json.load(open(os.path.join(HERE, "channel_policy.json")))
-REINTERPRET = json.load(open(os.path.join(HERE, "reinterpret.json")))
+# reinterpret.json is a MEASUREMENT (regen-checked, used by the oracle legs and a consistency test);
+# the planner's safety does not read it (R4 NI8).
 
 STDIN_KINDS = ("StdinMulti", "StdinToggle", "DashValue", "PosDash")   # preference order
 FD_KINDS = ("FileFlag", "InFile")                                       # preference order
@@ -36,15 +37,34 @@ class Refusal(Exception):
 
 
 # ── §A3c: the TARGET bytes ────────────────────────────────────────────────────────────────
+# ONE implementation of every candidate rule (R4 NI9). run_bytes.py derives an input's rule by
+# testing exactly these functions; env_value_rule applies them. No second copy anywhere.
+RULES = {
+    "verbatim": lambda raw: raw,
+    "strip-one-trailing-newline": lambda raw: raw[:-2] if raw.endswith("\r\n") else raw[:-1] if raw.endswith("\n") else raw,
+}
+
+
 def env_value_rule(raw, rule):
     """What the pinned CLI's own `@env:VAR` makes of the variable ON THIS INPUT
     (channel_table.json cli_env_rule, derived per input by run_bytes.py; R3 NI7). None — the
     input has no working CLI `@env:` — means the GUI treats the variable's bytes as typed."""
-    if rule in (None, "verbatim"):
-        return raw
-    if rule == "strip-one-trailing-newline":
-        return raw[:-2] if raw.endswith("\r\n") else raw[:-1] if raw.endswith("\n") else raw
-    raise ValueError(rule)
+    return RULES["verbatim" if rule is None else rule](raw)
+
+
+def normalize_for_lookalike(v):
+    """channel_policy.json channel_lookalike.normalize: NFKC, drop Cc/Cf, strip whitespace, casefold."""
+    v = unicodedata.normalize("NFKC", v)
+    v = "".join(ch for ch in v if unicodedata.category(ch) not in ("Cc", "Cf"))
+    return v.strip().casefold()
+
+
+def looks_like_channel(v):
+    """R4 NI8 — a DECISION, independent of any CLI: could this value be read as a channel under ANY
+    plausible normalization? Refused on every path."""
+    n = normalize_for_lookalike(v)
+    rule = POLICY["channel_lookalike"]
+    return n in rule["refuse_if_equals"] or any(n.startswith(p) for p in rule["refuse_if_startswith"])
 
 
 def is_clean(v):
@@ -111,18 +131,20 @@ def plan(sources, table, platform="linux", user_env=None, rule=None):
         vals = s["value"] if s["form"] == "group" else [s["value"]]
         if any("\0" in v for v in vals):      # R2 Nit 1: argv and env cannot carry NUL; one message on every OS
             raise Refusal("nul-in-value", s["key"], "the value contains a NUL byte")
+        # R4 NI8 / NI9: decisions that make delivery independent of CLI behaviour outside any probe set.
+        for v in vals:
+            if looks_like_channel(v):
+                raise Refusal("value-looks-like-a-channel", s["key"],
+                              "after trimming and case-folding this value reads like `-` or `@env…`, which a CLI may "
+                              "treat as a channel; nobody wants that as a secret")
+            if POLICY["refuse_trailing_cr_lf"] and v[-1:] in ("\r", "\n"):
+                raise Refusal("value-ends-in-newline", s["key"],
+                              "the value ends in a newline or CR (check how the variable was set); "
+                              "CLIs differ in how many they strip, so the GUI does not send it")
     if platform not in POLICY["private_channels_on"]:
-        # INTERIM path: resolved bytes on argv. A CLI re-interprets some argv VALUES as channel
-        # spellings (argv_reinterprets, measured per CLI version); such a value would be resolved a
-        # second time — a different wallet at exit 0 (R2 NC1). Refuse it.
-        for s in res:
-            cli = s["key"].split()[0]
-            row = REINTERPRET.get(cli, {"spellings": [], "version": "?"})
-            vals = s["value"] if s["form"] == "group" else [s["value"]]
-            for v in vals:
-                if ("-" in row["spellings"] and v == "-") or ("@env:" in row["spellings"] and v.startswith("@env:")):
-                    raise Refusal("value-is-a-channel-spelling", s["key"],
-                                  f"{cli} {row['version']} reads {v[:5]!r}… on the command line as a channel, not as the secret")
+        # INTERIM path: resolved bytes on argv. A value a CLI could re-read as a channel was already
+        # refused above, on every path, by the broad predicate (R4 NI8; fold 3's measured
+        # `value-is-a-channel-spelling` check is subsumed and removed).
         # R3 Nm13: a value starting with `-` would be parsed as a flag when it is its own argv word.
         # Use `--flag=VALUE` where that form MEASURED byte-exact for this input; otherwise refuse.
         forms = []

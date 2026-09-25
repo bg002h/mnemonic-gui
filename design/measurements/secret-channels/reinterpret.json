@@ -3,7 +3,7 @@
   "version": "0.104.0",
   "spellings": [
    "-",
-   "@env:"
+   "@env:{V}"
   ],
   "inputs": {
    "-": [
@@ -50,7 +50,7 @@
     "mnemonic verify-bundle --slot @0.phrase=",
     "mnemonic verify-bundle --slot @0.seedqr="
    ],
-   "@env:": [
+   "@env:{V}": [
     "mnemonic addresses --from electrum-phrase=",
     "mnemonic addresses --from entropy=",
     "mnemonic addresses --from phrase=",

@@ -1,0 +1,15 @@
+=== (1) mirror change: ms derive --account marked secret (scratch copy of the repo)
+RED  coverage: the schema mirror's secret sources differ from secret_sources.txt; in the mirror only: ['ms derive --account']; in the file only: []
+regen_check: 1 red
+exit 1
+
+=== (2) cache-only change: a source appended to secret_sources.txt, no table entry
+RED  coverage: the schema mirror's secret sources differ from secret_sources.txt; in the mirror only: []; in the file only: ['ms derive --account']
+RED  coverage: secret source 'ms derive --account' has no channel-table entry and no §A2b row
+regen_check: 2 red
+exit 1
+
+=== (3) R4 N4: a missing cache file is a named RED line, not a traceback
+RED  derived: reinterpret.json missing from <path>
+regen_check: 1 red
+exit 1

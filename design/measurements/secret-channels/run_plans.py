@@ -25,7 +25,8 @@ import gen_plans
 
 B = os.environ["BIN_DIR"].rstrip("/") + "/"
 TABLE = gen_plans.TABLE
-ENDINGS = ["", "\n", "\r\n", "\nX", "  "]
+from corpus import VARIANTS as ENDINGS, CHANNEL_VARIANTS, apply   # R4 NI9: the one shared corpus
+# A planner refusal is always safe (the GUI sends nothing); the oracle legs judge only what RUNS.
 
 
 def clean_env(extra):
@@ -200,8 +201,8 @@ def measure(pair):
     for i, s in enumerate(sh["sources"]):
         if s["form"] == "group":
             continue
-        for e in ["", "\n", "\r\n", "  "]:
-            raw = s["value"] + e
+        for e in ENDINGS:
+            raw = apply(s["value"], e)
             srcs = [dict(x) for x in sh["sources"]]
             srcs[i]["value"] = "@env:USER_SECRET"
             try:
@@ -222,7 +223,8 @@ def measure(pair):
     for i, s in enumerate(sh["sources"]):
         if s["form"] == "group":
             continue
-        for content in ("@env:OTHER", "-"):
+        for tmpl in CHANNEL_VARIANTS:              # R4 NI8: the whole lookalike corpus
+            content = tmpl.replace("{V}", "OTHER")
             uenv = {"USER_SECRET": content, "OTHER": s["value"]}
             srcs = [dict(x) for x in sh["sources"]]
             srcs[i]["value"] = "@env:USER_SECRET"
@@ -256,6 +258,9 @@ def measure(pair):
             srcs[i]["value"] = v
             orc = oracle(i, v)
             rec = {"source": i, "value": v, "oracle": orc is not None}
+            # R4 N5: with no oracle, the run must FAIL CLOSED or equal the `--flag=VALUE` argv run
+            vv = list(values); vv[i] = v
+            eqform = run(baseline_argv(sh, vv, eq={i}))
             for path in ("linux", "macos"):
                 try:
                     b6, _, res6 = plan(srcs, TABLE, path, {})
@@ -268,7 +273,9 @@ def measure(pair):
                 else:
                     g6 = run(interim_argv(sh, b6, res6))
                 rec[path] = g6.returncode
-                if orc is not None:
+                if orc is None:
+                    rec[path + "_closed_or_eqform"] = g6.returncode not in (0, 4) or same(sh, g6, eqform)
+                else:
                     rec[path + "_eq_oracle"] = same(sh, g6, orc, v if sh["name"].startswith("slip39 split") and i == 1 else PW)
             row["dash"].append(rec)
     row["swaps"] = []
@@ -286,7 +293,7 @@ def measure(pair):
         if s["form"] == "group":
             continue
         for e in ENDINGS:
-            raw = s["value"] + e
+            raw = apply(s["value"], e)
             srcs = [dict(x) for x in sh["sources"]]
             srcs[i]["value"] = "@env:USER_SECRET"
             try:
@@ -312,7 +319,7 @@ if __name__ == "__main__":
     json.dump(rows, open("plans.json", "w"), indent=1)
     lines = ["| shape | baseline exit | planned exit | planned == baseline | effect (baseline) | "
              "source values swapped (i↔j) vs baseline | T1 | NI1: `@env:` + endings == oracle | "
-             "interim (NI3) == oracle | NC1: OTHER's wallet; == oracle; refused Linux/interim | "
+             "interim (NI3) == oracle | NI8 corpus in the variable: OTHER's wallet; == oracle; refused Linux/interim | "
              "Nm13 leading dash == oracle (Linux, interim) |",
              "|---|---|---|---|---|---|---|---|---|---|---|"]
     for r in rows:
@@ -336,7 +343,8 @@ if __name__ == "__main__":
         dash = f"{dcell('linux')}, {dcell('macos')}" if r["dash"] else "n/a"
         lines.append(f"| {r['name']} | {r['base_exit']} | {r['plan_exit']} | {'**yes**' if r['equal'] else 'NO: ' + r['plan_err']} | "
                      f"`{r['base_effect']}` | {swc} | {'ok' if not r['t1_problems'] else r['t1_problems']} | "
-                     f"{sum(x['eq_oracle'] for x in ee)}/{len(ee)} | {sum(x['equal'] for x in im)}/{len(im)} | "
+                     f"{sum(x['eq_oracle'] for x in ee)}/{len(ee)} (+{len(r['env_endings']) - len(ee)} refused) | "
+                     f"{sum(x['equal'] for x in im)}/{len(im)} (+{len(r['interim']) - len(im)} refused) | "
                      f"{other} OTHER; {eqo}/{ran} eq; {refl}/{refm} refused | {dash} |")
     open("t3.md", "w").write("\n".join(lines) + "\n")
     print("\n".join(lines))
@@ -351,8 +359,12 @@ if __name__ == "__main__":
            or any(not x["equal"] and not x["no_oracle"] for x in r.get("interim", []) if "refused" not in x)
            or any(x.get("linux_is_other_wallet") or x.get("macos_is_other_wallet")
                   or x.get("linux_eq_oracle") is False or x.get("macos_eq_oracle") is False for x in r.get("nc1", []))
-           or any(x.get("linux_eq_oracle") is False or x.get("macos_eq_oracle") is False for x in r.get("dash", []))]
+           or any(x.get("linux_eq_oracle") is False or x.get("macos_eq_oracle") is False
+                  or x.get("linux_closed_or_eqform") is False or x.get("macos_closed_or_eqform") is False for x in r.get("dash", []))
+           or any(x.get(p) not in ("ran", "value-looks-like-a-channel") for x in r.get("nc1", []) for p in ("linux", "macos"))]
     refused = [(r["name"], x) for r in rows for x in r.get("env_endings", []) if "refused" in x]
-    print("NI1 endings refused by the planner:", refused if refused else "none")
+    from collections import Counter
+    print("NI1/interim endings refused, by code:", dict(Counter(x["refused"] for r in rows for k in ("env_endings", "interim")
+                                                                for x in r.get(k, []) if "refused" in x)))
     print("FAILURES:", bad if bad else "none")
     sys.exit(1 if bad else 0)

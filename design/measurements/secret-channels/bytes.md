@@ -1,9 +1,9 @@
-Endings: '', '\n', '\r\n', '\r', '  ', ' \n', '\nX'; 146 channel cells.
+Value variants (corpus.py, shared): suffixes '', '\n', '\r\n', '\r', '\n\n', '\r\n\r\n', '\n\r\n', '\r\r\n', '\n\r', '\r\r', '\n\n\n', '  ', ' \n', '  \r\n', '\t\n', '\t', '\nX'; prefixes '\n', '\r\n', ' ', '\t'; 146 channel cells.
 
 | channel kind | measured terminator | cells |
 |---|---|---|
-| DashValue | '\r\n' | 42 |
-| DashValue | lenient (null) | 9 |
+| DashValue | '\r\n' | 41 |
+| DashValue | lenient (null) | 10 |
 | EnvRef | '' | 53 |
 | FileFlag | '\n' | 2 |
 | FileFlag | '\r\n' | 2 |
@@ -12,7 +12,7 @@ Endings: '', '\n', '\r\n', '\r', '  ', ' \n', '\nX'; 146 channel cells.
 | StdinToggle | '\r\n' | 22 |
 | StdinToggle | lenient (null) | 3 |
 
-Lenient cells (terminator null; every mismatch is argv-fails/channel-ok, 0 are both-ok-different): `mnemonic convert --from entropy=` DashValue; `mnemonic convert --from xprv=` DashValue; `mnemonic convert --from minikey=` DashValue; `mnemonic inspect --ms1` DashValue; `mnemonic derive-child --from xprv=` DashValue; `mnemonic convert --from wif=` DashValue; `mnemonic xpub-search path-of-xpub --ms1` StdinToggle(--ms1-stdin); `mnemonic xpub-search account-of-descriptor --ms1` StdinToggle(--ms1-stdin); `mnemonic convert --from bip38=` DashValue; `mnemonic slip39 split --from entropy=` DashValue; `mnemonic ms-shares split --from entropy=` DashValue; `mnemonic xpub-search passphrase-of-xpub --ms1` StdinToggle(--ms1-stdin).
+Lenient cells (terminator null; every mismatch is argv-fails/channel-ok, 0 are both-ok-different): `mnemonic convert --from entropy=` DashValue; `mnemonic convert --from xprv=` DashValue; `mnemonic convert --from minikey=` DashValue; `mnemonic repair --ms1` DashValue; `mnemonic inspect --ms1` DashValue; `mnemonic derive-child --from xprv=` DashValue; `mnemonic convert --from wif=` DashValue; `mnemonic xpub-search path-of-xpub --ms1` StdinToggle(--ms1-stdin); `mnemonic xpub-search account-of-descriptor --ms1` StdinToggle(--ms1-stdin); `mnemonic convert --from bip38=` DashValue; `mnemonic slip39 split --from entropy=` DashValue; `mnemonic ms-shares split --from entropy=` DashValue; `mnemonic xpub-search passphrase-of-xpub --ms1` StdinToggle(--ms1-stdin).
 
 `--flag=VALUE` byte-identical to `--flag VALUE` (R3 Nm13; None = not a value-form input): False 2, None 43, True 39; not exact: `ms derive --passphrase`; `ms hashlock --hashlock-phrase`.
 

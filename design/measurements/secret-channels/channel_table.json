@@ -519,7 +519,7 @@
   "channels": [
    {
     "kind": "DashValue",
-    "terminator": "\r\n"
+    "terminator": null
    }
   ],
   "measured_in": "single-input harness",
