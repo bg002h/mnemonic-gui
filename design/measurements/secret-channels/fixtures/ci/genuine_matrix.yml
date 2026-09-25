@@ -1,0 +1,12 @@
+# genuine: a matrix job over three OSes, with the binaries and all three targets
+on: [push, pull_request]
+jobs:
+  real-binary:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - run: cargo test --test secret_channels_t2 --test secret_channels_t3prime --test secret_channels_t7
+        env:
+          MNEMONIC_BIN: mnemonic

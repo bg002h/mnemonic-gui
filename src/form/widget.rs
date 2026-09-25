@@ -457,14 +457,37 @@ fn render_row(
                 // ghost is the LITERAL `default_value` string; the flag's
                 // help tooltip carries semantics. No-default Text fields are
                 // byte-unchanged. Precedent: `slot_editor.rs` path hint.
-                match flag.default_value {
-                    Some(d) => {
-                        ui.add(egui::TextEdit::singleline(s).hint_text(d));
+                //
+                // A non-secret Text flag whose VALUE names a secret node
+                // (`restore --from ms1=<card>`) is masked by content, with the
+                // same reveal (👁) eye as the composite value cell. The field
+                // flips to masked mid-typing (at `ms1=m`) and the eye appears
+                // in front of it, so the TextEdit carries an EXPLICIT id —
+                // with an auto id the eye's insertion would re-key the field
+                // and drop focus mid-card. Non-secret values stay plain.
+                let is_secret_value = crate::secrets::text_value_is_secret_source(s)
+                    || (crate::secrets::field_masks_private_key_content(
+                        &format!("{} {}", tab.bin_name(), subcommand),
+                        flag.name,
+                    ) && crate::secrets::text_holds_private_key(s));
+                let ctx = ui.ctx().clone();
+                let field_id = ui.unique_id().with("text_secret_node_reveal");
+                let reveal = if is_secret_value {
+                    crate::form::secret_widget::reveal_toggle(ui, &ctx, field_id)
+                } else {
+                    if crate::form::secret_widget::revealed_field(&ctx) == Some(field_id) {
+                        crate::form::secret_widget::clear_revealed_field(&ctx);
                     }
-                    None => {
-                        ui.text_edit_singleline(s);
-                    }
+                    false
+                };
+                let mut edit = egui::TextEdit::singleline(s)
+                    .id(field_id)
+                    .password(is_secret_value && !reveal);
+                if let Some(d) = flag.default_value {
+                    edit = edit.hint_text(d);
                 }
+                let response = ui.add(edit);
+                crate::form::secret_widget::clear_reveal_on_blur(&ctx, field_id, &response);
             }
             // v0.6.0 P3: Number / Range / Timestamp / TaggedOrIndexed
             // initial-Unset state — render a `Set` affordance that opts the
@@ -525,14 +548,16 @@ fn render_row(
                 // v0.32.0 R0-r1 M2: both display sites route through the
                 // shared `display_or` helper (the tree form's kind picker
                 // is the third caller, with "(choose…)").
-                let selected_label = display_or("(none)", sel);
+                // DESIGN §B5: `ms hashlock --kind`'s unset row reads "(choose)".
+                let unset_label = crate::schema::dropdown_unset_label(opts);
+                let selected_label = display_or(unset_label, sel);
                 combo
                     .selected_text(selected_label)
                     .show_ui(ui, |ui| {
                         for opt in *opts {
                             let is_disabled =
                                 disabled_options.iter().any(|d| d == *opt);
-                            let display = display_or("(none)", opt);
+                            let display = display_or(unset_label, opt);
                             ui.add_enabled_ui(!is_disabled, |ui| {
                                 ui.selectable_value(sel, (*opt).to_string(), display);
                             });

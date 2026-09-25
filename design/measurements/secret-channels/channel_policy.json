@@ -1,0 +1,37 @@
+{
+ "_doc": "Hand-maintained DECISIONS only (DESIGN \u00a7A1). Everything that describes CLI behaviour is DERIVED by measurement and lives in channel_table.json / reinterpret.json / measured_with.json, which regen_check.py regenerates against the pinned binaries and diffs (R3 shape change).",
+ "private_channels_on": [
+  "linux"
+ ],
+ "_private_channels_on_doc": "OSes whose Run path uses the private-channel planner. Every other OS uses the interim path: C1-resolved bytes on argv + --allow-argv-secret. An OS may be listed ONLY if a CI job on that OS runs the real-binary tests (T2, T3', T7); test_plan.py's os_gate checks the workflows.",
+ "fd_channel_on": [
+  "linux"
+ ],
+ "channel_lookalike": {
+  "normalize": [
+   "NFKC",
+   "remove Unicode categories Cc and Cf (controls, NUL, format chars such as U+200B)",
+   "strip Unicode whitespace",
+   "casefold"
+  ],
+  "refuse_if_equals": [
+   "-"
+  ],
+  "refuse_if_startswith": [
+   "@env"
+  ]
+ },
+ "_channel_lookalike_doc": "R4 NI8, a DECISION (not a measured fact): a resolved or typed secret that, under this normalization, equals `-` or starts with `@env` is refused on EVERY path (`value-looks-like-a-channel`), whatever any CLI would do with it. Nobody wants those as passphrases (operator). reinterpret.json stays as a measurement for the oracle and a consistency test; safety does not rest on it.",
+ "refuse_trailing_cr_lf": true,
+ "_refuse_trailing_cr_lf_doc": "R4 NI9, a DECISION: a target whose last byte is CR or LF is refused on every path (`value-ends-in-newline`). Delivery then never depends on how many trailing newlines a CLI strips. Nobody's passphrase ends in a newline.",
+ "reserved_env_prefix": "MNEMONIC_GUI_",
+ "env_name_rule": "^[A-Z_][A-Z0-9_]*$",
+ "_env_name_rule_doc": "The GUI's own rule for a name after @env: (it resolves the name itself). Chosen to equal the toolkit's documented rule; a mismatch can only over-refuse.",
+ "pipe_payload_max": 4096,
+ "real_binary_test_targets": [
+  "secret_channels_t2",
+  "secret_channels_t3prime",
+  "secret_channels_t7"
+ ],
+ "_real_binary_test_targets_doc": "R2 Nm8: the cargo test targets an OS's CI job must run (with MNEMONIC_BIN set) before that OS may be in private_channels_on."
+}

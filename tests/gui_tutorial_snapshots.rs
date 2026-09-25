@@ -587,9 +587,16 @@ fn execute_step(
     //     from false-matching the revealed text). The populated-pane (step 7) and
     //     confirm-modal (`run_via_modal`) checkpoints stay UNCONDITIONALLY strict.
     if step.is_secret() {
+        // DESIGN secret channels (Part A, §A7) re-pin, deliberate: on the
+        // private-channel path the Preview carries NO secret at all — only the
+        // planner's `@env:MNEMONIC_GUI_S<i>` / `--X-stdin` references plus one
+        // `←` line per binding — so a secret step shows either the •••• mask
+        // (interim path, or a still-masked field) or those references. The
+        // whole-tree no-plaintext guard below stays unconditional.
         assert!(
-            has_mask_sentinel(&h),
-            "{}: a secret step must render the •••• mask sentinel before Run",
+            has_mask_sentinel(&h) || has_private_channel_preview(&h),
+            "{}: a secret step must render the •••• mask sentinel or the private-channel \
+             plan before Run",
             step.stem
         );
         let revealed = step.revealed_value();
@@ -1470,6 +1477,20 @@ fn has_mask_sentinel(h: &Harness<'static, MnemonicGuiApp>) -> bool {
     })
     .next()
     .is_some()
+}
+
+/// True iff the Preview shows a private-channel plan: a planner reference in
+/// the `Preview:` line and at least one `← …` binding line.
+fn has_private_channel_preview(h: &Harness<'static, MnemonicGuiApp>) -> bool {
+    // egui exposes a Label's text as the node's value (or label).
+    let labels: Vec<String> = h
+        .query_all_by(|n: &Node<'_>| n.label().is_some() || n.value().is_some())
+        .filter_map(|n| n.value().or_else(|| n.label()))
+        .collect();
+    labels
+        .iter()
+        .any(|l| l.starts_with("Preview: ") && (l.contains("@env:MNEMONIC_GUI_S") || l.contains("-stdin")))
+        && labels.iter().any(|l| l.contains(" ← "))
 }
 
 /// Whole-tree no-plaintext assertion (SPEC §7): no AccessKit node label OR

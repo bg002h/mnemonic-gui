@@ -1,0 +1,21 @@
+intended (argv 'hunter2')                                      : ca2c62d2
+no passphrase                                                  : 73c5da0a
+today's pass-through: --passphrase @env:MY_PW (MY_PW=hunter2)    : ca2c62d2
+reading 1, typed text is the bytes: S1='@env:MY_PW' via @env:S1   : fee4dc32
+reading 1, typed text is the bytes: '@env:MY_PW' via -stdin       : fee4dc32
+reading 2, sentinel passed through: --passphrase -  (stdin=hunter2): 66d564d1
+  = the literal passphrase '-' on argv                              : 66d564d1
+DESIGN (GUI resolves $MY_PW itself), bytes via @env:MNEMONIC_GUI_S1 : ca2c62d2
+DESIGN (GUI resolves $MY_PW itself), bytes via --passphrase-stdin   : ca2c62d2
+reading 2 on silent-payment: --passphrase @env:MY_PW (MY_PW=hunter2) vs argv hunter2:
+  DIFFERENT: the @env: text is taken literally
+Copy spelling for a stdin-bound value from $MY_PW (R1 Nm7), MY_PW=$'hunter2\n' (trailing newline):
+  argv with the exact bytes 'hunter2\n'                          : 762fff19
+  bash  printf '%s\r\n' "$MY_PW" | … --passphrase-stdin         : 762fff19
+  zsh   printf '%s\r\n' "$MY_PW" | … --passphrase-stdin         : 762fff19
+  fish  printf '%s\r\n' "$MY_PW" | … --passphrase-stdin         : 762fff19
+R2 NC1: MY_PW='@env:OTHER', OTHER=hunter2 ($OTHER's wallet is ca2c62d2):
+  CLI's own --passphrase @env:MY_PW (resolves once)                 : a1c20c4f
+  GUI Linux plan: resolved bytes over --passphrase-stdin + \r\n      : a1c20c4f
+  UNGUARDED interim: resolved bytes on argv (re-resolved by the CLI) : ca2c62d2
+  GUI, fold 5: refused value-looks-like-a-channel on EVERY path (plan.py; test_plan.py NI8 legs)

@@ -1,0 +1,35 @@
+set -u; cd "$(dirname "$0")/fixtures"; trap 'rm -f f.ms1 f.sec' EXIT
+B=${BIN_DIR:?set BIN_DIR}; M=$B/mnemonic; P="abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"; P2="zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"; MS1=ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f; PW=hunter2-passphrase; A=--allow-argv-secret
+cmp_() { if [ "$1" = "$2" ]; then echo "  SAME"; else echo "  DIFFERENT"; fi; }
+echo "a. bundle multisig two phrase slots via two @env vars"
+base=$($M bundle $A --network mainnet --template wsh-multi --threshold 2 --slot "@0.phrase=$P" --slot "@1.phrase=$P2" 2>/dev/null); echo "  base rc=$?"
+ch=$(V1="$P" V2="$P2" $M bundle --network mainnet --template wsh-multi --threshold 2 --slot "@0.phrase=@env:V1" --slot "@1.phrase=@env:V2" 2>/dev/null); cmp_ "$base" "$ch"
+echo "a2. SWAP: the two env vars exchanged (V1<->V2 bound to the other slot) must change the output"
+sw=$(V1="$P2" V2="$P" $M bundle --network mainnet --template wsh-multi --threshold 2 --slot "@0.phrase=@env:V1" --slot "@1.phrase=@env:V2" 2>/dev/null); if [ "$sw" = "$base" ]; then echo "  SAME (swap undetectable!)"; else echo "  DIFFERENT (swap detected)"; fi
+echo "b. bundle slot @env + --passphrase-stdin"
+base=$($M bundle $A --network mainnet --template bip84 --slot "@0.phrase=$P" --passphrase $PW 2>/dev/null)
+ch=$(printf '%s\n' $PW | V1="$P" $M bundle --network mainnet --template bip84 --slot "@0.phrase=@env:V1" --passphrase-stdin 2>/dev/null); cmp_ "$base" "$ch"
+echo "b2. bundle slot stdin + --passphrase-stdin (expect refusal)"
+printf '%s\n' "$P" | $M bundle --network mainnet --template bip84 --slot "@0.phrase=-" --passphrase-stdin 2>&1 | grep -m1 -iE 'error|stdin'
+echo "c. ms verify --in F (ms1) + --phrase - (stdin)"
+printf '%s\n' $MS1 > f.ms1; base=$($B/ms verify $A --phrase "$P" -- $MS1 2>&1); ch=$(printf '%s\n' "$P" | $B/ms verify --in f.ms1 --phrase - 2>&1); echo "  rc=$?"; cmp_ "$base" "$ch"
+echo "c2. ms verify with a /dev/fd/3 pipe instead of a file"
+ch=$(printf '%s\n' "$P" | $B/ms verify --in /dev/fd/3 --phrase - 3< <(printf '%s\n' $MS1) 2>&1); cmp_ "$base" "$ch"
+echo "d. ms derive --in F + --passphrase-stdin"
+base=$($B/ms derive $A --passphrase $PW -- $MS1 2>/dev/null); ch=$(printf '%s\n' $PW | $B/ms derive --in f.ms1 --passphrase-stdin 2>/dev/null); cmp_ "$base" "$ch"
+echo "e. ms derive --phrase - + --passphrase-stdin (two stdin)"
+printf '%s\n' "$P" | $B/ms derive --phrase - --passphrase-stdin 2>&1 | grep -m1 -iE 'error|stdin'
+echo "f. seed-xor combine one share stdin, one @env"
+base=$($M seed-xor combine $A --share "phrase=$P" --share "phrase=$P2" --shares 2 2>/dev/null); ch=$(printf '%s\n' "$P" | V1="$P2" $M seed-xor combine --share "phrase=-" --share "phrase=@env:V1" --shares 2 2>/dev/null); cmp_ "$base" "$ch"
+echo "g. silent-payment --secret-file F + --passphrase-stdin"
+printf '%s\n' "$P" > f.sec; base=$($M silent-payment $A --secret "$P" --passphrase $PW 2>/dev/null); ch=$(printf '%s\n' $PW | $M silent-payment --secret-file f.sec --passphrase-stdin 2>/dev/null); cmp_ "$base" "$ch"
+echo "g2. silent-payment --secret-stdin + --passphrase @env (measured literal before)"
+ch=$(printf '%s\n' "$P" | V1=$PW $M silent-payment --secret-stdin --passphrase @env:V1 2>/dev/null); cmp_ "$base" "$ch"
+echo "h. convert bip38 node stdin + --bip38-passphrase @env"
+BIP=$($M convert $A --from wif=KyZpNDKnfs94vbrwhJneDi77V6jF64PWPF8x5cdJb8ifgg2DUc9d --to bip38 --bip38-passphrase $PW 2>/dev/null | awk '{print $2}'); echo "  bip38=$BIP"
+base=$($M convert $A --from "bip38=$BIP" --bip38-passphrase $PW --to wif 2>/dev/null); ch=$(printf '%s\n' "$BIP" | V1=$PW $M convert --from "bip38=-" --bip38-passphrase @env:V1 --to wif 2>/dev/null); echo "  base=$base"; cmp_ "$base" "$ch"
+echo "i. addresses --from phrase=@env + --passphrase-stdin"
+base=$($M addresses $A --address-type p2wpkh --count 1 --from "phrase=$P" --passphrase $PW 2>/dev/null); ch=$(printf '%s\n' $PW | V1="$P" $M addresses --address-type p2wpkh --count 1 --from "phrase=@env:V1" --passphrase-stdin 2>/dev/null); cmp_ "$base" "$ch"
+echo "j. byte fidelity: passphrase \"pw \" (trailing space) via --passphrase-stdin, with and without a newline, vs argv"
+base=$($M convert $A --from "phrase=$P" --to xpub --template bip84 --passphrase "pw " 2>/dev/null); ch=$(printf 'pw \n' | $M convert $A --from "phrase=$P" --to xpub --template bip84 --passphrase-stdin 2>/dev/null); cmp_ "$base" "$ch"
+ch2=$(printf 'pw ' | $M convert $A --from "phrase=$P" --to xpub --template bip84 --passphrase-stdin 2>/dev/null); echo -n " (no newline)"; cmp_ "$base" "$ch2"

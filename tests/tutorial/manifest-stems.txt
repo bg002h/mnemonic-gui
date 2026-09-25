@@ -8,7 +8,6 @@ tut-j1-01-bundle-single-sig.stdout.txt
 tut-j2-02-convert-fingerprint-form.png
 tut-j2-02-convert-fingerprint-run.png
 tut-j2-02-convert-fingerprint.exit.txt
-tut-j2-02-convert-fingerprint.stderr.txt
 tut-j2-02-convert-fingerprint.stdout.txt
 tut-j2-03-convert-xpub-form.png
 tut-j2-03-convert-xpub-run.png
@@ -41,13 +40,11 @@ tut-j2-08-restore.exit.txt
 tut-j2-08-restore.stderr.txt
 tut-j2-08-restore.stdout.txt
 tut-j2-dev1-convert-fingerprint.exit.txt
-tut-j2-dev1-convert-fingerprint.stderr.txt
 tut-j2-dev1-convert-fingerprint.stdout.txt
 tut-j2-dev1-convert-xpub.exit.txt
 tut-j2-dev1-convert-xpub.stderr.txt
 tut-j2-dev1-convert-xpub.stdout.txt
 tut-j2-dev2-convert-fingerprint.exit.txt
-tut-j2-dev2-convert-fingerprint.stderr.txt
 tut-j2-dev2-convert-fingerprint.stdout.txt
 tut-j2-dev2-convert-xpub.exit.txt
 tut-j2-dev2-convert-xpub.stderr.txt

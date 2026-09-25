@@ -1,0 +1,33 @@
+a. bundle multisig two phrase slots via two @env vars
+  base rc=0
+  SAME
+a2. SWAP: the two env vars exchanged (V1<->V2 bound to the other slot) must change the output
+  DIFFERENT (swap detected)
+b. bundle slot @env + --passphrase-stdin
+  SAME
+b2. bundle slot stdin + --passphrase-stdin (expect refusal)
+error: --passphrase-stdin cannot be used with --slot @N.<secret>=- (single stdin per invocation)
+c. ms verify --in F (ms1) + --phrase - (stdin)
+  rc=0
+  SAME
+c2. ms verify with a /dev/fd/3 pipe instead of a file
+  SAME
+d. ms derive --in F + --passphrase-stdin
+  SAME
+e. ms derive --phrase - + --passphrase-stdin (two stdin)
+error: cannot read both the entropy source and --passphrase from stdin (one stdin per invocation)
+f. seed-xor combine one share stdin, one @env
+  SAME
+g. silent-payment --secret-file F + --passphrase-stdin
+  SAME
+g2. silent-payment --secret-stdin + --passphrase @env (measured literal before)
+  DIFFERENT
+h. convert bip38 node stdin + --bip38-passphrase @env
+  bip38=6PYP8fdoVaE3ThLmEnYcGo3nJeBqd8PvB7CRvTz3TX5L9ojoPHKCg7QXG6
+  base=wif: KyZpNDKnfs94vbrwhJneDi77V6jF64PWPF8x5cdJb8ifgg2DUc9d
+  SAME
+i. addresses --from phrase=@env + --passphrase-stdin
+  SAME
+j. byte fidelity: passphrase "pw " (trailing space) via --passphrase-stdin, with and without a newline, vs argv
+  SAME
+ (no newline)  SAME

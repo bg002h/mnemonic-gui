@@ -323,22 +323,9 @@ fn cell_import_wallet_slot_phrase_argv() {
     );
 }
 
-// ─── Cell 8: `@env:VAR` sentinel literal pass-through ──────────────────
+// ─── Cell 8: `@env:VAR` is resolved GUI-side (DESIGN secret channels §A3a) ─
 
-#[test]
-fn cell_import_wallet_env_sentinel_literal_emission() {
-    // Toolkit (`import_wallet.rs:127-135`) resolves `@env:<VAR>` on `--ms1`
-    // at parse time. The GUI emits the value VERBATIM — so a user who
-    // types `@env:MNEMONIC_MS1_0` into the --ms1 widget produces an argv
-    // with `--ms1 @env:MNEMONIC_MS1_0`, and the toolkit substitutes the
-    // env-var contents at run time. This cell pins that literal-pass-
-    // through contract: any change to argv-rewriting (e.g., the v0.12.0
-    // env-var-channel FOLLOWUP) must explicitly opt into a behavior break
-    // here.
-    //
-    // v0.31.1 (SPEC §5, R0-r1 I4 migration): the `@env:` sentinel rides a
-    // secret ROW — the vec source in `state.secret_widgets`, not a
-    // synthesized `state.values` entry.
+fn import_wallet_ms1_state(ms1_field: &str) -> FormState {
     use mnemonic_gui::form::secret_widget::SecretLineEdit;
     let mut state = FormState::default();
     state.values.push((
@@ -347,21 +334,53 @@ fn cell_import_wallet_env_sentinel_literal_emission() {
     ));
     state.secret_widgets.insert(
         "--ms1".into(),
-        vec![SecretLineEdit::from_text("@env:MNEMONIC_MS1_0")],
+        vec![SecretLineEdit::from_text(ms1_field)],
     );
+    state
+}
 
-    let argv = assemble_argv(
+#[test]
+fn cell_import_wallet_env_sentinel_is_resolved_gui_side() {
+    // Re-pinned by the secret-channel design (§A3a, C1): `@env:VAR` in a secret
+    // field MEANS "read VAR" — the GUI resolves it from its OWN environment
+    // and delivers the bytes over the planned channel. argv carries only the
+    // planner's reference (`@env:MNEMONIC_GUI_S0`), never the user's `@env:`
+    // text and never the value. `MNEMONIC_MS1_0` is a valid name outside the
+    // reserved `MNEMONIC_GUI_` prefix.
+    let card = "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f";
+    let env = |k: &str| (k == "MNEMONIC_MS1_0").then(|| card.to_string());
+    let plan = mnemonic_gui::form::channels::plan(
         &schema::mnemonic::SCHEMA,
         subcommand("import-wallet"),
-        &state,
-    );
-    let idx = argv
+        &import_wallet_ms1_state("@env:MNEMONIC_MS1_0"),
+        &env,
+        "linux",
+    )
+    .expect("a set, valid variable plans");
+    let idx = plan
+        .argv
         .iter()
         .position(|s| s == "--ms1")
         .expect("--ms1 must appear in argv");
-    assert_eq!(
-        argv[idx + 1],
-        "@env:MNEMONIC_MS1_0",
-        "@env: sentinel must flow verbatim to argv (toolkit-side resolution)"
-    );
+    assert_eq!(plan.argv[idx + 1], "@env:MNEMONIC_GUI_S0", "argv carries only the planner's reference");
+    assert!(!plan.argv.iter().any(|t| t.contains("MNEMONIC_MS1_0") || t.contains(card)));
+    assert_eq!(plan.env.len(), 1);
+    assert_eq!(plan.env[0].0, "MNEMONIC_GUI_S0");
+    assert_eq!(plan.env[0].1.as_str(), card, "the GUI resolved $MNEMONIC_MS1_0 itself");
+    assert_eq!(plan.bindings[0].provenance[0].to_string(), "$MNEMONIC_MS1_0");
+}
+
+#[test]
+fn cell_import_wallet_reserved_env_name_is_refused() {
+    let env = |k: &str| (k == "MNEMONIC_GUI_S0").then(|| "x".to_string());
+    for os in ["linux", "macos", "windows"] {
+        let r = mnemonic_gui::form::channels::plan(
+            &schema::mnemonic::SCHEMA,
+            subcommand("import-wallet"),
+            &import_wallet_ms1_state("@env:MNEMONIC_GUI_S0"),
+            &env,
+            os,
+        );
+        assert_eq!(r.err().map(|e| e.code), Some("C1-reserved-name"), "{os}");
+    }
 }

@@ -1,0 +1,9 @@
+# R3 decoy: the command is only echoed
+on: [push, pull_request]
+jobs:
+  mac:
+    runs-on: macos-latest
+    env:
+      MNEMONIC_BIN: mnemonic
+    steps:
+      - run: echo cargo test --test secret_channels_t2 --test secret_channels_t3prime --test secret_channels_t7

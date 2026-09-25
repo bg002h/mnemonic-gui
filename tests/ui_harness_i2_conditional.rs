@@ -1116,16 +1116,18 @@ fn the_17_conditional_subcommands_are_enumerated() {
         }
     }
     // F-679 fold 1: ms gains 6 (inspect/decode/verify/derive/repair/combine
-    // — the `--in` input-source exclusivity), 17 -> 23.
+    // — the `--in` input-source exclusivity), 17 -> 23. DESIGN secret
+    // channels Part B: md compose/shape-key/descriptor/decompose and ms
+    // hashlock, 23 -> 28.
     assert_eq!(
         found.len(),
-        23,
-        "expected exactly 23 conditional subcommands (mnemonic 12 + md 3 + ms 7 + mk 1); got {found:?}"
+        28,
+        "expected exactly 28 conditional subcommands (mnemonic 12 + md 7 + ms 8 + mk 1); got {found:?}"
     );
     // Spot-pin the per-CLI counts.
     let mn = found.iter().filter(|s| s.starts_with("mnemonic/")).count();
     let md = found.iter().filter(|s| s.starts_with("md/")).count();
     let ms = found.iter().filter(|s| s.starts_with("ms/")).count();
     let mk = found.iter().filter(|s| s.starts_with("mk/")).count();
-    assert_eq!((mn, md, ms, mk), (12, 3, 7, 1), "per-CLI conditional counts drifted: {found:?}");
+    assert_eq!((mn, md, ms, mk), (12, 7, 8, 1), "per-CLI conditional counts drifted: {found:?}");
 }

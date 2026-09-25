@@ -1,0 +1,10 @@
+# R3 decoy: the right job, but its failure never fails the workflow
+on: [push, pull_request]
+jobs:
+  mac:
+    runs-on: macos-latest
+    continue-on-error: true
+    env:
+      MNEMONIC_BIN: mnemonic
+    steps:
+      - run: cargo test --test secret_channels_t2 --test secret_channels_t3prime --test secret_channels_t7

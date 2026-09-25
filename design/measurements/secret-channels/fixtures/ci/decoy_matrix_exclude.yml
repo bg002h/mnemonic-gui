@@ -1,0 +1,14 @@
+# R3 decoy: macOS is in the matrix list and then excluded
+on: [push, pull_request]
+jobs:
+  rb:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        exclude:
+          - os: macos-latest
+    runs-on: ${{ matrix.os }}
+    env:
+      MNEMONIC_BIN: mnemonic
+    steps:
+      - run: cargo test --test secret_channels_t2 --test secret_channels_t3prime --test secret_channels_t7

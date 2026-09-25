@@ -99,6 +99,50 @@ jobs:
             --tag "$TAG" \
             mk-cli
 
+      # DESIGN secret channels (Part A) §A0 / §A9: the real-binary legs (T2,
+      # T3', T7) and the derived-data gate (T4) run against the PREBUILT
+      # release binaries whose sha256 `measured_with.json` records — not the
+      # source builds above (a source build's sha256 differs). The toolkit
+      # installer at this commit pins exactly pinned-upstream.toml's four tags
+      # and refuses a download whose digest does not match the release's
+      # SHA256SUMS; T4 then checks each binary's sha256 against the cache.
+      - name: install-pinned-release-binaries
+        env:
+          INSTALLER_SHA: c39ea361cee1896c97cb9e166a6daf67b1d00853
+        run: |
+          curl -fsSL --proto '=https' --tlsv1.2 \
+            "https://raw.githubusercontent.com/bg002h/mnemonic-toolkit/$INSTALLER_SHA/scripts/install.sh" \
+            -o "$RUNNER_TEMP/install.sh"
+          sh "$RUNNER_TEMP/install.sh" --no-gui --no-man --root "$RUNNER_TEMP/pinned"
+          echo "PINNED_BIN_DIR=$RUNNER_TEMP/pinned/bin" >> "$GITHUB_ENV"
+
+      # T6's shell leg runs the printed Copy recipes in bash, zsh and fish;
+      # os_gate.py (T10) and test_plan.py parse YAML.
+      - name: install-shells-and-pyyaml
+        run: sudo apt-get update && sudo apt-get install -y zsh fish python3-yaml
+
+      # T2, T3', T7 with the pinned binaries — the job T10 requires before
+      # `linux` may be in channel_policy.json `private_channels_on`.
+      - name: secret-channels-real-binary-tests
+        env:
+          MNEMONIC_BIN: ${{ env.PINNED_BIN_DIR }}/mnemonic
+        run: cargo test --test secret_channels_t2 --test secret_channels_t3prime --test secret_channels_t7
+
+      # T10: the OS gate, a HARD failure against this repo's own workflows.
+      - name: secret-channels-os-gate
+        run: cargo test --test secret_channels_t10
+
+      # T4: identity by sha256, every derived file re-derived and diffed,
+      # schema coverage, and (--plans) test_plan.py + run_plans.py on the data.
+      - name: secret-channels-regen-check
+        env:
+          BIN_DIR: ${{ env.PINNED_BIN_DIR }}
+        run: python3 design/measurements/secret-channels/regen_check.py --plans
+
+      # The design document's generated blocks and T8's parity file.
+      - name: secret-channels-design-gate
+        run: python3 design/measurements/secret-channels/check_design_tables.py
+
       # v0.4.0: `clone-upstream-mnemonic-toolkit` step retired. The
       # GUI no longer scrapes upstream source via syn (build.rs was
       # deleted in v0.4.0; secret-class taxonomy is now imported from

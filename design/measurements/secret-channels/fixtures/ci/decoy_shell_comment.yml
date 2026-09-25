@@ -1,0 +1,11 @@
+# R3 decoy: the cargo line is a shell comment inside a block
+on: [push, pull_request]
+jobs:
+  mac:
+    runs-on: macos-latest
+    env:
+      MNEMONIC_BIN: mnemonic
+    steps:
+      - run: |
+          cargo build
+          # cargo test --test secret_channels_t2 --test secret_channels_t3prime --test secret_channels_t7

@@ -205,7 +205,7 @@ pub const MANIFEST: &[Step] = &[
         modal_shot: false,
         capture: true,
         expect_exit: Some(0),
-        expect_stderr: true,
+        expect_stderr: false,
         reveal: true,
     },
     // 03. per-device xpub (device 0 / S0).
@@ -226,11 +226,11 @@ pub const MANIFEST: &[Step] = &[
     },
     // devices 1/2 converts (S1, S2) — transcript-only (identical interaction).
     feed_step("tut-j2-dev1-convert-fingerprint", "convert", Some(HN_CONVERT),
-        convert_drives!(S1, "fingerprint"), true, true),
+        convert_drives!(S1, "fingerprint"), true, false),
     feed_step("tut-j2-dev1-convert-xpub", "convert", Some(HN_CONVERT),
         convert_drives!(S1, "xpub"), true, true),
     feed_step("tut-j2-dev2-convert-fingerprint", "convert", Some(HN_CONVERT),
-        convert_drives!(S2, "fingerprint"), true, true),
+        convert_drives!(S2, "fingerprint"), true, false),
     feed_step("tut-j2-dev2-convert-xpub", "convert", Some(HN_CONVERT),
         convert_drives!(S2, "xpub"), true, true),
     // 04. canonicalise the assembled 2-of-3 descriptor.

@@ -64,6 +64,10 @@ toml = "0.8"
 # dep at the call site keeps the classifier independent of transitive
 # import paths.
 regex = "1"
+# DESIGN (secret channels) §A0.1: the channel-lookalike predicate normalizes a
+# secret with NFKC before refusing `-`/`@env…` lookalikes. Already in the
+# graph transitively (same version).
+unicode-normalization = "0.1"
 # v0.4.0: replaces the v0.3.x build.rs source-walker. Provides the
 # canonical SECRET_NODE_TYPES + SECRET_SLOT_SUBKEYS public constants
 # used by `persistence::redact_for_persistence` to strip secret-class
@@ -77,6 +81,10 @@ mnemonic-toolkit = { git = "https://github.com/bg002h/mnemonic-toolkit", tag = "
 
 [target.'cfg(unix)'.dependencies]
 signal-hook = "0.3"
+# DESIGN (secret channels) §A6 pipe mechanics: map a pipe's read end to child
+# fd N (`/dev/fd/N`), handling the dup2(n, n) no-op. Its nix is already in
+# the graph.
+command-fds = "0.3"
 
 [target.'cfg(windows)'.dependencies]
 ctrlc = "3"

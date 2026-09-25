@@ -146,8 +146,8 @@ fn gui_render_emit_is_faithful_to_real_form_for_all_61_forms() {
     let all = render_emit::all_forms();
     assert_eq!(
         all.len(),
-        61,
-        "expected exactly 61 GUI subcommand forms (mnemonic 32 + md 10 + ms 10 + mk 9)"
+        66,
+        "expected exactly 66 GUI subcommand forms (mnemonic 32 + md 14 + ms 11 + mk 9)"
     );
 
     // Coordinate-only divergence accumulator (NEVER the tree / form state).
@@ -299,7 +299,7 @@ fn gui_render_emit_is_faithful_to_real_form_for_all_61_forms() {
         }
     }
 
-    assert_eq!(covered, 61, "census: every one of the 61 forms must be checked");
+    assert_eq!(covered, 66, "census: every one of the 66 forms must be checked");
     assert!(
         divergences.is_empty(),
         "GUI-render faithfulness divergences ({} — emit depiction != real render):\n{}",

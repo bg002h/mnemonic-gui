@@ -176,6 +176,49 @@ pub fn node_type_is_argv_secret(node: &str) -> bool {
     SECRET_NODE_TYPES_ARGV.contains(&node)
 }
 
+/// True iff a plain-Text value has the shape `<node>=<value>` with an
+/// argv-secret node ([`node_type_is_argv_secret`]), WHATEVER the value is
+/// (DESIGN §A4.1). This is the node-only SOURCE classifier: `restore --from
+/// ms1=<card>` is `FlagKind::Text`, `secret: false`, and is a secret source by
+/// content. What the value MEANS — `-` or `@env:VAR` name a channel, and the
+/// GUI resolves or refuses them — is C1's business (`form::channels`), not
+/// this classifier's; `ms1=-` is a source that C1 refuses. Used by the argv
+/// mask, [`should_confirm_run`], `persistence::redact_for_persistence` and the
+/// Text widget's `.password` mask. Node matching is exact, as the toolkit's
+/// is (`MS1=` is refused upstream as an unknown node).
+pub fn text_value_is_secret_source(value: &str) -> bool {
+    crate::form::channels::text_value_names_secret_node(value).is_some()
+}
+
+/// DESIGN §B2–B4 (`*`): PUBLIC md fields where a pasted private descriptor or
+/// key (`xprv…`) is masked on screen and never persisted, by content — the
+/// way Phase 1a treats `restore --from ms1=…`. md itself refuses the value
+/// ("public keys must be …", exit 1), but by then it would have shown and
+/// persisted. Keyed `"<cli> <subcommand>"` × field (`positional:<name>` for a
+/// positional).
+pub const PRIVATE_KEY_CONTENT_FIELDS: &[(&str, &str)] = &[
+    ("md shape-key", "--descriptor"),
+    ("md descriptor", "--key"),
+    ("md decompose", "positional:descriptors"),
+];
+
+/// True iff `field` of `"<cli> <subcommand>"` is one of
+/// [`PRIVATE_KEY_CONTENT_FIELDS`].
+pub fn field_masks_private_key_content(base: &str, field: &str) -> bool {
+    PRIVATE_KEY_CONTENT_FIELDS
+        .iter()
+        .any(|(b, f)| *b == base && *f == field)
+}
+
+/// True iff any key-shaped token of `value` (split on everything that is not
+/// ASCII alphanumeric: `(`, `,`, `=`, `[`, `]`, `/`, …) is xprv-like by the
+/// tree form's own classifier (`tree_model::is_xprv_like`: `?prv` prefix).
+pub fn text_holds_private_key(value: &str) -> bool {
+    value
+        .split(|c: char| !c.is_ascii_alphanumeric())
+        .any(crate::form::tree_model::is_xprv_like)
+}
+
 /// Paste-warn modal copy text (SPEC §9 — one-shot per session, per
 /// secret-class flag). Byte-exact per SPEC §9; the `(v0.2 deferred per
 /// FOLLOWUPS ...)` lines name the explicit non-mitigations.
@@ -195,10 +238,15 @@ per call. egui's internal undo ring retains `String` snapshots that this scheme
 does not cover — a second-tier residue documented in FOLLOWUPS
 `gui-secret-buffer-allocator-residue`.";
 
-/// Run-confirm modal prefix (the full argv preview follows in body
-/// rendering at the call site).
+/// Run-confirm modal prefix for the INTERIM path (secrets on argv; DESIGN
+/// §A6). The full argv preview follows in body rendering at the call site.
 pub const RUN_CONFIRM_MODAL_PREFIX: &str = "\
 This invocation passes secret-bearing arguments to ";
+
+/// Run-confirm modal prefix for the PRIVATE-channel path (DESIGN §A7, Q1):
+/// the dialog stays, and its first sentence says the secrets go privately.
+pub const RUN_CONFIRM_PRIVATE_PREFIX: &str = "\
+This invocation sends these secrets privately to ";
 
 /// Minimum paste length that triggers the paste-warn modal (SPEC §9).
 pub const PASTE_WARN_THRESHOLD: usize = 8;
@@ -244,6 +292,13 @@ pub fn should_confirm_run(
     for (_, v) in &state.values {
         if let crate::schema::FlagValue::NodeValueComposite { node, value } = v {
             if !value.is_empty() && node_type_is_argv_secret(node) {
+                return true;
+            }
+        }
+        // A plain Text value whose secrecy is node-dependent
+        // (`restore --from ms1=<card>`).
+        if let crate::schema::FlagValue::Text(s) = v {
+            if text_value_is_secret_source(s) {
                 return true;
             }
         }

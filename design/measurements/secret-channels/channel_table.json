@@ -1,0 +1,1227 @@
+{
+ "mnemonic addresses --from electrum-phrase=": {
+  "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
+ },
+ "mnemonic addresses --from entropy=": {
+  "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
+ },
+ "mnemonic addresses --from phrase=": {
+  "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
+ },
+ "mnemonic addresses --from seedqr=": {
+  "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
+ },
+ "mnemonic addresses --passphrase": {
+  "channels": [
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   },
+   {
+    "kind": "StdinToggle",
+    "flag": "--passphrase-stdin",
+    "terminator": "\r\n"
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": true
+ },
+ "mnemonic bundle --passphrase": {
+  "channels": [
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   },
+   {
+    "kind": "StdinToggle",
+    "flag": "--passphrase-stdin",
+    "terminator": "\r\n"
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": true
+ },
+ "mnemonic bundle --slot @N.entropy=": {
+  "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
+ },
+ "mnemonic bundle --slot @N.ms1=": {
+  "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
+ },
+ "mnemonic bundle --slot @N.phrase=": {
+  "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
+ },
+ "mnemonic bundle --slot @N.seedqr=": {
+  "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
+ },
+ "mnemonic bundle --slot @N.wif=": {
+  "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
+ },
+ "mnemonic convert --bip38-passphrase": {
+  "channels": [
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   },
+   {
+    "kind": "StdinToggle",
+    "flag": "--bip38-passphrase-stdin",
+    "terminator": "\r\n"
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": true
+ },
+ "mnemonic convert --from bip38=": {
+  "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": null
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
+ },
+ "mnemonic convert --from electrum-phrase=": {
+  "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
+ },
+ "mnemonic convert --from entropy=": {
+  "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": null
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
+ },
+ "mnemonic convert --from minikey=": {
+  "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": null
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": null
+ },
+ "mnemonic convert --from ms1=": {
+  "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
+ },
+ "mnemonic convert --from phrase=": {
+  "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
+ },
+ "mnemonic convert --from seedqr=": {
+  "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
+ },
+ "mnemonic convert --from wif=": {
+  "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": null
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
+ },
+ "mnemonic convert --from xprv=": {
+  "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": null
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
+ },
+ "mnemonic convert --passphrase": {
+  "channels": [
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   },
+   {
+    "kind": "StdinToggle",
+    "flag": "--passphrase-stdin",
+    "terminator": "\r\n"
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": true
+ },
+ "mnemonic derive-child --from phrase=": {
+  "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
+ },
+ "mnemonic derive-child --from xprv=": {
+  "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": null
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
+ },
+ "mnemonic derive-child --passphrase": {
+  "channels": [
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   },
+   {
+    "kind": "StdinToggle",
+    "flag": "--passphrase-stdin",
+    "terminator": "\r\n"
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": true
+ },
+ "mnemonic electrum-decrypt --decrypt-password": {
+  "channels": [
+   {
+    "kind": "StdinToggle",
+    "flag": "--decrypt-password-stdin",
+    "terminator": "\r\n"
+   },
+   {
+    "kind": "FileFlag",
+    "flag": "--decrypt-password-file",
+    "terminator": "\n"
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": true
+ },
+ "mnemonic final-word --from phrase=": {
+  "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": null
+ },
+ "mnemonic import-wallet --decrypt-password": {
+  "channels": [
+   {
+    "kind": "StdinToggle",
+    "flag": "--decrypt-password-stdin",
+    "terminator": "\r\n"
+   },
+   {
+    "kind": "FileFlag",
+    "flag": "--decrypt-password-file",
+    "terminator": "\n"
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": true
+ },
+ "mnemonic import-wallet --ms1": {
+  "channels": [
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": true
+ },
+ "mnemonic import-wallet --slot @N.phrase=": {
+  "channels": [
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
+ },
+ "mnemonic inspect --ms1": {
+  "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": null
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": true
+ },
+ "mnemonic ms-shares combine --share": {
+  "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": true
+ },
+ "mnemonic ms-shares split --from entropy=": {
+  "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": null
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
+ },
+ "mnemonic ms-shares split --from phrase=": {
+  "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
+ },
+ "mnemonic nostr --secret": {
+  "channels": [
+   {
+    "kind": "StdinToggle",
+    "flag": "--secret-stdin",
+    "terminator": "\r\n"
+   },
+   {
+    "kind": "FileFlag",
+    "flag": "--secret-file",
+    "terminator": "\r\n"
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": true
+ },
+ "mnemonic repair --ms1": {
+  "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": null
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": true
+ },
+ "mnemonic restore --from entropy=": {
+  "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
+ },
+ "mnemonic restore --from ms1=": {
+  "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
+ },
+ "mnemonic restore --from phrase=": {
+  "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
+ },
+ "mnemonic restore --from seedqr=": {
+  "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
+ },
+ "mnemonic restore --passphrase": {
+  "channels": [
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   },
+   {
+    "kind": "StdinToggle",
+    "flag": "--passphrase-stdin",
+    "terminator": "\r\n"
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": true
+ },
+ "mnemonic seed-xor combine --share phrase=": {
+  "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
+ },
+ "mnemonic seed-xor split --from phrase=": {
+  "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
+ },
+ "mnemonic seedqr decode --digits": {
+  "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": true
+ },
+ "mnemonic seedqr decode --from seedqr=": {
+  "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": null
+ },
+ "mnemonic seedqr encode --from phrase=": {
+  "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": null
+ },
+ "mnemonic silent-payment --passphrase": {
+  "channels": [
+   {
+    "kind": "StdinToggle",
+    "flag": "--passphrase-stdin",
+    "terminator": "\r\n"
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": true
+ },
+ "mnemonic silent-payment --secret": {
+  "channels": [
+   {
+    "kind": "StdinToggle",
+    "flag": "--secret-stdin",
+    "terminator": "\r\n"
+   },
+   {
+    "kind": "FileFlag",
+    "flag": "--secret-file",
+    "terminator": "\r\n"
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": true
+ },
+ "mnemonic slip39 combine --passphrase": {
+  "channels": [
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   },
+   {
+    "kind": "StdinToggle",
+    "flag": "--passphrase-stdin",
+    "terminator": "\r\n"
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": true
+ },
+ "mnemonic slip39 combine --share": {
+  "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": true
+ },
+ "mnemonic slip39 split --from entropy=": {
+  "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": null
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
+ },
+ "mnemonic slip39 split --from phrase=": {
+  "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
+ },
+ "mnemonic slip39 split --passphrase": {
+  "channels": [
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   },
+   {
+    "kind": "StdinToggle",
+    "flag": "--passphrase-stdin",
+    "terminator": "\r\n"
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": true
+ },
+ "mnemonic verify-bundle --ms1": {
+  "channels": [
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": true
+ },
+ "mnemonic verify-bundle --passphrase": {
+  "channels": [
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   },
+   {
+    "kind": "StdinToggle",
+    "flag": "--passphrase-stdin",
+    "terminator": "\r\n"
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": true
+ },
+ "mnemonic verify-bundle --slot @N.entropy=": {
+  "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
+ },
+ "mnemonic verify-bundle --slot @N.ms1=": {
+  "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
+ },
+ "mnemonic verify-bundle --slot @N.phrase=": {
+  "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
+ },
+ "mnemonic verify-bundle --slot @N.seedqr=": {
+  "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
+ },
+ "mnemonic xpub-search account-of-descriptor --ms1": {
+  "channels": [
+   {
+    "kind": "StdinToggle",
+    "flag": "--ms1-stdin",
+    "terminator": null
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": true
+ },
+ "mnemonic xpub-search account-of-descriptor --passphrase": {
+  "channels": [
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   },
+   {
+    "kind": "StdinToggle",
+    "flag": "--passphrase-stdin",
+    "terminator": "\r\n"
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": true
+ },
+ "mnemonic xpub-search account-of-descriptor --phrase": {
+  "channels": [
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   },
+   {
+    "kind": "StdinToggle",
+    "flag": "--phrase-stdin",
+    "terminator": "\r\n"
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": true
+ },
+ "mnemonic xpub-search passphrase-of-xpub --ms1": {
+  "channels": [
+   {
+    "kind": "StdinToggle",
+    "flag": "--ms1-stdin",
+    "terminator": null
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": true
+ },
+ "mnemonic xpub-search passphrase-of-xpub --passphrase": {
+  "channels": [
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   },
+   {
+    "kind": "StdinToggle",
+    "flag": "--passphrase-stdin",
+    "terminator": "\r\n"
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": true
+ },
+ "mnemonic xpub-search passphrase-of-xpub --phrase": {
+  "channels": [
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   },
+   {
+    "kind": "StdinToggle",
+    "flag": "--phrase-stdin",
+    "terminator": "\r\n"
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": true
+ },
+ "mnemonic xpub-search path-of-xpub --ms1": {
+  "channels": [
+   {
+    "kind": "StdinToggle",
+    "flag": "--ms1-stdin",
+    "terminator": null
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": true
+ },
+ "mnemonic xpub-search path-of-xpub --passphrase": {
+  "channels": [
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   },
+   {
+    "kind": "StdinToggle",
+    "flag": "--passphrase-stdin",
+    "terminator": "\r\n"
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": true
+ },
+ "mnemonic xpub-search path-of-xpub --phrase": {
+  "channels": [
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   },
+   {
+    "kind": "StdinToggle",
+    "flag": "--phrase-stdin",
+    "terminator": "\r\n"
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": true
+ },
+ "ms combine <shares>": {
+  "channels": [
+   {
+    "kind": "StdinMulti",
+    "terminator": "\n"
+   },
+   {
+    "kind": "InFile",
+    "flag": "--in",
+    "terminator": "\n"
+   }
+  ],
+  "measured_in": "measure_groups.py",
+  "cli_env_rule": null,
+  "argv_eq_exact": null
+ },
+ "ms decode <ms1>": {
+  "channels": [
+   {
+    "kind": "PosDash",
+    "terminator": "\r\n"
+   },
+   {
+    "kind": "InFile",
+    "flag": "--in",
+    "terminator": "\r\n"
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": null
+ },
+ "ms derive --hex": {
+  "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": true
+ },
+ "ms derive --passphrase": {
+  "channels": [
+   {
+    "kind": "StdinToggle",
+    "flag": "--passphrase-stdin",
+    "terminator": "\r\n"
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": false
+ },
+ "ms derive --phrase": {
+  "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": true
+ },
+ "ms derive <ms1>": {
+  "channels": [
+   {
+    "kind": "PosDash",
+    "terminator": "\r\n"
+   },
+   {
+    "kind": "InFile",
+    "flag": "--in",
+    "terminator": "\r\n"
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": null
+ },
+ "ms encode --hex": {
+  "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": true
+ },
+ "ms encode --phrase": {
+  "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   },
+   {
+    "kind": "InFile",
+    "flag": "--in",
+    "terminator": "\r\n"
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": true
+ },
+ "ms hashlock --hashlock-phrase": {
+  "channels": [
+   {
+    "kind": "StdinToggle",
+    "flag": "--hashlock-phrase-stdin",
+    "terminator": "\r\n"
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": false
+ },
+ "ms hashlock --hex": {
+  "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": true
+ },
+ "ms hashlock <ms1>": {
+  "channels": [
+   {
+    "kind": "PosDash",
+    "terminator": "\r\n"
+   },
+   {
+    "kind": "InFile",
+    "flag": "--in",
+    "terminator": "\r\n"
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": null
+ },
+ "ms inspect <ms1>": {
+  "channels": [
+   {
+    "kind": "PosDash",
+    "terminator": "\r\n"
+   },
+   {
+    "kind": "InFile",
+    "flag": "--in",
+    "terminator": "\r\n"
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": null
+ },
+ "ms repair --ms1": {
+  "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   },
+   {
+    "kind": "InFile",
+    "flag": "--in",
+    "terminator": "\r\n"
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": true
+ },
+ "ms split --hex": {
+  "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": true
+ },
+ "ms split --phrase": {
+  "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   },
+   {
+    "kind": "InFile",
+    "flag": "--in",
+    "terminator": "\r\n"
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": true
+ },
+ "ms verify --phrase": {
+  "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": true
+ },
+ "ms verify <ms1>": {
+  "channels": [
+   {
+    "kind": "PosDash",
+    "terminator": "\r\n"
+   },
+   {
+    "kind": "InFile",
+    "flag": "--in",
+    "terminator": "\r\n"
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": null
+ }
+}

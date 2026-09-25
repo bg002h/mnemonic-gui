@@ -740,6 +740,392 @@ const GEN_MAN_FLAGS: &[FlagSchema] = &[FlagSchema {
 
 const GEN_MAN_POSITIONALS: &[PositionalArgSchema] = &[];
 
+// ─── compose (DESIGN secret channels Part B, B1) ────────────────────────────
+
+// `md compose` (md-cli v0.20.3): the Wallet Policy composer's CLI. No secret
+// input. `--wrapper` is clap-required; `--path` (repeating, ORDER MEANINGFUL)
+// XOR `--preset`; `--unspendable` only with `--wrapper tr`. Conditional fn at
+// `form::conditional::md_compose`.
+pub const COMPOSE_WRAPPERS: &[&str] = &["tr", "wsh", "sh-wsh", "sh"];
+/// `--unspendable`: the leading `""` is the GUI-side "(none)" sentinel (never
+/// emitted) — omitting the flag is md's own default.
+pub const COMPOSE_UNSPENDABLE: &[&str] = &["", "nums", "liana"];
+
+const COMPOSE_FLAGS: &[FlagSchema] = &[
+    FlagSchema {
+        name: "--wrapper",
+        kind: FlagKind::Dropdown(COMPOSE_WRAPPERS),
+        required: true,
+        repeating: false,
+        help: "Script wrapper: tr | wsh | sh-wsh | sh. Required.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--path",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: true,
+        help: "One spend path, in listed order (order is meaningful): \
+               `<k>of<n>[,older=N|older=Nu|after=H|after=Tt][,<hash>=HEX][,unsorted]` \
+               or `keyless,<hash>=HEX[,older=..|after=..]`. Repeatable. Mutually \
+               exclusive with --preset.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--preset",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "One of the six named archetypes: `<name>[,<k>of<n>]*[,<param>=<value>]*`, \
+               e.g. `kofn-recovery,2of3,older=26280`. Mutually exclusive with --path.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--experimental",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Admit key-less paths and unsorted-where-sorted-was-legal, with a warning.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--json",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Emit JSON: the templates, the slot map, the taproot internal-key path \
+               and the EXPERIMENTAL marks.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--unspendable",
+        kind: FlagKind::Dropdown(COMPOSE_UNSPENDABLE),
+        required: false,
+        repeating: false,
+        help: "Which unspendable taproot internal key to use when no spend path \
+               supplies a real one: `nums` (the BIP-341 H-point, md's default) or \
+               `liana`. Only with --wrapper tr.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--md-only",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Compose even when every wallet coordinator md knows refuses the \
+               policy. md can still rebuild such a wallet from the card; md cannot sign.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+];
+
+const COMPOSE_POSITIONALS: &[PositionalArgSchema] = &[];
+
+// ─── shape-key (B2) ─────────────────────────────────────────────────────────
+
+// `md shape-key` (md-cli v0.20.3): `[PHRASES]...` XOR `--descriptor` (clap
+// "cannot be used with"). Conditional fn at `form::conditional::md_shape_key`.
+const SHAPE_KEY_FLAGS: &[FlagSchema] = &[FlagSchema {
+    name: "--descriptor",
+    kind: FlagKind::Text,
+    required: false,
+    repeating: false,
+    help: "A multipath (`<0;1>`) BIP-380 descriptor instead of a card: a wallet's \
+           own export or `md descriptor`'s output. Public keys only (a pasted xprv \
+           is masked and never persisted). Mutually exclusive with phrases.",
+    secret: false,
+    default_value: None,
+    global: false,
+}];
+
+const SHAPE_KEY_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
+    name: "phrases",
+    required: false,
+    repeating: true,
+    help: "One or more md1 strings of one card. Mutually exclusive with --descriptor.",
+    secret: false,
+}];
+
+// ─── descriptor (B3) ────────────────────────────────────────────────────────
+
+// `md descriptor` (md-cli v0.20.3): three input modes — A: md1 phrases; B:
+// --template + ≥1 --key (+ --fingerprint); C: --from-mk1/--from-mk1-file with
+// keyless md1 phrases (+ --seat). `--emit md1` only with mode C; --out,
+// --group-size, --separator are meaningful only with --emit md1; --chain XOR
+// --change. Conditional fn at `form::conditional::md_descriptor`.
+/// `--emit`: `""` is the "(none)" sentinel (the concrete descriptor, md's
+/// default output).
+pub const DESCRIPTOR_EMIT: &[&str] = &["", "md1"];
+
+const DESCRIPTOR_FLAGS: &[FlagSchema] = &[
+    FlagSchema {
+        name: "--template",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "BIP 388 template. Requires at least one --key. Mutually exclusive with phrases.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--key",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: true,
+        help: "Concrete xpub for placeholder @i (`@i=XPUB`), or the origin-notated \
+               `@i=[fingerprint/path]XPUB` form. Repeatable. Requires --template. Public \
+               keys only (a pasted xprv is masked and never persisted).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--fingerprint",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: true,
+        help: "Master-key fingerprint for placeholder @i (`@i=HEX`). Repeatable. Requires --template.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--path",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "Shared origin path, applied PER SLOT to whichever @i the template gave \
+               no inline origin (an inline origin always wins). Named, hex or literal forms.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--from-mk1",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: true,
+        help: "mk1 key-card string, repeatable. Supplied TOGETHER WITH the keyless md1 \
+               phrases of a policy card: each card is seated in the slot whose declared \
+               origin it satisfies. Watch-only (xpub) material.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--from-mk1-file",
+        kind: FlagKind::Path {
+            stdio_sentinel: false,
+        },
+        required: false,
+        repeating: false,
+        help: "Read mk1 key-card strings from FILE, one per line (blank lines and `#` \
+               comments skipped). Combines with --from-mk1.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--seat",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: true,
+        help: "Assert the seating of one slot: `@i=<chunk-set-id>` (append `#<k>` to \
+               pick one of several collided cards). Repeatable. With --from-mk1.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--network",
+        kind: FlagKind::Dropdown(NETWORKS),
+        required: false,
+        repeating: false,
+        help: "Network for xpub validation. Default mainnet.",
+        secret: false,
+        default_value: Some("mainnet"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--chain",
+        kind: FlagKind::Number { min: 0, max: NumberMax::Static(1) },
+        required: false,
+        repeating: false,
+        help: "Collapse the multipath group to ONE chain (0 = receive, 1 = change). \
+               Omit for the multipath <0;1> form. Mutually exclusive with --change.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--change",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Sugar for --chain 1. Mutually exclusive with --chain.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--emit",
+        kind: FlagKind::Dropdown(DESCRIPTOR_EMIT),
+        required: false,
+        repeating: false,
+        help: "`md1`: put the KEYED md1 card on stdout instead of the concrete \
+               descriptor, minted from the seating result. Needs --from-mk1 / \
+               --from-mk1-file input.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--out",
+        kind: FlagKind::Path {
+            stdio_sentinel: false,
+        },
+        required: false,
+        repeating: false,
+        help: "Write the KEYED md1 artifact to FILE (created 0600) instead of stdout. \
+               Only with --emit md1.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--group-size",
+        kind: FlagKind::Number {
+            min: 0,
+            max: NumberMax::Static(255),
+        },
+        required: false,
+        repeating: false,
+        help: "Insert a separator every N characters in the engraving card on stderr \
+               (0 = unbroken). Default 5. Only with --emit md1.",
+        secret: false,
+        default_value: Some("5"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--separator",
+        kind: FlagKind::Dropdown(SEPARATORS),
+        required: false,
+        repeating: false,
+        help: "Separator for the engraving card. Default space. Only with --emit md1.",
+        secret: false,
+        default_value: Some("space"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--json",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Emit JSON output.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--verify-against",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "SPEND-EQUAL comparison target: an md1 string or a FILE holding one or \
+               more. Exit 0 = spend-equal, 5 = NOT spend-equal. Any input mode.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--experimental",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Accept a template with a spend path that requires no signature, \
+               mirroring `md encode --experimental`.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+];
+
+const DESCRIPTOR_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
+    name: "phrases",
+    required: false,
+    repeating: true,
+    help: "One or more md1 phrases (input mode A; with --from-mk1, the KEYLESS \
+           policy card's phrases). Mutually exclusive with --template.",
+    secret: false,
+}];
+
+// ─── decompose (B4) ─────────────────────────────────────────────────────────
+
+// `md decompose` (md-cli v0.20.3): `<DESCRIPTORS>` (exactly one; the CLI
+// refuses two with the receive/change-pair guidance) XOR `--in`. Conditional
+// fn at `form::conditional::md_decompose`.
+pub const DECOMPOSE_EMIT: &[&str] = &["all", "template", "keys", "fingerprints", "descriptor", "commands"];
+
+const DECOMPOSE_FLAGS: &[FlagSchema] = &[
+    FlagSchema {
+        name: "--in",
+        kind: FlagKind::Path {
+            stdio_sentinel: false,
+        },
+        required: false,
+        repeating: false,
+        help: "Read the descriptor from FILE instead of argv. Blank lines and `#` \
+               comments are skipped. Mutually exclusive with the positional.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--emit",
+        kind: FlagKind::Dropdown(DECOMPOSE_EMIT),
+        required: false,
+        repeating: false,
+        help: "Which artifact to print: all (template, key lines and fingerprint \
+               flags), template, keys, fingerprints, descriptor, or commands. Default all.",
+        secret: false,
+        default_value: Some("all"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--network",
+        kind: FlagKind::Dropdown(NETWORKS),
+        required: false,
+        repeating: false,
+        help: "Network the descriptor's extended keys must belong to. Default mainnet.",
+        secret: false,
+        default_value: Some("mainnet"),
+        global: false,
+    },
+];
+
+const DECOMPOSE_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
+    name: "descriptors",
+    required: false,
+    repeating: false,
+    help: "The concrete output descriptor — exactly one. Public keys only (a pasted \
+           xprv is masked and never persisted). Mutually exclusive with --in.",
+    secret: false,
+}];
+
 // ─── SCHEMA constant ─────────────────────────────────────────────────────
 
 const SUBCOMMANDS: &[SubcommandSchema] = &[
@@ -822,6 +1208,39 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
         positional_args: GEN_MAN_POSITIONALS,
         allows_slots: false,
         conditional: None,
+    },
+    // DESIGN secret channels Part B (B1–B4): the four md verbs surfaced.
+    SubcommandSchema {
+        name: "compose",
+        human_name: "Compose (spend paths -> wallet policy)",
+        flags: COMPOSE_FLAGS,
+        positional_args: COMPOSE_POSITIONALS,
+        allows_slots: false,
+        conditional: Some(crate::form::conditional::md_compose),
+    },
+    SubcommandSchema {
+        name: "shape-key",
+        human_name: "Shape Key (card or descriptor -> shape key)",
+        flags: SHAPE_KEY_FLAGS,
+        positional_args: SHAPE_KEY_POSITIONALS,
+        allows_slots: false,
+        conditional: Some(crate::form::conditional::md_shape_key),
+    },
+    SubcommandSchema {
+        name: "descriptor",
+        human_name: "Descriptor (md1 / template / key cards -> descriptor)",
+        flags: DESCRIPTOR_FLAGS,
+        positional_args: DESCRIPTOR_POSITIONALS,
+        allows_slots: false,
+        conditional: Some(crate::form::conditional::md_descriptor),
+    },
+    SubcommandSchema {
+        name: "decompose",
+        human_name: "Decompose (descriptor -> template, keys, fingerprints)",
+        flags: DECOMPOSE_FLAGS,
+        positional_args: DECOMPOSE_POSITIONALS,
+        allows_slots: false,
+        conditional: Some(crate::form::conditional::md_decompose),
     },
 ];
 

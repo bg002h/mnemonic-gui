@@ -1,0 +1,22 @@
+{
+ "mnemonic": {
+  "pinned_tag": "mnemonic-toolkit-v0.104.0",
+  "version": "0.104.0",
+  "sha256": "c894bee53193cfe6c8b90cf313ddb666572708df1a6113f2eb7d1aa935c08c4e"
+ },
+ "md": {
+  "pinned_tag": "descriptor-mnemonic-md-cli-v0.20.3",
+  "version": "0.20.3",
+  "sha256": "c5b9a26e8b18a6ec2a1c017fa16155d50fbd56d3eba6e07ecb4bbb50bba15679"
+ },
+ "ms": {
+  "pinned_tag": "ms-cli-v0.19.1",
+  "version": "0.19.1",
+  "sha256": "a6d748119b0ee25a259f0fd9e62e4a6001d6fc7c14fa687cd4f00942bc086186"
+ },
+ "mk": {
+  "pinned_tag": "mk-cli-v0.13.0",
+  "version": "0.13.0",
+  "sha256": "f0785f5e621a38ba02d3ddc897eec114af6873c2b0ae388b0bde871f1f7de949"
+ }
+}

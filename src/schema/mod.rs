@@ -27,6 +27,23 @@ pub struct Schema {
 }
 
 /// One subcommand (e.g. `mnemonic export-wallet`).
+/// The display label of a Dropdown's `""` UNSET sentinel: `(choose)` where
+/// the unset state is not a usable default (DESIGN §B5: `ms hashlock --kind`,
+/// where Run stays disabled until a kind is chosen), else `(none)`.
+pub fn dropdown_unset_label(opts: &[&str]) -> &'static str {
+    if opts.contains(&crate::schema::ms::HASHLOCK_KIND_ALL) {
+        "(choose)"
+    } else {
+        "(none)"
+    }
+}
+
+/// GUI-only Dropdown values that deliberately OMIT the flag (never emitted):
+/// `ms hashlock --kind`'s "all kinds — lookup only" (DESIGN §B5).
+pub fn dropdown_value_is_gui_only(value: &str) -> bool {
+    value == crate::schema::ms::HASHLOCK_KIND_ALL
+}
+
 pub struct SubcommandSchema {
     /// Argv name (e.g. `"export-wallet"`).
     pub name: &'static str,

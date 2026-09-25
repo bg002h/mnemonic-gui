@@ -2,14 +2,16 @@
 //!
 //! `mnemonic` (toolkit v0.104.0) and `ms` (v0.19.0) refuse secret material on
 //! argv unless `--allow-argv-secret` is present. The GUI mirrors the flag for
-//! schema parity but never renders it and never emits it from form state; the
-//! RUN path (`admit_argv_secret_for_run` / `assemble_argv_for_run`) adds it
-//! only when the argv carries secret material, and the COPY path
-//! (`assemble_argv`) never carries it.
+//! schema parity but never renders it and never emits it from form state.
+//! Since the secret-channel design (Part A) the Linux Run path sends every
+//! secret over a private channel and never needs it; only the INTERIM path (an
+//! OS outside `private_channels_on`, forced here with `"macos"`) puts the
+//! resolved bytes on argv and adds the flag. The COPY path never carries it.
 
+use mnemonic_gui::form::channels::{self, RunPlan};
 use mnemonic_gui::form::invocation::{
-    admit_argv_secret_for_run, assemble_argv, assemble_argv_for_run,
-    assemble_argv_with_secret_mask, is_gui_managed_flag, ALLOW_ARGV_SECRET, END_OF_OPTIONS,
+    assemble_argv, assemble_argv_with_secret_mask, is_gui_managed_flag, ALLOW_ARGV_SECRET,
+    END_OF_OPTIONS,
 };
 use mnemonic_gui::form::secret_widget::SecretLineEdit;
 use mnemonic_gui::schema::{self, FlagValue, FormState, Schema, SubcommandSchema};
@@ -33,15 +35,23 @@ fn ms_decode_state() -> FormState {
     state
 }
 
+/// The INTERIM path's plan (an OS outside `private_channels_on`).
+fn interim(schema: &'static Schema, s: &'static SubcommandSchema, state: &FormState) -> RunPlan {
+    let plan = channels::plan(schema, s, state, &|_: &str| None, "macos").expect("plans");
+    assert!(plan.interim || !plan.has_secrets());
+    plan
+}
+
 #[test]
 fn run_argv_admits_right_after_the_subcommand_with_a_false_mask_bit() {
     let s = sub(&schema::ms::SCHEMA, "decode");
-    let (argv, mask) = assemble_argv_with_secret_mask(&schema::ms::SCHEMA, s, &ms_decode_state());
+    let (argv, _mask) = assemble_argv_with_secret_mask(&schema::ms::SCHEMA, s, &ms_decode_state());
     assert!(
         !argv.iter().any(|t| t == ALLOW_ARGV_SECRET),
         "copy argv carries it: {argv:?}"
     );
-    let (run, run_mask) = admit_argv_secret_for_run(s, argv.clone(), mask.clone());
+    let plan = interim(&schema::ms::SCHEMA, s, &ms_decode_state());
+    let (run, run_mask) = (plan.argv.clone(), plan.mask.clone());
     assert_eq!(run[..2], ["ms", "decode"]);
     assert_eq!(run[2], ALLOW_ARGV_SECRET);
     assert!(!run_mask[2], "the opt-in token is not secret");
@@ -59,15 +69,11 @@ fn run_argv_admits_right_after_the_subcommand_with_a_false_mask_bit() {
 #[test]
 fn nested_subcommand_gets_the_flag_after_the_child_token() {
     let s = sub(&schema::mnemonic::SCHEMA, "xpub-search-passphrase-of-xpub");
-    let argv = vec![
-        "mnemonic".to_string(),
-        "xpub-search".into(),
-        "passphrase-of-xpub".into(),
-        "--passphrase".into(),
-        "p".into(),
-    ];
-    let mask = vec![false, false, false, false, true];
-    let (run, _) = admit_argv_secret_for_run(s, argv, mask);
+    let mut state = FormState::default();
+    state
+        .secret_widgets
+        .insert("--passphrase".into(), vec![SecretLineEdit::from_text("p")]);
+    let run = interim(&schema::mnemonic::SCHEMA, s, &state).argv.clone();
     assert_eq!(
         run[..4],
         [
@@ -83,38 +89,34 @@ fn nested_subcommand_gets_the_flag_after_the_child_token() {
 fn no_secret_means_no_flag() {
     let s = sub(&schema::ms::SCHEMA, "decode");
     let state = FormState::default().with_positionals(["-"]);
-    let run = assemble_argv_for_run(&schema::ms::SCHEMA, s, &state);
+    let run = interim(&schema::ms::SCHEMA, s, &state).argv.clone();
     assert!(!run.iter().any(|t| t == ALLOW_ARGV_SECRET), "{run:?}");
 }
 
 #[test]
 fn a_cli_that_does_not_declare_it_never_gets_it() {
-    // md has no secret surface and no --allow-argv-secret; even a (spurious)
-    // secret mask bit must not add a flag md would reject.
+    // md has no secret surface and no --allow-argv-secret: its plan is the
+    // assembled argv, on every path.
     let s = sub(&schema::md::SCHEMA, "decode");
-    let argv = vec!["md".to_string(), "decode".into(), "md1xyz".into()];
-    let (run, _) = admit_argv_secret_for_run(s, argv.clone(), vec![false, false, true]);
-    assert_eq!(run, argv);
+    let state = FormState::default().with_positionals(["md1xyz"]);
+    let argv = assemble_argv(&schema::md::SCHEMA, s, &state);
+    assert_eq!(interim(&schema::md::SCHEMA, s, &state).argv, argv);
 }
 
 #[test]
-fn restore_from_a_secret_node_is_admitted_but_a_private_channel_is_not() {
+fn restore_from_a_secret_node_is_admitted_on_the_interim_path() {
     // `restore --from` is a plain Text flag (secret: false upstream AND here),
-    // so the mask never marks it; the node-value classifier must.
+    // so the flag's secret bit never marks it; the node-value source
+    // classifier must. (What `ms1=-` / `ms1=@env:VAR` mean is C1's business:
+    // `secret_channels_t6.rs`.)
     let s = sub(&schema::mnemonic::SCHEMA, "restore");
     let with = |v: &str| {
         let state = FormState::from_pairs(vec![("--from", FlagValue::Text(v.into()))]);
-        assemble_argv_for_run(&schema::mnemonic::SCHEMA, s, &state)
+        interim(&schema::mnemonic::SCHEMA, s, &state).argv.clone()
     };
     assert!(with(&format!("ms1={MS1}"))
         .iter()
         .any(|t| t == ALLOW_ARGV_SECRET));
-    for private in ["ms1=-", "ms1=@env:SEED"] {
-        assert!(
-            !with(private).iter().any(|t| t == ALLOW_ARGV_SECRET),
-            "{private} is a private channel and needs no opt-in"
-        );
-    }
     // Watch-only material is not refused by the toolkit and needs nothing.
     assert!(!with("xpub=xpub6abc").iter().any(|t| t == ALLOW_ARGV_SECRET));
 }
@@ -130,12 +132,10 @@ fn form_state_cannot_emit_it_even_if_set() {
 }
 
 #[test]
-fn admission_is_idempotent() {
+fn the_interim_opt_in_appears_exactly_once() {
     let s = sub(&schema::ms::SCHEMA, "decode");
-    let (argv, mask) = assemble_argv_with_secret_mask(&schema::ms::SCHEMA, s, &ms_decode_state());
-    let (once, once_mask) = admit_argv_secret_for_run(s, argv, mask);
-    let (twice, _) = admit_argv_secret_for_run(s, once.clone(), once_mask);
-    assert_eq!(once, twice);
+    let run = interim(&schema::ms::SCHEMA, s, &ms_decode_state()).argv.clone();
+    assert_eq!(run.iter().filter(|t| *t == ALLOW_ARGV_SECRET).count(), 1, "{run:?}");
 }
 
 #[test]
@@ -160,8 +160,9 @@ fn every_declaring_subcommand_is_mnemonic_or_ms_and_the_flag_is_gui_managed() {
             }
         }
     }
-    // 32 mnemonic subcommands + the 8 ms material verbs this GUI mirrors.
-    assert_eq!(declaring, 40);
+    // 32 mnemonic subcommands + the 9 ms material verbs this GUI mirrors
+    // (DESIGN secret channels §B5 adds `hashlock`).
+    assert_eq!(declaring, 41);
 }
 
 // ─── real-CLI cells (EARLY-RETURN-SKIP when the pinned binary env is unset,
@@ -182,21 +183,37 @@ const ABANDON: &str = "abandon abandon abandon abandon abandon abandon \
 /// `ms encode` of the all-zero BIP-39 vector ("abandon … about"), unbroken.
 const MS1_ALL_ZERO: &str = "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f";
 
+/// What the GUI's Run button executes on this OS (the planned invocation),
+/// with the pinned binary at argv[0].
 fn run_for(
     schema: &'static Schema,
     sub_name: &str,
     bin: String,
     state: &FormState,
 ) -> mnemonic_gui::runner::RunResult {
-    let mut argv = assemble_argv_for_run(schema, sub(schema, sub_name), state);
-    argv[0] = bin;
-    mnemonic_gui::runner::run(argv).expect("spawn")
+    let mut plan = channels::plan_for_run(schema, sub(schema, sub_name), state).expect("plans");
+    plan.argv[0] = bin;
+    mnemonic_gui::runner::run_plan(&plan).expect("spawn")
 }
 
-/// `ms encode` with the phrase in the SECRET widget: the Run path admits it
-/// (without the opt-in ms 0.19.0 refuses at exit 1), and the card is right.
+/// The INTERIM invocation, executed here (the macOS/Windows path).
+fn run_interim(
+    schema: &'static Schema,
+    sub_name: &str,
+    bin: String,
+    state: &FormState,
+) -> mnemonic_gui::runner::RunResult {
+    let mut plan = interim(schema, sub(schema, sub_name), state);
+    plan.argv[0] = bin;
+    mnemonic_gui::runner::run_plan(&plan).expect("spawn")
+}
+
+/// `ms encode` with the phrase in the SECRET widget: on Linux the phrase goes
+/// over a private channel (no opt-in, nothing secret on argv); on the interim
+/// path it is admitted (without the opt-in ms refuses at exit 1). Both give
+/// the right card.
 #[test]
-fn real_ms_encode_phrase_widget_runs_through_the_admission() {
+fn real_ms_encode_phrase_widget_runs_on_both_paths() {
     let Some(bin) = pinned_bin("MS_BIN") else {
         return;
     };
@@ -207,7 +224,7 @@ fn real_ms_encode_phrase_widget_runs_through_the_admission() {
     state
         .secret_widgets
         .insert("--phrase".into(), vec![SecretLineEdit::from_text(ABANDON)]);
-    let r = run_for(&schema::ms::SCHEMA, "encode", bin, &state);
+    let r = run_interim(&schema::ms::SCHEMA, "encode", bin.clone(), &state);
     assert!(r.argv.iter().any(|t| t == ALLOW_ARGV_SECRET));
     assert_eq!(
         r.exit_code,
@@ -216,6 +233,12 @@ fn real_ms_encode_phrase_widget_runs_through_the_admission() {
         String::from_utf8_lossy(&r.stderr)
     );
     assert_eq!(String::from_utf8_lossy(&r.stdout).trim(), MS1_ALL_ZERO);
+    if cfg!(target_os = "linux") {
+        let r = run_for(&schema::ms::SCHEMA, "encode", bin, &state);
+        assert!(!r.argv.iter().any(|t| t == ALLOW_ARGV_SECRET || t.contains("abandon")), "{:?}", r.argv);
+        assert_eq!(r.exit_code, Some(0), "stderr: {}", String::from_utf8_lossy(&r.stderr));
+        assert_eq!(String::from_utf8_lossy(&r.stdout).trim(), MS1_ALL_ZERO);
+    }
 }
 
 /// `ms encode --in FILE --out FILE` — the PRIVATE channel the new surface
@@ -289,7 +312,7 @@ fn real_md_decode_in_file() {
 #[test]
 fn real_every_offered_separator_is_accepted() {
     use mnemonic_gui::schema::FlagKind;
-    let cases: [(&'static Schema, &str, &str, Vec<String>); 4] = [
+    let cases: [(&'static Schema, &str, &str, Vec<String>); 6] = [
         (&schema::mnemonic::SCHEMA, "bundle", "MNEMONIC_BIN", vec![]),
         (
             &schema::md::SCHEMA,
@@ -299,6 +322,12 @@ fn real_every_offered_separator_is_accepted() {
         ),
         (&schema::mk::SCHEMA, "encode", "MK_BIN", vec![]),
         (&schema::ms::SCHEMA, "encode", "MS_BIN", vec![]),
+        // DESIGN secret channels Part B: the design's B5 table lists `space,
+        // hyphen, comma`, but the pinned ms 0.19.1 refuses hyphen/comma
+        // (exit 64, "ms emits whitespace grouping only") — the GUI offers
+        // only what the binary accepts, and this pins it.
+        (&schema::ms::SCHEMA, "hashlock", "MS_BIN", vec![]),
+        (&schema::md::SCHEMA, "descriptor", "MD_BIN", vec![]),
     ];
     for (schema, sub_name, env, positionals) in cases {
         let Some(bin) = pinned_bin(env) else { continue };
@@ -379,8 +408,8 @@ fn real_md_address_from_mk1_with_the_policy_positional() {
     let s = sub(&schema::md::SCHEMA, "address");
     let state = md_address_from_mk1_state();
     let copy = assemble_argv(&schema::md::SCHEMA, s, &state);
-    let run_argv = assemble_argv_for_run(&schema::md::SCHEMA, s, &state);
-    assert_eq!(copy, run_argv, "md has no opt-in: copy == run");
+    let run_argv = channels::plan_for_run(&schema::md::SCHEMA, s, &state).unwrap().argv.clone();
+    assert_eq!(copy, run_argv, "md has no secret source: copy == run");
     let r = run_for(&schema::md::SCHEMA, "address", bin, &state);
     assert_eq!(
         r.exit_code,
@@ -395,46 +424,26 @@ fn real_md_address_from_mk1_with_the_policy_positional() {
     );
 }
 
-/// F-679 fold 1 (review N1): a secret field holding only a private-channel
-/// sentinel gets no opt-in; a real value (even one containing `=`) does.
+/// A passphrase that merely contains `=` is still material: the interim path
+/// admits it.
 #[test]
-fn private_channel_sentinels_in_secret_fields_need_no_opt_in() {
-    let s = sub(&schema::mnemonic::SCHEMA, "convert");
-    for (value, expect) in [
-        ("@env:SEED", false),
-        ("-", false),
-        ("abandon abandon", true),
-    ] {
-        let state = FormState::from_pairs(vec![(
-            "--from",
-            FlagValue::NodeValueComposite {
-                node: "phrase".into(),
-                value: value.into(),
-            },
-        )]);
-        let run = assemble_argv_for_run(&schema::mnemonic::SCHEMA, s, &state);
-        assert_eq!(
-            run.iter().any(|t| t == ALLOW_ARGV_SECRET),
-            expect,
-            "{value}: {run:?}"
-        );
-    }
-    // A passphrase that merely contains `=` is still material.
+fn a_passphrase_containing_equals_is_admitted_on_the_interim_path() {
     let x = sub(&schema::mnemonic::SCHEMA, "xpub-search-passphrase-of-xpub");
     let mut state = FormState::default();
     state.secret_widgets.insert(
         "--passphrase".into(),
         vec![SecretLineEdit::from_text("a=-")],
     );
-    let run = assemble_argv_for_run(&schema::mnemonic::SCHEMA, x, &state);
+    let run = interim(&schema::mnemonic::SCHEMA, x, &state).argv.clone();
     assert!(run.iter().any(|t| t == ALLOW_ARGV_SECRET), "{run:?}");
 }
 
 /// F-679 fold 2 (review I1): `ms verify <ms1> --phrase <P>` — both secrets in
-/// the GUI's secret widgets, so the Run path admits them. ms 0.19.0 rewrote
-/// each admitted value to `-` and then refused "cannot read both ms1 and
-/// --phrase from stdin" (exit 1) with nothing on stdin; ms 0.19.1 (tag
-/// ms-cli-v0.19.1, mnemonic-secret 91d1fd7) fixes that. Pins the fix.
+/// the GUI's secret widgets. ms 0.19.0 rewrote each admitted value to `-` and
+/// then refused "cannot read both ms1 and --phrase from stdin" (exit 1) with
+/// nothing on stdin; ms 0.19.1 fixes that. Pins the fix on the interim path,
+/// and the private plan (`--phrase -` on stdin, the ms1 over `--in` a pipe) on
+/// Linux.
 #[test]
 fn real_ms_verify_phrase_and_positional_ms1() {
     let Some(bin) = pinned_bin("MS_BIN") else {
@@ -448,7 +457,7 @@ fn real_ms_verify_phrase_and_positional_ms1() {
         "positional:ms1".into(),
         vec![SecretLineEdit::from_text(MS1_ALL_ZERO)],
     );
-    let r = run_for(&schema::ms::SCHEMA, "verify", bin, &state);
+    let r = run_interim(&schema::ms::SCHEMA, "verify", bin.clone(), &state);
     assert!(
         r.argv.iter().any(|t| t == ALLOW_ARGV_SECRET),
         "{:?}",
@@ -460,4 +469,9 @@ fn real_ms_verify_phrase_and_positional_ms1() {
         "stderr: {}",
         String::from_utf8_lossy(&r.stderr)
     );
+    if cfg!(target_os = "linux") {
+        let r = run_for(&schema::ms::SCHEMA, "verify", bin, &state);
+        assert!(!r.argv.iter().any(|t| t == MS1_ALL_ZERO || t.contains("abandon")));
+        assert_eq!(r.exit_code, Some(0), "stderr: {}", String::from_utf8_lossy(&r.stderr));
+    }
 }

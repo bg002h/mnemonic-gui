@@ -1098,3 +1098,171 @@ pub fn ms_repair(state: &FormState) -> FlagVisibility {
 pub fn ms_combine(state: &FormState) -> FlagVisibility {
     ms_one_input_source(state, &["positional:shares", "--in"], true)
 }
+
+// ─── DESIGN secret channels Part B: the five forms ──────────────────────────
+
+/// B1 `md compose`: `--path` (repeating) XOR `--preset` (clap "cannot be used
+/// with"; one of them is needed), and `--unspendable` only with `--wrapper
+/// tr` (md refuses it with `wsh`, exit 1) — greyed otherwise.
+pub fn md_compose(state: &FormState) -> FlagVisibility {
+    let mut vis = Vec::new();
+    let has_path = state.has_value("--path");
+    let has_preset = state.has_value("--preset");
+    if has_path {
+        vis.push(("--preset", Visibility::Disabled));
+    }
+    if has_preset {
+        vis.push(("--path", Visibility::Disabled));
+    }
+    if !has_path && !has_preset {
+        vis.push(("--path", Visibility::Required));
+        vis.push(("--preset", Visibility::Required));
+    }
+    if state.dropdown_value("--wrapper") != Some("tr") {
+        vis.push(("--unspendable", Visibility::Disabled));
+    }
+    vis
+}
+
+/// B2 `md shape-key`: `<PHRASES>...` XOR `--descriptor` (clap refuses both).
+pub fn md_shape_key(state: &FormState) -> FlagVisibility {
+    let mut vis = Vec::new();
+    let has_phrases = state.has_positional(0);
+    let has_desc = state.has_value("--descriptor");
+    if has_phrases {
+        vis.push(("--descriptor", Visibility::Disabled));
+    }
+    if !has_phrases && !has_desc {
+        vis.push(("--descriptor", Visibility::Required));
+        vis.push(("positional:phrases", Visibility::Required));
+    }
+    vis
+}
+
+/// B3 `md descriptor`: three input modes.
+/// - A: md1 phrases — `--key` / `--fingerprint` cannot be used with them;
+/// - B: `--template` (requires ≥1 `--key`, "--key @i=<XPUB> required when
+///   --template is supplied", exit 2) with `--key`/`--fingerprint`;
+/// - C: `--from-mk1`/`--from-mk1-file` with the KEYLESS phrases (+ `--seat`).
+///
+/// `--emit md1` only with mode C (md refuses otherwise, exit 2); `--out`,
+/// `--group-size` and `--separator` are meaningful only with `--emit md1`;
+/// `--chain` XOR `--change` (clap).
+pub fn md_descriptor(state: &FormState) -> FlagVisibility {
+    let mut vis = Vec::new();
+    let has_phrases = state.has_positional(0);
+    let has_template = state.has_value("--template");
+    let has_mk1 = state.has_value("--from-mk1") || state.has_value("--from-mk1-file");
+    let emit_md1 = state.dropdown_value("--emit") == Some("md1");
+    if has_phrases {
+        vis.push(("--template", Visibility::Disabled));
+    }
+    if has_phrases || !has_template {
+        vis.push(("--key", Visibility::Disabled));
+        vis.push(("--fingerprint", Visibility::Disabled));
+    }
+    if has_template {
+        vis.push(("--from-mk1", Visibility::Disabled));
+        vis.push(("--from-mk1-file", Visibility::Disabled));
+        if !state.has_value("--key") {
+            vis.push(("--key", Visibility::Required));
+        }
+    }
+    if !has_mk1 {
+        vis.push(("--seat", Visibility::Disabled));
+    }
+    if has_mk1 && !has_phrases {
+        vis.push(("positional:phrases", Visibility::Required));
+    }
+    if !has_phrases && !has_template && !has_mk1 {
+        vis.push(("--template", Visibility::Required));
+        vis.push(("positional:phrases", Visibility::Required));
+    }
+    // `md1` is offered only in mode C. Its only other choice is "(none)", so
+    // outside mode C the whole dropdown greys — which also keeps a stale
+    // `md1` off argv (DisableOptions would still emit it).
+    if !has_mk1 {
+        vis.push(("--emit", Visibility::Disabled));
+    }
+    if !emit_md1 {
+        vis.push(("--out", Visibility::Disabled));
+        vis.push(("--group-size", Visibility::Disabled));
+        vis.push(("--separator", Visibility::Disabled));
+    }
+    if state.has_value("--chain") {
+        vis.push(("--change", Visibility::Disabled));
+    }
+    if state.has_value("--change") {
+        vis.push(("--chain", Visibility::Disabled));
+    }
+    vis
+}
+
+/// B4 `md decompose`: `<DESCRIPTORS>` XOR `--in` (clap "cannot be used with").
+pub fn md_decompose(state: &FormState) -> FlagVisibility {
+    let mut vis = Vec::new();
+    let has_pos = state.has_positional(0);
+    let has_in = state.has_value("--in");
+    if has_pos {
+        vis.push(("--in", Visibility::Disabled));
+    }
+    if !has_pos && !has_in {
+        vis.push(("--in", Visibility::Required));
+        vis.push(("positional:descriptors", Visibility::Required));
+    }
+    vis
+}
+
+/// B5 `ms hashlock`: exactly ONE source — the `<ms1>` plate, the phrase,
+/// `--hex`, `--in` or `--random` — the first filled wins and the others grey
+/// out (R0 M6; otherwise phrase + hex would reach the planner's `two-stdin`
+/// refusal instead of "exactly one source"). `--random` requires `--out`
+/// ("--random needs --out FILE", exit 64). `--method` and `--emit-record` are
+/// phrase-source only ("--emit-record needs a phrase", exit 64).
+pub fn ms_hashlock(state: &FormState) -> FlagVisibility {
+    let mut vis = ms_one_input_source(
+        state,
+        &["positional:ms1", "--hashlock-phrase", "--hex", "--in", "--random"],
+        true,
+    );
+    let phrase_wins =
+        !state.has_value("positional:ms1") && state.has_value("--hashlock-phrase");
+    if !phrase_wins {
+        vis.push(("--method", Visibility::Disabled));
+        vis.push(("--emit-record", Visibility::Disabled));
+    }
+    if state.has_value("--random") && !state.has_value("--out") {
+        vis.push(("--out", Visibility::Required));
+    }
+    vis
+}
+
+/// DESIGN §B5: Run is disabled until a `--kind` is chosen. Omitting `--kind`
+/// puts a sha256 record on stdout (the F-553 pipe hazard), so the "(choose)"
+/// sentinel is not a default. `None` = Run may proceed.
+pub fn run_blocker(cli: &str, sub: &str, state: &FormState) -> Option<&'static str> {
+    if cli == "ms" && sub == "hashlock" {
+        let kind = state.dropdown_value("--kind").unwrap_or("");
+        if kind.is_empty() {
+            return Some(
+                "choose a --kind first: without one, stdout carries the sha256 record \
+                 whatever your wallet's kind is",
+            );
+        }
+    }
+    None
+}
+
+/// Notices shown beside a form's result (DESIGN §B5).
+pub fn form_notices(cli: &str, sub: &str, state: &FormState) -> Vec<&'static str> {
+    let mut out = Vec::new();
+    if cli == "ms" && sub == "hashlock" {
+        if state.dropdown_value("--kind") == Some(crate::schema::ms::HASHLOCK_KIND_ALL) {
+            out.push("stdout is the sha256 record; your wallet's kind may differ");
+        }
+        if state.has_value("--json") {
+            out.push("--json: stdout then carries the secret");
+        }
+    }
+    out
+}

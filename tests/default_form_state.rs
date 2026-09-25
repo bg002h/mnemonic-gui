@@ -12,7 +12,7 @@
 //! canonical test-vector phrase supplied via `--slot @0.phrase=...`).
 //! Skipped when the binary is not resolvable.
 
-use mnemonic_gui::form::invocation::{assemble_argv, assemble_argv_for_run};
+use mnemonic_gui::form::invocation::assemble_argv;
 use mnemonic_gui::form::slot_editor::{SlotRow, SlotState, SlotSubkey};
 use mnemonic_gui::schema::{self, FlagValue, FormState};
 
@@ -86,22 +86,26 @@ fn default_bundle_form_state_cli_accepts() {
         }
     };
     let state = default_bundle_form_state_with_phrase();
-    // F-679: the RUN argv (the phrase slot is secret, so it carries the
-    // GUI-managed --allow-argv-secret the toolkit now requires).
-    let mut argv = assemble_argv_for_run(&schema::mnemonic::SCHEMA, bundle_subcommand(), &state);
+    // What the GUI's Run button executes (DESIGN secret channels, Part A):
+    // the phrase slot is secret, so it rides a private channel (Linux) or the
+    // interim argv path with the GUI-managed --allow-argv-secret.
+    let mut plan = mnemonic_gui::form::channels::plan_for_run(
+        &schema::mnemonic::SCHEMA,
+        bundle_subcommand(),
+        &state,
+    )
+    .expect("the default bundle form plans");
     // Add --self-check so the CLI does not actually print 100+ lines of
     // cards; just runs the full pre-check + synthesis pipeline.
-    argv.push("--self-check".into());
-    let bin = std::path::PathBuf::from(&mnemonic_bin);
-    let output = std::process::Command::new(&bin)
-        .args(&argv[1..]) // skip argv[0] "mnemonic" since the binary IS mnemonic
-        .output()
-        .expect("MNEMONIC_BIN exec failed");
-    assert!(
-        output.status.success(),
-        "default form-state argv must produce CLI exit 0; got status \
-         {:?}\nstderr: {}\nargv: {argv:?}",
-        output.status,
-        String::from_utf8_lossy(&output.stderr)
+    plan.argv.push("--self-check".into());
+    plan.mask.push(false);
+    plan.argv[0] = mnemonic_bin.clone();
+    let result = mnemonic_gui::runner::run_plan(&plan).expect("MNEMONIC_BIN exec failed");
+    assert_eq!(
+        result.exit_code,
+        Some(0),
+        "default form-state run must produce CLI exit 0; stderr: {}\nargv: {:?}",
+        String::from_utf8_lossy(&result.stderr),
+        plan.argv
     );
 }

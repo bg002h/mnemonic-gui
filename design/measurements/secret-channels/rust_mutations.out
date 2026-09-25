@@ -1,0 +1,36 @@
+| mutation | verdict | first failing tests |
+|---|---|---|
+| CONTROL: no-op (must SURVIVE) | survived |  |
+| assignment: step 3 never picks EnvRef | KILLED | t1_plan_property_with_distinct_sentinels, t3prime_every_admitted_plan_matches_its_independent_oracle, t6_copy_disabled_for_multiline_typed_envref_and_refusals |
+| assignment: step 2 takes the LAST toggle | KILLED | t6_shell_leg_printed_recipes_equal_argv_exact_in_bash_zsh_fish, t8_describe_matches_the_design_a5_linux_column, t8_rust_plan_equals_plans_pure_on_every_shape_and_os |
+| assignment: two-stdin refusal off | KILLED | t8_rust_plan_equals_plans_pure_on_every_shape_and_os |
+| assignment: env name off by one | KILLED | t6_copy_typed_values_never_appear_and_use_the_a7_spellings, t6_every_shape_through_the_real_form_plans_as_the_pure_planner, t6_preview_and_confirm_show_bindings_with_provenance_and_no_secret |
+| assignment: lenient filter off | KILLED | t1_lenient_rule_and_payload_bound, t3prime_every_admitted_plan_matches_its_independent_oracle, t8_rust_plan_equals_plans_pure_on_every_shape_and_os |
+| assignment: no-table-entry off | KILLED | t1_no_table_entry_on_every_os |
+| NI8: lookalike refusal off | KILLED | t1_ni8_every_lookalike_refused_on_every_path, t3prime_every_admitted_plan_matches_its_independent_oracle |
+| NI8: normalization without whitespace strip | KILLED | t1_lookalike_predicate_matches_the_reference_exhaustively, t1_ni8_every_lookalike_refused_on_every_path |
+| NI8: normalization without case-fold | KILLED | t1_lookalike_predicate_matches_the_reference_exhaustively, t1_ni8_every_lookalike_refused_on_every_path |
+| NI8: normalization without Cc/Cf removal | KILLED | t1_lookalike_predicate_matches_the_reference_exhaustively, t1_ni8_every_lookalike_refused_on_every_path |
+| NI8: normalization without NFKC | KILLED | t1_lookalike_predicate_matches_the_reference_exhaustively, t1_ni8_every_lookalike_refused_on_every_path |
+| NI9: trailing CR/LF refusal off | KILLED | t1_ni9_trailing_cr_lf_refused_on_every_path |
+| NI9: only LF refused (CR admitted) | KILLED | t1_ni9_trailing_cr_lf_refused_on_every_path |
+| NI9: the ONE strip-one rule becomes strip-all | KILLED | t1_ni9_trailing_cr_lf_refused_on_every_path, t1_resolution_under_both_rules_and_per_input |
+| C1: `-` not refused | KILLED | t1_c1_refusals_on_every_source_and_os, t6_copy_disabled_for_multiline_typed_envref_and_refusals, t6_env_provenance_is_shown_and_a_refusal_disables_run |
+| C1: per-input rule ignored (always verbatim) | KILLED | t1_env_empty_is_judged_on_the_target_and_nul_refuses, t1_ni3_interim_carries_the_resolved_target_never_the_typed_text, t1_ni9_trailing_cr_lf_refused_on_every_path |
+| Nit: NUL allowed | KILLED | t1_env_empty_is_judged_on_the_target_and_nul_refuses |
+| delivery: swap two secrets (data from the next source) | KILLED | t1_plan_property_with_distinct_sentinels, t3prime_every_admitted_plan_matches_its_independent_oracle, t6_copy_disabled_for_multiline_typed_envref_and_refusals |
+| delivery: private path sends the TYPED text, not the resolved bytes | KILLED | t3prime_every_admitted_plan_matches_its_independent_oracle, t8_rust_plan_equals_plans_pure_on_every_shape_and_os |
+| delivery: interim path sends the TYPED text (R2's mutation) | KILLED | t1_ni3_interim_carries_the_resolved_target_never_the_typed_text, t3prime_every_admitted_plan_matches_its_independent_oracle, t8_rust_plan_equals_plans_pure_on_every_shape_and_os |
+| delivery: terminator dropped | KILLED | t1_plan_property_with_distinct_sentinels, t2_every_cell_equals_the_argv_baseline_with_dependence_and_byte_fidelity, t7_each_channel_delivers_its_own_sources_target_plus_terminator |
+| delivery: stdin written from the wrong binding | KILLED | t1_plan_property_with_distinct_sentinels, t3prime_every_admitted_plan_matches_its_independent_oracle, t7_each_channel_delivers_its_own_sources_target_plus_terminator |
+| delivery: env scrub dropped | KILLED | t7_each_channel_delivers_its_own_sources_target_plus_terminator |
+| delivery: pipe write end left open | KILLED | t7_each_channel_delivers_its_own_sources_target_plus_terminator |
+| delivery: the argv admission restored on the private path | KILLED | t6_copy_share_group_and_pipe_fd_recipes, t6_copy_typed_values_never_appear_and_use_the_a7_spellings |
+| B5: `all kinds` emits its label as --kind | KILLED | b5_kind_choose_blocks_run_and_all_kinds_emits_nothing_with_a_banner, b_real_every_new_form_runs_at_exit_zero |
+| B5: Run no longer blocked on (choose) | KILLED | b5_kind_choose_blocks_run_and_all_kinds_emits_nothing_with_a_banner |
+| B5: source exclusivity off | KILLED | b5_one_source_random_needs_out_and_phrase_only_flags |
+| M1: Copy no longer gated on (choose) | KILLED | m1_hashlock_copy_is_gated_like_run_at_choose, m1_window_copy_buttons_are_disabled_at_choose |
+| M2: Copy reveal label never raised | KILLED | m2_copy_reveals_a_pasted_private_key_and_says_so, m2_window_labels_copy_and_confirms_run_without_claiming_privacy |
+| B2-B4: pasted xprv no longer masked | KILLED | b2_b4_a_pasted_xprv_is_masked_and_never_persisted |
+
+31/31 mutations killed by assertion with the mutated line run; control survived; problems: none

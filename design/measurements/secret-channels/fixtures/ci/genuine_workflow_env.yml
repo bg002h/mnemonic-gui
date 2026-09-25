@@ -1,0 +1,12 @@
+# genuine (R3 false red): MNEMONIC_BIN at WORKFLOW level, an env-prefixed nextest command
+on:
+  pull_request:
+  push:
+    branches: [master]
+env:
+  MNEMONIC_BIN: mnemonic
+jobs:
+  mac:
+    runs-on: macos-latest
+    steps:
+      - run: RUST_BACKTRACE=1 cargo nextest run --locked --test secret_channels_t2 --test secret_channels_t3prime --test secret_channels_t7

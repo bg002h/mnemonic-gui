@@ -144,6 +144,8 @@ fn t4_secret_positional_census_matches_frozen_literal() {
         ("ms", "combine", "shares"),
         ("ms", "decode", "ms1"),
         ("ms", "derive", "ms1"),
+        // DESIGN secret channels §B5: the hashlock preimage plate.
+        ("ms", "hashlock", "ms1"),
         ("ms", "inspect", "ms1"),
         ("ms", "verify", "ms1"),
     ];

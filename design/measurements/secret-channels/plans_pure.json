@@ -1,0 +1,6484 @@
+[
+ {
+  "name": "addresses phrase+passphrase",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic addresses --from phrase=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic addresses --passphrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic addresses --from phrase=",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic addresses --passphrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic addresses --from phrase=",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic addresses --passphrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic addresses --from phrase=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic addresses --passphrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  ",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  ",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  ",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase  \r\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase  "
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase  "
+    ]
+   }
+  ]
+ },
+ {
+  "name": "restore phrase+passphrase",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic restore --from phrase=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic restore --passphrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic restore --from phrase=",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic restore --passphrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic restore --from phrase=",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic restore --passphrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic restore --from phrase=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic restore --passphrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  ",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  ",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  ",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase  \r\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase  "
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase  "
+    ]
+   }
+  ]
+ },
+ {
+  "name": "restore ms1+passphrase",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic restore --from ms1=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic restore --passphrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic restore --from ms1=",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic restore --passphrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic restore --from ms1=",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic restore --passphrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic restore --from ms1=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic restore --passphrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f  ",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f  ",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f  ",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "hunter2-passphrase  \r\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "hunter2-passphrase  "
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "hunter2-passphrase  "
+    ]
+   }
+  ]
+ },
+ {
+  "name": "derive-child phrase+passphrase",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic derive-child --from phrase=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic derive-child --passphrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic derive-child --from phrase=",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic derive-child --passphrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic derive-child --from phrase=",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic derive-child --passphrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic derive-child --from phrase=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic derive-child --passphrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  ",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  ",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  ",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase  \r\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase  "
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase  "
+    ]
+   }
+  ]
+ },
+ {
+  "name": "bundle slot+passphrase",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic bundle --slot @N.phrase=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic bundle --passphrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic bundle --slot @N.phrase=",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic bundle --passphrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic bundle --slot @N.phrase=",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic bundle --passphrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic bundle --slot @N.phrase=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic bundle --passphrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  ",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  ",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  ",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase  \r\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase  "
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase  "
+    ]
+   }
+  ]
+ },
+ {
+  "name": "bundle wsh-multi 2 slots",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic bundle --slot @N.phrase=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic bundle --slot @N.phrase=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic bundle --slot @N.phrase=",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic bundle --slot @N.phrase=",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic bundle --slot @N.phrase=",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic bundle --slot @N.phrase=",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic bundle --slot @N.phrase=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic bundle --slot @N.phrase=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "EnvRef"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "EnvRef"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  ",
+     "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  ",
+     "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  ",
+     "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "EnvRef"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong  "
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong  "
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong  "
+    ]
+   }
+  ]
+ },
+ {
+  "name": "bundle wsh-multi 2 slots+passphrase",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic bundle --slot @N.phrase=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic bundle --slot @N.ms1=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     },
+     {
+      "source": 2,
+      "key": "mnemonic bundle --passphrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic bundle --slot @N.phrase=",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic bundle --slot @N.ms1=",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 2,
+      "key": "mnemonic bundle --passphrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic bundle --slot @N.phrase=",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic bundle --slot @N.ms1=",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 2,
+      "key": "mnemonic bundle --passphrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic bundle --slot @N.phrase=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic bundle --slot @N.ms1=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     },
+     {
+      "source": 2,
+      "key": "mnemonic bundle --passphrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  ",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  ",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  ",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w  ",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w  ",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w  ",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src2 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w",
+     "hunter2-passphrase  \r\n"
+    ]
+   },
+   {
+    "case": "src2 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w",
+     "hunter2-passphrase  "
+    ]
+   },
+   {
+    "case": "src2 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w",
+     "hunter2-passphrase  "
+    ]
+   }
+  ]
+ },
+ {
+  "name": "convert phrase+passphrase",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic convert --from phrase=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic convert --passphrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic convert --from phrase=",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic convert --passphrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic convert --from phrase=",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic convert --passphrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic convert --from phrase=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic convert --passphrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  ",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  ",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  ",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase  \r\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase  "
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase  "
+    ]
+   }
+  ]
+ },
+ {
+  "name": "convert wif+bip38-passphrase",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic convert --from wif=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic convert --bip38-passphrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--bip38-passphrase-stdin"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic convert --from wif=",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic convert --bip38-passphrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic convert --from wif=",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic convert --bip38-passphrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic convert --from wif=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic convert --bip38-passphrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--bip38-passphrase-stdin"
+     }
+    ]
+   }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "KyZpNDKnfs94vbrwhJneDi77V6jF64PWPF8x5cdJb8ifgg2DUc9d",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "KyZpNDKnfs94vbrwhJneDi77V6jF64PWPF8x5cdJb8ifgg2DUc9d",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "KyZpNDKnfs94vbrwhJneDi77V6jF64PWPF8x5cdJb8ifgg2DUc9d",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "KyZpNDKnfs94vbrwhJneDi77V6jF64PWPF8x5cdJb8ifgg2DUc9d  ",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "KyZpNDKnfs94vbrwhJneDi77V6jF64PWPF8x5cdJb8ifgg2DUc9d  ",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "KyZpNDKnfs94vbrwhJneDi77V6jF64PWPF8x5cdJb8ifgg2DUc9d  ",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "KyZpNDKnfs94vbrwhJneDi77V6jF64PWPF8x5cdJb8ifgg2DUc9d",
+     "hunter2-passphrase  \r\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "KyZpNDKnfs94vbrwhJneDi77V6jF64PWPF8x5cdJb8ifgg2DUc9d",
+     "hunter2-passphrase  "
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "KyZpNDKnfs94vbrwhJneDi77V6jF64PWPF8x5cdJb8ifgg2DUc9d",
+     "hunter2-passphrase  "
+    ]
+   }
+  ]
+ },
+ {
+  "name": "convert bip38+bip38-passphrase",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic convert --from bip38=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic convert --bip38-passphrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--bip38-passphrase-stdin"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic convert --from bip38=",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic convert --bip38-passphrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic convert --from bip38=",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic convert --bip38-passphrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic convert --from bip38=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic convert --bip38-passphrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--bip38-passphrase-stdin"
+     }
+    ]
+   }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "6PYP8fdoVaE3ThLmEnYcGo3nJeBqd8PvB7CRvTz3TX5L9ojoPHKCg7QXG6",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "6PYP8fdoVaE3ThLmEnYcGo3nJeBqd8PvB7CRvTz3TX5L9ojoPHKCg7QXG6",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "6PYP8fdoVaE3ThLmEnYcGo3nJeBqd8PvB7CRvTz3TX5L9ojoPHKCg7QXG6",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "6PYP8fdoVaE3ThLmEnYcGo3nJeBqd8PvB7CRvTz3TX5L9ojoPHKCg7QXG6  ",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "6PYP8fdoVaE3ThLmEnYcGo3nJeBqd8PvB7CRvTz3TX5L9ojoPHKCg7QXG6  ",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "6PYP8fdoVaE3ThLmEnYcGo3nJeBqd8PvB7CRvTz3TX5L9ojoPHKCg7QXG6  ",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "6PYP8fdoVaE3ThLmEnYcGo3nJeBqd8PvB7CRvTz3TX5L9ojoPHKCg7QXG6",
+     "hunter2-passphrase  \r\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "6PYP8fdoVaE3ThLmEnYcGo3nJeBqd8PvB7CRvTz3TX5L9ojoPHKCg7QXG6",
+     "hunter2-passphrase  "
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "6PYP8fdoVaE3ThLmEnYcGo3nJeBqd8PvB7CRvTz3TX5L9ojoPHKCg7QXG6",
+     "hunter2-passphrase  "
+    ]
+   }
+  ]
+ },
+ {
+  "name": "xpub-search path-of-xpub phrase+passphrase",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search path-of-xpub --phrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--phrase-stdin"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search path-of-xpub --passphrase",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search path-of-xpub --phrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search path-of-xpub --passphrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search path-of-xpub --phrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search path-of-xpub --passphrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search path-of-xpub --phrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--phrase-stdin"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search path-of-xpub --passphrase",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "kinds": [
+     "StdinToggle",
+     "EnvRef"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\r\n",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "StdinToggle",
+     "EnvRef"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  \r\n",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  ",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  ",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "StdinToggle",
+     "EnvRef"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\r\n",
+     "hunter2-passphrase  "
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase  "
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase  "
+    ]
+   }
+  ]
+ },
+ {
+  "name": "xpub-search path-of-xpub ms1+passphrase",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search path-of-xpub --ms1",
+      "kind": "StdinToggle",
+      "terminator": "",
+      "flag": "--ms1-stdin"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search path-of-xpub --passphrase",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search path-of-xpub --ms1",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search path-of-xpub --passphrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search path-of-xpub --ms1",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search path-of-xpub --passphrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search path-of-xpub --ms1",
+      "kind": "StdinToggle",
+      "terminator": "",
+      "flag": "--ms1-stdin"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search path-of-xpub --passphrase",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "kinds": [
+     "StdinToggle",
+     "EnvRef"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "linux",
+    "refusal": "value-not-byte-exact"
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f  ",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f  ",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "StdinToggle",
+     "EnvRef"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "hunter2-passphrase  "
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "hunter2-passphrase  "
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "hunter2-passphrase  "
+    ]
+   }
+  ]
+ },
+ {
+  "name": "xpub-search passphrase-of-xpub phrase+passphrase",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search passphrase-of-xpub --phrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--phrase-stdin"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search passphrase-of-xpub --passphrase",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search passphrase-of-xpub --phrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search passphrase-of-xpub --passphrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search passphrase-of-xpub --phrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search passphrase-of-xpub --passphrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search passphrase-of-xpub --phrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--phrase-stdin"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search passphrase-of-xpub --passphrase",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "kinds": [
+     "StdinToggle",
+     "EnvRef"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\r\n",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "StdinToggle",
+     "EnvRef"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  \r\n",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  ",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  ",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "StdinToggle",
+     "EnvRef"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\r\n",
+     "hunter2-passphrase  "
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase  "
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase  "
+    ]
+   }
+  ]
+ },
+ {
+  "name": "xpub-search passphrase-of-xpub ms1+passphrase",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search passphrase-of-xpub --ms1",
+      "kind": "StdinToggle",
+      "terminator": "",
+      "flag": "--ms1-stdin"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search passphrase-of-xpub --passphrase",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search passphrase-of-xpub --ms1",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search passphrase-of-xpub --passphrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search passphrase-of-xpub --ms1",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search passphrase-of-xpub --passphrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search passphrase-of-xpub --ms1",
+      "kind": "StdinToggle",
+      "terminator": "",
+      "flag": "--ms1-stdin"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search passphrase-of-xpub --passphrase",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "kinds": [
+     "StdinToggle",
+     "EnvRef"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "linux",
+    "refusal": "value-not-byte-exact"
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f  ",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f  ",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "StdinToggle",
+     "EnvRef"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "hunter2-passphrase  "
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "hunter2-passphrase  "
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "hunter2-passphrase  "
+    ]
+   }
+  ]
+ },
+ {
+  "name": "xpub-search account-of-descriptor phrase+passphrase",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search account-of-descriptor --phrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--phrase-stdin"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search account-of-descriptor --passphrase",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search account-of-descriptor --phrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search account-of-descriptor --passphrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search account-of-descriptor --phrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search account-of-descriptor --passphrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search account-of-descriptor --phrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--phrase-stdin"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search account-of-descriptor --passphrase",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "kinds": [
+     "StdinToggle",
+     "EnvRef"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\r\n",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "StdinToggle",
+     "EnvRef"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  \r\n",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  ",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  ",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "StdinToggle",
+     "EnvRef"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\r\n",
+     "hunter2-passphrase  "
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase  "
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase  "
+    ]
+   }
+  ]
+ },
+ {
+  "name": "xpub-search account-of-descriptor ms1+passphrase",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search account-of-descriptor --ms1",
+      "kind": "StdinToggle",
+      "terminator": "",
+      "flag": "--ms1-stdin"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search account-of-descriptor --passphrase",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search account-of-descriptor --ms1",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search account-of-descriptor --passphrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search account-of-descriptor --ms1",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search account-of-descriptor --passphrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search account-of-descriptor --ms1",
+      "kind": "StdinToggle",
+      "terminator": "",
+      "flag": "--ms1-stdin"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search account-of-descriptor --passphrase",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "kinds": [
+     "StdinToggle",
+     "EnvRef"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "linux",
+    "refusal": "value-not-byte-exact"
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f  ",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f  ",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "StdinToggle",
+     "EnvRef"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "hunter2-passphrase  "
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "hunter2-passphrase  "
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "hunter2-passphrase  "
+    ]
+   }
+  ]
+ },
+ {
+  "name": "silent-payment secret+passphrase",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic silent-payment --secret",
+      "kind": "FileFlag",
+      "terminator": "\r\n",
+      "flag": "--secret-file",
+      "fd": 3
+     },
+     {
+      "source": 1,
+      "key": "mnemonic silent-payment --passphrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic silent-payment --secret",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic silent-payment --passphrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic silent-payment --secret",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic silent-payment --passphrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "refusal": "fd-not-on-platform",
+    "detail": "fd-not-on-platform: mnemonic silent-payment --secret + mnemonic silent-payment --passphrase: needs a pipe fd; not enabled on macos"
+   }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "kinds": [
+     "FileFlag",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\r\n",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "FileFlag",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  \r\n",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  ",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  ",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "FileFlag",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\r\n",
+     "hunter2-passphrase  \r\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase  "
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase  "
+    ]
+   }
+  ]
+ },
+ {
+  "name": "slip39 split phrase+passphrase",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic slip39 split --from phrase=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic slip39 split --passphrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic slip39 split --from phrase=",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic slip39 split --passphrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic slip39 split --from phrase=",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic slip39 split --passphrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic slip39 split --from phrase=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic slip39 split --passphrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  ",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  ",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  ",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase  \r\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase  "
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase  "
+    ]
+   }
+  ]
+ },
+ {
+  "name": "slip39 combine 2 shares+passphrase",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic slip39 combine --share",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic slip39 combine --share",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     },
+     {
+      "source": 2,
+      "key": "mnemonic slip39 combine --passphrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic slip39 combine --share",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic slip39 combine --share",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 2,
+      "key": "mnemonic slip39 combine --passphrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic slip39 combine --share",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic slip39 combine --share",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 2,
+      "key": "mnemonic slip39 combine --passphrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic slip39 combine --share",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic slip39 combine --share",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     },
+     {
+      "source": 2,
+      "key": "mnemonic slip39 combine --passphrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "brother branch academic acid dream prevent dwarf yelp axis priority include fatigue ceramic camera axle browser usual tidy video greatest",
+     "brother branch academic agency course flip ordinary smell plains game raspy pancake fridge plan editor knit peaceful medal impact taxi",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "brother branch academic acid dream prevent dwarf yelp axis priority include fatigue ceramic camera axle browser usual tidy video greatest",
+     "brother branch academic agency course flip ordinary smell plains game raspy pancake fridge plan editor knit peaceful medal impact taxi",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "brother branch academic acid dream prevent dwarf yelp axis priority include fatigue ceramic camera axle browser usual tidy video greatest",
+     "brother branch academic agency course flip ordinary smell plains game raspy pancake fridge plan editor knit peaceful medal impact taxi",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "brother branch academic acid dream prevent dwarf yelp axis priority include fatigue ceramic camera axle browser usual tidy video greatest  ",
+     "brother branch academic agency course flip ordinary smell plains game raspy pancake fridge plan editor knit peaceful medal impact taxi",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "brother branch academic acid dream prevent dwarf yelp axis priority include fatigue ceramic camera axle browser usual tidy video greatest  ",
+     "brother branch academic agency course flip ordinary smell plains game raspy pancake fridge plan editor knit peaceful medal impact taxi",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "brother branch academic acid dream prevent dwarf yelp axis priority include fatigue ceramic camera axle browser usual tidy video greatest  ",
+     "brother branch academic agency course flip ordinary smell plains game raspy pancake fridge plan editor knit peaceful medal impact taxi",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "brother branch academic acid dream prevent dwarf yelp axis priority include fatigue ceramic camera axle browser usual tidy video greatest",
+     "brother branch academic agency course flip ordinary smell plains game raspy pancake fridge plan editor knit peaceful medal impact taxi  ",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "brother branch academic acid dream prevent dwarf yelp axis priority include fatigue ceramic camera axle browser usual tidy video greatest",
+     "brother branch academic agency course flip ordinary smell plains game raspy pancake fridge plan editor knit peaceful medal impact taxi  ",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "brother branch academic acid dream prevent dwarf yelp axis priority include fatigue ceramic camera axle browser usual tidy video greatest",
+     "brother branch academic agency course flip ordinary smell plains game raspy pancake fridge plan editor knit peaceful medal impact taxi  ",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src2 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "brother branch academic acid dream prevent dwarf yelp axis priority include fatigue ceramic camera axle browser usual tidy video greatest",
+     "brother branch academic agency course flip ordinary smell plains game raspy pancake fridge plan editor knit peaceful medal impact taxi",
+     "hunter2-passphrase  \r\n"
+    ]
+   },
+   {
+    "case": "src2 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "brother branch academic acid dream prevent dwarf yelp axis priority include fatigue ceramic camera axle browser usual tidy video greatest",
+     "brother branch academic agency course flip ordinary smell plains game raspy pancake fridge plan editor knit peaceful medal impact taxi",
+     "hunter2-passphrase  "
+    ]
+   },
+   {
+    "case": "src2 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "brother branch academic acid dream prevent dwarf yelp axis priority include fatigue ceramic camera axle browser usual tidy video greatest",
+     "brother branch academic agency course flip ordinary smell plains game raspy pancake fridge plan editor knit peaceful medal impact taxi",
+     "hunter2-passphrase  "
+    ]
+   }
+  ]
+ },
+ {
+  "name": "slip39 combine 2 shares",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic slip39 combine --share",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic slip39 combine --share",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic slip39 combine --share",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic slip39 combine --share",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic slip39 combine --share",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic slip39 combine --share",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic slip39 combine --share",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic slip39 combine --share",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "EnvRef"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "brother branch academic acid dream prevent dwarf yelp axis priority include fatigue ceramic camera axle browser usual tidy video greatest",
+     "brother branch academic agency course flip ordinary smell plains game raspy pancake fridge plan editor knit peaceful medal impact taxi"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "brother branch academic acid dream prevent dwarf yelp axis priority include fatigue ceramic camera axle browser usual tidy video greatest",
+     "brother branch academic agency course flip ordinary smell plains game raspy pancake fridge plan editor knit peaceful medal impact taxi"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "brother branch academic acid dream prevent dwarf yelp axis priority include fatigue ceramic camera axle browser usual tidy video greatest",
+     "brother branch academic agency course flip ordinary smell plains game raspy pancake fridge plan editor knit peaceful medal impact taxi"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "EnvRef"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "brother branch academic acid dream prevent dwarf yelp axis priority include fatigue ceramic camera axle browser usual tidy video greatest  ",
+     "brother branch academic agency course flip ordinary smell plains game raspy pancake fridge plan editor knit peaceful medal impact taxi"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "brother branch academic acid dream prevent dwarf yelp axis priority include fatigue ceramic camera axle browser usual tidy video greatest  ",
+     "brother branch academic agency course flip ordinary smell plains game raspy pancake fridge plan editor knit peaceful medal impact taxi"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "brother branch academic acid dream prevent dwarf yelp axis priority include fatigue ceramic camera axle browser usual tidy video greatest  ",
+     "brother branch academic agency course flip ordinary smell plains game raspy pancake fridge plan editor knit peaceful medal impact taxi"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "EnvRef"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "brother branch academic acid dream prevent dwarf yelp axis priority include fatigue ceramic camera axle browser usual tidy video greatest",
+     "brother branch academic agency course flip ordinary smell plains game raspy pancake fridge plan editor knit peaceful medal impact taxi  "
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "brother branch academic acid dream prevent dwarf yelp axis priority include fatigue ceramic camera axle browser usual tidy video greatest",
+     "brother branch academic agency course flip ordinary smell plains game raspy pancake fridge plan editor knit peaceful medal impact taxi  "
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "brother branch academic acid dream prevent dwarf yelp axis priority include fatigue ceramic camera axle browser usual tidy video greatest",
+     "brother branch academic agency course flip ordinary smell plains game raspy pancake fridge plan editor knit peaceful medal impact taxi  "
+    ]
+   }
+  ]
+ },
+ {
+  "name": "seed-xor combine 2 shares",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic seed-xor combine --share phrase=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic seed-xor combine --share phrase=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic seed-xor combine --share phrase=",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic seed-xor combine --share phrase=",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic seed-xor combine --share phrase=",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic seed-xor combine --share phrase=",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic seed-xor combine --share phrase=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic seed-xor combine --share phrase=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "EnvRef"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "EnvRef"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  ",
+     "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  ",
+     "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  ",
+     "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "EnvRef"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong  "
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong  "
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong  "
+    ]
+   }
+  ]
+ },
+ {
+  "name": "ms-shares combine 2 shares",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic ms-shares combine --share",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic ms-shares combine --share",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic ms-shares combine --share",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic ms-shares combine --share",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic ms-shares combine --share",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic ms-shares combine --share",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic ms-shares combine --share",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic ms-shares combine --share",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "EnvRef"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "ms127776qw8m0z2uqfrdpxhc2q7v88ys6l25qum46xfaug68t2",
+     "ms127776p47az8mrqts9hf0dmqyj77w32nmlqxsl6m0f3zgdar"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "ms127776qw8m0z2uqfrdpxhc2q7v88ys6l25qum46xfaug68t2",
+     "ms127776p47az8mrqts9hf0dmqyj77w32nmlqxsl6m0f3zgdar"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "ms127776qw8m0z2uqfrdpxhc2q7v88ys6l25qum46xfaug68t2",
+     "ms127776p47az8mrqts9hf0dmqyj77w32nmlqxsl6m0f3zgdar"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "EnvRef"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "ms127776qw8m0z2uqfrdpxhc2q7v88ys6l25qum46xfaug68t2  ",
+     "ms127776p47az8mrqts9hf0dmqyj77w32nmlqxsl6m0f3zgdar"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "ms127776qw8m0z2uqfrdpxhc2q7v88ys6l25qum46xfaug68t2  ",
+     "ms127776p47az8mrqts9hf0dmqyj77w32nmlqxsl6m0f3zgdar"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "ms127776qw8m0z2uqfrdpxhc2q7v88ys6l25qum46xfaug68t2  ",
+     "ms127776p47az8mrqts9hf0dmqyj77w32nmlqxsl6m0f3zgdar"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "EnvRef"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "ms127776qw8m0z2uqfrdpxhc2q7v88ys6l25qum46xfaug68t2",
+     "ms127776p47az8mrqts9hf0dmqyj77w32nmlqxsl6m0f3zgdar  "
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "ms127776qw8m0z2uqfrdpxhc2q7v88ys6l25qum46xfaug68t2",
+     "ms127776p47az8mrqts9hf0dmqyj77w32nmlqxsl6m0f3zgdar  "
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "ms127776qw8m0z2uqfrdpxhc2q7v88ys6l25qum46xfaug68t2",
+     "ms127776p47az8mrqts9hf0dmqyj77w32nmlqxsl6m0f3zgdar  "
+    ]
+   }
+  ]
+ },
+ {
+  "name": "import-wallet 2 cosigner ms1",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic import-wallet --ms1",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic import-wallet --ms1",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic import-wallet --ms1",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic import-wallet --ms1",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic import-wallet --ms1",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic import-wallet --ms1",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic import-wallet --ms1",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic import-wallet --ms1",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "EnvRef"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "EnvRef"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w  ",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w  ",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w  ",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "EnvRef"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f  "
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f  "
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f  "
+    ]
+   }
+  ]
+ },
+ {
+  "name": "verify-bundle ms1+slot+passphrase",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic verify-bundle --ms1",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic verify-bundle --slot @N.phrase=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     },
+     {
+      "source": 2,
+      "key": "mnemonic verify-bundle --passphrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic verify-bundle --ms1",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic verify-bundle --slot @N.phrase=",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 2,
+      "key": "mnemonic verify-bundle --passphrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic verify-bundle --ms1",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic verify-bundle --slot @N.phrase=",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 2,
+      "key": "mnemonic verify-bundle --passphrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic verify-bundle --ms1",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic verify-bundle --slot @N.phrase=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     },
+     {
+      "source": 2,
+      "key": "mnemonic verify-bundle --passphrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--passphrase-stdin"
+     }
+    ]
+   }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f  ",
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f  ",
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f  ",
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  ",
+     "hunter2-passphrase\r\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  ",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  ",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src2 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "EnvRef",
+     "EnvRef",
+     "StdinToggle"
+    ],
+    "provenance": [
+     "typed",
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase  \r\n"
+    ]
+   },
+   {
+    "case": "src2 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase  "
+    ]
+   },
+   {
+    "case": "src2 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase  "
+    ]
+   }
+  ]
+ },
+ {
+  "name": "ms combine share group",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "ms combine <shares>",
+      "kind": "StdinMulti",
+      "terminator": "\n"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "ms combine <shares>",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "ms combine <shares>",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "ms combine <shares>",
+      "kind": "StdinMulti",
+      "terminator": "\n"
+     }
+    ]
+   }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "kinds": [
+     "StdinMulti"
+    ],
+    "provenance": [
+     [
+      "typed",
+      "typed"
+     ]
+    ],
+    "payloads": [
+     "ms12ec7pqsf34k729gl6yrsfk9q244kzsx62s9krxwywxv4jav\nms12ec7pp3txgcymeun2ws3tceqmggc83f2m3l2cj299w9l9vr"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv"
+    ],
+    "provenance": [
+     [
+      "typed",
+      "typed"
+     ]
+    ],
+    "payloads": [
+     "ms12ec7pqsf34k729gl6yrsfk9q244kzsx62s9krxwywxv4jav\nms12ec7pp3txgcymeun2ws3tceqmggc83f2m3l2cj299w9l9vr"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv"
+    ],
+    "provenance": [
+     [
+      "typed",
+      "typed"
+     ]
+    ],
+    "payloads": [
+     "ms12ec7pqsf34k729gl6yrsfk9q244kzsx62s9krxwywxv4jav\nms12ec7pp3txgcymeun2ws3tceqmggc83f2m3l2cj299w9l9vr"
+    ]
+   }
+  ]
+ },
+ {
+  "name": "ms verify phrase+ms1",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "ms verify --phrase",
+      "kind": "DashValue",
+      "terminator": "\r\n"
+     },
+     {
+      "source": 1,
+      "key": "ms verify <ms1>",
+      "kind": "InFile",
+      "terminator": "\r\n",
+      "flag": "--in",
+      "fd": 3
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "ms verify --phrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "ms verify <ms1>",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "ms verify --phrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "ms verify <ms1>",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "refusal": "fd-not-on-platform",
+    "detail": "fd-not-on-platform: ms verify --phrase + ms verify <ms1>: needs a pipe fd; not enabled on macos"
+   }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "kinds": [
+     "DashValue",
+     "InFile"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\r\n",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f\r\n"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "DashValue",
+     "InFile"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  \r\n",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f\r\n"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  ",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  ",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "DashValue",
+     "InFile"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\r\n",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f  \r\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f  "
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f  "
+    ]
+   }
+  ]
+ },
+ {
+  "name": "ms derive ms1+passphrase",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "ms derive --passphrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--passphrase-stdin"
+     },
+     {
+      "source": 1,
+      "key": "ms derive <ms1>",
+      "kind": "InFile",
+      "terminator": "\r\n",
+      "flag": "--in",
+      "fd": 3
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "ms derive --passphrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "ms derive <ms1>",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "ms derive --passphrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "ms derive <ms1>",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "refusal": "fd-not-on-platform",
+    "detail": "fd-not-on-platform: ms derive --passphrase + ms derive <ms1>: needs a pipe fd; not enabled on macos"
+   }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "kinds": [
+     "StdinToggle",
+     "InFile"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "hunter2-passphrase\r\n",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f\r\n"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "hunter2-passphrase",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "hunter2-passphrase",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "StdinToggle",
+     "InFile"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "hunter2-passphrase  \r\n",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f\r\n"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "hunter2-passphrase  ",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "hunter2-passphrase  ",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "StdinToggle",
+     "InFile"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "hunter2-passphrase\r\n",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f  \r\n"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "hunter2-passphrase",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f  "
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "hunter2-passphrase",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f  "
+    ]
+   }
+  ]
+ },
+ {
+  "name": "ms derive phrase+passphrase",
+  "plans": {
+   "linux": {
+    "refusal": "two-stdin",
+    "detail": "two-stdin: ms derive --phrase + ms derive --passphrase: each has stdin as its only channel"
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "ms derive --phrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "ms derive --passphrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "ms derive --phrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "ms derive --passphrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "refusal": "two-stdin",
+    "detail": "two-stdin: ms derive --phrase + ms derive --passphrase: each has stdin as its only channel"
+   }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "refusal": "two-stdin"
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "linux",
+    "refusal": "two-stdin"
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  ",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  ",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "refusal": "two-stdin"
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase  "
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "hunter2-passphrase  "
+    ]
+   }
+  ]
+ },
+ {
+  "name": "ms derive hex+passphrase",
+  "plans": {
+   "linux": {
+    "refusal": "two-stdin",
+    "detail": "two-stdin: ms derive --hex + ms derive --passphrase: each has stdin as its only channel"
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "ms derive --hex",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "ms derive --passphrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "ms derive --hex",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "ms derive --passphrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "refusal": "two-stdin",
+    "detail": "two-stdin: ms derive --hex + ms derive --passphrase: each has stdin as its only channel"
+   }
+  },
+  "value_cases": [
+   {
+    "case": "typed",
+    "os": "linux",
+    "refusal": "two-stdin"
+   },
+   {
+    "case": "typed",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "00000000000000000000000000000000",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "typed",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "typed"
+    ],
+    "payloads": [
+     "00000000000000000000000000000000",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "linux",
+    "refusal": "two-stdin"
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "00000000000000000000000000000000  ",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src0 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "00000000000000000000000000000000  ",
+     "hunter2-passphrase"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "refusal": "two-stdin"
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "macos",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "00000000000000000000000000000000",
+     "hunter2-passphrase  "
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "windows",
+    "kinds": [
+     "Argv",
+     "Argv"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET"
+    ],
+    "payloads": [
+     "00000000000000000000000000000000",
+     "hunter2-passphrase  "
+    ]
+   }
+  ]
+ }
+]

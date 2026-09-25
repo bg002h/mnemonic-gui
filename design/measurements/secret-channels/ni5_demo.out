@@ -1,0 +1,23 @@
+F-687 binaries: mnemonic 0.104.0, ms 0.19.1
+
+=== (A) committed cache vs F-687 binaries: BIN_DIR=F687 regen_check.py --plans
+RED  identity: mnemonic binary sha256 88cb9fbf420f7ded… (mnemonic 0.104.0) != measured c894bee53193cfe6… (same version string: True)
+RED  identity: ms binary sha256 1d13f0f84cdf1a05… (ms 0.19.1) != measured a6d748119b0ee25a… (same version string: True)
+RED  derived: channel_table.json differs from a regeneration. 13 inputs differ, e.g. ['mnemonic addresses --passphrase', 'mnemonic bundle --passphrase', 'mnemonic convert --passphrase', 'mnemonic derive-child --passphrase']
+RED  derived: reinterpret.json differs from a regeneration. ms: committed ['-'] vs measured ['-', '@env:{V}']
+RED  derived: measured_with.json differs from a regeneration. 
+RED  derived: bytes.json differs from a regeneration. 
+regen_check: 6 red
+exit 1
+
+=== (B) re-derived on F-687, ms row left at [-]: regen_check.py --data-from STALE --plans
+
+=== (C) the bump done right: everything re-derived on F-687: regen_check.py --data-from FRESH --plans
+regen_check: GREEN
+exit 0
+
+=== (B) continued: the stale variant
+  F-687 measured ms re-reads: ['-', '@env:{V}']; the stale bump leaves it at ['-']
+RED  derived: reinterpret.json differs from a regeneration. ms: committed ['-'] vs measured ['-', '@env:{V}']
+regen_check: 1 red
+exit 1

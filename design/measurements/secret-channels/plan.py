@@ -1,0 +1,257 @@
+"""Reference model of the design's planner (DESIGN §A3a–§A4, §A6). Executable specification:
+the design's A5 table is GENERATED from this file (gen_plans.py, no CLIs needed), the Rust
+`form::channels::plan` must agree with it on every shape and platform (T8), and test_plan.py
+pins its refusals. This is a measurement/spec tool, not GUI code.
+
+Inputs are DATA, in two kinds (R3: the shape change):
+  DERIVED, by measurement against the pinned binaries, regenerated and diffed in CI
+  (regen_check.py) — never hand-edited, never read back as their own oracle:
+    channel_table.json  channels, per-channel terminator, per-input cli_env_rule
+    reinterpret.json    per CLI: the spellings it re-reads as an argv value
+    measured_with.json  pinned tag + version + sha256 of the binaries measured
+  DECIDED, by humans: channel_policy.json (per-OS switches, reserved prefix, name rule, bounds).
+
+A source is one secret input the user filled:
+  {"key":   channel-table key, e.g. "mnemonic restore --passphrase",
+   "form":  "node" | "value" | "pos" | "group",
+   "flag":  "--from" / "--passphrase" / … (None for pos/group),
+   "prefix":"phrase=" / "@0.phrase=" / "" (node form only),
+   "value": the text in the field (str; a list of str for a group)}
+"""
+import json, os, re, unicodedata
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+POLICY = json.load(open(os.path.join(HERE, "channel_policy.json")))
+# reinterpret.json is a MEASUREMENT (regen-checked, used by the oracle legs and a consistency test);
+# the planner's safety does not read it (R4 NI8).
+
+STDIN_KINDS = ("StdinMulti", "StdinToggle", "DashValue", "PosDash")   # preference order
+FD_KINDS = ("FileFlag", "InFile")                                       # preference order
+ENV_PREFIX = POLICY["reserved_env_prefix"] + "S"                        # MNEMONIC_GUI_S<i>
+
+
+class Refusal(Exception):
+    def __init__(self, code, source, why):
+        super().__init__(f"{code}: {source}: {why}")
+        self.code, self.source, self.why = code, source, why
+
+
+# ── §A3c: the TARGET bytes ────────────────────────────────────────────────────────────────
+# ONE implementation of every candidate rule (R4 NI9). run_bytes.py derives an input's rule by
+# testing exactly these functions; env_value_rule applies them. No second copy anywhere.
+RULES = {
+    "verbatim": lambda raw: raw,
+    "strip-one-trailing-newline": lambda raw: raw[:-2] if raw.endswith("\r\n") else raw[:-1] if raw.endswith("\n") else raw,
+}
+
+
+def env_value_rule(raw, rule):
+    """What the pinned CLI's own `@env:VAR` makes of the variable ON THIS INPUT
+    (channel_table.json cli_env_rule, derived per input by run_bytes.py; R3 NI7). None — the
+    input has no working CLI `@env:` — means the GUI treats the variable's bytes as typed."""
+    return RULES["verbatim" if rule is None else rule](raw)
+
+
+def normalize_for_lookalike(v):
+    """channel_policy.json channel_lookalike.normalize: NFKC, drop Cc/Cf, strip whitespace, casefold."""
+    v = unicodedata.normalize("NFKC", v)
+    v = "".join(ch for ch in v if unicodedata.category(ch) not in ("Cc", "Cf"))
+    return v.strip().casefold()
+
+
+def looks_like_channel(v):
+    """R4 NI8 — a DECISION, independent of any CLI: could this value be read as a channel under ANY
+    plausible normalization? Refused on every path."""
+    n = normalize_for_lookalike(v)
+    rule = POLICY["channel_lookalike"]
+    return n in rule["refuse_if_equals"] or any(n.startswith(p) for p in rule["refuse_if_startswith"])
+
+
+def is_clean(v):
+    """A value a LENIENT channel (terminator null) carries exactly: no CR/LF, no edge whitespace."""
+    return "\r" not in v and "\n" not in v and v == v.strip()
+
+
+# ── §A3a: C1 ─────────────────────────────────────────────────────────────────────────────
+def resolve(sources, user_env, table=None, rule=None):
+    """C1. A secret field whose value is a channel spelling means that channel, never those
+    characters:
+      `@env:VAR` -> the GUI reads VAR from its OWN environment; the TARGET is
+                    env_value_rule(raw) — byte-identical to what the CLI's own `@env:VAR` uses.
+      `-`        -> the user's own stdin; the GUI has none to forward -> refuse.
+    Runs on EVERY OS, before either Run path (private channels or the interim argv path).
+    Returns (resolved sources, provenance per source)."""
+    out, prov = [], []
+    for s in sources:
+        vals = s["value"] if s["form"] == "group" else [s["value"]]
+        got, where = [], []
+        for v in vals:
+            if v == "-":
+                raise Refusal("C1-dash", s["key"], "the GUI has no stdin to forward; type the value or use @env:VAR")
+            if v.startswith("@env:"):
+                name = v[len("@env:"):]
+                if name.startswith(POLICY["reserved_env_prefix"]):
+                    raise Refusal("C1-reserved-name", s["key"], f"{POLICY['reserved_env_prefix']}* names are the GUI's own")
+                if not re.fullmatch(POLICY["env_name_rule"], name):
+                    raise Refusal("C1-bad-name", s["key"], f"{name!r} is not a valid name ([A-Z_][A-Z0-9_]*)")
+                if name not in user_env:
+                    raise Refusal("C1-env-unset", s["key"], f"${name} is not set in the GUI's environment")
+                r_ = rule if rule is not None else ((table or {}).get(s["key"], {}).get("cli_env_rule"))
+                if r_ == "UNKNOWN":
+                    raise Refusal("C1-env-rule-unknown", s["key"], "the CLI's @env: rule for this input did not measure as any known rule")
+                target = env_value_rule(user_env[name], r_)
+                if target == "":        # checked on the TARGET, after the rule (R2 Nit 1)
+                    raise Refusal("C1-env-empty", s["key"], f"${name} is empty (after the CLI's @env: rule)")
+                got.append(target); where.append(f"${name}")
+            else:
+                got.append(v); where.append("typed")
+        r = dict(s)
+        r["value"] = got if s["form"] == "group" else got[0]
+        out.append(r)
+        prov.append(where if s["form"] == "group" else where[0])
+    return out, prov
+
+
+def guard_passthrough(tokens):
+    """R1 Nm1: no user-typed token in ANY field may name the GUI's reserved variables."""
+    for t in tokens:
+        if "@env:" + POLICY["reserved_env_prefix"] in t:
+            raise Refusal("C1-reserved-name", t.split("@env:")[0] or "field", "reserved @env: name in a pass-through field")
+
+
+# ── §A4.3: the rule ──────────────────────────────────────────────────────────────────────
+def plan(sources, table, platform="linux", user_env=None, rule=None):
+    """Resolve (C1), then plan for `platform`. Returns (bindings, provenance, resolved sources).
+    On an OS outside private_channels_on this is the INTERIM path: every source, once resolved
+    and measured, goes on argv with --allow-argv-secret (DESIGN §A6)."""
+    res, prov = resolve(sources, user_env or {}, table, rule)
+    for s in res:
+        if s["key"] not in table:
+            raise Refusal("no-table-entry", s["key"], "input not measured")
+        vals = s["value"] if s["form"] == "group" else [s["value"]]
+        if any("\0" in v for v in vals):      # R2 Nit 1: argv and env cannot carry NUL; one message on every OS
+            raise Refusal("nul-in-value", s["key"], "the value contains a NUL byte")
+        # R4 NI8 / NI9: decisions that make delivery independent of CLI behaviour outside any probe set.
+        for v in vals:
+            if looks_like_channel(v):
+                raise Refusal("value-looks-like-a-channel", s["key"],
+                              "after trimming and case-folding this value reads like `-` or `@env…`, which a CLI may "
+                              "treat as a channel; nobody wants that as a secret")
+            if POLICY["refuse_trailing_cr_lf"] and v[-1:] in ("\r", "\n"):
+                raise Refusal("value-ends-in-newline", s["key"],
+                              "the value ends in a newline or CR (check how the variable was set); "
+                              "CLIs differ in how many they strip, so the GUI does not send it")
+    if platform not in POLICY["private_channels_on"]:
+        # INTERIM path: resolved bytes on argv. A value a CLI could re-read as a channel was already
+        # refused above, on every path, by the broad predicate (R4 NI8; fold 3's measured
+        # `value-is-a-channel-spelling` check is subsumed and removed).
+        # R3 Nm13: a value starting with `-` would be parsed as a flag when it is its own argv word.
+        # Use `--flag=VALUE` where that form MEASURED byte-exact for this input; otherwise refuse.
+        forms = []
+        for s in res:
+            v = s["value"]
+            dash = s["form"] == "value" and isinstance(v, str) and v.startswith("-")
+            if dash and not table[s["key"]].get("argv_eq_exact"):
+                raise Refusal("value-starts-with-dash", s["key"],
+                              "on this OS the value goes on the command line, where a leading `-` reads as a flag "
+                              "and `--flag=VALUE` is not byte-exact for this input")
+            forms.append("eq" if dash else "sep")
+        return [{"source": i, "key": s["key"], "kind": "Argv", "terminator": "", "argv_form": forms[i]}
+                for i, s in enumerate(res)], prov, res
+    try:
+        return _plan(res, table, platform), prov, res
+    except Refusal as e:
+        if platform not in POLICY["fd_channel_on"] and e.code in ("two-stdin", "no-channel-left", "no-channel-on-platform"):
+            try:
+                _plan(res, table, POLICY["fd_channel_on"][0])
+            except Refusal:
+                raise e
+            raise Refusal("fd-not-on-platform", e.source, f"needs a pipe fd; not enabled on {platform}")
+        raise
+
+
+def _plan(sources, table, platform):
+    avail = []
+    for s in sources:
+        vals = s["value"] if s["form"] == "group" else [s["value"]]
+        chans = list(table[s["key"]]["channels"])
+        if platform not in POLICY["fd_channel_on"]:
+            chans = [c for c in chans if c["kind"] not in FD_KINDS]
+        if not chans:
+            raise Refusal("no-channel-on-platform", s["key"], platform)
+        if not all(is_clean(v) for v in vals):                 # lenient channels need a clean value
+            chans = [c for c in chans if c["terminator"] is not None]
+            if not chans:
+                raise Refusal("value-not-byte-exact", s["key"],
+                              "every channel for this input trims whitespace; the value has CR/LF or edge whitespace")
+        avail.append(chans)
+
+    def pick(chans, kinds):
+        for k in kinds:
+            for c in chans:
+                if c["kind"] == k:
+                    return c
+        return None
+
+    assigned = [None] * len(sources)
+    stdin_owner = None
+    # Step 1 — forced stdin: sources whose every channel is a stdin channel.
+    forced = [i for i, ch in enumerate(avail) if all(c["kind"] in STDIN_KINDS for c in ch)]
+    if len(forced) > 1:
+        raise Refusal("two-stdin", " + ".join(sources[i]["key"] for i in forced), "each has stdin as its only channel")
+    if forced:
+        i = forced[0]
+        assigned[i] = pick(avail[i], STDIN_KINDS)
+        stdin_owner = i
+    # Step 2 — if stdin is still free, the first source (argv order) with a --X-stdin toggle.
+    if stdin_owner is None:
+        for i, ch in enumerate(avail):
+            c = pick(ch, ("StdinToggle",))
+            if c:
+                assigned[i], stdin_owner = c, i
+                break
+    # Step 3 — the rest, argv order: env, else stdin if free, else fd, else refuse.
+    for i, ch in enumerate(avail):
+        if assigned[i]:
+            continue
+        c = pick(ch, ("EnvRef",))
+        if not c and stdin_owner is None:
+            c = pick(ch, STDIN_KINDS)
+            if c:
+                stdin_owner = i
+        if not c:
+            c = pick(ch, FD_KINDS)
+        if not c:
+            raise Refusal("no-channel-left", sources[i]["key"], "stdin already used and no env/fd channel")
+        assigned[i] = c
+
+    bindings, fd_next = [], 3
+    for i, c in enumerate(assigned):
+        b = {"source": i, "key": sources[i]["key"], "kind": c["kind"], "terminator": c["terminator"] or ""}
+        if "flag" in c:
+            b["flag"] = c["flag"]
+        if c["kind"] == "EnvRef":
+            b["env"] = f"{ENV_PREFIX}{i}"
+        if c["kind"] in FD_KINDS:
+            b["fd"] = fd_next
+            fd_next += 1
+            v = sources[i]["value"]
+            payload = ("\n".join(v) if isinstance(v, list) else v) + b["terminator"]
+            if len(payload.encode()) > POLICY["pipe_payload_max"]:
+                raise Refusal("payload-too-large", sources[i]["key"], f"> {POLICY['pipe_payload_max']} bytes")
+        bindings.append(b)
+    return bindings
+
+
+def describe(bindings, prov=None):
+    out = []
+    for b in bindings:
+        k = b["kind"]
+        where = {"EnvRef": f"env {b.get('env')}", "StdinToggle": f"stdin via {b.get('flag')}",
+                 "DashValue": "stdin via `-`", "PosDash": "stdin via positional `-`",
+                 "StdinMulti": "stdin via one `-` (all, one per line)", "Argv": "argv + --allow-argv-secret (interim)",
+                 "FileFlag": f"pipe fd via {b.get('flag')}", "InFile": "pipe fd via --in"}[k]
+        if b.get("terminator") and k != "StdinMulti":
+            where += f" + {b['terminator']!r}"
+        out.append(f"{b['key'].split(' ', 2)[-1]} ← {where}")
+    return "; ".join(out)

@@ -326,11 +326,11 @@ const NO_AUTO_REPAIR_FLAG: FlagSchema = FlagSchema {
 // material on argv at exit 2 unless this flag is present. GUI decision:
 // mirrored here for schema parity, but GUI-MANAGED — never rendered as a
 // widget (see `form::invocation::is_gui_managed_flag`) and never emitted from
-// form state. The Run path adds it itself, and only when the argv it is about
-// to spawn carries a secret-masked token, i.e. only after the user has passed
-// the run-confirm modal (`form::invocation::admit_argv_secret_for_run`).
-// The Copy-command path does NOT add it: a copied command pasted into a shell
-// lands in shell history, which is exactly what the CLI's refusal protects.
+// form state. Since the secret-channel design (Part A) the GUI's Run path
+// sends every secret over a private channel on an OS in `private_channels_on`
+// and never needs it; only the INTERIM path (`form::channels`, an OS not yet
+// in that list) puts the resolved bytes on argv and adds this flag, after the
+// run-confirm modal. The Copy command never carries it (§A7).
 pub(crate) const ALLOW_ARGV_SECRET_FLAG: FlagSchema = FlagSchema {
     name: "--allow-argv-secret",
     kind: FlagKind::Boolean,
@@ -597,8 +597,8 @@ const RESTORE_FLAGS: &[FlagSchema] = &[
         // while --md1 is empty; the base schema requiredness is false.
         required: false,
         repeating: false,
-        help: "Source wallet export to restore from. @env:VAR / - (stdin) \
-               for secret values.",
+        help: "Source wallet export to restore from. For a secret node: type the \
+               value, or `@env:VAR` (read by the GUI; a value that is `-` or starts with `@env` is refused).",
         secret: false,
         default_value: None,
         global: false,
@@ -754,7 +754,7 @@ const RESTORE_FLAGS: &[FlagSchema] = &[
         kind: FlagKind::Text,
         required: false,
         repeating: false,
-        help: "BIP-39 passphrase (seed sources). @env:VAR supported.",
+        help: "BIP-39 passphrase (seed sources). Type the value, or `@env:VAR` (read by the GUI; a value that is `-` or starts with `@env` is refused).",
         secret: true,
         default_value: None,
         global: false,
@@ -1106,7 +1106,8 @@ const VERIFY_BUNDLE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "The operator's OWN seed for completing a keyless multisig (or \
                general-policy) template bundle (same grammar as restore \
-               --from: ms1=/phrase=/entropy=/seedqr=; @env:VAR / - stdin). \
+               --from: ms1=/phrase=/entropy=/seedqr=; type the value, or \
+               `@env:VAR` (read by the GUI; a value that is `-` or starts with `@env` is refused)). \
                Required to complete a multisig template; ignored otherwise.",
         secret: false,
         default_value: None,
@@ -1343,7 +1344,7 @@ const CONVERT_FLAGS: &[FlagSchema] = &[
         kind: FlagKind::NodeValueComposite(CONVERT_FROM_NODES),
         required: true,
         repeating: false,
-        help: "Source node: <node>=<value>. `=-` reads value from stdin.",
+        help: "Source node: <node>=<value>. Type the value, or `@env:VAR` (read by the GUI; a value that is `-` or starts with `@env` is refused).",
         secret: false, // secrecy is node-dependent; composite paste-warn + argv-mask + run-confirm + persist-redact key on node_type_is_argv_secret (cycle-3)
         default_value: None,
         global: false,
@@ -1763,7 +1764,7 @@ const DERIVE_CHILD_FLAGS: &[FlagSchema] = &[
         required: true,
         repeating: false,
         help: "Master source. v0.7: xprv only; v0.8 also accepts \
-               phrase=<bip39-mnemonic>. `=-` reads from stdin.",
+               phrase=<bip39-mnemonic>. Type the value, or `@env:VAR` (read by the GUI; a value that is `-` or starts with `@env` is refused).",
         secret: false, // value-dependent
         default_value: None,
         global: false,
@@ -1868,7 +1869,7 @@ const SLIP39_SPLIT_FLAGS: &[FlagSchema] = &[
         kind: FlagKind::NodeValueComposite(SLIP39_FROM_NODES),
         required: true,
         repeating: false,
-        help: "Master secret. `phrase=<value-or->` (BIP-39) OR `entropy=<hex-or->`. `=-` reads from stdin.",
+        help: "Master secret. `phrase=<value>` (BIP-39) OR `entropy=<hex>`. Type the value, or `@env:VAR` (read by the GUI; a value that is `-` or starts with `@env` is refused).",
         secret: false, // value-dependent
         default_value: None,
         global: false,
@@ -1957,7 +1958,7 @@ const SLIP39_COMBINE_FLAGS: &[FlagSchema] = &[
         kind: FlagKind::Text,
         required: true,
         repeating: true,
-        help: "SLIP-39 share mnemonic. Repeating; at most ONE may be `-` (stdin).",
+        help: "SLIP-39 share mnemonic. Repeating. Type the value, or `@env:VAR` (read by the GUI; a value that is `-` or starts with `@env` is refused).",
         secret: true,
         default_value: None,
         global: false,
@@ -2059,7 +2060,7 @@ const MS_SHARES_SPLIT_FLAGS: &[FlagSchema] = &[
         kind: FlagKind::NodeValueComposite(MS_SHARES_FROM_NODES),
         required: true,
         repeating: false,
-        help: "Secret. `phrase=<value-or->` (BIP-39) OR `entropy=<hex-or->`. `=-` reads from stdin.",
+        help: "Secret. `phrase=<value>` (BIP-39) OR `entropy=<hex>`. Type the value, or `@env:VAR` (read by the GUI; a value that is `-` or starts with `@env` is refused).",
         secret: false, // value-dependent
         default_value: None,
         global: false,
@@ -2151,7 +2152,7 @@ const MS_SHARES_COMBINE_FLAGS: &[FlagSchema] = &[
         kind: FlagKind::Text,
         required: true,
         repeating: true,
-        help: "A codex32 K-of-N share string. Repeating; supply at least K. At most ONE may be `-` (stdin).",
+        help: "A codex32 K-of-N share string. Repeating; supply at least K. Type the value, or `@env:VAR` (read by the GUI; a value that is `-` or starts with `@env` is refused).",
         secret: true,
         default_value: None,
         global: false,
@@ -2201,7 +2202,7 @@ const SEED_XOR_SPLIT_FLAGS: &[FlagSchema] = &[
         kind: FlagKind::NodeValueComposite(PHRASE_ONLY),
         required: true,
         repeating: false,
-        help: "Master BIP-39 phrase. `phrase=<value>` (inline) OR `phrase=-` (stdin).",
+        help: "Master BIP-39 phrase. `phrase=<value>`. Type the value, or `@env:VAR` (read by the GUI; a value that is `-` or starts with `@env` is refused).",
         secret: false, // value-dependent
         default_value: None,
         global: false,
@@ -2258,7 +2259,7 @@ const SEED_XOR_COMBINE_FLAGS: &[FlagSchema] = &[
         kind: FlagKind::NodeValueComposite(PHRASE_ONLY),
         required: true,
         repeating: true,
-        help: "Share phrase. `phrase=<value>` or `phrase=-`. At most ONE may be stdin.",
+        help: "Share phrase. `phrase=<value>`. Type the value, or `@env:VAR` (read by the GUI; a value that is `-` or starts with `@env` is refused).",
         secret: true,
         default_value: None,
         global: false,
@@ -2313,7 +2314,7 @@ const SEEDQR_ENCODE_FLAGS: &[FlagSchema] = &[
         kind: FlagKind::NodeValueComposite(PHRASE_ONLY),
         required: true,
         repeating: false,
-        help: "BIP-39 phrase. `phrase=<value>` (inline) OR `phrase=-` (stdin).",
+        help: "BIP-39 phrase. `phrase=<value>`. Type the value, or `@env:VAR` (read by the GUI; a value that is `-` or starts with `@env` is refused).",
         secret: false, // value-dependent
         default_value: None,
         global: false,
@@ -2365,9 +2366,9 @@ const SEEDQR_DECODE_FLAGS: &[FlagSchema] = &[
         kind: FlagKind::NodeValueComposite(SEEDQR_DECODE_FROM_NODES),
         required: false,
         repeating: false,
-        help: "Canonical input (v0.31.6+): seedqr=<VALUE|->. SeedQR digit \
+        help: "Canonical input (v0.31.6+): seedqr=<VALUE>. SeedQR digit \
                string (48/60/72/84/96 ASCII digits). Only the `seedqr` node \
-               type is accepted.",
+               type is accepted. Type the value, or `@env:VAR` (read by the GUI; a value that is `-` or starts with `@env` is refused).",
         secret: false, // secrecy is node-dependent; composite paste-warn + argv-mask + run-confirm + persist-redact key on node_type_is_argv_secret (cycle-3)
         default_value: None,
         global: false,
@@ -2389,9 +2390,10 @@ const SEEDQR_DECODE_FLAGS: &[FlagSchema] = &[
         kind: FlagKind::Text,
         required: false,
         repeating: false,
-        help: "DEPRECATED (v0.31.6): use --from seedqr=<VALUE|-> instead. \
+        help: "DEPRECATED (v0.31.6): use --from seedqr=<VALUE> instead. \
                SeedQR numeric digit string (48/60/72/84/96 ASCII digits). \
-               `-` reads from stdin. Mutually exclusive with --from.",
+               Type the value, or `@env:VAR` (read by the GUI; a value that is `-` or starts with `@env` is refused). Mutually \
+               exclusive with --from.",
         secret: true,
         default_value: None,
         global: false,
@@ -2490,7 +2492,7 @@ const FINAL_WORD_FLAGS: &[FlagSchema] = &[
         kind: FlagKind::NodeValueComposite(PHRASE_ONLY),
         required: true,
         repeating: false,
-        help: "N-1 word partial phrase. `phrase=<words>` or `phrase=-`. Must be 11/14/17/20/23 words.",
+        help: "N-1 word partial phrase. `phrase=<words>`. Must be 11/14/17/20/23 words. Type the value, or `@env:VAR` (read by the GUI; a value that is `-` or starts with `@env` is refused).",
         secret: false, // value-dependent
         default_value: None,
         global: false,
@@ -2540,8 +2542,9 @@ const REPAIR_FLAGS: &[FlagSchema] = &[
         kind: FlagKind::Text,
         required: false,
         repeating: false,
-        help: "Single ms1 chunk to repair. `-` reads one chunk from stdin. \
-               Combinable with --mk1 / --md1 (at least one card required).",
+        help: "Single ms1 chunk to repair. Type the value, or `@env:VAR` \
+               (read by the GUI; a value that is `-` or starts with `@env` is refused). Combinable with --mk1 / --md1 (at least one \
+               card required).",
         secret: true,
         default_value: None,
         global: false,
@@ -2644,8 +2647,9 @@ const INSPECT_FLAGS: &[FlagSchema] = &[
         kind: FlagKind::Text,
         required: false,
         repeating: false,
-        help: "Single ms1 chunk to inspect. `-` reads one chunk from stdin. \
-               Combinable with --mk1 / --md1 (at least one card required).",
+        help: "Single ms1 chunk to inspect. Type the value, or `@env:VAR` \
+               (read by the GUI; a value that is `-` or starts with `@env` is refused). Combinable with --mk1 / --md1 (at least one \
+               card required).",
         secret: true,
         default_value: None,
         global: false,
@@ -4030,7 +4034,7 @@ const ADDRESSES_FLAGS: &[FlagSchema] = &[
         kind: FlagKind::Text,
         required: true,
         repeating: false,
-        help: "Source: xpub=<v> | phrase=<v> | entropy=<hex> | seedqr=<digits>. @env:VAR / - (stdin) for secret values.",
+        help: "Source: xpub=<v> | phrase=<v> | entropy=<hex> | seedqr=<digits>. For a secret node: type the value, or `@env:VAR` (read by the GUI; a value that is `-` or starts with `@env` is refused).",
         secret: false,
         default_value: None,
         global: false,
@@ -4100,7 +4104,7 @@ const ADDRESSES_FLAGS: &[FlagSchema] = &[
         kind: FlagKind::Text,
         required: false,
         repeating: false,
-        help: "BIP-39 passphrase (seed sources). @env:VAR supported.",
+        help: "BIP-39 passphrase (seed sources). Type the value, or `@env:VAR` (read by the GUI; a value that is `-` or starts with `@env` is refused).",
         secret: true,
         default_value: None,
         global: false,

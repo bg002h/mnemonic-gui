@@ -1,0 +1,8 @@
+# R4 decoy: the failure is masked
+on: [push, pull_request]
+jobs:
+  mac:
+    runs-on: macos-latest
+    env: {MNEMONIC_BIN: mnemonic}
+    steps:
+      - run: cargo test --test secret_channels_t2 --test secret_channels_t3prime --test secret_channels_t7 || true

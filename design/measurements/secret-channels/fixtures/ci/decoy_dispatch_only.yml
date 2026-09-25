@@ -1,0 +1,9 @@
+# R3 decoy: runs only when someone presses the button
+on: workflow_dispatch
+jobs:
+  mac:
+    runs-on: macos-latest
+    env:
+      MNEMONIC_BIN: mnemonic
+    steps:
+      - run: cargo test --test secret_channels_t2 --test secret_channels_t3prime --test secret_channels_t7

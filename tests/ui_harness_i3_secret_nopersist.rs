@@ -273,7 +273,9 @@ fn i3_classified_secret_partition_census() {
     // the narrowed-Boolean list, then bump these counts deliberately.
     assert_eq!(
         (value_bearing, narrowed_boolean, total),
-        (40, 24, 64),
+        // DESIGN secret channels Part B (ms hashlock): + --hashlock-phrase and
+        // --hex (value-bearing), + --hashlock-phrase-stdin (toggle).
+        (42, 25, 67),
         "classified-secret partition drifted (value-bearing Text/Composite, \
          narrowed Boolean *-stdin toggles, total)"
     );
@@ -284,7 +286,8 @@ fn i3_classified_secret_partition_census() {
     // flags, but rendered by a bin-private block in `main.rs` (not reachable
     // via the integration harness). They are NARROWED here and covered by
     // `tests/persist_redaction_v0_34_0.rs` (T1b serialize / T2 emit / T4
-    // census). Pin the count so a 6th secret positional is a deliberate change.
+    // census). Pin the count so a 7th secret positional is a deliberate change
+    // (the 6th is ms hashlock's <ms1> plate, DESIGN secret channels §B5).
     let secret_positionals: usize = CliTab::ALL
         .iter()
         .copied()
@@ -293,7 +296,7 @@ fn i3_classified_secret_partition_census() {
         .filter(|p| p.secret)
         .count();
     assert_eq!(
-        secret_positionals, 5,
+        secret_positionals, 6,
         "secret-positional census drifted — see persist_redaction_v0_34_0.rs"
     );
 }
@@ -369,12 +372,12 @@ fn i3_value_bearing_secret_flags_never_leak() {
         covered += 1;
     }
 
-    assert_eq!(covered, 40, "expected to drive all 40 value-bearing secrets");
+    assert_eq!(covered, 42, "expected to drive all 42 value-bearing secrets");
     // The masking path was genuinely exercised (most secrets emit + mask in a
     // bare state). A regression that stopped masking would crater this.
     assert!(
         reached_argv_masked >= 35,
-        "the masked-argv path was under-exercised ({reached_argv_masked}/40 reached \
+        "the masked-argv path was under-exercised ({reached_argv_masked}/42 reached \
          argv with a mask bit) — investigate conditional suppression drift"
     );
 }
@@ -434,7 +437,7 @@ fn i3_narrowed_boolean_stdin_toggles() {
 
         narrowed += 1;
     }
-    assert_eq!(narrowed, 24, "expected exactly 24 narrowed secret-Boolean toggles");
+    assert_eq!(narrowed, 25, "expected exactly 25 narrowed secret-Boolean toggles");
 }
 
 // ════════════════════════════════════════════════════════════════════════
@@ -579,13 +582,13 @@ fn i3_tree_secret_key_off_preview_and_spec_stdin_scrubbed() {
     // The cleartext stdin lives only in the `PendingConfirm` run-holder, which
     // `Zeroize`s (and `Drop`-scrubs) the bytes — no cleartext residue persists
     // past the confirm. (Whole-holder scrub seam: `run_holder_zeroize.rs`.)
-    let mut pending = PendingConfirm {
-        argv,
-        mask,
-        stdin: Some(stdin),
-    };
+    let mut plan = mnemonic_gui::form::channels::RunPlan::plain(argv);
+    plan.mask = mask;
+    plan.stdin = Some(zeroize::Zeroizing::new(stdin));
+    let mut pending = PendingConfirm { plan };
     pending.zeroize();
     let residue = pending
+        .plan
         .stdin
         .as_ref()
         .map(|b| String::from_utf8_lossy(b).contains(TREE_KEY_FIXTURE))
