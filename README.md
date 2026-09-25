@@ -12,8 +12,8 @@ beyond display. The CLI remains the byte-exact source of truth.
 
 ## Status
 
-Latest release: `mnemonic-gui-v0.61.0` (2026-08-09), tracking
-`mnemonic-toolkit-v0.97.0`. The GUI is a mature cross-platform overlay for
+Latest release: `mnemonic-gui-v0.62.0` (2026-09-24), tracking
+`mnemonic-toolkit-v0.104.0`. The GUI is a mature cross-platform overlay for
 all four constellation CLIs (`mnemonic` / `md` / `ms` / `mk`): every
 subcommand is form-driven from a hand-maintained `gui-schema` mirror, guarded
 on every push by a schema flag-name/defaults/choices drift gate plus
@@ -58,7 +58,7 @@ rather than failing the whole install.
 To install just the GUI from source at the pinned tag:
 
 ```sh
-cargo install --locked --git https://github.com/bg002h/mnemonic-gui --tag mnemonic-gui-v0.61.0 mnemonic-gui
+cargo install --locked --git https://github.com/bg002h/mnemonic-gui --tag mnemonic-gui-v0.62.0 mnemonic-gui
 ```
 
 The GUI subprocess-runs the four sibling CLIs. If you skip the
