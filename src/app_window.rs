@@ -922,6 +922,10 @@ impl MnemonicGuiApp {
             let mut run_plan = crate::form::channels::plan(sch, sub, state, &user_env, os);
             let (copy_posix_state, copy_windows_state) =
                 crate::form::channels::copy::copy_commands(sch, sub, state, &user_env);
+            // Review M2: a pasted private key in a public md field is masked
+            // on screen but rides argv — Copy reveals it, and Run confirms.
+            let copy_reveals =
+                crate::form::channels::copy::copy_reveals_secret(sch, sub, state, &user_env);
             let (masked_argv, masked_mask) = assemble_argv_with_secret_mask(sch, sub, state);
             // v0.32.0 (node-tree SPEC §2.2 Run leg): in tree mode the host
             // appends `--spec -` (the conditional suppressed any stale
@@ -974,7 +978,9 @@ impl MnemonicGuiApp {
                 None
             };
             let needs_confirm = secrets::should_confirm_run(sub, state)
-                || run_plan.as_ref().is_ok_and(|p| p.has_secrets());
+                || run_plan
+                    .as_ref()
+                    .is_ok_and(|p| p.has_secrets() || p.mask.iter().any(|&m| m));
             // The on-screen Preview is the PLANNED argv: on the private path
             // it carries no secret byte (channel references only); the
             // interim path's resolved values stay masked (v0.39.0). A refused
@@ -1030,7 +1036,11 @@ impl MnemonicGuiApp {
                 // value, or a Windows copy that would need a pipe).
                 let posix = ui.add_enabled(
                     copy_posix_text.is_some(),
-                    egui::Button::new("Copy command (POSIX)"),
+                    egui::Button::new(if copy_reveals {
+                        "Copy command (POSIX) — reveals secret"
+                    } else {
+                        "Copy command (POSIX)"
+                    }),
                 );
                 let posix = match &copy_posix_tip {
                     Some(t) => posix.on_disabled_hover_text(t),
@@ -1041,7 +1051,11 @@ impl MnemonicGuiApp {
                 }
                 let windows = ui.add_enabled(
                     copy_windows_text.is_some(),
-                    egui::Button::new("Copy command (Windows)"),
+                    egui::Button::new(if copy_reveals {
+                        "Copy command (Windows) — reveals secret"
+                    } else {
+                        "Copy command (Windows)"
+                    }),
                 );
                 let windows = match &copy_windows_tip {
                     Some(t) => windows.on_disabled_hover_text(t),
@@ -1160,7 +1174,10 @@ impl MnemonicGuiApp {
                     let plan = &pending.plan;
                     // DESIGN §A7 (Q1): the dialog stays; on the private path
                     // its first sentence says the secrets go privately.
-                    let prefix = if plan.interim {
+                    // Review M2: a masked token on the private path is a
+                    // pasted private key in a public md field — it rides
+                    // argv, so the dialog must not say "privately".
+                    let prefix = if plan.interim || plan.mask.iter().any(|&m| m) {
                         secrets::RUN_CONFIRM_MODAL_PREFIX
                     } else {
                         secrets::RUN_CONFIRM_PRIVATE_PREFIX

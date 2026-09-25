@@ -51,6 +51,30 @@ impl CopyState {
     }
 }
 
+/// Whether the Copy text carries a masked value that is NOT a planner source
+/// (review M2): a private key pasted into a public md field (DESIGN
+/// §B2–B4). It is content-masked on screen, but md takes it only on argv,
+/// so the copied command reveals it; the button says so.
+pub fn copy_reveals_secret(
+    schema: &Schema,
+    sub: &SubcommandSchema,
+    state: &FormState,
+    user_env: &dyn Fn(&str) -> Option<String>,
+) -> bool {
+    let copy_policy = policy().for_copy();
+    plan_with(
+        schema,
+        sub,
+        state,
+        user_env,
+        super::data::COPY_OS,
+        channel_table(),
+        &copy_policy,
+    )
+    .map(|p| p.mask.iter().any(|&m| m))
+    .unwrap_or(false)
+}
+
 /// Both Copy buttons, under the committed table and policy.
 pub fn copy_commands(
     schema: &Schema,
@@ -70,6 +94,12 @@ pub fn copy_commands_with(
     table: &ChannelTable,
     policy: &Policy,
 ) -> (CopyState, CopyState) {
+    // Review M1: Copy is gated exactly as Run is (DESIGN §B5: `ms hashlock`
+    // with `--kind` at "(choose)" would put a sha256 record on stdout).
+    if let Some(b) = crate::form::conditional::run_blocker(schema.cli_name, sub.name, state) {
+        let t = format!("Copy disabled — {b}");
+        return (CopyState::Disabled(t.clone()), CopyState::Disabled(t));
+    }
     let copy_policy = policy.for_copy();
     let plan = match plan_with(
         schema,
@@ -145,7 +175,7 @@ fn render(plan: &RunPlan, table: &ChannelTable, flavor: ShellFlavor) -> CopyStat
     let mut files = 0usize;
     let c = if posix { "#" } else { "REM" };
     for b in &plan.bindings {
-        let label = b.binding.source_label();
+        let label = b.binding.field_label();
         let kind = b.binding.kind;
         let at = b.argv_index;
         match kind {

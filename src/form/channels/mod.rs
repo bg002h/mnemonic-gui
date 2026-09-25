@@ -240,8 +240,23 @@ impl Binding {
         w
     }
 
+    /// The field as the user sees it: the key from its first flag (`--…`)
+    /// or positional (`<…>`) word on, so a nested subcommand's child word is
+    /// not shown (`--share`, not `combine --share`; review N1). Preview, the
+    /// confirm dialog and Copy comments use it.
+    pub fn field_label(&self) -> String {
+        let words: Vec<&str> = self.key.split(' ').collect();
+        match words
+            .iter()
+            .position(|w| w.starts_with("--") || w.starts_with('<'))
+        {
+            Some(i) => words[i..].join(" "),
+            None => self.source_label(),
+        }
+    }
+
     /// The label `plan.describe` gives the source: the key minus its CLI and
-    /// first subcommand token.
+    /// first subcommand token. Kept byte-for-byte for §A5 / T8 parity.
     pub fn source_label(&self) -> String {
         self.key
             .splitn(3, ' ')
@@ -778,7 +793,7 @@ impl BindingView {
         };
         format!(
             "{} ← {} ({prov})",
-            self.binding.source_label(),
+            self.binding.field_label(),
             self.binding.channel_phrase()
         )
     }

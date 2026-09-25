@@ -121,6 +121,12 @@ M = [
     ("B5: source exclusivity off", COND,
      '&["positional:ms1", "--hashlock-phrase", "--hex", "--in", "--random"],',
      '&{ ' + MARK + ' ["positional:ms1"] },', PARTB, None, True),
+    ("M1: Copy no longer gated on (choose)", "src/form/channels/copy.rs",
+     "if let Some(b) = crate::form::conditional::run_blocker(schema.cli_name, sub.name, state) {",
+     "if let Some(b) = ({ " + MARK + " None::<&str> }) {", PARTB + ["fold1_review"], None, True),
+    ("M2: Copy reveal label never raised", "src/form/channels/copy.rs",
+     ".map(|p| p.mask.iter().any(|&m| m))",
+     ".map(|p| { " + MARK + " let _ = p; false })", ["fold1_review"], None, True),
     ("B2-B4: pasted xprv no longer masked", "src/secrets.rs",
      ".any(crate::form::tree_model::is_xprv_like)",
      ".any(|t| { " + MARK + " let _ = t; false })", PARTB, None, True),
@@ -173,9 +179,11 @@ def main():
     lines = ["| mutation | verdict | first failing tests |", "|---|---|---|"]
     lines += [f"| {a} | {b} | {c} |" for a, b, c in rows]
     killed = sum(1 for _, v, _ in rows if v.startswith("KILLED"))
+    # review N2: the denominator counts the non-CONTROL rows actually run
+    ran_mutations = sum(1 for n, _, _ in rows if not n.startswith("CONTROL"))
     lines.append("")
-    lines.append(f"{killed}/{len(rows) - 1} mutations killed by assertion with the mutated line run; "
-                 f"control {'survived' if not any(n.startswith('CONTROL') for n in bad) else 'DID NOT SURVIVE'}; "
+    lines.append(f"{killed}/{ran_mutations} mutations killed by assertion with the mutated line run; "
+                 f"control {'not run (filtered)' if len(rows) == ran_mutations else ('survived' if not any(n.startswith('CONTROL') for n in bad) else 'DID NOT SURVIVE')}; "
                  f"problems: {bad or 'none'}")
     text = "\n".join(lines) + "\n"
     print(text)
