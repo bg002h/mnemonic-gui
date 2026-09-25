@@ -77,7 +77,7 @@ unicode-normalization = "0.1"
 # sandboxes → BIP-39 phrases leaked to state.json). See toolkit
 # `secret-taxonomy-public-api-promotion` FOLLOWUP for the full
 # architectural rationale.
-mnemonic-toolkit = { git = "https://github.com/bg002h/mnemonic-toolkit", tag = "mnemonic-toolkit-v0.104.0" }
+mnemonic-toolkit = { git = "https://github.com/bg002h/mnemonic-toolkit", tag = "mnemonic-toolkit-v0.105.1" }
 
 [target.'cfg(unix)'.dependencies]
 signal-hook = "0.3"
@@ -128,7 +128,7 @@ proptest = "1"
 # `derive_at_index`, `into_definite`) — crates.io 13.x lacks them and md-codec
 # fails to compile. A `[patch]` only applies at the ROOT of a build, so the
 # toolkit's own patch does not reach this crate; this copies it verbatim from
-# mnemonic-toolkit-v0.104.0's Cargo.toml. Drop it in lockstep with the toolkit
+# mnemonic-toolkit-v0.104.0's Cargo.toml (unchanged at v0.105.1). Drop it in lockstep with the toolkit
 # (its FOLLOWUP `taproot-coverage-cycle-on-miniscript-gt-13-1-0`).
 [patch.crates-io]
 miniscript = { git = "https://github.com/rust-bitcoin/rust-miniscript", rev = "ff4732e5f75aa555682343cb180fa72ee3e8e9d5" }

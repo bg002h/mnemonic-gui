@@ -19,7 +19,7 @@
 url = "https://github.com/bg002h/mnemonic-toolkit"
 # Cross-cite with Cargo.toml's [dependencies] mnemonic-toolkit tag.
 # Both should bump in lockstep when the toolkit is upgraded.
-tag = "mnemonic-toolkit-v0.104.0"
+tag = "mnemonic-toolkit-v0.105.1"
 bin = "mnemonic"
 workspace-member-path = "crates/mnemonic-toolkit"
 # v0.2 Phase C.1: GUI consults `<cli> gui-schema` JSON path when true;
@@ -46,6 +46,10 @@ gui-schema-capable = true
 
 [ms]
 url = "https://github.com/bg002h/mnemonic-secret"
+# F-694 (2026-09-25): v0.19.1 -> v0.20.1 with toolkit v0.104.0 -> v0.105.1
+# (F-687 `-`/`@env:VAR` on every password flag, one trailing-newline rule,
+# empty-value warning, terminal prompt; F-683 `--separator` offers only
+# `space`; F-689, F-691, F-693). A re-measure plus data update (DESIGN §A0).
 # F-679 (2026-09-24): v0.16.0 -> v0.19.0 (argv-secret refusal, --in/--out,
 # three new derive templates; `hashlock` not surfaced yet), then -> v0.19.1
 # (fold 2): an --allow-argv-secret-admitted value is no longer taken for a
@@ -56,7 +60,7 @@ url = "https://github.com/bg002h/mnemonic-secret"
 # v0.13.0 has NONE of them, so the schema-mirror gate was red on a mirror that
 # described a RELEASED ms the pin had not caught up to. v0.16.0 is tagged
 # upstream; the mirror is right and this pin was stale.
-tag = "ms-cli-v0.19.1"
+tag = "ms-cli-v0.20.1"
 bin = "ms"
 workspace-member-path = "crates/ms-cli"
 gui-schema-capable = true

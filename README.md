@@ -66,9 +66,9 @@ constellation installer, install each one separately (pinned tags
 match [`pinned-upstream.toml`](pinned-upstream.toml)):
 
 ```sh
-cargo install --locked --git https://github.com/bg002h/mnemonic-toolkit     --tag mnemonic-toolkit-v0.104.0           mnemonic-toolkit
+cargo install --locked --git https://github.com/bg002h/mnemonic-toolkit     --tag mnemonic-toolkit-v0.105.1           mnemonic-toolkit
 cargo install --locked --git https://github.com/bg002h/descriptor-mnemonic  --tag descriptor-mnemonic-md-cli-v0.20.3  md-cli
-cargo install --locked --git https://github.com/bg002h/mnemonic-secret      --tag ms-cli-v0.19.1                      ms-cli
+cargo install --locked --git https://github.com/bg002h/mnemonic-secret      --tag ms-cli-v0.20.1                      ms-cli
 cargo install --locked --git https://github.com/bg002h/mnemonic-key         --tag mk-cli-v0.13.0                      mk-cli
 ```
 
