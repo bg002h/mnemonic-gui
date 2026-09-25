@@ -306,8 +306,13 @@ pub const MANIFEST: &[Step] = &[
         restore_drives!("", "tut-j3-restore-feed-bundle-json")),
 
     // ══ Journey 4 — taproot twin (§6). ══
-    // 14. depth-2 taptree REFUSAL (the PR-#953 guard).
-    refusal_step("tut-j4-14-depth2-refusal", "export-wallet", Some(HN_EXPORT),
+    // 14. depth-2 taptree. F-679: this WAS a refusal (the PR-#953 guard) and
+    // toolkit v0.104.0 exports it — the rust-miniscript rev it pins carries
+    // #953, so the depth-≥2 gate was lifted upstream. The step now shows the
+    // four-leaf tree exporting; the stem is renamed so the manual's include of
+    // the old refusal transcript fails loudly instead of teaching a refusal
+    // that no longer happens.
+    run_step("tut-j4-14-depth2-export", "export-wallet", Some(HN_EXPORT),
         export_descriptor_fixture!("taproot-4leaf.desc", "descriptor")),
     // 15. canonicalise the depth-1 tr(...) descriptor.
     run_step("tut-j4-15-canonicalise", "export-wallet", Some(HN_EXPORT),

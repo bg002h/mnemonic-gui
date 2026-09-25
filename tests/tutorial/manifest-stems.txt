@@ -83,11 +83,11 @@ tut-j3-13-restore.stdout.txt
 tut-j3-restore-feed-bundle-json.exit.txt
 tut-j3-restore-feed-bundle-json.stderr.txt
 tut-j3-restore-feed-bundle-json.stdout.txt
-tut-j4-14-depth2-refusal-form.png
-tut-j4-14-depth2-refusal-run.png
-tut-j4-14-depth2-refusal.exit.txt
-tut-j4-14-depth2-refusal.stderr.txt
-tut-j4-14-depth2-refusal.stdout.txt
+tut-j4-14-depth2-export-form.png
+tut-j4-14-depth2-export-run.png
+tut-j4-14-depth2-export.exit.txt
+tut-j4-14-depth2-export.stderr.txt
+tut-j4-14-depth2-export.stdout.txt
 tut-j4-15-canonicalise-form.png
 tut-j4-15-canonicalise-run.png
 tut-j4-15-canonicalise.exit.txt
