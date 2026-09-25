@@ -742,11 +742,29 @@ fn t1_lookalike_predicate_matches_the_reference_exhaustively() {
             }
         }
     }
-    let only_rust: Vec<_> = got.difference(&want).take(10).collect();
+    // Under-refusal (the reference refuses, Rust admits) is never allowed.
     let only_py: Vec<_> = want.difference(&got).take(10).collect();
+    // Rust's tables are Unicode 16.0. A reference interpreter on an OLDER
+    // Unicode database leaves newer code points unassigned (NFKC identity),
+    // so Rust may refuse MORE there — the safe direction. Rust-only is
+    // allowed only for code points the reference's database does not assign.
+    let only_rust: Vec<(u32, usize)> = got.difference(&want).copied().collect();
+    let cps: Vec<u32> = only_rust.iter().map(|(c, _)| *c).collect();
+    let unassigned: BTreeSet<u32> = python_json(
+        &format!(
+            "import json, unicodedata\nprint(json.dumps([c for c in {cps:?} if unicodedata.category(chr(c)) == 'Cn']))"
+        ),
+        &[],
+    )
+    .as_array()
+    .unwrap()
+    .iter()
+    .map(|x| x.as_u64().unwrap() as u32)
+    .collect();
+    let bad_rust: Vec<_> = only_rust.iter().filter(|(c, _)| !unassigned.contains(c)).take(10).collect();
     assert!(
-        only_rust.is_empty() && only_py.is_empty(),
-        "lookalike parity: rust-only {only_rust:x?}, python-only {only_py:x?}"
+        bad_rust.is_empty() && only_py.is_empty(),
+        "lookalike parity: rust-only (assigned in the reference) {bad_rust:x?}, python-only {only_py:x?}"
     );
     assert!(
         want.len() > 1000,
