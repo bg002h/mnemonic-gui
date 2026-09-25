@@ -62,8 +62,12 @@
  "mnemonic addresses --passphrase": {
   "channels": [
    {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   },
+   {
     "kind": "EnvRef",
-    "terminator": ""
+    "terminator": null
    },
    {
     "kind": "StdinToggle",
@@ -72,14 +76,18 @@
    }
   ],
   "measured_in": "single-input harness",
-  "cli_env_rule": "verbatim",
+  "cli_env_rule": "strip-one-trailing-newline",
   "argv_eq_exact": true
  },
  "mnemonic bundle --passphrase": {
   "channels": [
    {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   },
+   {
     "kind": "EnvRef",
-    "terminator": ""
+    "terminator": null
    },
    {
     "kind": "StdinToggle",
@@ -88,7 +96,7 @@
    }
   ],
   "measured_in": "single-input harness",
-  "cli_env_rule": "verbatim",
+  "cli_env_rule": "strip-one-trailing-newline",
   "argv_eq_exact": true
  },
  "mnemonic bundle --slot @N.entropy=": {
@@ -169,8 +177,12 @@
  "mnemonic convert --bip38-passphrase": {
   "channels": [
    {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   },
+   {
     "kind": "EnvRef",
-    "terminator": ""
+    "terminator": null
    },
    {
     "kind": "StdinToggle",
@@ -179,7 +191,7 @@
    }
   ],
   "measured_in": "single-input harness",
-  "cli_env_rule": "verbatim",
+  "cli_env_rule": "strip-one-trailing-newline",
   "argv_eq_exact": true
  },
  "mnemonic convert --from bip38=": {
@@ -316,8 +328,12 @@
  "mnemonic convert --passphrase": {
   "channels": [
    {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   },
+   {
     "kind": "EnvRef",
-    "terminator": ""
+    "terminator": null
    },
    {
     "kind": "StdinToggle",
@@ -326,7 +342,7 @@
    }
   ],
   "measured_in": "single-input harness",
-  "cli_env_rule": "verbatim",
+  "cli_env_rule": "strip-one-trailing-newline",
   "argv_eq_exact": true
  },
  "mnemonic derive-child --from phrase=": {
@@ -362,8 +378,12 @@
  "mnemonic derive-child --passphrase": {
   "channels": [
    {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   },
+   {
     "kind": "EnvRef",
-    "terminator": ""
+    "terminator": null
    },
    {
     "kind": "StdinToggle",
@@ -372,11 +392,19 @@
    }
   ],
   "measured_in": "single-input harness",
-  "cli_env_rule": "verbatim",
+  "cli_env_rule": "strip-one-trailing-newline",
   "argv_eq_exact": true
  },
  "mnemonic electrum-decrypt --decrypt-password": {
   "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": null
+   },
    {
     "kind": "StdinToggle",
     "flag": "--decrypt-password-stdin",
@@ -389,7 +417,7 @@
    }
   ],
   "measured_in": "single-input harness",
-  "cli_env_rule": null,
+  "cli_env_rule": "strip-one-trailing-newline",
   "argv_eq_exact": true
  },
  "mnemonic final-word --from phrase=": {
@@ -406,6 +434,14 @@
  "mnemonic import-wallet --decrypt-password": {
   "channels": [
    {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": null
+   },
+   {
     "kind": "StdinToggle",
     "flag": "--decrypt-password-stdin",
     "terminator": "\r\n"
@@ -417,7 +453,7 @@
    }
   ],
   "measured_in": "single-input harness",
-  "cli_env_rule": null,
+  "cli_env_rule": "strip-one-trailing-newline",
   "argv_eq_exact": true
  },
  "mnemonic import-wallet --ms1": {
@@ -589,8 +625,12 @@
  "mnemonic restore --passphrase": {
   "channels": [
    {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   },
+   {
     "kind": "EnvRef",
-    "terminator": ""
+    "terminator": null
    },
    {
     "kind": "StdinToggle",
@@ -599,7 +639,7 @@
    }
   ],
   "measured_in": "single-input harness",
-  "cli_env_rule": "verbatim",
+  "cli_env_rule": "strip-one-trailing-newline",
   "argv_eq_exact": true
  },
  "mnemonic seed-xor combine --share phrase=": {
@@ -668,13 +708,21 @@
  "mnemonic silent-payment --passphrase": {
   "channels": [
    {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": null
+   },
+   {
     "kind": "StdinToggle",
     "flag": "--passphrase-stdin",
     "terminator": "\r\n"
    }
   ],
   "measured_in": "single-input harness",
-  "cli_env_rule": null,
+  "cli_env_rule": "strip-one-trailing-newline",
   "argv_eq_exact": true
  },
  "mnemonic silent-payment --secret": {
@@ -697,8 +745,12 @@
  "mnemonic slip39 combine --passphrase": {
   "channels": [
    {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   },
+   {
     "kind": "EnvRef",
-    "terminator": ""
+    "terminator": null
    },
    {
     "kind": "StdinToggle",
@@ -707,7 +759,7 @@
    }
   ],
   "measured_in": "single-input harness",
-  "cli_env_rule": "verbatim",
+  "cli_env_rule": "strip-one-trailing-newline",
   "argv_eq_exact": true
  },
  "mnemonic slip39 combine --share": {
@@ -758,8 +810,12 @@
  "mnemonic slip39 split --passphrase": {
   "channels": [
    {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   },
+   {
     "kind": "EnvRef",
-    "terminator": ""
+    "terminator": null
    },
    {
     "kind": "StdinToggle",
@@ -768,11 +824,15 @@
    }
   ],
   "measured_in": "single-input harness",
-  "cli_env_rule": "verbatim",
+  "cli_env_rule": "strip-one-trailing-newline",
   "argv_eq_exact": true
  },
  "mnemonic verify-bundle --ms1": {
   "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   },
    {
     "kind": "EnvRef",
     "terminator": ""
@@ -785,8 +845,12 @@
  "mnemonic verify-bundle --passphrase": {
   "channels": [
    {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   },
+   {
     "kind": "EnvRef",
-    "terminator": ""
+    "terminator": null
    },
    {
     "kind": "StdinToggle",
@@ -795,7 +859,7 @@
    }
   ],
   "measured_in": "single-input harness",
-  "cli_env_rule": "verbatim",
+  "cli_env_rule": "strip-one-trailing-newline",
   "argv_eq_exact": true
  },
  "mnemonic verify-bundle --slot @N.entropy=": {
@@ -873,8 +937,12 @@
  "mnemonic xpub-search account-of-descriptor --passphrase": {
   "channels": [
    {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   },
+   {
     "kind": "EnvRef",
-    "terminator": ""
+    "terminator": null
    },
    {
     "kind": "StdinToggle",
@@ -883,7 +951,7 @@
    }
   ],
   "measured_in": "single-input harness",
-  "cli_env_rule": "verbatim",
+  "cli_env_rule": "strip-one-trailing-newline",
   "argv_eq_exact": true
  },
  "mnemonic xpub-search account-of-descriptor --phrase": {
@@ -917,8 +985,12 @@
  "mnemonic xpub-search passphrase-of-xpub --passphrase": {
   "channels": [
    {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   },
+   {
     "kind": "EnvRef",
-    "terminator": ""
+    "terminator": null
    },
    {
     "kind": "StdinToggle",
@@ -927,7 +999,7 @@
    }
   ],
   "measured_in": "single-input harness",
-  "cli_env_rule": "verbatim",
+  "cli_env_rule": "strip-one-trailing-newline",
   "argv_eq_exact": true
  },
  "mnemonic xpub-search passphrase-of-xpub --phrase": {
@@ -961,8 +1033,12 @@
  "mnemonic xpub-search path-of-xpub --passphrase": {
   "channels": [
    {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   },
+   {
     "kind": "EnvRef",
-    "terminator": ""
+    "terminator": null
    },
    {
     "kind": "StdinToggle",
@@ -971,7 +1047,7 @@
    }
   ],
   "measured_in": "single-input harness",
-  "cli_env_rule": "verbatim",
+  "cli_env_rule": "strip-one-trailing-newline",
   "argv_eq_exact": true
  },
  "mnemonic xpub-search path-of-xpub --phrase": {
@@ -1036,14 +1112,22 @@
  "ms derive --passphrase": {
   "channels": [
    {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": null
+   },
+   {
     "kind": "StdinToggle",
     "flag": "--passphrase-stdin",
     "terminator": "\r\n"
    }
   ],
   "measured_in": "single-input harness",
-  "cli_env_rule": null,
-  "argv_eq_exact": false
+  "cli_env_rule": "strip-one-trailing-newline",
+  "argv_eq_exact": true
  },
  "ms derive --phrase": {
   "channels": [

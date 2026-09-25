@@ -2,7 +2,8 @@ mnemonic addresses --from phrase=                       DashValue               
 mnemonic addresses --from phrase=                       EnvRef                                   terminator=''
 mnemonic addresses --from entropy=                      DashValue                                terminator='\r\n'
 mnemonic addresses --from entropy=                      EnvRef                                   terminator=''
-mnemonic addresses --passphrase                         EnvRef                                   terminator=''
+mnemonic addresses --passphrase                         DashValue                                terminator='\r\n'  | no terminator: 10 wrong-output endings
+mnemonic addresses --passphrase                         EnvRef                                   terminator=NONE WORKS  with '\r\n': ('suffix', '\n'):BOTH-OK-DIFFERENT, ('suffix', '\r\n'):BOTH-OK-DIFFERENT, ('suffix', '\n\n'):BOTH-OK-DIFFERENT, ('suffix', '\r\n\r\n'):BOTH-OK-DIFFERENT, ('suffix', '\n\r\n'):BOTH-OK-DIFFERENT, ('suffix', '\r\r\n'):BOTH-OK-DIFFERENT, ('suffix', '\n\n\n'):BOTH-OK-DIFFERENT, ('suffix', ' \n'):BOTH-OK-DIFFERENT, ('suffix', '  \r\n'):BOTH-OK-DIFFERENT, ('suffix', '\t\n'):BOTH-OK-DIFFERENT
 mnemonic addresses --passphrase                         StdinToggle(--passphrase-stdin)          terminator='\r\n'  | no terminator: 10 wrong-output endings
 mnemonic bundle --slot @0.phrase=                       DashValue                                terminator='\r\n'
 mnemonic bundle --slot @0.phrase=                       EnvRef                                   terminator=''
@@ -10,7 +11,8 @@ mnemonic bundle --slot @0.entropy=                      DashValue               
 mnemonic bundle --slot @0.entropy=                      EnvRef                                   terminator=''
 mnemonic bundle --slot @0.seedqr=                       DashValue                                terminator='\r\n'
 mnemonic bundle --slot @0.seedqr=                       EnvRef                                   terminator=''
-mnemonic bundle --passphrase                            EnvRef                                   terminator=''
+mnemonic bundle --passphrase                            DashValue                                terminator='\r\n'  | no terminator: 10 wrong-output endings
+mnemonic bundle --passphrase                            EnvRef                                   terminator=NONE WORKS  with '\r\n': ('suffix', '\n'):BOTH-OK-DIFFERENT, ('suffix', '\r\n'):BOTH-OK-DIFFERENT, ('suffix', '\n\n'):BOTH-OK-DIFFERENT, ('suffix', '\r\n\r\n'):BOTH-OK-DIFFERENT, ('suffix', '\n\r\n'):BOTH-OK-DIFFERENT, ('suffix', '\r\r\n'):BOTH-OK-DIFFERENT, ('suffix', '\n\n\n'):BOTH-OK-DIFFERENT, ('suffix', ' \n'):BOTH-OK-DIFFERENT, ('suffix', '  \r\n'):BOTH-OK-DIFFERENT, ('suffix', '\t\n'):BOTH-OK-DIFFERENT
 mnemonic bundle --passphrase                            StdinToggle(--passphrase-stdin)          terminator='\r\n'  | no terminator: 10 wrong-output endings
 mnemonic convert --from phrase=                         DashValue                                terminator='\r\n'
 mnemonic convert --from phrase=                         EnvRef                                   terminator=''
@@ -25,9 +27,11 @@ mnemonic convert --from ms1=                            DashValue               
 mnemonic convert --from ms1=                            EnvRef                                   terminator=''
 mnemonic convert --from electrum-phrase=                DashValue                                terminator='\r\n'
 mnemonic convert --from electrum-phrase=                EnvRef                                   terminator=''
-mnemonic convert --passphrase                           EnvRef                                   terminator=''
+mnemonic convert --passphrase                           DashValue                                terminator='\r\n'  | no terminator: 10 wrong-output endings
+mnemonic convert --passphrase                           EnvRef                                   terminator=NONE WORKS  with '\r\n': ('suffix', '\n'):BOTH-OK-DIFFERENT, ('suffix', '\r\n'):BOTH-OK-DIFFERENT, ('suffix', '\n\n'):BOTH-OK-DIFFERENT, ('suffix', '\r\n\r\n'):BOTH-OK-DIFFERENT, ('suffix', '\n\r\n'):BOTH-OK-DIFFERENT, ('suffix', '\r\r\n'):BOTH-OK-DIFFERENT, ('suffix', '\n\n\n'):BOTH-OK-DIFFERENT, ('suffix', ' \n'):BOTH-OK-DIFFERENT, ('suffix', '  \r\n'):BOTH-OK-DIFFERENT, ('suffix', '\t\n'):BOTH-OK-DIFFERENT
 mnemonic convert --passphrase                           StdinToggle(--passphrase-stdin)          terminator='\r\n'  | no terminator: 10 wrong-output endings
-mnemonic convert --bip38-passphrase                     EnvRef                                   terminator=''
+mnemonic convert --bip38-passphrase                     DashValue                                terminator='\r\n'  | no terminator: 10 wrong-output endings
+mnemonic convert --bip38-passphrase                     EnvRef                                   terminator=NONE WORKS  with '\r\n': ('suffix', '\n'):BOTH-OK-DIFFERENT, ('suffix', '\r\n'):BOTH-OK-DIFFERENT, ('suffix', '\n\n'):BOTH-OK-DIFFERENT, ('suffix', '\r\n\r\n'):BOTH-OK-DIFFERENT, ('suffix', '\n\r\n'):BOTH-OK-DIFFERENT, ('suffix', '\r\r\n'):BOTH-OK-DIFFERENT, ('suffix', '\n\n\n'):BOTH-OK-DIFFERENT, ('suffix', ' \n'):BOTH-OK-DIFFERENT, ('suffix', '  \r\n'):BOTH-OK-DIFFERENT, ('suffix', '\t\n'):BOTH-OK-DIFFERENT
 mnemonic convert --bip38-passphrase                     StdinToggle(--bip38-passphrase-stdin)    terminator='\r\n'  | no terminator: 10 wrong-output endings
 mnemonic restore --from phrase=                         DashValue                                terminator='\r\n'
 mnemonic restore --from phrase=                         EnvRef                                   terminator=''
@@ -37,16 +41,20 @@ mnemonic restore --from seedqr=                         DashValue               
 mnemonic restore --from seedqr=                         EnvRef                                   terminator=''
 mnemonic restore --from ms1=                            DashValue                                terminator='\r\n'
 mnemonic restore --from ms1=                            EnvRef                                   terminator=''
-mnemonic restore --passphrase                           EnvRef                                   terminator=''
+mnemonic restore --passphrase                           DashValue                                terminator='\r\n'  | no terminator: 10 wrong-output endings
+mnemonic restore --passphrase                           EnvRef                                   terminator=NONE WORKS  with '\r\n': ('suffix', '\n'):BOTH-OK-DIFFERENT, ('suffix', '\r\n'):BOTH-OK-DIFFERENT, ('suffix', '\n\n'):BOTH-OK-DIFFERENT, ('suffix', '\r\n\r\n'):BOTH-OK-DIFFERENT, ('suffix', '\n\r\n'):BOTH-OK-DIFFERENT, ('suffix', '\r\r\n'):BOTH-OK-DIFFERENT, ('suffix', '\n\n\n'):BOTH-OK-DIFFERENT, ('suffix', ' \n'):BOTH-OK-DIFFERENT, ('suffix', '  \r\n'):BOTH-OK-DIFFERENT, ('suffix', '\t\n'):BOTH-OK-DIFFERENT
 mnemonic restore --passphrase                           StdinToggle(--passphrase-stdin)          terminator='\r\n'  | no terminator: 10 wrong-output endings
 mnemonic derive-child --from phrase=                    DashValue                                terminator='\r\n'
 mnemonic derive-child --from phrase=                    EnvRef                                   terminator=''
-mnemonic derive-child --passphrase                      EnvRef                                   terminator=''
+mnemonic derive-child --passphrase                      DashValue                                terminator='\r\n'  | no terminator: 10 wrong-output endings
+mnemonic derive-child --passphrase                      EnvRef                                   terminator=NONE WORKS  with '\r\n': ('suffix', '\n'):BOTH-OK-DIFFERENT, ('suffix', '\r\n'):BOTH-OK-DIFFERENT, ('suffix', '\n\n'):BOTH-OK-DIFFERENT, ('suffix', '\r\n\r\n'):BOTH-OK-DIFFERENT, ('suffix', '\n\r\n'):BOTH-OK-DIFFERENT, ('suffix', '\r\r\n'):BOTH-OK-DIFFERENT, ('suffix', '\n\n\n'):BOTH-OK-DIFFERENT, ('suffix', ' \n'):BOTH-OK-DIFFERENT, ('suffix', '  \r\n'):BOTH-OK-DIFFERENT, ('suffix', '\t\n'):BOTH-OK-DIFFERENT
 mnemonic derive-child --passphrase                      StdinToggle(--passphrase-stdin)          terminator='\r\n'  | no terminator: 10 wrong-output endings
 mnemonic nostr --secret                                 StdinToggle(--secret-stdin)              terminator='\r\n'
 mnemonic nostr --secret                                 FileFlag(--secret-file)                  terminator='\r\n'
 mnemonic silent-payment --secret                        StdinToggle(--secret-stdin)              terminator='\r\n'
 mnemonic silent-payment --secret                        FileFlag(--secret-file)                  terminator='\r\n'
+mnemonic silent-payment --passphrase                    DashValue                                terminator='\r\n'  | no terminator: 10 wrong-output endings
+mnemonic silent-payment --passphrase                    EnvRef                                   terminator=NONE WORKS  with '\r\n': ('suffix', '\n'):BOTH-OK-DIFFERENT, ('suffix', '\r\n'):BOTH-OK-DIFFERENT, ('suffix', '\n\n'):BOTH-OK-DIFFERENT, ('suffix', '\r\n\r\n'):BOTH-OK-DIFFERENT, ('suffix', '\n\r\n'):BOTH-OK-DIFFERENT, ('suffix', '\r\r\n'):BOTH-OK-DIFFERENT, ('suffix', '\n\n\n'):BOTH-OK-DIFFERENT, ('suffix', ' \n'):BOTH-OK-DIFFERENT, ('suffix', '  \r\n'):BOTH-OK-DIFFERENT, ('suffix', '\t\n'):BOTH-OK-DIFFERENT
 mnemonic silent-payment --passphrase                    StdinToggle(--passphrase-stdin)          terminator='\r\n'  | no terminator: 10 wrong-output endings
 mnemonic final-word --from phrase=                      DashValue                                terminator='\r\n'
 mnemonic seed-xor split --from phrase=                  DashValue                                terminator='\r\n'
@@ -72,6 +80,8 @@ ms derive <ms1>                                         InFile(--in)            
 ms verify --phrase                                      DashValue                                terminator='\r\n'
 ms derive --hex                                         DashValue                                terminator='\r\n'
 ms derive --phrase                                      DashValue                                terminator='\r\n'
+ms derive --passphrase                                  DashValue                                terminator='\r\n'  | no terminator: 10 wrong-output endings
+ms derive --passphrase                                  EnvRef                                   terminator=NONE WORKS  with '\r\n': ('suffix', '\n'):BOTH-OK-DIFFERENT, ('suffix', '\r\n'):BOTH-OK-DIFFERENT, ('suffix', '\n\n'):BOTH-OK-DIFFERENT, ('suffix', '\r\n\r\n'):BOTH-OK-DIFFERENT, ('suffix', '\n\r\n'):BOTH-OK-DIFFERENT, ('suffix', '\r\r\n'):BOTH-OK-DIFFERENT, ('suffix', '\n\n\n'):BOTH-OK-DIFFERENT, ('suffix', ' \n'):BOTH-OK-DIFFERENT, ('suffix', '  \r\n'):BOTH-OK-DIFFERENT, ('suffix', '\t\n'):BOTH-OK-DIFFERENT
 ms derive --passphrase                                  StdinToggle(--passphrase-stdin)          terminator='\r\n'  | no terminator: 10 wrong-output endings
 ms repair --ms1                                         DashValue                                terminator='\r\n'
 ms repair --ms1                                         InFile(--in)                             terminator='\r\n'
@@ -81,34 +91,43 @@ mnemonic convert --from wif=                            DashValue               
 mnemonic convert --from wif=                            EnvRef                                   terminator=''
 mnemonic verify-bundle --slot @0.phrase=                DashValue                                terminator='\r\n'
 mnemonic verify-bundle --slot @0.phrase=                EnvRef                                   terminator=''
-mnemonic verify-bundle --passphrase                     EnvRef                                   terminator=''
+mnemonic verify-bundle --passphrase                     DashValue                                terminator='\r\n'  | no terminator: 2 wrong-output endings
+mnemonic verify-bundle --passphrase                     EnvRef                                   terminator=NONE WORKS  with '\r\n': ('suffix', '\n'):BOTH-OK-DIFFERENT, ('suffix', '\r\n'):BOTH-OK-DIFFERENT
 mnemonic verify-bundle --passphrase                     StdinToggle(--passphrase-stdin)          terminator='\r\n'  | no terminator: 2 wrong-output endings
+mnemonic verify-bundle --ms1                            DashValue                                terminator='\r\n'
 mnemonic verify-bundle --ms1                            EnvRef                                   terminator=''
 mnemonic import-wallet --ms1                            EnvRef                                   terminator=''
 mnemonic import-wallet --slot @0.phrase=                EnvRef                                   terminator=''
+mnemonic electrum-decrypt --decrypt-password            DashValue                                terminator='\r\n'
+mnemonic electrum-decrypt --decrypt-password            EnvRef                                   terminator=NONE WORKS  with '\r\n': ('suffix', '\n'):argv-fails/channel-ok, ('suffix', '\r\n'):argv-fails/channel-ok
 mnemonic electrum-decrypt --decrypt-password            StdinToggle(--decrypt-password-stdin)    terminator='\r\n'
 mnemonic electrum-decrypt --decrypt-password            FileFlag(--decrypt-password-file)        terminator='\n'
 mnemonic xpub-search path-of-xpub --phrase              EnvRef                                   terminator=''
 mnemonic xpub-search path-of-xpub --phrase              StdinToggle(--phrase-stdin)              terminator='\r\n'
 mnemonic xpub-search path-of-xpub --ms1                 StdinToggle(--ms1-stdin)                 terminator=NONE WORKS  with '\r\n': ('suffix', '\n'):argv-fails/channel-ok, ('suffix', '\r\n'):argv-fails/channel-ok, ('suffix', '\r'):argv-fails/channel-ok, ('suffix', '\n\n'):argv-fails/channel-ok, ('suffix', '\r\n\r\n'):argv-fails/channel-ok, ('suffix', '\n\r\n'):argv-fails/channel-ok, ('suffix', '\r\r\n'):argv-fails/channel-ok, ('suffix', '\n\r'):argv-fails/channel-ok, ('suffix', '\r\r'):argv-fails/channel-ok, ('suffix', '\n\n\n'):argv-fails/channel-ok, ('suffix', '  '):argv-fails/channel-ok, ('suffix', ' \n'):argv-fails/channel-ok, ('suffix', '  \r\n'):argv-fails/channel-ok, ('suffix', '\t\n'):argv-fails/channel-ok, ('suffix', '\t'):argv-fails/channel-ok, ('prefix', '\n'):argv-fails/channel-ok, ('prefix', '\r\n'):argv-fails/channel-ok, ('prefix', ' '):argv-fails/channel-ok, ('prefix', '\t'):argv-fails/channel-ok
-mnemonic xpub-search path-of-xpub --passphrase          EnvRef                                   terminator=''
+mnemonic xpub-search path-of-xpub --passphrase          DashValue                                terminator='\r\n'  | no terminator: 2 wrong-output endings
+mnemonic xpub-search path-of-xpub --passphrase          EnvRef                                   terminator=NONE WORKS  with '\r\n': ('suffix', '\n'):BOTH-OK-DIFFERENT, ('suffix', '\r\n'):BOTH-OK-DIFFERENT
 mnemonic xpub-search path-of-xpub --passphrase          StdinToggle(--passphrase-stdin)          terminator='\r\n'  | no terminator: 2 wrong-output endings
 mnemonic xpub-search account-of-descriptor --phrase     EnvRef                                   terminator=''
 mnemonic xpub-search account-of-descriptor --phrase     StdinToggle(--phrase-stdin)              terminator='\r\n'
 mnemonic xpub-search account-of-descriptor --ms1        StdinToggle(--ms1-stdin)                 terminator=NONE WORKS  with '\r\n': ('suffix', '\n'):argv-fails/channel-ok, ('suffix', '\r\n'):argv-fails/channel-ok, ('suffix', '\r'):argv-fails/channel-ok, ('suffix', '\n\n'):argv-fails/channel-ok, ('suffix', '\r\n\r\n'):argv-fails/channel-ok, ('suffix', '\n\r\n'):argv-fails/channel-ok, ('suffix', '\r\r\n'):argv-fails/channel-ok, ('suffix', '\n\r'):argv-fails/channel-ok, ('suffix', '\r\r'):argv-fails/channel-ok, ('suffix', '\n\n\n'):argv-fails/channel-ok, ('suffix', '  '):argv-fails/channel-ok, ('suffix', ' \n'):argv-fails/channel-ok, ('suffix', '  \r\n'):argv-fails/channel-ok, ('suffix', '\t\n'):argv-fails/channel-ok, ('suffix', '\t'):argv-fails/channel-ok, ('prefix', '\n'):argv-fails/channel-ok, ('prefix', '\r\n'):argv-fails/channel-ok, ('prefix', ' '):argv-fails/channel-ok, ('prefix', '\t'):argv-fails/channel-ok
-mnemonic xpub-search account-of-descriptor --passphrase EnvRef                                   terminator=''
+mnemonic xpub-search account-of-descriptor --passphrase DashValue                                terminator='\r\n'  | no terminator: 2 wrong-output endings
+mnemonic xpub-search account-of-descriptor --passphrase EnvRef                                   terminator=NONE WORKS  with '\r\n': ('suffix', '\n'):BOTH-OK-DIFFERENT, ('suffix', '\r\n'):BOTH-OK-DIFFERENT
 mnemonic xpub-search account-of-descriptor --passphrase StdinToggle(--passphrase-stdin)          terminator='\r\n'  | no terminator: 2 wrong-output endings
-mnemonic xpub-search passphrase-of-xpub --passphrase    EnvRef                                   terminator=''
+mnemonic xpub-search passphrase-of-xpub --passphrase    DashValue                                terminator='\r\n'  | no terminator: 2 wrong-output endings
+mnemonic xpub-search passphrase-of-xpub --passphrase    EnvRef                                   terminator=NONE WORKS  with '\r\n': ('suffix', '\n'):BOTH-OK-DIFFERENT, ('suffix', '\r\n'):BOTH-OK-DIFFERENT
 mnemonic xpub-search passphrase-of-xpub --passphrase    StdinToggle(--passphrase-stdin)          terminator='\r\n'  | no terminator: 2 wrong-output endings
 mnemonic xpub-search passphrase-of-xpub --phrase        EnvRef                                   terminator=''
 mnemonic xpub-search passphrase-of-xpub --phrase        StdinToggle(--phrase-stdin)              terminator='\r\n'
 mnemonic slip39 split --from phrase=                    DashValue                                terminator='\r\n'
 mnemonic slip39 split --from phrase=                    EnvRef                                   terminator=''
-mnemonic slip39 split --passphrase                      EnvRef                                   terminator=''
+mnemonic slip39 split --passphrase                      DashValue                                terminator='\r\n'  | no terminator: 10 wrong-output endings
+mnemonic slip39 split --passphrase                      EnvRef                                   terminator=NONE WORKS  with '\r\n': ('suffix', '\n'):BOTH-OK-DIFFERENT, ('suffix', '\r\n'):BOTH-OK-DIFFERENT, ('suffix', '\n\n'):BOTH-OK-DIFFERENT, ('suffix', '\r\n\r\n'):BOTH-OK-DIFFERENT, ('suffix', '\n\r\n'):BOTH-OK-DIFFERENT, ('suffix', '\r\r\n'):BOTH-OK-DIFFERENT, ('suffix', '\n\n\n'):BOTH-OK-DIFFERENT, ('suffix', ' \n'):BOTH-OK-DIFFERENT, ('suffix', '  \r\n'):BOTH-OK-DIFFERENT, ('suffix', '\t\n'):BOTH-OK-DIFFERENT
 mnemonic slip39 split --passphrase                      StdinToggle(--passphrase-stdin)          terminator='\r\n'  | no terminator: 10 wrong-output endings
 mnemonic slip39 combine --share                         DashValue                                terminator='\r\n'
 mnemonic slip39 combine --share                         EnvRef                                   terminator=''
-mnemonic slip39 combine --passphrase                    EnvRef                                   terminator=''
+mnemonic slip39 combine --passphrase                    DashValue                                terminator='\r\n'  | no terminator: 10 wrong-output endings
+mnemonic slip39 combine --passphrase                    EnvRef                                   terminator=NONE WORKS  with '\r\n': ('suffix', '\n'):BOTH-OK-DIFFERENT, ('suffix', '\r\n'):BOTH-OK-DIFFERENT, ('suffix', '\n\n'):BOTH-OK-DIFFERENT, ('suffix', '\r\n\r\n'):BOTH-OK-DIFFERENT, ('suffix', '\n\r\n'):BOTH-OK-DIFFERENT, ('suffix', '\r\r\n'):BOTH-OK-DIFFERENT, ('suffix', '\n\n\n'):BOTH-OK-DIFFERENT, ('suffix', ' \n'):BOTH-OK-DIFFERENT, ('suffix', '  \r\n'):BOTH-OK-DIFFERENT, ('suffix', '\t\n'):BOTH-OK-DIFFERENT
 mnemonic slip39 combine --passphrase                    StdinToggle(--passphrase-stdin)          terminator='\r\n'  | no terminator: 10 wrong-output endings
 mnemonic ms-shares split --from phrase=                 DashValue                                terminator='\r\n'
 mnemonic ms-shares split --from phrase=                 EnvRef                                   terminator=''
@@ -134,6 +153,8 @@ mnemonic bundle --slot @0.wif=                          DashValue               
 mnemonic bundle --slot @0.wif=                          EnvRef                                   terminator=''
 mnemonic addresses --from seedqr=                       DashValue                                terminator='\r\n'
 mnemonic addresses --from seedqr=                       EnvRef                                   terminator=''
+mnemonic import-wallet --decrypt-password               DashValue                                terminator='\r\n'
+mnemonic import-wallet --decrypt-password               EnvRef                                   terminator=NONE WORKS  with '\r\n': ('suffix', '\n'):argv-fails/channel-ok, ('suffix', '\r\n'):argv-fails/channel-ok
 mnemonic import-wallet --decrypt-password               StdinToggle(--decrypt-password-stdin)    terminator='\r\n'
 mnemonic import-wallet --decrypt-password               FileFlag(--decrypt-password-file)        terminator='\n'
 mnemonic addresses --from electrum-phrase=              DashValue                                terminator='\r\n'

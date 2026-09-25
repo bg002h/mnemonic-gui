@@ -89,8 +89,8 @@
   "base_err": "",
   "depends": true,
   "channels": {
-   "stdin `--decrypt-password -`": "no (exit 2: mnemonic: argument 5 on ARGV (--decrypt-password) is a wallet decryption password -- 1 characters. Nothing about it is printed here.)",
-   "`--decrypt-password @env:VAR`": "no (exit 1: error: import-wallet: electrum: decryption failed (wrong password or corrupted wallet file))",
+   "stdin `--decrypt-password -`": "OK",
+   "`--decrypt-password @env:VAR`": "OK",
    "`--decrypt-password-stdin`": "OK",
    "`--decrypt-password-file F`": "OK",
    "`--in F`": "no (exit 64: error: unexpected argument '--in' found)"
@@ -112,7 +112,7 @@
   "base_err": "",
   "depends": true,
   "channels": {
-   "stdin `--ms1 -`": "exit 4 but DIFFERENT output",
+   "stdin `--ms1 -`": "OK",
    "`--ms1 @env:VAR`": "OK",
    "`--ms1-stdin`": "no (exit 64: error: unexpected argument '--ms1-stdin' found)",
    "`--ms1-file F`": "no (exit 64: error: unexpected argument '--ms1-file' found)",
@@ -125,7 +125,7 @@
   "base_err": "",
   "depends": true,
   "channels": {
-   "stdin `--passphrase -`": "exit 4 but DIFFERENT output",
+   "stdin `--passphrase -`": "OK",
    "`--passphrase @env:VAR`": "OK",
    "`--passphrase-stdin`": "OK",
    "`--passphrase-file F`": "no (exit 64: error: unexpected argument '--passphrase-file' found)",

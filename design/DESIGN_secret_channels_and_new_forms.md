@@ -8,7 +8,7 @@
 - **Fold 1** answered R0 and the operator's F-687 ruling; its map is `gui-design-fold1.md`.
 
 **Baseline:** mnemonic-gui `gui-followups`, fold 4 at `462c648`.
-**Measured against the release binaries:** mnemonic 0.104.0, md 0.20.3, ms 0.19.1, mk 0.13.0, installed with `mnemonic-toolkit/scripts/install.sh --no-gui --no-man`. These binaries **predate** the F-687 CLI change (§A3b). The F-687 **master** builds (toolkit `9da32e2f`, ms `d1ab447`; sha256 `88cb9fbf…`/`1d13f0f8…`) report **the same version strings**, so binaries are identified by **pinned tag + sha256** (§A0).
+**Measured against the release binaries:** mnemonic 0.105.1, md 0.20.3, ms 0.20.1, mk 0.13.0, installed with `mnemonic-toolkit/scripts/install.sh --no-gui --no-man` (F-694 re-pin, 2026-09-25; the generated blocks below are from these). Fold 1–5 measured mnemonic 0.104.0 and ms 0.19.1, which **predate** the F-687 CLI change (§A3b); prose that quotes those releases says so. The F-687 **master** builds (toolkit `9da32e2f`, ms `d1ab447`; sha256 `88cb9fbf…`/`1d13f0f8…`) report **the same version strings**, so binaries are identified by **pinned tag + sha256** (§A0).
 **Follow-ups this covers:** `argv-secret-via-private-channels` (Part A), `md-ms-new-subcommands-unsurfaced` (Part B).
 
 ---
@@ -178,7 +178,7 @@ python3 check_design_tables.py             # the document gate
   - `run_plans.py` runs the Linux plans through a real runner.
   - `test_plan.py` pins every refusal.
   - `mutations.py` shows each of those tests can fail.
-- **Argv re-interpretation** (`measure_reinterpret.py`): for every input, is a value of `@env:VAR` or `-` on argv resolved a second time? mnemonic 0.104.0: `-` and `@env:`; ms 0.19.1: `-`.
+- **Argv re-interpretation** (`measure_reinterpret.py`): for every input, is a value of `@env:VAR` or `-` on argv resolved a second time? mnemonic 0.105.1: `-` and `@env:`; ms 0.20.1: `-` and `@env:` (ms 0.19.1 re-read only `-`).
 - **Copy recipes** (`copy_evidence.py`): the §A7 recipes run in bash, zsh and fish, compared against argv-exact.
 - **T10** (`os_gate.py`, `fixtures/ci/`): the OS gate, pinned against 10 decoy and 3 genuine workflow fixtures.
 - **T4** (`regen_check.py`): identity and re-derivation (§A0). `demo_ni5.sh` runs it against the F-687 builds.
@@ -195,11 +195,11 @@ Legend:
 |---|---|---|---|---|---|---|
 | `mnemonic addresses --from phrase=` | refused | OK | OK | n/a | n/a | yes |
 | `mnemonic addresses --from entropy=` | refused | OK | OK | n/a | n/a | yes |
-| `mnemonic addresses --passphrase` | refused | **WRONG (exit 0, literal)** | OK | OK | — | yes |
+| `mnemonic addresses --passphrase` | refused | OK | OK | OK | — | yes |
 | `mnemonic bundle --slot @0.phrase=` | refused | OK | OK | n/a | n/a | yes |
 | `mnemonic bundle --slot @0.entropy=` | refused | OK | OK | n/a | n/a | yes |
 | `mnemonic bundle --slot @0.seedqr=` | refused | OK | OK | n/a | n/a | yes |
-| `mnemonic bundle --passphrase` | refused | **WRONG (exit 0, literal)** | OK | OK | — | yes |
+| `mnemonic bundle --passphrase` | refused | OK | OK | OK | — | yes |
 | `mnemonic convert --from phrase=` | refused | OK | OK | n/a | n/a | yes |
 | `mnemonic convert --from entropy=` | refused | OK | OK | n/a | n/a | yes |
 | `mnemonic convert --from seedqr=` | refused | OK | OK | n/a | n/a | yes |
@@ -207,18 +207,18 @@ Legend:
 | `mnemonic convert --from minikey=` | refused | OK | fails closed | n/a | n/a | yes |
 | `mnemonic convert --from ms1=` | refused | OK | OK | n/a | n/a | yes |
 | `mnemonic convert --from electrum-phrase=` | refused | OK | OK | n/a | n/a | yes |
-| `mnemonic convert --passphrase` | refused | **WRONG (exit 0, literal)** | OK | OK | — | yes |
-| `mnemonic convert --bip38-passphrase` | refused | **WRONG (exit 0, literal)** | OK | OK | — | yes |
+| `mnemonic convert --passphrase` | refused | OK | OK | OK | — | yes |
+| `mnemonic convert --bip38-passphrase` | refused | OK | OK | OK | — | yes |
 | `mnemonic restore --from phrase=` | refused | OK | OK | n/a | n/a | yes |
 | `mnemonic restore --from entropy=` | refused | OK | OK | n/a | n/a | yes |
 | `mnemonic restore --from seedqr=` | refused | OK | OK | n/a | n/a | yes |
 | `mnemonic restore --from ms1=` | refused | OK | OK | n/a | n/a | yes |
-| `mnemonic restore --passphrase` | refused | **WRONG (exit 0, literal)** | OK | OK | — | yes |
+| `mnemonic restore --passphrase` | refused | OK | OK | OK | — | yes |
 | `mnemonic derive-child --from phrase=` | refused | OK | OK | n/a | n/a | yes |
-| `mnemonic derive-child --passphrase` | refused | **WRONG (exit 0, literal)** | OK | OK | — | yes |
+| `mnemonic derive-child --passphrase` | refused | OK | OK | OK | — | yes |
 | `mnemonic nostr --secret` | refused | fails closed | fails closed | OK | OK (`-file`) | yes |
 | `mnemonic silent-payment --secret` | refused | fails closed | fails closed | OK | OK (`-file`) | yes |
-| `mnemonic silent-payment --passphrase` | refused | **WRONG (exit 0, literal)** | **WRONG (exit 0, literal)** | OK | — | yes |
+| `mnemonic silent-payment --passphrase` | refused | OK | OK | OK | — | yes |
 | `mnemonic final-word --from phrase=` | refused | OK | fails closed | n/a | n/a | yes |
 | `mnemonic seed-xor split --from phrase=` | refused | OK | OK | n/a | n/a | yes |
 | `mnemonic seed-xor combine --share phrase=` | NOT refused (exit 0) | OK | OK | n/a | n/a | yes |
@@ -236,28 +236,28 @@ Legend:
 | `ms verify --phrase` | refused | OK | fails closed | — | —/fails closed | yes |
 | `ms derive --hex` | refused | OK | fails closed | — | —/fails closed | yes |
 | `ms derive --phrase` | refused | OK | fails closed | fails closed | —/fails closed | yes |
-| `ms derive --passphrase` | refused | **WRONG (exit 0, literal)** | **WRONG (exit 0, literal)** | OK | —/fails closed | yes |
+| `ms derive --passphrase` | refused | OK | OK | OK | —/fails closed | yes |
 | `ms repair --ms1` | refused | OK | fails closed | — | OK (`--in`) | yes |
 | `mnemonic derive-child --from xprv=` | refused | OK | OK | n/a | n/a | yes |
 | `mnemonic convert --from wif=` | refused | OK | OK | n/a | n/a | yes |
 | `mnemonic verify-bundle --slot @0.phrase=` | refused | OK | OK | n/a | n/a | yes |
-| `mnemonic verify-bundle --passphrase` | refused | **WRONG (exit 4, literal)** | OK | OK | — | yes |
-| `mnemonic verify-bundle --ms1` | refused | **WRONG (exit 4, literal)** | OK | — | — | yes |
+| `mnemonic verify-bundle --passphrase` | refused | OK | OK | OK | — | yes |
+| `mnemonic verify-bundle --ms1` | refused | OK | OK | — | — | yes |
 | `mnemonic import-wallet --ms1` | NOT refused (exit 0) | fails closed | OK | — | — | yes |
 | `mnemonic import-wallet --slot @0.phrase=` | refused | fails closed | OK | n/a | n/a | yes |
-| `mnemonic electrum-decrypt --decrypt-password` | refused | fails closed | fails closed | OK | OK (`-file`) | yes |
+| `mnemonic electrum-decrypt --decrypt-password` | refused | OK | OK | OK | OK (`-file`) | yes |
 | `mnemonic xpub-search path-of-xpub --phrase` | refused | fails closed | OK | OK | — | yes |
 | `mnemonic xpub-search path-of-xpub --ms1` | refused | fails closed | fails closed | OK | — | yes |
-| `mnemonic xpub-search path-of-xpub --passphrase` | refused | **WRONG (exit 4, literal)** | OK | OK | — | yes |
+| `mnemonic xpub-search path-of-xpub --passphrase` | refused | OK | OK | OK | — | yes |
 | `mnemonic xpub-search account-of-descriptor --phrase` | refused | fails closed | OK | OK | — | yes |
 | `mnemonic xpub-search account-of-descriptor --ms1` | refused | fails closed | fails closed | OK | — | yes |
-| `mnemonic xpub-search account-of-descriptor --passphrase` | refused | **WRONG (exit 4, literal)** | OK | OK | — | yes |
-| `mnemonic xpub-search passphrase-of-xpub --passphrase` | refused | **WRONG (exit 4, literal)** | OK | OK | — | yes |
+| `mnemonic xpub-search account-of-descriptor --passphrase` | refused | OK | OK | OK | — | yes |
+| `mnemonic xpub-search passphrase-of-xpub --passphrase` | refused | OK | OK | OK | — | yes |
 | `mnemonic xpub-search passphrase-of-xpub --phrase` | refused | fails closed | OK | OK | — | yes |
 | `mnemonic slip39 split --from phrase=` | refused | OK | OK | n/a | n/a | yes |
-| `mnemonic slip39 split --passphrase` | refused | **WRONG (exit 0, literal)** | OK | OK | — | yes |
+| `mnemonic slip39 split --passphrase` | refused | OK | OK | OK | — | yes |
 | `mnemonic slip39 combine --share` | NOT refused (exit 0) | OK | OK | — | — | yes |
-| `mnemonic slip39 combine --passphrase` | refused | **WRONG (exit 0, literal)** | OK | OK | — | yes |
+| `mnemonic slip39 combine --passphrase` | refused | OK | OK | OK | — | yes |
 | `mnemonic ms-shares split --from phrase=` | refused | OK | OK | n/a | n/a | yes |
 | `mnemonic ms-shares combine --share` | NOT refused (exit 0) | OK | OK | — | — | yes |
 | `ms split --phrase` | refused | OK | fails closed | — | OK (`--in`) | yes |
@@ -272,13 +272,13 @@ Legend:
 | `mnemonic bundle --slot @0.ms1=` | refused | OK | OK | n/a | n/a | yes |
 | `mnemonic bundle --slot @0.wif=` | refused | OK | OK | n/a | n/a | yes |
 | `mnemonic addresses --from seedqr=` | refused | OK | OK | n/a | n/a | yes |
-| `mnemonic import-wallet --decrypt-password` | refused | fails closed | fails closed | OK | OK (`-file`) | yes |
+| `mnemonic import-wallet --decrypt-password` | refused | OK | OK | OK | OK (`-file`) | yes |
 | `mnemonic addresses --from electrum-phrase=` | refused | OK | OK | n/a | n/a | yes |
 | `mnemonic verify-bundle --slot @0.entropy=` | refused | OK | OK | n/a | n/a | yes |
 | `mnemonic verify-bundle --slot @0.seedqr=` | refused | OK | OK | n/a | n/a | yes |
 | `mnemonic verify-bundle --slot @0.ms1=` | refused | OK | OK | n/a | n/a | yes |
 
-**17 WRONG cells, in 15 rows.** They split into three groups:
+**0 WRONG cells since the F-694 re-pin** (mnemonic 0.105.1, ms 0.20.1): each of the 17 below is now OK, and the `-`/`@env:` cells of `electrum-decrypt` and `import-wallet --decrypt-password` went from fails-closed to OK. On mnemonic 0.104.0 and ms 0.19.1 there were **17 WRONG cells, in 15 rows**, in three groups:
 - **`--passphrase -` (13 rows):** literal on every toolkit subcommand whose row is valid, and on `ms derive`. Exit 0, a different wallet (exit 4 on verify-bundle).
 - **`--passphrase @env:` (2 rows):** literal on `silent-payment` and `ms derive`.
 - **Two further cells:** `--bip38-passphrase -`, and `verify-bundle --ms1 -` (exit 4, a false mismatch; filed as engrave **F-689**).
@@ -368,12 +368,12 @@ no passphrase                                                  : 73c5da0a
 today's pass-through: --passphrase @env:MY_PW (MY_PW=hunter2)    : ca2c62d2
 reading 1, typed text is the bytes: S1='@env:MY_PW' via @env:S1   : fee4dc32
 reading 1, typed text is the bytes: '@env:MY_PW' via -stdin       : fee4dc32
-reading 2, sentinel passed through: --passphrase -  (stdin=hunter2): 66d564d1
-  = the literal passphrase '-' on argv                              : 66d564d1
+reading 2, sentinel passed through: --passphrase -  (stdin=hunter2): ca2c62d2
+  = the literal passphrase '-' on argv                              : 73c5da0a
 DESIGN (GUI resolves $MY_PW itself), bytes via @env:MNEMONIC_GUI_S1 : ca2c62d2
 DESIGN (GUI resolves $MY_PW itself), bytes via --passphrase-stdin   : ca2c62d2
 reading 2 on silent-payment: --passphrase @env:MY_PW (MY_PW=hunter2) vs argv hunter2:
-  DIFFERENT: the @env: text is taken literally
+  same
 Copy spelling for a stdin-bound value from $MY_PW (R1 Nm7), MY_PW=$'hunter2\n' (trailing newline):
   argv with the exact bytes 'hunter2\n'                          : 762fff19
   bash  printf '%s\r\n' "$MY_PW" | … --passphrase-stdin         : 762fff19
@@ -406,7 +406,7 @@ A user whose real secret is literally `-` or begins with `@env:` cannot type it 
 **A resolved value that is itself a channel spelling (R2 NC1; broadened in fold 5, §A0.1).** `$MY_PW` may *contain* `@env:OTHER`, `-`, or a padded or case-varied form of either. Since fold 5 every such value is refused on **every** path (`value-looks-like-a-channel`), whatever any CLI does; the history below explains why.
 - **On the private path** these are just bytes. The CLI resolves the planner's `@env:MNEMONIC_GUI_S<i>` **once** and does not look inside, and stdin/fd content is never resolved. This is measured: Linux equals the CLI's own `@env:MY_PW` on every shape and never gives `$OTHER`'s wallet (§A9 NC1 column).
 - **On the interim argv path** the CLI would resolve them a second time. This is measured below: an unguarded interim run gives `$OTHER`'s wallet, `ca2c62d2`. Fold 3 refused them on the interim path from the measured data (`value-is-a-channel-spelling`). Fold 5 refuses them, and every padded or case-varied form, on **every** path, by decision (`value-looks-like-a-channel`, §A0.1).
-- Which spellings each CLI re-interprets is **derived** (`reinterpret.json`, by `measure_reinterpret.py`), not a policy row. Today: mnemonic 0.104.0 `-` and `@env:`; ms 0.19.1 `-`. **Measured on F-687:** ms gains `@env:`. CI re-derives the file and diffs it (§A0). The oracle leg catches a stale file independently, by executing the admitted plan.
+- Which spellings each CLI re-interprets is **derived** (`reinterpret.json`, by `measure_reinterpret.py`), not a policy row. Today (F-694 re-pin): mnemonic 0.105.1 `-` and `@env:`; ms 0.20.1 `-` and `@env:`. On ms 0.19.1 it was `-` only; F-687 added `@env:`. CI re-derives the file and diffs it (§A0). The oracle leg catches a stale file independently, by executing the admitted plan.
 - The operator ruled that nobody wants these as passphrases.
 
 #### A3b. F-687 on the pinned binaries, and the pin bump
@@ -454,13 +454,14 @@ Re-derived per input, the `@env:` rule is `strip-one-trailing-newline` on the 13
 
 **Lenient cells.** A channel that trims whitespace where argv would not has terminator `null`. It may carry only a *clean* value: no CR/LF and no edge whitespace. For a non-clean value the planner drops that channel, and refuses `value-not-byte-exact` if nothing is left. Every lenient mismatch is "argv fails, channel succeeds"; none gives both sides OK with different output.
 
-Value variants (corpus.py, shared): suffixes '', '\n', '\r\n', '\r', '\n\n', '\r\n\r\n', '\n\r\n', '\r\r\n', '\n\r', '\r\r', '\n\n\n', '  ', ' \n', '  \r\n', '\t\n', '\t', '\nX'; prefixes '\n', '\r\n', ' ', '\t'; 146 channel cells.
+Value variants (corpus.py, shared): suffixes '', '\n', '\r\n', '\r', '\n\n', '\r\n\r\n', '\n\r\n', '\r\r\n', '\n\r', '\r\r', '\n\n\n', '  ', ' \n', '  \r\n', '\t\n', '\t', '\nX'; prefixes '\n', '\r\n', ' ', '\t'; 167 channel cells.
 
 | channel kind | measured terminator | cells |
 |---|---|---|
-| DashValue | '\r\n' | 41 |
+| DashValue | '\r\n' | 58 |
 | DashValue | lenient (null) | 10 |
-| EnvRef | '' | 53 |
+| EnvRef | '' | 41 |
+| EnvRef | lenient (null) | 16 |
 | FileFlag | '\n' | 2 |
 | FileFlag | '\r\n' | 2 |
 | InFile | '\r\n' | 8 |
@@ -468,13 +469,13 @@ Value variants (corpus.py, shared): suffixes '', '\n', '\r\n', '\r', '\n\n', '\r
 | StdinToggle | '\r\n' | 22 |
 | StdinToggle | lenient (null) | 3 |
 
-Lenient cells (terminator null; every mismatch is argv-fails/channel-ok, 0 are both-ok-different): `mnemonic convert --from entropy=` DashValue; `mnemonic convert --from xprv=` DashValue; `mnemonic convert --from minikey=` DashValue; `mnemonic repair --ms1` DashValue; `mnemonic inspect --ms1` DashValue; `mnemonic derive-child --from xprv=` DashValue; `mnemonic convert --from wif=` DashValue; `mnemonic xpub-search path-of-xpub --ms1` StdinToggle(--ms1-stdin); `mnemonic xpub-search account-of-descriptor --ms1` StdinToggle(--ms1-stdin); `mnemonic convert --from bip38=` DashValue; `mnemonic slip39 split --from entropy=` DashValue; `mnemonic ms-shares split --from entropy=` DashValue; `mnemonic xpub-search passphrase-of-xpub --ms1` StdinToggle(--ms1-stdin).
+Lenient cells (terminator null; every mismatch is argv-fails/channel-ok, 108 are both-ok-different): `mnemonic addresses --passphrase` EnvRef; `mnemonic bundle --passphrase` EnvRef; `mnemonic convert --from entropy=` DashValue; `mnemonic convert --from xprv=` DashValue; `mnemonic convert --from minikey=` DashValue; `mnemonic convert --passphrase` EnvRef; `mnemonic convert --bip38-passphrase` EnvRef; `mnemonic restore --passphrase` EnvRef; `mnemonic derive-child --passphrase` EnvRef; `mnemonic silent-payment --passphrase` EnvRef; `mnemonic repair --ms1` DashValue; `mnemonic inspect --ms1` DashValue; `ms derive --passphrase` EnvRef; `mnemonic derive-child --from xprv=` DashValue; `mnemonic convert --from wif=` DashValue; `mnemonic verify-bundle --passphrase` EnvRef; `mnemonic electrum-decrypt --decrypt-password` EnvRef; `mnemonic xpub-search path-of-xpub --ms1` StdinToggle(--ms1-stdin); `mnemonic xpub-search path-of-xpub --passphrase` EnvRef; `mnemonic xpub-search account-of-descriptor --ms1` StdinToggle(--ms1-stdin); `mnemonic xpub-search account-of-descriptor --passphrase` EnvRef; `mnemonic xpub-search passphrase-of-xpub --passphrase` EnvRef; `mnemonic slip39 split --passphrase` EnvRef; `mnemonic slip39 combine --passphrase` EnvRef; `mnemonic convert --from bip38=` DashValue; `mnemonic slip39 split --from entropy=` DashValue; `mnemonic ms-shares split --from entropy=` DashValue; `mnemonic xpub-search passphrase-of-xpub --ms1` StdinToggle(--ms1-stdin); `mnemonic import-wallet --decrypt-password` EnvRef.
 
-`--flag=VALUE` byte-identical to `--flag VALUE` (R3 Nm13; None = not a value-form input): False 2, None 43, True 39; not exact: `ms derive --passphrase`; `ms hashlock --hashlock-phrase`.
+`--flag=VALUE` byte-identical to `--flag VALUE` (R3 Nm13; None = not a value-form input): False 1, None 43, True 40; not exact: `ms hashlock --hashlock-phrase`.
 
-Per-input CLI `@env:` value rule (R3 NI7; None = no working CLI `@env:`, the GUI treats the bytes as typed): None 31, verbatim 53.
+Per-input CLI `@env:` value rule (R3 NI7; None = no working CLI `@env:`, the GUI treats the bytes as typed): None 27, strip-one-trailing-newline 16, verbatim 41.
 
-With NO terminator (fold 1's delivery), a wrong output at exit 0/4 on 14 cells: `mnemonic addresses --passphrase` StdinToggle(--passphrase-stdin); `mnemonic bundle --passphrase` StdinToggle(--passphrase-stdin); `mnemonic convert --passphrase` StdinToggle(--passphrase-stdin); `mnemonic convert --bip38-passphrase` StdinToggle(--bip38-passphrase-stdin); `mnemonic restore --passphrase` StdinToggle(--passphrase-stdin); `mnemonic derive-child --passphrase` StdinToggle(--passphrase-stdin); `mnemonic silent-payment --passphrase` StdinToggle(--passphrase-stdin); `ms derive --passphrase` StdinToggle(--passphrase-stdin); `mnemonic verify-bundle --passphrase` StdinToggle(--passphrase-stdin); `mnemonic xpub-search path-of-xpub --passphrase` StdinToggle(--passphrase-stdin); `mnemonic xpub-search account-of-descriptor --passphrase` StdinToggle(--passphrase-stdin); `mnemonic xpub-search passphrase-of-xpub --passphrase` StdinToggle(--passphrase-stdin); `mnemonic slip39 split --passphrase` StdinToggle(--passphrase-stdin); `mnemonic slip39 combine --passphrase` StdinToggle(--passphrase-stdin).
+With NO terminator (fold 1's delivery), a wrong output at exit 0/4 on 28 cells: `mnemonic addresses --passphrase` DashValue; `mnemonic addresses --passphrase` StdinToggle(--passphrase-stdin); `mnemonic bundle --passphrase` DashValue; `mnemonic bundle --passphrase` StdinToggle(--passphrase-stdin); `mnemonic convert --passphrase` DashValue; `mnemonic convert --passphrase` StdinToggle(--passphrase-stdin); `mnemonic convert --bip38-passphrase` DashValue; `mnemonic convert --bip38-passphrase` StdinToggle(--bip38-passphrase-stdin); `mnemonic restore --passphrase` DashValue; `mnemonic restore --passphrase` StdinToggle(--passphrase-stdin); `mnemonic derive-child --passphrase` DashValue; `mnemonic derive-child --passphrase` StdinToggle(--passphrase-stdin); `mnemonic silent-payment --passphrase` DashValue; `mnemonic silent-payment --passphrase` StdinToggle(--passphrase-stdin); `ms derive --passphrase` DashValue; `ms derive --passphrase` StdinToggle(--passphrase-stdin); `mnemonic verify-bundle --passphrase` DashValue; `mnemonic verify-bundle --passphrase` StdinToggle(--passphrase-stdin); `mnemonic xpub-search path-of-xpub --passphrase` DashValue; `mnemonic xpub-search path-of-xpub --passphrase` StdinToggle(--passphrase-stdin); `mnemonic xpub-search account-of-descriptor --passphrase` DashValue; `mnemonic xpub-search account-of-descriptor --passphrase` StdinToggle(--passphrase-stdin); `mnemonic xpub-search passphrase-of-xpub --passphrase` DashValue; `mnemonic xpub-search passphrase-of-xpub --passphrase` StdinToggle(--passphrase-stdin); `mnemonic slip39 split --passphrase` DashValue; `mnemonic slip39 split --passphrase` StdinToggle(--passphrase-stdin); `mnemonic slip39 combine --passphrase` DashValue; `mnemonic slip39 combine --passphrase` StdinToggle(--passphrase-stdin).
 
 The last line is R1's NI1, reproduced. Fold 1 delivered with no terminator, and on those 14 passphrase toggles a value ending in `\n` gave a different wallet at exit 0. With the measured terminators, **every non-lenient channel cell matches argv-exact on all seven endings** (lenient cells match on clean values), and every shape's `@env:` ending run matches both argv-exact and the CLI's own `@env:` (§A9).
 
@@ -534,7 +535,7 @@ The `*-stdin` toggles stay rendered disabled; only the planner emits them. `buil
 
 `gen_plans.py` applies `plan.py` to every shape in `shapes.py`, using `channel_table.json` and `channel_policy.json`. `check_design_tables.py` regenerates this block on every run (R1 Nm3). The Rust planner must produce these on every shape and OS (T8). The last column shows what macOS and Windows get the day their `private_channels_on` entry flips; fd stays Linux-only.
 
-Policy (decided): private channels on ['linux'], fd channel on ['linux']. Derived (measured, CI-regenerated): per-input CLI `@env:` rule None ×32, verbatim ×53; measured argv re-reads (informational; safety is the broad predicate) mnemonic 0.104.0: `-` `@env:{V}`, ms 0.19.1: `-`.
+Policy (decided): private channels on ['linux'], fd channel on ['linux']. Derived (measured, CI-regenerated): per-input CLI `@env:` rule None ×28, strip-one-trailing-newline ×16, verbatim ×41; measured argv re-reads (informational; safety is the broad predicate) mnemonic 0.105.1: `-` `@env:{V}`, ms 0.20.1: `-` `@env:{V}`.
 
 | shape | Linux plan | macOS | Windows | macOS/Windows once their flag flips |
 |---|---|---|---|---|
@@ -554,7 +555,7 @@ Policy (decided): private channels on ['linux'], fd channel on ['linux']. Derive
 | xpub-search passphrase-of-xpub ms1+passphrase | passphrase-of-xpub --ms1 ← stdin via --ms1-stdin; passphrase-of-xpub --passphrase ← env MNEMONIC_GUI_S1 | passphrase-of-xpub --ms1 ← argv + --allow-argv-secret (interim); passphrase-of-xpub --passphrase ← argv + --allow-argv-secret (interim) | same as macOS | same as Linux |
 | xpub-search account-of-descriptor phrase+passphrase | account-of-descriptor --phrase ← stdin via --phrase-stdin + '\r\n'; account-of-descriptor --passphrase ← env MNEMONIC_GUI_S1 | account-of-descriptor --phrase ← argv + --allow-argv-secret (interim); account-of-descriptor --passphrase ← argv + --allow-argv-secret (interim) | same as macOS | same as Linux |
 | xpub-search account-of-descriptor ms1+passphrase | account-of-descriptor --ms1 ← stdin via --ms1-stdin; account-of-descriptor --passphrase ← env MNEMONIC_GUI_S1 | account-of-descriptor --ms1 ← argv + --allow-argv-secret (interim); account-of-descriptor --passphrase ← argv + --allow-argv-secret (interim) | same as macOS | same as Linux |
-| silent-payment secret+passphrase | --secret ← pipe fd via --secret-file + '\r\n'; --passphrase ← stdin via --passphrase-stdin + '\r\n' | --secret ← argv + --allow-argv-secret (interim); --passphrase ← argv + --allow-argv-secret (interim) | same as macOS | **refuse** (fd-not-on-platform) |
+| silent-payment secret+passphrase | --secret ← stdin via --secret-stdin + '\r\n'; --passphrase ← env MNEMONIC_GUI_S1 | --secret ← argv + --allow-argv-secret (interim); --passphrase ← argv + --allow-argv-secret (interim) | same as macOS | same as Linux |
 | slip39 split phrase+passphrase | split --from phrase= ← env MNEMONIC_GUI_S0; split --passphrase ← stdin via --passphrase-stdin + '\r\n' | split --from phrase= ← argv + --allow-argv-secret (interim); split --passphrase ← argv + --allow-argv-secret (interim) | same as macOS | same as Linux |
 | slip39 combine 2 shares+passphrase | combine --share ← env MNEMONIC_GUI_S0; combine --share ← env MNEMONIC_GUI_S1; combine --passphrase ← stdin via --passphrase-stdin + '\r\n' | combine --share ← argv + --allow-argv-secret (interim); combine --share ← argv + --allow-argv-secret (interim); combine --passphrase ← argv + --allow-argv-secret (interim) | same as macOS | same as Linux |
 | slip39 combine 2 shares | combine --share ← env MNEMONIC_GUI_S0; combine --share ← env MNEMONIC_GUI_S1 | combine --share ← argv + --allow-argv-secret (interim); combine --share ← argv + --allow-argv-secret (interim) | same as macOS | same as Linux |
@@ -564,9 +565,9 @@ Policy (decided): private channels on ['linux'], fd channel on ['linux']. Derive
 | verify-bundle ms1+slot+passphrase | --ms1 ← env MNEMONIC_GUI_S0; --slot @N.phrase= ← env MNEMONIC_GUI_S1; --passphrase ← stdin via --passphrase-stdin + '\r\n' | --ms1 ← argv + --allow-argv-secret (interim); --slot @N.phrase= ← argv + --allow-argv-secret (interim); --passphrase ← argv + --allow-argv-secret (interim) | same as macOS | same as Linux |
 | ms combine share group | <shares> ← stdin via one `-` (all, one per line) | <shares> ← argv + --allow-argv-secret (interim) | same as macOS | same as Linux |
 | ms verify phrase+ms1 | --phrase ← stdin via `-` + '\r\n'; <ms1> ← pipe fd via --in + '\r\n' | --phrase ← argv + --allow-argv-secret (interim); <ms1> ← argv + --allow-argv-secret (interim) | same as macOS | **refuse** (fd-not-on-platform) |
-| ms derive ms1+passphrase | --passphrase ← stdin via --passphrase-stdin + '\r\n'; <ms1> ← pipe fd via --in + '\r\n' | --passphrase ← argv + --allow-argv-secret (interim); <ms1> ← argv + --allow-argv-secret (interim) | same as macOS | **refuse** (fd-not-on-platform) |
-| ms derive phrase+passphrase | **refuse** (two-stdin) | --phrase ← argv + --allow-argv-secret (interim); --passphrase ← argv + --allow-argv-secret (interim) | same as macOS | same as Linux |
-| ms derive hex+passphrase | **refuse** (two-stdin) | --hex ← argv + --allow-argv-secret (interim); --passphrase ← argv + --allow-argv-secret (interim) | same as macOS | same as Linux |
+| ms derive ms1+passphrase | --passphrase ← stdin via --passphrase-stdin + '\r\n'; <ms1> ← pipe fd via --in + '\r\n' | --passphrase ← argv + --allow-argv-secret (interim); <ms1> ← argv + --allow-argv-secret (interim) | same as macOS | --passphrase ← env MNEMONIC_GUI_S0; <ms1> ← stdin via positional `-` + '\r\n' |
+| ms derive phrase+passphrase | --phrase ← stdin via `-` + '\r\n'; --passphrase ← env MNEMONIC_GUI_S1 | --phrase ← argv + --allow-argv-secret (interim); --passphrase ← argv + --allow-argv-secret (interim) | same as macOS | same as Linux |
+| ms derive hex+passphrase | --hex ← stdin via `-` + '\r\n'; --passphrase ← env MNEMONIC_GUI_S1 | --hex ← argv + --allow-argv-secret (interim); --passphrase ← argv + --allow-argv-secret (interim) | same as macOS | same as Linux |
 
 The two Linux refusals are `ms derive` with `--phrase`/`--hex` plus `--passphrase`. ms has no second channel for a phrase or hex, so the refusal gives the CLI's own recipe: encode to an ms1 first, then derive from the card.
 
@@ -768,35 +769,35 @@ exit 1
 
 | shape | baseline exit | planned exit | planned == baseline | effect (baseline) | source values swapped (i↔j) vs baseline | T1 | NI1: `@env:` + endings == oracle | interim (NI3) == oracle | NI8 corpus in the variable: OTHER's wallet; == oracle; refused Linux/interim | Nm13 leading dash == oracle (Linux, interim) |
 |---|---|---|---|---|---|---|---|---|---|---|
-| addresses phrase+passphrase | 0 | 0 | **yes** | `0  bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv` | 0↔1: differs (exit 1) | ok | 16/16 (+26 refused) | 16/16 (+26 refused) | 0 OTHER; 0/0 eq; 42/42 refused | 3/3, 3/3 |
-| restore phrase+passphrase | 0 | 0 | **yes** | `master fingerprint: 45fbfbe6  (passphrase: applied)` | 0↔1: differs (exit 1) | ok | 16/16 (+26 refused) | 16/16 (+26 refused) | 0 OTHER; 0/0 eq; 42/42 refused | 3/3, 3/3 |
-| restore ms1+passphrase | 0 | 0 | **yes** | `master fingerprint: 45fbfbe6  (passphrase: applied)` | 0↔1: differs (exit 1) | ok | 16/16 (+26 refused) | 16/16 (+26 refused) | 0 OTHER; 0/0 eq; 42/42 refused | 3/3, 3/3 |
-| derive-child phrase+passphrase | 0 | 0 | **yes** | `target biology midnight canal glass common include trophy glimpse north castle dove` | 0↔1: differs (exit 1) | ok | 16/16 (+26 refused) | 16/16 (+26 refused) | 0 OTHER; 0/0 eq; 42/42 refused | 3/3, 3/3 |
-| bundle slot+passphrase | 0 | 0 | **yes** | `mk1qpd2y2pqqsqk4z99gdzlh7lxqvzg3vs7vs57ls3u2nlnjvzn90ffnjpcsauf2eggmpdquu02l9k7dpjhxhs3yaa` | 0↔1: differs (exit 1) | ok | 16/16 (+26 refused) | 16/16 (+26 refused) | 0 OTHER; 0/0 eq; 42/42 refused | 3/3, 3/3 |
+| addresses phrase+passphrase | 0 | 0 | **yes** | `0  bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv` | 0↔1: differs (exit 1) | ok | 21/21 (+21 refused) | 21/21 (+21 refused) | 0 OTHER; 0/0 eq; 42/42 refused | 3/3, 3/3 |
+| restore phrase+passphrase | 0 | 0 | **yes** | `master fingerprint: 45fbfbe6  (passphrase: applied)` | 0↔1: differs (exit 1) | ok | 21/21 (+21 refused) | 21/21 (+21 refused) | 0 OTHER; 0/0 eq; 42/42 refused | 3/3, 3/3 |
+| restore ms1+passphrase | 0 | 0 | **yes** | `master fingerprint: 45fbfbe6  (passphrase: applied)` | 0↔1: differs (exit 1) | ok | 21/21 (+21 refused) | 21/21 (+21 refused) | 0 OTHER; 0/0 eq; 42/42 refused | 3/3, 3/3 |
+| derive-child phrase+passphrase | 0 | 0 | **yes** | `target biology midnight canal glass common include trophy glimpse north castle dove` | 0↔1: differs (exit 1) | ok | 21/21 (+21 refused) | 21/21 (+21 refused) | 0 OTHER; 0/0 eq; 42/42 refused | 3/3, 3/3 |
+| bundle slot+passphrase | 0 | 0 | **yes** | `mk1qpd2y2pqqsqk4z99gdzlh7lxqvzg3vs7vs57ls3u2nlnjvzn90ffnjpcsauf2eggmpdquu02l9k7dpjhxhs3yaa` | 0↔1: differs (exit 1) | ok | 21/21 (+21 refused) | 21/21 (+21 refused) | 0 OTHER; 0/0 eq; 42/42 refused | 3/3, 3/3 |
 | bundle wsh-multi 2 slots | 0 | 0 | **yes** | `mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5` | 0↔1: differs (exit 0) | ok | 16/16 (+26 refused) | 16/16 (+26 refused) | 0 OTHER; 0/0 eq; 42/42 refused | n/a |
-| bundle wsh-multi 2 slots+passphrase | 0 | 0 | **yes** | `mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq` | 0↔1: differs (exit 1); 0↔2: differs (exit 1); 1↔2: differs (exit 1) | ok | 24/24 (+39 refused) | 24/24 (+39 refused) | 0 OTHER; 0/0 eq; 63/63 refused | 3/3, 3/3 |
-| convert phrase+passphrase | 0 | 0 | **yes** | `xpub: xpub6CPUCVp94gpNs3bS1eGiwSWwZMLNmfr2Uo1t5v8YtY4XVoxhUraBH7sRyVfgwSNCxRVpX1bDREtc5Kri` | 0↔1: differs (exit 1) | ok | 16/16 (+26 refused) | 16/16 (+26 refused) | 0 OTHER; 0/0 eq; 42/42 refused | 3/3, 3/3 |
-| convert wif+bip38-passphrase | 0 | 0 | **yes** | `bip38: 6PYP8fdoVaE3ThLmEnYcGo3nJeBqd8PvB7CRvTz3TX5L9ojoPHKCg7QXG6` | 0↔1: differs (exit 1) | ok | 16/16 (+26 refused) | 16/16 (+26 refused) | 0 OTHER; 0/0 eq; 42/42 refused | 3/3, 3/3 |
-| convert bip38+bip38-passphrase | 0 | 0 | **yes** | `wif: KyZpNDKnfs94vbrwhJneDi77V6jF64PWPF8x5cdJb8ifgg2DUc9d` | 0↔1: differs (exit 1) | ok | 16/16 (+26 refused) | 16/16 (+26 refused) | 0 OTHER; 0/0 eq; 42/42 refused | 3/3, 3/3 |
-| xpub-search path-of-xpub phrase+passphrase | 0 | 0 | **yes** | `match: m/84'/0'/0'  (template=bip84, account=0)` | 0↔1: differs (exit 1) | ok | 16/16 (+26 refused) | 16/16 (+26 refused) | 0 OTHER; 0/0 eq; 42/42 refused | 6/6, 6/6 |
-| xpub-search path-of-xpub ms1+passphrase | 0 | 0 | **yes** | `match: m/84'/0'/0'  (template=bip84, account=0)` | 0↔1: differs (exit 2) | ok | 9/9 (+33 refused) | 16/16 (+26 refused) | 0 OTHER; 0/0 eq; 42/42 refused | 3/3, 3/3 |
-| xpub-search passphrase-of-xpub phrase+passphrase | 0 | 0 | **yes** | `match: m/84'/0'/0'  (template=bip84, account=0)` | 0↔1: differs (exit 1) | ok | 16/16 (+26 refused) | 16/16 (+26 refused) | 0 OTHER; 0/0 eq; 42/42 refused | 6/6, 6/6 |
-| xpub-search passphrase-of-xpub ms1+passphrase | 0 | 0 | **yes** | `match: m/84'/0'/0'  (template=bip84, account=0)` | 0↔1: differs (exit 2) | ok | 9/9 (+33 refused) | 16/16 (+26 refused) | 0 OTHER; 0/0 eq; 42/42 refused | 3/3, 3/3 |
-| xpub-search account-of-descriptor phrase+passphrase | 0 | 0 | **yes** | `match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)` | 0↔1: differs (exit 1) | ok | 16/16 (+26 refused) | 16/16 (+26 refused) | 0 OTHER; 0/0 eq; 42/42 refused | 6/6, 6/6 |
-| xpub-search account-of-descriptor ms1+passphrase | 0 | 0 | **yes** | `match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)` | 0↔1: differs (exit 2) | ok | 9/9 (+33 refused) | 16/16 (+26 refused) | 0 OTHER; 0/0 eq; 42/42 refused | 3/3, 3/3 |
-| silent-payment secret+passphrase | 0 | 0 | **yes** | `address:      sp1qq2d73kpx36h7r08gmawe6slzxkntu2tw0as7pkqe0hvv3k38mkvckqsp6dmrwxvd6mumfqj9` | 0↔1: differs (exit 1) | ok | 16/16 (+26 refused) | 16/16 (+26 refused) | 0 OTHER; 0/0 eq; 42/42 refused | 6/6, 6/6 |
-| slip39 split phrase+passphrase | 0 | 0 | **yes** | `00000000000000000000000000000000` | 0↔1: differs (exit 1) | ok | 16/16 (+26 refused) | 16/16 (+26 refused) | 0 OTHER; 0/0 eq; 42/42 refused | 3/3, 3/3 |
-| slip39 combine 2 shares+passphrase | 0 | 0 | **yes** | `8ab7aa39cd427130e225ed43c34f5b5a` | 0↔1: **same** (symmetric); 0↔2: differs (exit 1); 1↔2: differs (exit 1) | ok | 24/24 (+39 refused) | 24/24 (+39 refused) | 0 OTHER; 0/0 eq; 63/63 refused | 9/9, 9/9 |
+| bundle wsh-multi 2 slots+passphrase | 0 | 0 | **yes** | `mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq` | 0↔1: differs (exit 1); 0↔2: differs (exit 1); 1↔2: differs (exit 1) | ok | 29/29 (+34 refused) | 29/29 (+34 refused) | 0 OTHER; 0/0 eq; 63/63 refused | 3/3, 3/3 |
+| convert phrase+passphrase | 0 | 0 | **yes** | `xpub: xpub6CPUCVp94gpNs3bS1eGiwSWwZMLNmfr2Uo1t5v8YtY4XVoxhUraBH7sRyVfgwSNCxRVpX1bDREtc5Kri` | 0↔1: differs (exit 1) | ok | 21/21 (+21 refused) | 21/21 (+21 refused) | 0 OTHER; 0/0 eq; 42/42 refused | 3/3, 3/3 |
+| convert wif+bip38-passphrase | 0 | 0 | **yes** | `bip38: 6PYP8fdoVaE3ThLmEnYcGo3nJeBqd8PvB7CRvTz3TX5L9ojoPHKCg7QXG6` | 0↔1: differs (exit 1) | ok | 21/21 (+21 refused) | 21/21 (+21 refused) | 0 OTHER; 0/0 eq; 42/42 refused | 3/3, 3/3 |
+| convert bip38+bip38-passphrase | 0 | 0 | **yes** | `wif: KyZpNDKnfs94vbrwhJneDi77V6jF64PWPF8x5cdJb8ifgg2DUc9d` | 0↔1: differs (exit 1) | ok | 21/21 (+21 refused) | 21/21 (+21 refused) | 0 OTHER; 0/0 eq; 42/42 refused | 3/3, 3/3 |
+| xpub-search path-of-xpub phrase+passphrase | 0 | 0 | **yes** | `match: m/84'/0'/0'  (template=bip84, account=0)` | 0↔1: differs (exit 1) | ok | 21/21 (+21 refused) | 21/21 (+21 refused) | 0 OTHER; 0/0 eq; 42/42 refused | 6/6, 6/6 |
+| xpub-search path-of-xpub ms1+passphrase | 0 | 0 | **yes** | `match: m/84'/0'/0'  (template=bip84, account=0)` | 0↔1: differs (exit 2) | ok | 4/4 (+38 refused) | 21/21 (+21 refused) | 0 OTHER; 0/0 eq; 42/42 refused | 2/2 (+1 refused), 3/3 |
+| xpub-search passphrase-of-xpub phrase+passphrase | 0 | 0 | **yes** | `match: m/84'/0'/0'  (template=bip84, account=0)` | 0↔1: differs (exit 1) | ok | 21/21 (+21 refused) | 21/21 (+21 refused) | 0 OTHER; 0/0 eq; 42/42 refused | 6/6, 6/6 |
+| xpub-search passphrase-of-xpub ms1+passphrase | 0 | 0 | **yes** | `match: m/84'/0'/0'  (template=bip84, account=0)` | 0↔1: differs (exit 2) | ok | 4/4 (+38 refused) | 21/21 (+21 refused) | 0 OTHER; 0/0 eq; 42/42 refused | 2/2 (+1 refused), 3/3 |
+| xpub-search account-of-descriptor phrase+passphrase | 0 | 0 | **yes** | `match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)` | 0↔1: differs (exit 1) | ok | 21/21 (+21 refused) | 21/21 (+21 refused) | 0 OTHER; 0/0 eq; 42/42 refused | 6/6, 6/6 |
+| xpub-search account-of-descriptor ms1+passphrase | 0 | 0 | **yes** | `match: cosigner @0  m/84'/0'/0'  (template=bip84, account=0)` | 0↔1: differs (exit 2) | ok | 4/4 (+38 refused) | 21/21 (+21 refused) | 0 OTHER; 0/0 eq; 42/42 refused | 2/2 (+1 refused), 3/3 |
+| silent-payment secret+passphrase | 0 | 0 | **yes** | `address:      sp1qq2d73kpx36h7r08gmawe6slzxkntu2tw0as7pkqe0hvv3k38mkvckqsp6dmrwxvd6mumfqj9` | 0↔1: differs (exit 1) | ok | 21/21 (+21 refused) | 21/21 (+21 refused) | 0 OTHER; 0/0 eq; 42/42 refused | 6/6, 6/6 |
+| slip39 split phrase+passphrase | 0 | 0 | **yes** | `00000000000000000000000000000000` | 0↔1: differs (exit 1) | ok | 21/21 (+21 refused) | 21/21 (+21 refused) | 0 OTHER; 0/0 eq; 42/42 refused | 3/3, 3/3 |
+| slip39 combine 2 shares+passphrase | 0 | 0 | **yes** | `8ab7aa39cd427130e225ed43c34f5b5a` | 0↔1: **same** (symmetric); 0↔2: differs (exit 1); 1↔2: differs (exit 1) | ok | 29/29 (+34 refused) | 29/29 (+34 refused) | 0 OTHER; 0/0 eq; 63/63 refused | 9/9, 9/9 |
 | slip39 combine 2 shares | 0 | 0 | **yes** | `00000000000000000000000000000000` | 0↔1: **same** (symmetric) | ok | 16/16 (+26 refused) | 16/16 (+26 refused) | 0 OTHER; 0/0 eq; 42/42 refused | 6/6, 6/6 |
 | seed-xor combine 2 shares | 0 | 0 | **yes** | `zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong` | 0↔1: **same** (symmetric) | ok | 16/16 (+26 refused) | 16/16 (+26 refused) | 0 OTHER; 0/0 eq; 42/42 refused | n/a |
 | ms-shares combine 2 shares | 0 | 0 | **yes** | `abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon ab` | 0↔1: **same** (symmetric) | ok | 16/16 (+26 refused) | 16/16 (+26 refused) | 0 OTHER; 0/0 eq; 42/42 refused | 6/6, 6/6 |
 | import-wallet 2 cosigner ms1 | 0 | 0 | **yes** | `"descriptor": "wsh(sortedmulti(2,[5436d724/48'/0'/0'/2']xpub6E79FaRWLSJCAgA2jDHRvyrWKwT6aS` | 0↔1: differs (exit 4) | ok | 16/16 (+26 refused) | 16/16 (+26 refused) | 0 OTHER; 0/0 eq; 42/42 refused | 6/6, 6/6 |
-| verify-bundle ms1+slot+passphrase | 0 | 0 | **yes** | `result: ok` | 0↔1: differs (exit 2); 0↔2: differs (exit 2); 1↔2: differs (exit 1) | ok | 24/24 (+39 refused) | 24/24 (+39 refused) | 0 OTHER; 0/0 eq; 63/63 refused | 6/6, 6/6 |
+| verify-bundle ms1+slot+passphrase | 0 | 0 | **yes** | `result: ok` | 0↔1: differs (exit 2); 0↔2: differs (exit 2); 1↔2: differs (exit 1) | ok | 29/29 (+34 refused) | 29/29 (+34 refused) | 0 OTHER; 0/0 eq; 63/63 refused | 6/6, 6/6 |
 | ms combine share group | 0 | 0 | **yes** | `entropy: 00000000000000000000000000000000` | n/a (one source) | ok | 0/0 (+0 refused) | 0/0 (+0 refused) | 0 OTHER; 0/0 eq; 0/0 refused | n/a |
 | ms verify phrase+ms1 | 0 | 0 | **yes** | `OK: round-trip valid (12 words, language=english)` | 0↔1: differs (exit 1) | ok | 16/16 (+26 refused) | 16/16 (+26 refused) | 0 OTHER; 0/0 eq; 42/42 refused | 0/0, 0/0 |
-| ms derive ms1+passphrase | 0 | 0 | **yes** | `master_fingerprint:  45fbfbe6` | 0↔1: differs (exit 1) | ok | 16/16 (+26 refused) | 16/16 (+26 refused) | 0 OTHER; 0/0 eq; 42/42 refused | 3/3, 0/0 (+3 refused) |
-| ms derive phrase+passphrase | — | — | refused (expected: refuse) | — | — | — | — | — | — | — |
-| ms derive hex+passphrase | — | — | refused (expected: refuse) | — | — | — | — | — | — | — |
+| ms derive ms1+passphrase | 0 | 0 | **yes** | `master_fingerprint:  45fbfbe6` | 0↔1: differs (exit 1) | ok | 21/21 (+21 refused) | 21/21 (+21 refused) | 0 OTHER; 0/0 eq; 42/42 refused | 3/3, 3/3 |
+| ms derive phrase+passphrase | 0 | 0 | **yes** | `master_fingerprint:  45fbfbe6` | 0↔1: differs (exit 1) | ok | 11/11 (+31 refused) | 21/21 (+21 refused) | 0 OTHER; 0/0 eq; 42/42 refused | 2/2 (+1 refused), 3/3 |
+| ms derive hex+passphrase | 0 | 0 | **yes** | `master_fingerprint:  45fbfbe6` | 0↔1: differs (exit 1) | ok | 11/11 (+31 refused) | 21/21 (+21 refused) | 0 OTHER; 0/0 eq; 42/42 refused | 2/2 (+1 refused), 3/3 |
 
 ### A10. Follow-ups (not this design)
 

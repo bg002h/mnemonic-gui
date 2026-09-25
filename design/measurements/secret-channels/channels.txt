@@ -5,7 +5,7 @@
      stdin `entropy=-`                        OK
      `entropy=@env:VAR`                       OK
 ## mnemonic addresses --passphrase  base_exit=0 depends=True 
-     stdin `--passphrase -`                   exit 0 but DIFFERENT output
+     stdin `--passphrase -`                   OK
      `--passphrase @env:VAR`                  OK
      `--passphrase-stdin`                     OK
      `--passphrase-file F`                    no (exit 64: error: unexpected argument '--passphrase-file' found)
@@ -20,7 +20,7 @@
      stdin `@0.seedqr=-`                      OK
      `@0.seedqr=@env:VAR`                     OK
 ## mnemonic bundle --passphrase  base_exit=0 depends=True 
-     stdin `--passphrase -`                   exit 0 but DIFFERENT output
+     stdin `--passphrase -`                   OK
      `--passphrase @env:VAR`                  OK
      `--passphrase-stdin`                     OK
      `--passphrase-file F`                    no (exit 64: error: unexpected argument '--passphrase-file' found)
@@ -47,13 +47,13 @@
      stdin `electrum-phrase=-`                OK
      `electrum-phrase=@env:VAR`               OK
 ## mnemonic convert --passphrase  base_exit=0 depends=True 
-     stdin `--passphrase -`                   exit 0 but DIFFERENT output
+     stdin `--passphrase -`                   OK
      `--passphrase @env:VAR`                  OK
      `--passphrase-stdin`                     OK
      `--passphrase-file F`                    no (exit 64: error: unexpected argument '--passphrase-file' found)
      `--in F`                                 no (exit 64: error: unexpected argument '--in' found)
 ## mnemonic convert --bip38-passphrase  base_exit=0 depends=True 
-     stdin `--bip38-passphrase -`             exit 0 but DIFFERENT output
+     stdin `--bip38-passphrase -`             OK
      `--bip38-passphrase @env:VAR`            OK
      `--bip38-passphrase-stdin`               OK
      `--bip38-passphrase-file F`              no (exit 64: error: unexpected argument '--bip38-passphrase-file' found)
@@ -71,7 +71,7 @@
      stdin `ms1=-`                            OK
      `ms1=@env:VAR`                           OK
 ## mnemonic restore --passphrase  base_exit=0 depends=True 
-     stdin `--passphrase -`                   exit 0 but DIFFERENT output
+     stdin `--passphrase -`                   OK
      `--passphrase @env:VAR`                  OK
      `--passphrase-stdin`                     OK
      `--passphrase-file F`                    no (exit 64: error: unexpected argument '--passphrase-file' found)
@@ -80,7 +80,7 @@
      stdin `phrase=-`                         OK
      `phrase=@env:VAR`                        OK
 ## mnemonic derive-child --passphrase  base_exit=0 depends=True 
-     stdin `--passphrase -`                   exit 0 but DIFFERENT output
+     stdin `--passphrase -`                   OK
      `--passphrase @env:VAR`                  OK
      `--passphrase-stdin`                     OK
      `--passphrase-file F`                    no (exit 64: error: unexpected argument '--passphrase-file' found)
@@ -98,8 +98,8 @@
      `--secret-file F`                        OK
      `--in F`                                 no (exit 64: error: unexpected argument '--in' found)
 ## mnemonic silent-payment --passphrase  base_exit=0 depends=True 
-     stdin `--passphrase -`                   exit 0 but DIFFERENT output
-     `--passphrase @env:VAR`                  exit 0 but DIFFERENT output
+     stdin `--passphrase -`                   OK
+     `--passphrase @env:VAR`                  OK
      `--passphrase-stdin`                     OK
      `--passphrase-file F`                    no (exit 64: error: unexpected argument '--passphrase-file' found)
      `--in F`                                 no (exit 64: error: unexpected argument '--in' found)
@@ -147,7 +147,7 @@
      `--hex @env:VAR`                         no (exit 1: ms: argument 3 on ARGV (arguments count from 0, and 0 is `ms` itself) is raw hex entropy, 17 characters long.)
      `--hex-stdin`                            no (exit 64: error: unexpected argument '--hex-stdin' found)
      `--hex-file F`                           no (exit 64: error: unexpected argument '--hex-file' found)
-     `--in F`                                 no (exit 1: ms encode --hex - < /tmp/tmppte7hfon/tmp_vi30man.txt)
+     `--in F`                                 no (exit 1: ms encode --hex - < /scratch/code/shibboleth/gui-repin-scratch/tmp/tmplx7m5cvj/tmplbiuv_l4.txt)
 ## ms inspect <ms1>  base_exit=0 depends=True 
      stdin `-`                                OK
      `@env:VAR`                               no (exit 1: error: string length 17 not a valid codex32 length (need 48-93 short or 125-127 long))
@@ -183,8 +183,8 @@
      `--phrase-file F`                        no (exit 64: error: unexpected argument '--phrase-file' found)
      `--in F`                                 no (exit 1: error: string length 82 not in v0.1 set [50, 56, 62, 69, 75])
 ## ms derive --passphrase  base_exit=0 depends=True 
-     stdin `--passphrase -`                   exit 0 but DIFFERENT output
-     `--passphrase @env:VAR`                  exit 0 but DIFFERENT output
+     stdin `--passphrase -`                   OK
+     `--passphrase @env:VAR`                  OK
      `--passphrase-stdin`                     OK
      `--passphrase-file F`                    no (exit 64: error: unexpected argument '--passphrase-file' found)
      `--in F`                                 no (exit 64: error: the argument '--phrase <PHRASE>' cannot be used with '--in <FILE>')
@@ -220,8 +220,8 @@
      stdin `@0.phrase=-`                      no (exit 1: error: import-wallet: --slot @0.phrase=: BIP-39 parse error: mnemonic has an invalid word count: 1. Word count must be 12, 15, 18, 21, or 24)
      `@0.phrase=@env:VAR`                     OK
 ## mnemonic electrum-decrypt --decrypt-password  base_exit=0 depends=True 
-     stdin `--decrypt-password -`             no (exit 2: mnemonic: argument 4 on ARGV (--decrypt-password) is a wallet decryption password -- 1 characters. Nothing about it is printed here.)
-     `--decrypt-password @env:VAR`            no (exit 1: error: electrum-decrypt: decryption failed (wrong password or corrupted ciphertext))
+     stdin `--decrypt-password -`             OK
+     `--decrypt-password @env:VAR`            OK
      `--decrypt-password-stdin`               OK
      `--decrypt-password-file F`              OK
      `--in F`                                 no (exit 64: error: unexpected argument '--in' found)
@@ -262,7 +262,7 @@
      `--passphrase-file F`                    no (exit 64: error: unexpected argument '--passphrase-file' found)
      `--in F`                                 no (exit 64: error: unexpected argument '--in' found)
 ## mnemonic xpub-search passphrase-of-xpub --passphrase  base_exit=0 depends=True 
-     stdin `--passphrase -`                   exit 4 but DIFFERENT output
+     stdin `--passphrase -`                   OK
      `--passphrase @env:VAR`                  OK
      `--passphrase-stdin`                     OK
      `--passphrase-file F`                    no (exit 64: error: unexpected argument '--passphrase-file' found)
@@ -277,7 +277,7 @@
      stdin `phrase=-`                         OK
      `phrase=@env:VAR`                        OK
 ## mnemonic slip39 split --passphrase  base_exit=0 depends=True 
-     stdin `--passphrase -`                   exit 0 but DIFFERENT output
+     stdin `--passphrase -`                   OK
      `--passphrase @env:VAR`                  OK
      `--passphrase-stdin`                     OK
      `--passphrase-file F`                    no (exit 64: error: unexpected argument '--passphrase-file' found)
@@ -289,7 +289,7 @@
      `--share-file F`                         no (exit 64: error: unexpected argument '--share-file' found)
      `--in F`                                 no (exit 64: error: unexpected argument '--in' found)
 ## mnemonic slip39 combine --passphrase  base_exit=0 depends=True 
-     stdin `--passphrase -`                   exit 0 but DIFFERENT output
+     stdin `--passphrase -`                   OK
      `--passphrase @env:VAR`                  OK
      `--passphrase-stdin`                     OK
      `--passphrase-file F`                    no (exit 64: error: unexpected argument '--passphrase-file' found)
@@ -314,7 +314,7 @@
      `--hex @env:VAR`                         no (exit 1: ms: argument 7 on ARGV (arguments count from 0, and 0 is `ms` itself) is raw hex entropy, 17 characters long.)
      `--hex-stdin`                            no (exit 64: error: unexpected argument '--hex-stdin' found)
      `--hex-file F`                           no (exit 64: error: unexpected argument '--hex-file' found)
-     `--in F`                                 no (exit 1: ms split --hex - < /tmp/tmppte7hfon/tmp6_6mbud1.txt)
+     `--in F`                                 no (exit 1: ms split --hex - < /scratch/code/shibboleth/gui-repin-scratch/tmp/tmplx7m5cvj/tmpul1abeiv.txt)
 ## ms combine <shares> (first)  base_exit=0 depends=True 
      stdin `-`                                OK
      `@env:VAR`                               no (exit 1: error: string length 17 not a valid codex32 length (need 48-93 short or 125-127 long))
