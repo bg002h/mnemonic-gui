@@ -37,6 +37,16 @@ jobs:
       - name: cargo-cache
         uses: Swatinem/rust-cache@v2
 
+      # F-696: cargo nextest runs the test binaries CONCURRENTLY; `cargo test`
+      # runs them one at a time. Pinned by commit SHA; install-action checks the
+      # downloaded archive against the sha256 in its own manifest, and
+      # `fallback: none` refuses the unverified cargo-binstall path.
+      - name: Install cargo-nextest (pinned, checksum-verified)
+        uses: taiki-e/install-action@9983c65e42da123ff25d1f78505eb6de315aa172 # v2.87.20
+        with:
+          tool: cargo-nextest@0.9.146
+          fallback: none
+
       - name: parse-pinned-upstream
         # v0.5.1 cycle: parse `pinned-upstream.toml` once via Python 3.11+
         # stdlib `tomllib`, export per-CLI tag values as step outputs that
@@ -126,7 +136,7 @@ jobs:
       - name: secret-channels-real-binary-tests
         env:
           MNEMONIC_BIN: ${{ env.PINNED_BIN_DIR }}/mnemonic
-        run: cargo test --test secret_channels_t2 --test secret_channels_t3prime --test secret_channels_t7
+        run: cargo nextest run --test secret_channels_t2 --test secret_channels_t3prime --test secret_channels_t7 --no-fail-fast
 
       # T10: the OS gate, a HARD failure against this repo's own workflows.
       - name: secret-channels-os-gate
@@ -185,4 +195,8 @@ jobs:
           MD_BIN: md
           MS_BIN: ms
           MK_BIN: mk
-        run: cargo test --workspace
+        run: cargo nextest run --workspace --no-fail-fast
+
+      # nextest does not run doc-tests; this step keeps them.
+      - name: cargo-test-doc
+        run: cargo test --workspace --doc
