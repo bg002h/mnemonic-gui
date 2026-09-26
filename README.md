@@ -54,6 +54,26 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/bg002h/mnemonic-toolkit/ma
 See `scripts/install.sh --help` (after `git clone bg002h/mnemonic-toolkit`)
 for per-component flags.
 
+**Verifying a downloaded release by hand.** Every GUI release publishes one
+`SHA256SUMS` covering all seven archives (Linux gnu and musl, macOS, Windows).
+From the first release built by the signing workflow on, it is signed with
+[minisign](https://jedisct1.github.io/minisign/) as `SHA256SUMS.minisig`, by the
+m-format constellation's release key (key id `EF2B8D34D8409754`):
+
+```text
+RWRUl0DYNI0r72HYC0ou+T/7pHEf0km3a8RWHwqGwZmIEMWtiSd4k0B5
+```
+
+```sh
+minisign -Vm SHA256SUMS -P RWRUl0DYNI0r72HYC0ou+T/7pHEf0km3a8RWHwqGwZmIEMWtiSd4k0B5
+sha256sum -c SHA256SUMS --ignore-missing
+```
+
+The signature proves who published the checksums; the checksum alone proves
+only that the download is intact. Releases from before signing began have no
+`SHA256SUMS.minisig`. The constellation installer runs this check for you when
+`minisign` is installed.
+
 **Requirements:** the GUI needs **rustc ≥ 1.88** (its locked dependency MSRV
 since v0.40.0); the four sibling CLIs build on **rustc ≥ 1.85**. The
 constellation installer skips the GUI with a warning on an older toolchain
