@@ -5,8 +5,31 @@ All notable changes to `mnemonic-gui` are recorded here. Follows
 
 ## Unreleased
 
+## mnemonic-gui [0.63.0] — 2026-09-25
+
+**SemVer-MINOR — every secret goes to the CLI privately on Linux, five new forms, and a re-pin to the CLIs that implement F-687: `mnemonic` 0.104.0 → 0.105.1 and `ms` 0.19.1 → 0.20.1** (`md` 0.20.3 and `mk` 0.13.0 unchanged). The toolkit dependency tag moves to `mnemonic-toolkit-v0.105.1`. Its `secret_taxonomy` API and the copied rust-miniscript `[patch]` rev are unchanged.
+
+- **Secret channels (DESIGN `secret_channels_and_new_forms` Part A).** On Linux, no secret reaches the command line:
+  - each secret source goes over the CLI's own `@env:` (a GUI-owned `MNEMONIC_GUI_S<i>` variable), stdin, or a pipe fd;
+  - the channel for each source comes from **measured** data (`channel_table.json`), and CI re-derives that data against the pinned release binaries (sha256-checked);
+  - macOS and Windows keep the interim argv path (`--allow-argv-secret`) until their CI job exists.
+- **What you type, on every OS:**
+  - Typed `@env:VAR` is read by the GUI itself.
+  - Typed `-` is refused, because the GUI has no stdin of its own to forward.
+  - A value that reads like a channel (`-` or `@env…` after Unicode normalization, whitespace strip and case-folding) is refused.
+  - A value ending in CR or LF is refused.
+- **What Preview and Copy show:** Preview lists each binding with its provenance. Copy never contains a secret. It prints a recipe instead: your own `@env:VAR`, a `printf … |` pipeline, or a `read -rs` line.
+- **Five new forms (Part B):** `md compose`, `md shape-key`, `md descriptor`, `md decompose`, and `ms hashlock`. The hashlock phrase is byte-verbatim over `--hashlock-phrase-stdin`, and Run stays disabled until `--kind` is chosen.
 - **`restore --from <secret-node>=…` is now treated as secret everywhere.** `restore --from` is a plain Text flag (`secret: false`; its secrecy depends on the node typed), so `--from ms1=<card>` (or `phrase=`, `wif=`, `xprv=`, any `SECRET_NODE_TYPES_ARGV` node) showed in cleartext in Preview and the field, skipped the run-confirm modal, and was written to `state.json`. One classifier, `secrets::text_value_is_secret_node_token`, now drives all four sites: the argv mask (Preview / confirm body), `should_confirm_run`, `redact_for_persistence`, and a `.password` mask with the reveal eye on the Text field. A public node (`xpub=…`) and a private-channel sentinel (`ms1=-`, `ms1=@env:VAR`) stay plain. Closes FOLLOWUP `restore-from-secret-node-unmasked-and-persisted`.
 - **CHANGELOG:** 0.60.0 and 0.61.0 entries reconstructed (F-685).
+- **Re-pin effects (F-687 in the CLIs, measured):**
+  - `--passphrase -` and `--passphrase @env:VAR` now mean stdin and the environment on every password flag. All 17 cells the GUI previously measured as taking the spelling literally (a different wallet at exit 0 or 4) are now OK. The `--decrypt-password` `-`/`@env:` cells work too (they used to fail closed).
+  - The CLI's own `@env:` strips exactly one trailing newline on the 13 `--passphrase` inputs, on `--bip38-passphrase` and on both `--decrypt-password`s. The GUI's per-input rule is re-derived to match.
+  - As a result, some plans change. Where your passphrase comes from `$VAR`, Copy now spells the CLI's own `@env:VAR` instead of a `printf` pipe. A passphrase with edge whitespace now takes stdin rather than an environment variable. Preview shows the plan.
+  - `ms derive --passphrase=VALUE` is now byte-exact on the interim path.
+- **The CLIs' new interactive behaviour does not reach the GUI:** the terminal prompt, and draining leftover paste with a masked preview. The GUI never runs a CLI on a terminal: stdin is either piped or `/dev/null`. The GUI never sends an empty secret (an empty field is omitted, and an empty `@env:` target is refused `C1-env-empty`). If an empty value did arrive, the CLI's one-line `warning: … is empty; proceeding with the EMPTY passphrase` appears in the stderr pane as-is.
+- **Schema mirror:** `ms` now reports `--separator` as a `["space"]` dropdown on `encode`, `split` and `hashlock`. The mirror already offered exactly that, and the choices drift gate now covers it.
+- **Tutorial:** the 50 shots re-rendered for the `Pinned: mnemonic 0.105.1` label. That label is the only change, the same pixel box in every shot.
 
 ## mnemonic-gui [0.62.0] — 2026-09-24
 

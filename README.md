@@ -12,8 +12,8 @@ beyond display. The CLI remains the byte-exact source of truth.
 
 ## Status
 
-Latest release: `mnemonic-gui-v0.62.0` (2026-09-24), tracking
-`mnemonic-toolkit-v0.104.0`. The GUI is a mature cross-platform overlay for
+Latest release: `mnemonic-gui-v0.63.0` (2026-09-25), tracking
+`mnemonic-toolkit-v0.105.1`. The GUI is a mature cross-platform overlay for
 all four constellation CLIs (`mnemonic` / `md` / `ms` / `mk`): every
 subcommand is form-driven from a hand-maintained `gui-schema` mirror, guarded
 on every push by a schema flag-name/defaults/choices drift gate plus
@@ -21,6 +21,10 @@ on every push by a schema flag-name/defaults/choices drift gate plus
 
 Recent releases:
 
+- **v0.63.0** — every secret goes to the CLI over a private channel on Linux
+  (`@env:`, stdin or a pipe fd, chosen from measured data); five new forms
+  (`md compose` / `shape-key` / `descriptor` / `decompose`, `ms hashlock`);
+  re-pinned to toolkit `v0.105.1` and ms `v0.20.1` (F-687).
 - **v0.60.0** — **SECURITY**: re-pins the toolkit `v0.75.0` → `v0.91.0`, which
   fixes a BIP-322 signature-verification flaw where `verify-message` reported
   VALID for a key that does not control the challenged address. The GUI was
@@ -58,7 +62,7 @@ rather than failing the whole install.
 To install just the GUI from source at the pinned tag:
 
 ```sh
-cargo install --locked --git https://github.com/bg002h/mnemonic-gui --tag mnemonic-gui-v0.62.0 mnemonic-gui
+cargo install --locked --git https://github.com/bg002h/mnemonic-gui --tag mnemonic-gui-v0.63.0 mnemonic-gui
 ```
 
 The GUI subprocess-runs the four sibling CLIs. If you skip the
