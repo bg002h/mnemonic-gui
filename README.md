@@ -69,6 +69,10 @@ minisign -Vm SHA256SUMS -P RWRUl0DYNI0r72HYC0ou+T/7pHEf0km3a8RWHwqGwZmIEMWtiSd4k
 sha256sum -c SHA256SUMS --ignore-missing
 ```
 
+On macOS, where `sha256sum` is usually absent, use
+`shasum -a 256 -c SHA256SUMS --ignore-missing`; on Windows, compare
+`Get-FileHash <archive>` with the matching line of `SHA256SUMS`.
+
 The signature proves who published the checksums; the checksum alone proves
 only that the download is intact. Releases from before signing began have no
 `SHA256SUMS.minisig`. The constellation installer runs this check for you when
