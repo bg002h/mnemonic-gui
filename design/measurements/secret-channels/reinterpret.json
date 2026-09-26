@@ -1,6 +1,6 @@
 {
  "mnemonic": {
-  "version": "0.104.0",
+  "version": "0.105.1",
   "spellings": [
    "-",
    "@env:{V}"
@@ -11,11 +11,14 @@
     "mnemonic addresses --from entropy=",
     "mnemonic addresses --from phrase=",
     "mnemonic addresses --from seedqr=",
+    "mnemonic addresses --passphrase",
+    "mnemonic bundle --passphrase",
     "mnemonic bundle --slot @0.entropy=",
     "mnemonic bundle --slot @0.ms1=",
     "mnemonic bundle --slot @0.phrase=",
     "mnemonic bundle --slot @0.seedqr=",
     "mnemonic bundle --slot @0.wif=",
+    "mnemonic convert --bip38-passphrase",
     "mnemonic convert --from bip38=",
     "mnemonic convert --from electrum-phrase=",
     "mnemonic convert --from entropy=",
@@ -25,9 +28,13 @@
     "mnemonic convert --from seedqr=",
     "mnemonic convert --from wif=",
     "mnemonic convert --from xprv=",
+    "mnemonic convert --passphrase",
     "mnemonic derive-child --from phrase=",
     "mnemonic derive-child --from xprv=",
+    "mnemonic derive-child --passphrase",
+    "mnemonic electrum-decrypt --decrypt-password",
     "mnemonic final-word --from phrase=",
+    "mnemonic import-wallet --decrypt-password",
     "mnemonic inspect --ms1",
     "mnemonic ms-shares combine --share",
     "mnemonic ms-shares split --from entropy=",
@@ -37,18 +44,27 @@
     "mnemonic restore --from ms1=",
     "mnemonic restore --from phrase=",
     "mnemonic restore --from seedqr=",
+    "mnemonic restore --passphrase",
     "mnemonic seed-xor combine --share phrase=",
     "mnemonic seed-xor split --from phrase=",
     "mnemonic seedqr decode --digits",
     "mnemonic seedqr decode --from seedqr=",
     "mnemonic seedqr encode --from phrase=",
+    "mnemonic silent-payment --passphrase",
+    "mnemonic slip39 combine --passphrase",
     "mnemonic slip39 combine --share",
     "mnemonic slip39 split --from entropy=",
     "mnemonic slip39 split --from phrase=",
+    "mnemonic slip39 split --passphrase",
+    "mnemonic verify-bundle --ms1",
+    "mnemonic verify-bundle --passphrase",
     "mnemonic verify-bundle --slot @0.entropy=",
     "mnemonic verify-bundle --slot @0.ms1=",
     "mnemonic verify-bundle --slot @0.phrase=",
-    "mnemonic verify-bundle --slot @0.seedqr="
+    "mnemonic verify-bundle --slot @0.seedqr=",
+    "mnemonic xpub-search account-of-descriptor --passphrase",
+    "mnemonic xpub-search passphrase-of-xpub --passphrase",
+    "mnemonic xpub-search path-of-xpub --passphrase"
    ],
    "@env:{V}": [
     "mnemonic addresses --from electrum-phrase=",
@@ -75,6 +91,8 @@
     "mnemonic derive-child --from phrase=",
     "mnemonic derive-child --from xprv=",
     "mnemonic derive-child --passphrase",
+    "mnemonic electrum-decrypt --decrypt-password",
+    "mnemonic import-wallet --decrypt-password",
     "mnemonic import-wallet --ms1",
     "mnemonic import-wallet --slot @0.phrase=",
     "mnemonic ms-shares combine --share",
@@ -87,6 +105,7 @@
     "mnemonic restore --passphrase",
     "mnemonic seed-xor combine --share phrase=",
     "mnemonic seed-xor split --from phrase=",
+    "mnemonic silent-payment --passphrase",
     "mnemonic slip39 combine --passphrase",
     "mnemonic slip39 combine --share",
     "mnemonic slip39 split --from entropy=",
@@ -108,14 +127,16 @@
   }
  },
  "ms": {
-  "version": "0.19.1",
+  "version": "0.20.1",
   "spellings": [
-   "-"
+   "-",
+   "@env:{V}"
   ],
   "inputs": {
    "-": [
     "ms decode <ms1>",
     "ms derive --hex",
+    "ms derive --passphrase",
     "ms derive --phrase",
     "ms derive <ms1>",
     "ms encode --hex",
@@ -128,6 +149,9 @@
     "ms split --phrase",
     "ms verify --phrase",
     "ms verify <ms1>"
+   ],
+   "@env:{V}": [
+    "ms derive --passphrase"
    ]
   }
  }

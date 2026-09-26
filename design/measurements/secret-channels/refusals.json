@@ -50,7 +50,7 @@
   "exit": 2,
   "refused": true,
   "channels": [
-   "--passphrase-stdin"
+   "--passphrase -   (stdin; or --passphrase-stdin, or --passphrase @env:VAR)"
   ],
   "first": "mnemonic: argument 2 on ARGV (--passphrase) is a BIP-39 passphrase -- 18 characters. Nothing about it is printed here."
  },
@@ -127,7 +127,7 @@
   "exit": 2,
   "refused": true,
   "channels": [
-   "--passphrase-stdin"
+   "--passphrase -   (stdin; or --passphrase-stdin, or --passphrase @env:VAR)"
   ],
   "first": "mnemonic: argument 2 on ARGV (--passphrase) is a BIP-39 passphrase -- 18 characters. Nothing about it is printed here."
  },
@@ -138,7 +138,7 @@
   "exit": 2,
   "refused": true,
   "channels": [
-   "--passphrase-stdin"
+   "--passphrase -   (stdin; or --passphrase-stdin, or --passphrase @env:VAR)"
   ],
   "first": "mnemonic: argument 2 on ARGV (--passphrase) is a BIP-39 passphrase -- 18 characters. Nothing about it is printed here."
  },
@@ -279,7 +279,7 @@
   "exit": 2,
   "refused": true,
   "channels": [
-   "--passphrase-stdin"
+   "--passphrase -   (stdin; or --passphrase-stdin, or --passphrase @env:VAR)"
   ],
   "first": "mnemonic: argument 2 on ARGV (--passphrase) is a BIP-39 passphrase -- 18 characters. Nothing about it is printed here."
  },
@@ -290,7 +290,7 @@
   "exit": 2,
   "refused": true,
   "channels": [
-   "--bip38-passphrase-stdin"
+   "--bip38-passphrase -   (stdin; or --bip38-passphrase-stdin, or --bip38-passphrase @env:VAR)"
   ],
   "first": "mnemonic: argument 2 on ARGV (--bip38-passphrase) is a BIP-38 passphrase -- 18 characters. Nothing about it is printed here."
  },
@@ -354,7 +354,7 @@
   "exit": 2,
   "refused": true,
   "channels": [
-   "--passphrase-stdin"
+   "--passphrase -   (stdin; or --passphrase-stdin, or --passphrase @env:VAR)"
   ],
   "first": "mnemonic: argument 2 on ARGV (--passphrase) is a BIP-39 passphrase -- 18 characters. Nothing about it is printed here."
  },
@@ -387,7 +387,7 @@
   "exit": 2,
   "refused": true,
   "channels": [
-   "--passphrase-stdin"
+   "--passphrase -   (stdin; or --passphrase-stdin, or --passphrase @env:VAR)"
   ],
   "first": "mnemonic: argument 2 on ARGV (--passphrase) is a BIP-39 passphrase -- 18 characters. Nothing about it is printed here."
  },
@@ -398,7 +398,7 @@
   "exit": 2,
   "refused": true,
   "channels": [
-   "--decrypt-password-stdin"
+   "--decrypt-password -   (stdin; or --decrypt-password-stdin, or --decrypt-password @env:VAR)"
   ],
   "first": "mnemonic: argument 2 on ARGV (--decrypt-password) is a wallet decryption password -- 18 characters. Nothing about it is printed here."
  },
@@ -420,7 +420,7 @@
   "exit": 2,
   "refused": true,
   "channels": [
-   "--passphrase-stdin"
+   "--passphrase -   (stdin; or --passphrase-stdin, or --passphrase @env:VAR)"
   ],
   "first": "mnemonic: argument 2 on ARGV (--passphrase) is a BIP-39 passphrase -- 18 characters. Nothing about it is printed here."
  },
@@ -528,7 +528,7 @@
   "exit": 2,
   "refused": true,
   "channels": [
-   "--passphrase-stdin"
+   "--passphrase -   (stdin; or --passphrase-stdin, or --passphrase @env:VAR)"
   ],
   "first": "mnemonic: argument 3 on ARGV (--passphrase) is a BIP-39 passphrase -- 18 characters. Nothing about it is printed here."
  },
@@ -548,7 +548,7 @@
   "exit": 2,
   "refused": true,
   "channels": [
-   "--passphrase-stdin"
+   "--passphrase -   (stdin; or --passphrase-stdin, or --passphrase @env:VAR)"
   ],
   "first": "mnemonic: argument 3 on ARGV (--passphrase) is a BIP-39 passphrase -- 18 characters. Nothing about it is printed here."
  },
@@ -621,7 +621,7 @@
   "exit": 2,
   "refused": true,
   "channels": [
-   "--decrypt-password-stdin"
+   "--decrypt-password -   (stdin; or --decrypt-password-stdin, or --decrypt-password @env:VAR)"
   ],
   "first": "mnemonic: argument 2 on ARGV (--decrypt-password) is a wallet decryption password -- 18 characters. Nothing about it is printed here."
  },
@@ -665,7 +665,7 @@
   "exit": 2,
   "refused": true,
   "channels": [
-   "--passphrase-stdin"
+   "--passphrase -   (stdin; or --passphrase-stdin, or --passphrase @env:VAR)"
   ],
   "first": "mnemonic: argument 3 on ARGV (--passphrase) is a BIP-39 passphrase -- 18 characters. Nothing about it is printed here."
  },
@@ -698,7 +698,7 @@
   "exit": 2,
   "refused": true,
   "channels": [
-   "--passphrase-stdin"
+   "--passphrase -   (stdin; or --passphrase-stdin, or --passphrase @env:VAR)"
   ],
   "first": "mnemonic: argument 3 on ARGV (--passphrase) is a BIP-39 passphrase -- 18 characters. Nothing about it is printed here."
  },
@@ -731,7 +731,7 @@
   "exit": 2,
   "refused": true,
   "channels": [
-   "--passphrase-stdin"
+   "--passphrase -   (stdin; or --passphrase-stdin, or --passphrase @env:VAR)"
   ],
   "first": "mnemonic: argument 3 on ARGV (--passphrase) is a BIP-39 passphrase -- 18 characters. Nothing about it is printed here."
  },

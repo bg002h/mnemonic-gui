@@ -28,13 +28,14 @@ pub const LANG_MS: &[&str] = &[
 ];
 
 // mstring display-grouping (ms-cli v0.8.0): `--separator` keyword values.
-// SPEC §I7 — keyword dropdown; the CLI reports `--separator` as kind `text`,
-// the GUI narrows it. Names-only gate.
+// SPEC §I7 — keyword dropdown. Until ms 0.20.1 the CLI reported `--separator`
+// as kind `text` and the GUI narrowed it (a names-only gate).
 // F-679 (ms-cli v0.19.0): `hyphen` and `comma` are RETIRED — ms refuses them
 // ("separator \"hyphen\" is no longer offered: `ms` emits whitespace grouping
-// only"). The drift gate cannot see this (the CLI reports `text`, no choices),
-// so it was measured against the release binary. Offering them would be a
-// dropdown value that always fails.
+// only"). Offering them would be a dropdown value that always fails.
+// F-683 (ms-cli v0.20.1): ms now REPORTS `--separator` as kind `dropdown`,
+// choices `["space"]` (encode, split, hashlock), so the choices drift gate
+// (tests/schema_mirror_defaults_drift.rs) covers this list from here on.
 const SEPARATORS: &[&str] = &["space"];
 
 // F-679 (ms-cli v0.19.0): ms REFUSES secret material on argv unless
@@ -728,7 +729,7 @@ const GEN_MAN_POSITIONALS: &[PositionalArgSchema] = &[];
 
 // ─── hashlock (DESIGN secret channels Part B, B5) ────────────────────────────
 
-// `ms hashlock` (ms-cli v0.19.1): a hashlock preimage/digest from exactly ONE
+// `ms hashlock` (ms-cli v0.19.1+): a hashlock preimage/digest from exactly ONE
 // source — a hashlock phrase, `--hex` (a 32-byte preimage), an `<ms1>`
 // preimage plate, `--in FILE`, or `--random` (which needs `--out`). ms's
 // v1 gui-schema carries no secret bit; the phrase, `--hex` and the `<ms1>`
@@ -741,8 +742,9 @@ const GEN_MAN_POSITIONALS: &[PositionalArgSchema] = &[];
 // - `--kind` starts at "(choose)" and Run is disabled until a kind is chosen:
 //   omitting --kind puts a sha256 record on stdout (F-553). "all kinds —
 //   lookup only" omits the flag deliberately, with a banner.
-// - `--separator`: the pinned ms 0.19.1 accepts only `space` (hyphen/comma
-//   exit 64: "ms emits whitespace grouping only"), so the shared ms list.
+// - `--separator`: ms accepts only `space` (hyphen/comma exit 64: "ms emits
+//   whitespace grouping only"; since ms 0.20.1 its gui-schema says so too),
+//   so the shared ms list.
 // Conditional fn at `form::conditional::ms_hashlock`.
 
 /// The GUI-only `--kind` value that omits the flag on purpose (every kind's
@@ -1019,6 +1021,6 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
 
 pub const SCHEMA: Schema = Schema {
     cli_name: "ms",
-    pinned_version: "ms 0.19.1",
+    pinned_version: "ms 0.20.1",
     subcommands: SUBCOMMANDS,
 };

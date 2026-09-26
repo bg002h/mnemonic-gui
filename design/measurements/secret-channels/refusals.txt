@@ -2,15 +2,15 @@ mnemonic addresses | --from phrase= | exit 2 | refused=True | --from phrase=-
 mnemonic addresses | --from ms1= | exit 2 | refused=True | --from ms1=-
 mnemonic addresses | --from entropy= | exit 2 | refused=True | --from entropy=-
 mnemonic addresses | --from seedqr= | exit 2 | refused=True | --from seedqr=-
-mnemonic addresses | --passphrase | exit 2 | refused=True | --passphrase-stdin
+mnemonic addresses | --passphrase | exit 2 | refused=True | --passphrase -   (stdin; or --passphrase-stdin, or --passphrase @env:VAR)
 mnemonic bundle | --slot @0.phrase= | exit 2 | refused=True | --slot @0.phrase=-
 mnemonic bundle | --slot @0.seedqr= | exit 2 | refused=True | --slot @0.seedqr=-
 mnemonic bundle | --slot @0.entropy= | exit 2 | refused=True | --slot @0.entropy=-
 mnemonic bundle | --slot @0.ms1= | exit 2 | refused=True | --slot @0.ms1=-
 mnemonic bundle | --slot @0.xprv= | exit 2 | refused=True | --slot @0.xprv=-
 mnemonic bundle | --slot @0.wif= | exit 2 | refused=True | --slot @0.wif=-
-mnemonic bundle | --passphrase | exit 2 | refused=True | --passphrase-stdin
-mnemonic verify-bundle | --passphrase | exit 2 | refused=True | --passphrase-stdin
+mnemonic bundle | --passphrase | exit 2 | refused=True | --passphrase -   (stdin; or --passphrase-stdin, or --passphrase @env:VAR)
+mnemonic verify-bundle | --passphrase | exit 2 | refused=True | --passphrase -   (stdin; or --passphrase-stdin, or --passphrase @env:VAR)
 mnemonic verify-bundle | --from ms1= | exit 2 | refused=True | --from ms1=-
 mnemonic verify-bundle | --ms1 | exit 64 | refused=False | error: the following required arguments were not provided:
 mnemonic verify-bundle | --slot @0.phrase= | exit 2 | refused=True | --slot @0.phrase=-
@@ -23,20 +23,20 @@ mnemonic convert | --from ms1= | exit 2 | refused=True | --from ms1=-
 mnemonic convert | --from bip38= | exit 2 | refused=True | --from bip38=-
 mnemonic convert | --from minikey= | exit 2 | refused=True | --from minikey=-
 mnemonic convert | --from electrum-phrase= | exit 2 | refused=True | --from electrum-phrase=-
-mnemonic convert | --passphrase | exit 2 | refused=True | --passphrase-stdin
-mnemonic convert | --bip38-passphrase | exit 2 | refused=True | --bip38-passphrase-stdin
+mnemonic convert | --passphrase | exit 2 | refused=True | --passphrase -   (stdin; or --passphrase-stdin, or --passphrase @env:VAR)
+mnemonic convert | --bip38-passphrase | exit 2 | refused=True | --bip38-passphrase -   (stdin; or --bip38-passphrase-stdin, or --bip38-passphrase @env:VAR)
 mnemonic export-wallet | --slot @0.phrase= | exit 2 | refused=False | error: mnemonic export-wallet is watch-only by definition; supply only xpub/fingerprint/path slots. To produce an artifact that includes secret material, use 'm
 mnemonic restore | --from ms1= | exit 2 | refused=True | --from ms1=-
 mnemonic restore | --from phrase= | exit 2 | refused=True | --from phrase=-
 mnemonic restore | --from entropy= | exit 2 | refused=True | --from entropy=-
 mnemonic restore | --from seedqr= | exit 2 | refused=True | --from seedqr=-
-mnemonic restore | --passphrase | exit 2 | refused=True | --passphrase-stdin
+mnemonic restore | --passphrase | exit 2 | refused=True | --passphrase -   (stdin; or --passphrase-stdin, or --passphrase @env:VAR)
 mnemonic derive-child | --from xprv= | exit 2 | refused=True | --from xprv=-
 mnemonic derive-child | --from phrase= | exit 2 | refused=True | --from phrase=-
-mnemonic derive-child | --passphrase | exit 2 | refused=True | --passphrase-stdin
-mnemonic electrum-decrypt | --decrypt-password | exit 2 | refused=True | --decrypt-password-stdin
+mnemonic derive-child | --passphrase | exit 2 | refused=True | --passphrase -   (stdin; or --passphrase-stdin, or --passphrase @env:VAR)
+mnemonic electrum-decrypt | --decrypt-password | exit 2 | refused=True | --decrypt-password -   (stdin; or --decrypt-password-stdin, or --decrypt-password @env:VAR)
 mnemonic nostr | --secret | exit 2 | refused=True | --secret-stdin
-mnemonic silent-payment | --passphrase | exit 2 | refused=True | --passphrase-stdin
+mnemonic silent-payment | --passphrase | exit 2 | refused=True | --passphrase -   (stdin; or --passphrase-stdin, or --passphrase @env:VAR)
 mnemonic silent-payment | --secret | exit 2 | refused=True | --secret-stdin
 mnemonic final-word | --from phrase= | exit 2 | refused=True | --from phrase=-
 mnemonic seed-xor split | --from phrase= | exit 2 | refused=True | --from phrase=-
@@ -46,26 +46,26 @@ mnemonic seedqr decode | --from seedqr= | exit 2 | refused=True | --from seedqr=
 mnemonic seedqr decode | --digits | exit 2 | refused=True | --digits -
 mnemonic slip39 split | --from phrase= | exit 2 | refused=True | --from phrase=-
 mnemonic slip39 split | --from entropy= | exit 2 | refused=True | --from entropy=-
-mnemonic slip39 split | --passphrase | exit 2 | refused=True | --passphrase-stdin
+mnemonic slip39 split | --passphrase | exit 2 | refused=True | --passphrase -   (stdin; or --passphrase-stdin, or --passphrase @env:VAR)
 mnemonic slip39 combine | --share | exit 0 | refused=False | warning: secret material on argv (--share) — pipe via --share - to avoid /proc/$PID/cmdline exposure
-mnemonic slip39 combine | --passphrase | exit 2 | refused=True | --passphrase-stdin
+mnemonic slip39 combine | --passphrase | exit 2 | refused=True | --passphrase -   (stdin; or --passphrase-stdin, or --passphrase @env:VAR)
 mnemonic ms-shares split | --from phrase= | exit 2 | refused=True | --from phrase=-
 mnemonic ms-shares split | --from entropy= | exit 2 | refused=True | --from entropy=-
 mnemonic ms-shares combine | --share | exit 2 | refused=False | warning: secret material on argv (--share) — pipe via --share - to avoid /proc/$PID/cmdline exposure
 mnemonic repair | --ms1 | exit 2 | refused=True | --ms1 -
 mnemonic inspect | --ms1 | exit 2 | refused=True | --ms1 -
 mnemonic import-wallet | --ms1 | exit 64 | refused=False | error: the following required arguments were not provided:
-mnemonic import-wallet | --decrypt-password | exit 2 | refused=True | --decrypt-password-stdin
+mnemonic import-wallet | --decrypt-password | exit 2 | refused=True | --decrypt-password -   (stdin; or --decrypt-password-stdin, or --decrypt-password @env:VAR)
 mnemonic import-wallet | --slot @0.phrase= | exit 2 | refused=True | --slot @0.phrase=@env:VAR
 mnemonic xpub-search path-of-xpub | --phrase | exit 2 | refused=True | --phrase-stdin
 mnemonic xpub-search path-of-xpub | --ms1 | exit 2 | refused=True | --ms1-stdin
-mnemonic xpub-search path-of-xpub | --passphrase | exit 2 | refused=True | --passphrase-stdin
+mnemonic xpub-search path-of-xpub | --passphrase | exit 2 | refused=True | --passphrase -   (stdin; or --passphrase-stdin, or --passphrase @env:VAR)
 mnemonic xpub-search account-of-descriptor | --phrase | exit 2 | refused=True | --phrase-stdin
 mnemonic xpub-search account-of-descriptor | --ms1 | exit 2 | refused=True | --ms1-stdin
-mnemonic xpub-search account-of-descriptor | --passphrase | exit 2 | refused=True | --passphrase-stdin
+mnemonic xpub-search account-of-descriptor | --passphrase | exit 2 | refused=True | --passphrase -   (stdin; or --passphrase-stdin, or --passphrase @env:VAR)
 mnemonic xpub-search passphrase-of-xpub | --phrase | exit 2 | refused=True | --phrase-stdin
 mnemonic xpub-search passphrase-of-xpub | --ms1 | exit 2 | refused=True | --ms1-stdin
-mnemonic xpub-search passphrase-of-xpub | --passphrase | exit 2 | refused=True | --passphrase-stdin
+mnemonic xpub-search passphrase-of-xpub | --passphrase | exit 2 | refused=True | --passphrase -   (stdin; or --passphrase-stdin, or --passphrase @env:VAR)
 mnemonic word-card | --from ms1= | exit 2 | refused=True | --from ms1=-
 mnemonic word-card | --from phrase= | exit 2 | refused=True | --from phrase=-
 ms inspect | <ms1> | exit 1 | refused=True | ms: argument 3 on ARGV (arguments count from 0, and 0 is `ms` itself) is an ms1 string (or one share of an ms1 share-set), 50 characters long.

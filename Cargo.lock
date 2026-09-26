@@ -1431,7 +1431,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "39cab71617ae0d63f51a36d69f866391735b51691dbda63cf6f96d042b63efeb"
 dependencies = [
  "libc",
- "windows-sys 0.61.2",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -2362,7 +2362,7 @@ dependencies = [
 
 [[package]]
 name = "mnemonic-gui"
-version = "0.62.0"
+version = "0.63.0"
 dependencies = [
  "clap",
  "command-fds",
@@ -2401,8 +2401,8 @@ checksum = "d54d9fc783d32defa2274b346b66549a29756db8514200b12c3c98a2c4579f64"
 
 [[package]]
 name = "mnemonic-toolkit"
-version = "0.104.0"
-source = "git+https://github.com/bg002h/mnemonic-toolkit?tag=mnemonic-toolkit-v0.104.0#642300b7c8f45ffb0d9a46031e7c0c156048b362"
+version = "0.105.1"
+source = "git+https://github.com/bg002h/mnemonic-toolkit?tag=mnemonic-toolkit-v0.105.1#1402d547471bcf69adc7ba291012aeca0a5f6ee4"
 dependencies = [
  "aes",
  "base64 0.22.1",
@@ -2556,7 +2556,7 @@ version = "0.50.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7957b9740744892f114936ab4a57b3f487491bbeafaf8083688b16841a4240e5"
 dependencies = [
- "windows-sys 0.61.2",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]
@@ -3426,7 +3426,7 @@ dependencies = [
  "errno",
  "libc",
  "linux-raw-sys 0.12.1",
- "windows-sys 0.61.2",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -3872,7 +3872,7 @@ dependencies = [
  "getrandom 0.4.2",
  "once_cell",
  "rustix 1.1.4",
- "windows-sys 0.61.2",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -4488,7 +4488,7 @@ dependencies = [
 [[package]]
 name = "wc-codec"
 version = "0.1.1"
-source = "git+https://github.com/bg002h/mnemonic-toolkit?tag=mnemonic-toolkit-v0.104.0#642300b7c8f45ffb0d9a46031e7c0c156048b362"
+source = "git+https://github.com/bg002h/mnemonic-toolkit?tag=mnemonic-toolkit-v0.105.1#1402d547471bcf69adc7ba291012aeca0a5f6ee4"
 dependencies = [
  "bip39",
  "sha2",
@@ -4667,7 +4667,7 @@ version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c2a7b1c03c876122aa43f3020e6c3c3ee5c05081c9a00739faf7503aeba10d22"
 dependencies = [
- "windows-sys 0.61.2",
+ "windows-sys 0.48.0",
 ]
 
 [[package]]

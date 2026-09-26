@@ -95,10 +95,64 @@
   "label": "mnemonic addresses --passphrase",
   "channels": [
    {
-    "kind": "EnvRef",
-    "terminator": "",
+    "kind": "DashValue",
+    "terminator": "\r\n",
     "mismatches": {
-     "''": []
+     "'\\r\\n'": []
+    },
+    "naive_no_terminator": [
+     "('suffix', '\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\r\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\n\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\r\\n\\r\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\n\\r\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\r\\r\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\n\\n\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', ' \\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '  \\r\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\t\\n'):BOTH-OK-DIFFERENT"
+    ]
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": null,
+    "mismatches": {
+     "''": [
+      "('suffix', '\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', ' \\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '  \\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\t\\n'):BOTH-OK-DIFFERENT"
+     ],
+     "'\\n'": [
+      "('suffix', '\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', ' \\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '  \\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\t\\n'):BOTH-OK-DIFFERENT"
+     ],
+     "'\\r\\n'": [
+      "('suffix', '\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', ' \\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '  \\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\t\\n'):BOTH-OK-DIFFERENT"
+     ]
     },
     "naive_no_terminator": null
    },
@@ -147,7 +201,7 @@
    "('prefix', '\\t')": 0
   },
   "argv_eq_exact": true,
-  "cli_env_rule": "verbatim"
+  "cli_env_rule": "strip-one-trailing-newline"
  },
  {
   "label": "mnemonic bundle --slot @0.phrase=",
@@ -294,10 +348,64 @@
   "label": "mnemonic bundle --passphrase",
   "channels": [
    {
-    "kind": "EnvRef",
-    "terminator": "",
+    "kind": "DashValue",
+    "terminator": "\r\n",
     "mismatches": {
-     "''": []
+     "'\\r\\n'": []
+    },
+    "naive_no_terminator": [
+     "('suffix', '\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\r\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\n\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\r\\n\\r\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\n\\r\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\r\\r\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\n\\n\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', ' \\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '  \\r\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\t\\n'):BOTH-OK-DIFFERENT"
+    ]
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": null,
+    "mismatches": {
+     "''": [
+      "('suffix', '\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', ' \\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '  \\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\t\\n'):BOTH-OK-DIFFERENT"
+     ],
+     "'\\n'": [
+      "('suffix', '\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', ' \\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '  \\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\t\\n'):BOTH-OK-DIFFERENT"
+     ],
+     "'\\r\\n'": [
+      "('suffix', '\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', ' \\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '  \\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\t\\n'):BOTH-OK-DIFFERENT"
+     ]
     },
     "naive_no_terminator": null
    },
@@ -346,7 +454,7 @@
    "('prefix', '\\t')": 0
   },
   "argv_eq_exact": true,
-  "cli_env_rule": "verbatim"
+  "cli_env_rule": "strip-one-trailing-newline"
  },
  {
   "label": "mnemonic convert --from phrase=",
@@ -912,10 +1020,64 @@
   "label": "mnemonic convert --passphrase",
   "channels": [
    {
-    "kind": "EnvRef",
-    "terminator": "",
+    "kind": "DashValue",
+    "terminator": "\r\n",
     "mismatches": {
-     "''": []
+     "'\\r\\n'": []
+    },
+    "naive_no_terminator": [
+     "('suffix', '\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\r\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\n\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\r\\n\\r\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\n\\r\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\r\\r\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\n\\n\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', ' \\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '  \\r\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\t\\n'):BOTH-OK-DIFFERENT"
+    ]
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": null,
+    "mismatches": {
+     "''": [
+      "('suffix', '\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', ' \\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '  \\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\t\\n'):BOTH-OK-DIFFERENT"
+     ],
+     "'\\n'": [
+      "('suffix', '\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', ' \\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '  \\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\t\\n'):BOTH-OK-DIFFERENT"
+     ],
+     "'\\r\\n'": [
+      "('suffix', '\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', ' \\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '  \\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\t\\n'):BOTH-OK-DIFFERENT"
+     ]
     },
     "naive_no_terminator": null
    },
@@ -964,16 +1126,70 @@
    "('prefix', '\\t')": 0
   },
   "argv_eq_exact": true,
-  "cli_env_rule": "verbatim"
+  "cli_env_rule": "strip-one-trailing-newline"
  },
  {
   "label": "mnemonic convert --bip38-passphrase",
   "channels": [
    {
-    "kind": "EnvRef",
-    "terminator": "",
+    "kind": "DashValue",
+    "terminator": "\r\n",
     "mismatches": {
-     "''": []
+     "'\\r\\n'": []
+    },
+    "naive_no_terminator": [
+     "('suffix', '\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\r\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\n\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\r\\n\\r\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\n\\r\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\r\\r\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\n\\n\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', ' \\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '  \\r\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\t\\n'):BOTH-OK-DIFFERENT"
+    ]
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": null,
+    "mismatches": {
+     "''": [
+      "('suffix', '\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', ' \\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '  \\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\t\\n'):BOTH-OK-DIFFERENT"
+     ],
+     "'\\n'": [
+      "('suffix', '\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', ' \\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '  \\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\t\\n'):BOTH-OK-DIFFERENT"
+     ],
+     "'\\r\\n'": [
+      "('suffix', '\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', ' \\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '  \\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\t\\n'):BOTH-OK-DIFFERENT"
+     ]
     },
     "naive_no_terminator": null
    },
@@ -1022,7 +1238,7 @@
    "('prefix', '\\t')": 0
   },
   "argv_eq_exact": true,
-  "cli_env_rule": "verbatim"
+  "cli_env_rule": "strip-one-trailing-newline"
  },
  {
   "label": "mnemonic restore --from phrase=",
@@ -1212,10 +1428,64 @@
   "label": "mnemonic restore --passphrase",
   "channels": [
    {
-    "kind": "EnvRef",
-    "terminator": "",
+    "kind": "DashValue",
+    "terminator": "\r\n",
     "mismatches": {
-     "''": []
+     "'\\r\\n'": []
+    },
+    "naive_no_terminator": [
+     "('suffix', '\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\r\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\n\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\r\\n\\r\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\n\\r\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\r\\r\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\n\\n\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', ' \\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '  \\r\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\t\\n'):BOTH-OK-DIFFERENT"
+    ]
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": null,
+    "mismatches": {
+     "''": [
+      "('suffix', '\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', ' \\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '  \\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\t\\n'):BOTH-OK-DIFFERENT"
+     ],
+     "'\\n'": [
+      "('suffix', '\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', ' \\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '  \\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\t\\n'):BOTH-OK-DIFFERENT"
+     ],
+     "'\\r\\n'": [
+      "('suffix', '\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', ' \\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '  \\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\t\\n'):BOTH-OK-DIFFERENT"
+     ]
     },
     "naive_no_terminator": null
    },
@@ -1264,7 +1534,7 @@
    "('prefix', '\\t')": 0
   },
   "argv_eq_exact": true,
-  "cli_env_rule": "verbatim"
+  "cli_env_rule": "strip-one-trailing-newline"
  },
  {
   "label": "mnemonic derive-child --from phrase=",
@@ -1316,10 +1586,64 @@
   "label": "mnemonic derive-child --passphrase",
   "channels": [
    {
-    "kind": "EnvRef",
-    "terminator": "",
+    "kind": "DashValue",
+    "terminator": "\r\n",
     "mismatches": {
-     "''": []
+     "'\\r\\n'": []
+    },
+    "naive_no_terminator": [
+     "('suffix', '\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\r\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\n\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\r\\n\\r\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\n\\r\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\r\\r\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\n\\n\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', ' \\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '  \\r\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\t\\n'):BOTH-OK-DIFFERENT"
+    ]
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": null,
+    "mismatches": {
+     "''": [
+      "('suffix', '\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', ' \\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '  \\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\t\\n'):BOTH-OK-DIFFERENT"
+     ],
+     "'\\n'": [
+      "('suffix', '\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', ' \\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '  \\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\t\\n'):BOTH-OK-DIFFERENT"
+     ],
+     "'\\r\\n'": [
+      "('suffix', '\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', ' \\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '  \\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\t\\n'):BOTH-OK-DIFFERENT"
+     ]
     },
     "naive_no_terminator": null
    },
@@ -1368,7 +1692,7 @@
    "('prefix', '\\t')": 0
   },
   "argv_eq_exact": true,
-  "cli_env_rule": "verbatim"
+  "cli_env_rule": "strip-one-trailing-newline"
  },
  {
   "label": "mnemonic nostr --secret",
@@ -1470,6 +1794,68 @@
   "label": "mnemonic silent-payment --passphrase",
   "channels": [
    {
+    "kind": "DashValue",
+    "terminator": "\r\n",
+    "mismatches": {
+     "'\\r\\n'": []
+    },
+    "naive_no_terminator": [
+     "('suffix', '\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\r\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\n\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\r\\n\\r\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\n\\r\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\r\\r\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\n\\n\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', ' \\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '  \\r\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\t\\n'):BOTH-OK-DIFFERENT"
+    ]
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": null,
+    "mismatches": {
+     "''": [
+      "('suffix', '\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', ' \\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '  \\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\t\\n'):BOTH-OK-DIFFERENT"
+     ],
+     "'\\n'": [
+      "('suffix', '\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', ' \\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '  \\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\t\\n'):BOTH-OK-DIFFERENT"
+     ],
+     "'\\r\\n'": [
+      "('suffix', '\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', ' \\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '  \\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\t\\n'):BOTH-OK-DIFFERENT"
+     ]
+    },
+    "naive_no_terminator": null
+   },
+   {
     "kind": "StdinToggle",
     "flag": "--passphrase-stdin",
     "terminator": "\r\n",
@@ -1514,7 +1900,7 @@
    "('prefix', '\\t')": 0
   },
   "argv_eq_exact": true,
-  "cli_env_rule": null
+  "cli_env_rule": "strip-one-trailing-newline"
  },
  {
   "label": "mnemonic final-word --from phrase=",
@@ -2275,6 +2661,68 @@
   "label": "ms derive --passphrase",
   "channels": [
    {
+    "kind": "DashValue",
+    "terminator": "\r\n",
+    "mismatches": {
+     "'\\r\\n'": []
+    },
+    "naive_no_terminator": [
+     "('suffix', '\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\r\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\n\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\r\\n\\r\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\n\\r\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\r\\r\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\n\\n\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', ' \\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '  \\r\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\t\\n'):BOTH-OK-DIFFERENT"
+    ]
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": null,
+    "mismatches": {
+     "''": [
+      "('suffix', '\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', ' \\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '  \\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\t\\n'):BOTH-OK-DIFFERENT"
+     ],
+     "'\\n'": [
+      "('suffix', '\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', ' \\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '  \\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\t\\n'):BOTH-OK-DIFFERENT"
+     ],
+     "'\\r\\n'": [
+      "('suffix', '\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', ' \\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '  \\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\t\\n'):BOTH-OK-DIFFERENT"
+     ]
+    },
+    "naive_no_terminator": null
+   },
+   {
     "kind": "StdinToggle",
     "flag": "--passphrase-stdin",
     "terminator": "\r\n",
@@ -2318,8 +2766,8 @@
    "('prefix', ' ')": 0,
    "('prefix', '\\t')": 0
   },
-  "argv_eq_exact": false,
-  "cli_env_rule": null
+  "argv_eq_exact": true,
+  "cli_env_rule": "strip-one-trailing-newline"
  },
  {
   "label": "ms repair --ms1",
@@ -2674,10 +3122,32 @@
   "label": "mnemonic verify-bundle --passphrase",
   "channels": [
    {
-    "kind": "EnvRef",
-    "terminator": "",
+    "kind": "DashValue",
+    "terminator": "\r\n",
     "mismatches": {
-     "''": []
+     "'\\r\\n'": []
+    },
+    "naive_no_terminator": [
+     "('suffix', '\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\r\\n'):BOTH-OK-DIFFERENT"
+    ]
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": null,
+    "mismatches": {
+     "''": [
+      "('suffix', '\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n'):BOTH-OK-DIFFERENT"
+     ],
+     "'\\n'": [
+      "('suffix', '\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n'):BOTH-OK-DIFFERENT"
+     ],
+     "'\\r\\n'": [
+      "('suffix', '\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n'):BOTH-OK-DIFFERENT"
+     ]
     },
     "naive_no_terminator": null
    },
@@ -2718,11 +3188,19 @@
    "('prefix', '\\t')": 4
   },
   "argv_eq_exact": true,
-  "cli_env_rule": "verbatim"
+  "cli_env_rule": "strip-one-trailing-newline"
  },
  {
   "label": "mnemonic verify-bundle --ms1",
   "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": "\r\n",
+    "mismatches": {
+     "'\\r\\n'": []
+    },
+    "naive_no_terminator": []
+   },
    {
     "kind": "EnvRef",
     "terminator": "",
@@ -2838,6 +3316,36 @@
   "label": "mnemonic electrum-decrypt --decrypt-password",
   "channels": [
    {
+    "kind": "DashValue",
+    "terminator": "\r\n",
+    "mismatches": {
+     "'\\r\\n'": []
+    },
+    "naive_no_terminator": [
+     "('suffix', '\\n'):argv-fails/channel-ok",
+     "('suffix', '\\r\\n'):argv-fails/channel-ok"
+    ]
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": null,
+    "mismatches": {
+     "''": [
+      "('suffix', '\\n'):argv-fails/channel-ok",
+      "('suffix', '\\r\\n'):argv-fails/channel-ok"
+     ],
+     "'\\n'": [
+      "('suffix', '\\n'):argv-fails/channel-ok",
+      "('suffix', '\\r\\n'):argv-fails/channel-ok"
+     ],
+     "'\\r\\n'": [
+      "('suffix', '\\n'):argv-fails/channel-ok",
+      "('suffix', '\\r\\n'):argv-fails/channel-ok"
+     ]
+    },
+    "naive_no_terminator": null
+   },
+   {
     "kind": "StdinToggle",
     "flag": "--decrypt-password-stdin",
     "terminator": "\r\n",
@@ -2888,7 +3396,7 @@
    "('prefix', '\\t')": 1
   },
   "argv_eq_exact": true,
-  "cli_env_rule": null
+  "cli_env_rule": "strip-one-trailing-newline"
  },
  {
   "label": "mnemonic xpub-search path-of-xpub --phrase",
@@ -3062,10 +3570,32 @@
   "label": "mnemonic xpub-search path-of-xpub --passphrase",
   "channels": [
    {
-    "kind": "EnvRef",
-    "terminator": "",
+    "kind": "DashValue",
+    "terminator": "\r\n",
     "mismatches": {
-     "''": []
+     "'\\r\\n'": []
+    },
+    "naive_no_terminator": [
+     "('suffix', '\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\r\\n'):BOTH-OK-DIFFERENT"
+    ]
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": null,
+    "mismatches": {
+     "''": [
+      "('suffix', '\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n'):BOTH-OK-DIFFERENT"
+     ],
+     "'\\n'": [
+      "('suffix', '\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n'):BOTH-OK-DIFFERENT"
+     ],
+     "'\\r\\n'": [
+      "('suffix', '\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n'):BOTH-OK-DIFFERENT"
+     ]
     },
     "naive_no_terminator": null
    },
@@ -3106,7 +3636,7 @@
    "('prefix', '\\t')": 4
   },
   "argv_eq_exact": true,
-  "cli_env_rule": "verbatim"
+  "cli_env_rule": "strip-one-trailing-newline"
  },
  {
   "label": "mnemonic xpub-search account-of-descriptor --phrase",
@@ -3280,10 +3810,32 @@
   "label": "mnemonic xpub-search account-of-descriptor --passphrase",
   "channels": [
    {
-    "kind": "EnvRef",
-    "terminator": "",
+    "kind": "DashValue",
+    "terminator": "\r\n",
     "mismatches": {
-     "''": []
+     "'\\r\\n'": []
+    },
+    "naive_no_terminator": [
+     "('suffix', '\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\r\\n'):BOTH-OK-DIFFERENT"
+    ]
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": null,
+    "mismatches": {
+     "''": [
+      "('suffix', '\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n'):BOTH-OK-DIFFERENT"
+     ],
+     "'\\n'": [
+      "('suffix', '\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n'):BOTH-OK-DIFFERENT"
+     ],
+     "'\\r\\n'": [
+      "('suffix', '\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n'):BOTH-OK-DIFFERENT"
+     ]
     },
     "naive_no_terminator": null
    },
@@ -3324,16 +3876,38 @@
    "('prefix', '\\t')": 4
   },
   "argv_eq_exact": true,
-  "cli_env_rule": "verbatim"
+  "cli_env_rule": "strip-one-trailing-newline"
  },
  {
   "label": "mnemonic xpub-search passphrase-of-xpub --passphrase",
   "channels": [
    {
-    "kind": "EnvRef",
-    "terminator": "",
+    "kind": "DashValue",
+    "terminator": "\r\n",
     "mismatches": {
-     "''": []
+     "'\\r\\n'": []
+    },
+    "naive_no_terminator": [
+     "('suffix', '\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\r\\n'):BOTH-OK-DIFFERENT"
+    ]
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": null,
+    "mismatches": {
+     "''": [
+      "('suffix', '\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n'):BOTH-OK-DIFFERENT"
+     ],
+     "'\\n'": [
+      "('suffix', '\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n'):BOTH-OK-DIFFERENT"
+     ],
+     "'\\r\\n'": [
+      "('suffix', '\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n'):BOTH-OK-DIFFERENT"
+     ]
     },
     "naive_no_terminator": null
    },
@@ -3374,7 +3948,7 @@
    "('prefix', '\\t')": 4
   },
   "argv_eq_exact": true,
-  "cli_env_rule": "verbatim"
+  "cli_env_rule": "strip-one-trailing-newline"
  },
  {
   "label": "mnemonic xpub-search passphrase-of-xpub --phrase",
@@ -3473,10 +4047,64 @@
   "label": "mnemonic slip39 split --passphrase",
   "channels": [
    {
-    "kind": "EnvRef",
-    "terminator": "",
+    "kind": "DashValue",
+    "terminator": "\r\n",
     "mismatches": {
-     "''": []
+     "'\\r\\n'": []
+    },
+    "naive_no_terminator": [
+     "('suffix', '\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\r\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\n\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\r\\n\\r\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\n\\r\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\r\\r\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\n\\n\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', ' \\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '  \\r\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\t\\n'):BOTH-OK-DIFFERENT"
+    ]
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": null,
+    "mismatches": {
+     "''": [
+      "('suffix', '\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', ' \\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '  \\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\t\\n'):BOTH-OK-DIFFERENT"
+     ],
+     "'\\n'": [
+      "('suffix', '\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', ' \\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '  \\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\t\\n'):BOTH-OK-DIFFERENT"
+     ],
+     "'\\r\\n'": [
+      "('suffix', '\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', ' \\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '  \\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\t\\n'):BOTH-OK-DIFFERENT"
+     ]
     },
     "naive_no_terminator": null
    },
@@ -3525,7 +4153,7 @@
    "('prefix', '\\t')": 0
   },
   "argv_eq_exact": true,
-  "cli_env_rule": "verbatim"
+  "cli_env_rule": "strip-one-trailing-newline"
  },
  {
   "label": "mnemonic slip39 combine --share",
@@ -3577,10 +4205,64 @@
   "label": "mnemonic slip39 combine --passphrase",
   "channels": [
    {
-    "kind": "EnvRef",
-    "terminator": "",
+    "kind": "DashValue",
+    "terminator": "\r\n",
     "mismatches": {
-     "''": []
+     "'\\r\\n'": []
+    },
+    "naive_no_terminator": [
+     "('suffix', '\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\r\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\n\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\r\\n\\r\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\n\\r\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\r\\r\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\n\\n\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', ' \\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '  \\r\\n'):BOTH-OK-DIFFERENT",
+     "('suffix', '\\t\\n'):BOTH-OK-DIFFERENT"
+    ]
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": null,
+    "mismatches": {
+     "''": [
+      "('suffix', '\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', ' \\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '  \\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\t\\n'):BOTH-OK-DIFFERENT"
+     ],
+     "'\\n'": [
+      "('suffix', '\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', ' \\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '  \\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\t\\n'):BOTH-OK-DIFFERENT"
+     ],
+     "'\\r\\n'": [
+      "('suffix', '\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\r\\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\n\\n\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', ' \\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '  \\r\\n'):BOTH-OK-DIFFERENT",
+      "('suffix', '\\t\\n'):BOTH-OK-DIFFERENT"
+     ]
     },
     "naive_no_terminator": null
    },
@@ -3629,7 +4311,7 @@
    "('prefix', '\\t')": 0
   },
   "argv_eq_exact": true,
-  "cli_env_rule": "verbatim"
+  "cli_env_rule": "strip-one-trailing-newline"
  },
  {
   "label": "mnemonic ms-shares split --from phrase=",
@@ -4587,6 +5269,36 @@
   "label": "mnemonic import-wallet --decrypt-password",
   "channels": [
    {
+    "kind": "DashValue",
+    "terminator": "\r\n",
+    "mismatches": {
+     "'\\r\\n'": []
+    },
+    "naive_no_terminator": [
+     "('suffix', '\\n'):argv-fails/channel-ok",
+     "('suffix', '\\r\\n'):argv-fails/channel-ok"
+    ]
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": null,
+    "mismatches": {
+     "''": [
+      "('suffix', '\\n'):argv-fails/channel-ok",
+      "('suffix', '\\r\\n'):argv-fails/channel-ok"
+     ],
+     "'\\n'": [
+      "('suffix', '\\n'):argv-fails/channel-ok",
+      "('suffix', '\\r\\n'):argv-fails/channel-ok"
+     ],
+     "'\\r\\n'": [
+      "('suffix', '\\n'):argv-fails/channel-ok",
+      "('suffix', '\\r\\n'):argv-fails/channel-ok"
+     ]
+    },
+    "naive_no_terminator": null
+   },
+   {
     "kind": "StdinToggle",
     "flag": "--decrypt-password-stdin",
     "terminator": "\r\n",
@@ -4637,7 +5349,7 @@
    "('prefix', '\\t')": 1
   },
   "argv_eq_exact": true,
-  "cli_env_rule": null
+  "cli_env_rule": "strip-one-trailing-newline"
  },
  {
   "label": "mnemonic addresses --from electrum-phrase=",

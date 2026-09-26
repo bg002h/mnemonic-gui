@@ -21,7 +21,7 @@ f. seed-xor combine one share stdin, one @env
 g. silent-payment --secret-file F + --passphrase-stdin
   SAME
 g2. silent-payment --secret-stdin + --passphrase @env (measured literal before)
-  DIFFERENT
+  SAME
 h. convert bip38 node stdin + --bip38-passphrase @env
   bip38=6PYP8fdoVaE3ThLmEnYcGo3nJeBqd8PvB7CRvTz3TX5L9ojoPHKCg7QXG6
   base=wif: KyZpNDKnfs94vbrwhJneDi77V6jF64PWPF8x5cdJb8ifgg2DUc9d

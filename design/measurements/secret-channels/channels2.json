@@ -41,7 +41,7 @@
   "base_err": "",
   "depends": true,
   "channels": {
-   "stdin `--passphrase -`": "exit 4 but DIFFERENT output",
+   "stdin `--passphrase -`": "OK",
    "`--passphrase @env:VAR`": "OK",
    "`--passphrase-stdin`": "OK",
    "`--passphrase-file F`": "no (exit 64: error: unexpected argument '--passphrase-file' found)",
@@ -54,7 +54,7 @@
   "base_err": "",
   "depends": true,
   "channels": {
-   "stdin `--passphrase -`": "exit 4 but DIFFERENT output",
+   "stdin `--passphrase -`": "OK",
    "`--passphrase @env:VAR`": "OK",
    "`--passphrase-stdin`": "OK",
    "`--passphrase-file F`": "no (exit 64: error: unexpected argument '--passphrase-file' found)",
