@@ -41,6 +41,9 @@ m, ms = "mnemonic", "ms"
 SHAPES = []
 
 
+# F-694: `sources` are listed in the FORM's order (the order `channels::assemble` finds them),
+# because the planner is order-dependent by design (DESIGN §A4.3). T6's
+# t6_every_shape_through_the_real_form_plans_as_the_pure_planner asserts it.
 def shape(name, cli, sub, pre, sources, post=(), symmetric=(), expect="run"):
     """symmetric: the source-index pairs whose values the CLI combines order-independently
     (share sets). A swap between such a pair is output-invisible, by the math, not by accident."""
@@ -58,12 +61,12 @@ shape("restore ms1+passphrase", m, ["restore"], ["--template", "bip84"],
 shape("derive-child phrase+passphrase", m, ["derive-child"], ["--application", "bip39", "--length", "12", "--index", "0"],
       [node("mnemonic derive-child --from phrase=", "--from", "phrase=", P), val("mnemonic derive-child --passphrase", "--passphrase", PW)])
 shape("bundle slot+passphrase", m, ["bundle"], ["--network", "mainnet", "--template", "bip84"],
-      [node("mnemonic bundle --slot @N.phrase=", "--slot", "@0.phrase=", P), val("mnemonic bundle --passphrase", "--passphrase", PW)])
+      [val("mnemonic bundle --passphrase", "--passphrase", PW), node("mnemonic bundle --slot @N.phrase=", "--slot", "@0.phrase=", P)])
 shape("bundle wsh-multi 2 slots", m, ["bundle"], ["--network", "mainnet", "--template", "wsh-multi", "--threshold", "2"],
       [node("mnemonic bundle --slot @N.phrase=", "--slot", "@0.phrase=", P), node("mnemonic bundle --slot @N.phrase=", "--slot", "@1.phrase=", P2)])
 shape("bundle wsh-multi 2 slots+passphrase", m, ["bundle"], ["--network", "mainnet", "--template", "wsh-multi", "--threshold", "2"],
-      [node("mnemonic bundle --slot @N.phrase=", "--slot", "@0.phrase=", P), node("mnemonic bundle --slot @N.ms1=", "--slot", "@1.ms1=", T24_MS1),
-       val("mnemonic bundle --passphrase", "--passphrase", PW)])
+      [val("mnemonic bundle --passphrase", "--passphrase", PW),
+       node("mnemonic bundle --slot @N.phrase=", "--slot", "@0.phrase=", P), node("mnemonic bundle --slot @N.ms1=", "--slot", "@1.ms1=", T24_MS1)])
 shape("convert phrase+passphrase", m, ["convert"], ["--to", "xpub", "--template", "bip84"],
       [node("mnemonic convert --from phrase=", "--from", "phrase=", P), val("mnemonic convert --passphrase", "--passphrase", PW)])
 shape("convert wif+bip38-passphrase", m, ["convert"], ["--to", "bip38"],
@@ -77,7 +80,7 @@ for mode, extra in [("path-of-xpub", ["--target-xpub", XPUB84_PW]), ("passphrase
     shape(f"xpub-search {mode} ms1+passphrase", m, ["xpub-search", mode], extra,
           [val(XS + mode + " --ms1", "--ms1", MS1), val(XS + mode + " --passphrase", "--passphrase", PW)])
 shape("silent-payment secret+passphrase", m, ["silent-payment"], [],
-      [val("mnemonic silent-payment --secret", "--secret", P), val("mnemonic silent-payment --passphrase", "--passphrase", PW)])
+      [val("mnemonic silent-payment --passphrase", "--passphrase", PW), val("mnemonic silent-payment --secret", "--secret", P)])
 shape("slip39 split phrase+passphrase", m, ["slip39", "split"], ["--group-threshold", "1", "--group", "3,2"],
       [node("mnemonic slip39 split --from phrase=", "--from", "phrase=", P), val("mnemonic slip39 split --passphrase", "--passphrase", PW)])
 shape("slip39 combine 2 shares+passphrase", m, ["slip39", "combine"], [],
@@ -94,8 +97,8 @@ shape("import-wallet 2 cosigner ms1", m, ["import-wallet"], ["--blob", os.path.j
       [val("mnemonic import-wallet --ms1", "--ms1", T24_MS1), val("mnemonic import-wallet --ms1", "--ms1", MS1)])
 shape("verify-bundle ms1+slot+passphrase", m, ["verify-bundle"],
       ["--network", "mainnet", "--template", "bip84", "--mk1"] + BPJ["mk1"] + ["--md1"] + BPJ["md1"],
-      [val("mnemonic verify-bundle --ms1", "--ms1", BPJ["ms1"][0]), node("mnemonic verify-bundle --slot @N.phrase=", "--slot", "@0.phrase=", P),
-       val("mnemonic verify-bundle --passphrase", "--passphrase", PW)])
+      [val("mnemonic verify-bundle --passphrase", "--passphrase", PW),
+       val("mnemonic verify-bundle --ms1", "--ms1", BPJ["ms1"][0]), node("mnemonic verify-bundle --slot @N.phrase=", "--slot", "@0.phrase=", P)])
 shape("ms combine share group", ms, ["combine"], [], [group("ms combine <shares>", MSPLIT)])
 shape("ms verify phrase+ms1", ms, ["verify"], [], [val("ms verify --phrase", "--phrase", P), pos("ms verify <ms1>", MS1)])
 shape("ms derive ms1+passphrase", ms, ["derive"], [], [val("ms derive --passphrase", "--passphrase", PW), pos("ms derive <ms1>", MS1)])

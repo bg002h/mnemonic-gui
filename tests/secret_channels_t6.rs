@@ -29,7 +29,7 @@ use mnemonic_gui::form::channels::copy::{
     copy_commands, CopyState, MULTILINE_TOOLTIP, WINDOWS_STDIN_TOOLTIP,
 };
 use mnemonic_gui::form::channels::{
-    self, channel_table, plan_sources, policy, PlanOptions, SourceValue,
+    self, channel_table, plan_sources, policy, EnvRule, PlanOptions, SourceValue,
 };
 use mnemonic_gui::form::secret_widget::SecretLineEdit;
 use mnemonic_gui::form::slot_editor::{SlotRow, SlotState, SlotSubkey};
@@ -191,19 +191,24 @@ fn rows_of(bindings: &[channels::Binding], resolved: &[SourceValue]) -> Vec<Row>
 fn t6_every_shape_through_the_real_form_plans_as_the_pure_planner() {
     let none = env_of(&[]);
     let mut n = 0;
+    let mut order_drift: Vec<String> = Vec::new();
     for sh in shapes() {
         let (schema, sub, st) = form_state(sh, &values_of(sh));
         // the form's sources are exactly the shape's
         let asm = channels::assemble(schema, sub, &st);
-        let mut got_keys: Vec<&str> = asm.sites.iter().map(|s| s.key.as_str()).collect();
-        let mut want_keys: Vec<&str> = sh.sources.iter().map(|s| s.key.as_str()).collect();
-        got_keys.sort();
-        want_keys.sort();
-        assert_eq!(
-            got_keys, want_keys,
-            "{}: the form's secret sources",
-            sh.name
-        );
+        // F-694: in the FORM's order, not sorted. The planner is order-dependent
+        // by design (§A4.3 "first source in argv order"), so shapes.py must list
+        // sources exactly as the form assembles them or the pure plan (T8, §A5)
+        // describes a plan the GUI never makes.
+        let got_keys: Vec<&str> = asm.sites.iter().map(|s| s.key.as_str()).collect();
+        let want_keys: Vec<&str> = sh.sources.iter().map(|s| s.key.as_str()).collect();
+        if got_keys != want_keys {
+            order_drift.push(format!(
+                "{}: form {got_keys:?}, shapes.py {want_keys:?}",
+                sh.name
+            ));
+            continue;
+        }
         for os in PLATFORMS {
             let pure = plan_sources(
                 &sh.plan_sources(),
@@ -261,6 +266,12 @@ fn t6_every_shape_through_the_real_form_plans_as_the_pure_planner() {
             n += 1;
         }
     }
+    assert!(
+        order_drift.is_empty(),
+        "shapes.py lists sources in a different order from the form (the planner is \
+         order-dependent, so the pure plan would not be the GUI's):\n{}",
+        order_drift.join("\n")
+    );
     assert_eq!(n, shapes().len() * 3);
 }
 
@@ -331,13 +342,25 @@ fn t6_copy_env_provenance_spells_the_users_own_variable_or_printf() {
         t.contains("phrase=@env:MY_SEED"),
         "EnvRef + $VAR: the user's own @env: {t}"
     );
-    assert!(
-        t.lines()
-            .last()
-            .unwrap()
-            .starts_with("printf '%s\\r\\n' \"$MY_PW\" | mnemonic restore "),
-        "{t}"
-    );
+    // F-694: the expected spelling of the stdin-bound `$MY_PW` is DERIVED from
+    // the measured table, not hand-kept (§A0 item 3). Under a verbatim (or no)
+    // CLI `@env:` rule, `printf '%s<T>'` is exact; under any other rule (0.105.1:
+    // strip-one-trailing-newline) Copy defers to the CLI's own `@env:MY_PW`.
+    let last = t.lines().last().unwrap();
+    let rule = channel_table()["mnemonic restore --passphrase"].cli_env_rule;
+    if matches!(rule, None | Some(EnvRule::Verbatim)) {
+        assert!(
+            last.starts_with("printf '%s\\r\\n' \"$MY_PW\" | mnemonic restore "),
+            "{rule:?}: {t}"
+        );
+    } else {
+        assert!(
+            last.starts_with("mnemonic restore ")
+                && last.contains("--passphrase @env:MY_PW")
+                && !t.contains("printf"),
+            "{rule:?}: {t}"
+        );
+    }
 }
 
 #[test]
@@ -484,14 +507,16 @@ fn argv_exact(argv: &[&str]) -> String {
 }
 
 /// The §A7 recipes the GUI prints, EXECUTED: the typed stdin row
-/// (`restore`, passphrase typed), the `$VAR` printf pipeline (`restore`,
-/// passphrase from `$MY_PW`), and the typed-EnvRef `read` recipe
-/// (`xpub-search path-of-xpub`, where the phrase takes stdin and the typed
-/// passphrase rides `MNEMONIC_GUI_S1`) — each against argv-exact.
+/// (`restore`, passphrase typed), the `$VAR` recipe (`restore`, passphrase
+/// from `$MY_PW`: a printf pipeline or the CLI's own `@env:`, per the measured
+/// rule), and the typed-EnvRef `read` recipe (`xpub-search path-of-xpub`, where
+/// a clean typed passphrase rides `MNEMONIC_GUI_S1`; an edge-whitespace one
+/// takes stdin instead) — each against argv-exact.
 #[test]
 fn t6_shell_leg_printed_recipes_equal_argv_exact_in_bash_zsh_fish() {
     let (sc, sub) = restore();
     let mut bad = Vec::new();
+    let mut read_legs = 0;
     for v in VALUES {
         let want = argv_exact(&[
             "mnemonic",
@@ -526,7 +551,7 @@ fn t6_shell_leg_printed_recipes_equal_argv_exact_in_bash_zsh_fish() {
                 bad.push(format!("{shell} typed stdin row {v:?}"));
             }
             if sh_run(shell, &line2, "", &[("PHR", P), ("MY_PW", v)]) != want {
-                bad.push(format!("{shell} printf recipe {v:?}"));
+                bad.push(format!("{shell} $VAR recipe {v:?}"));
             }
         }
         // typed-EnvRef `read` recipe
@@ -577,10 +602,25 @@ fn t6_shell_leg_printed_recipes_equal_argv_exact_in_bash_zsh_fish() {
             &env_of(&[("PHR", P)]),
         );
         let t3 = ready(&posix3).to_string();
-        let comment = t3
-            .lines()
-            .find(|l| l.contains("read -rs MNEMONIC_GUI_S1"))
-            .unwrap_or_else(|| panic!("{t3}"));
+        // F-694: which recipe applies is DERIVED from the plan Copy printed. On
+        // 0.105.1 the passphrase's EnvRef has no exact terminator (strip-one), so
+        // a value with edge whitespace is kept off it (§A3c) and takes stdin, and
+        // the phrase moves to the user's own `@env:PHR`. A clean value still rides
+        // `MNEMONIC_GUI_S1` and exercises the `read` recipe.
+        let Some(comment) = t3.lines().find(|l| l.contains("read -rs MNEMONIC_GUI_S1")) else {
+            assert!(
+                t3.contains("--phrase @env:PHR") && t3.contains("--passphrase-stdin"),
+                "neither the read recipe nor the stdin row: {t3}"
+            );
+            let cmd3 = t3.lines().last().unwrap();
+            for shell in ["bash", "zsh", "fish"] {
+                if sh_run(shell, cmd3, &format!("{v}\n"), &[("PHR", P)]) != want3 {
+                    bad.push(format!("{shell} xpub-search stdin row {v:?}"));
+                }
+            }
+            continue;
+        };
+        read_legs += 1;
         let posix_read = comment
             .split_once(": ")
             .unwrap()
@@ -612,6 +652,11 @@ fn t6_shell_leg_printed_recipes_equal_argv_exact_in_bash_zsh_fish() {
         }
     }
     assert!(bad.is_empty(), "§A7 recipe mismatches: {bad:?}");
+    // Non-vacuity: the typed-EnvRef `read` recipe must still run for some value.
+    assert!(
+        read_legs > 0,
+        "the read recipe never ran: no value rode MNEMONIC_GUI_S1"
+    );
 }
 
 // ── The window ────────────────────────────────────────────────────────────

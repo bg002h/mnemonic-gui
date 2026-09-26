@@ -898,17 +898,17 @@
     "bindings": [
      {
       "source": 0,
-      "key": "mnemonic bundle --slot @N.phrase=",
-      "kind": "EnvRef",
-      "terminator": "",
-      "env": "MNEMONIC_GUI_S0"
-     },
-     {
-      "source": 1,
       "key": "mnemonic bundle --passphrase",
       "kind": "StdinToggle",
       "terminator": "\r\n",
       "flag": "--passphrase-stdin"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic bundle --slot @N.phrase=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
      }
     ]
    },
@@ -916,14 +916,14 @@
     "bindings": [
      {
       "source": 0,
-      "key": "mnemonic bundle --slot @N.phrase=",
+      "key": "mnemonic bundle --passphrase",
       "kind": "Argv",
       "terminator": "",
       "argv_form": "sep"
      },
      {
       "source": 1,
-      "key": "mnemonic bundle --passphrase",
+      "key": "mnemonic bundle --slot @N.phrase=",
       "kind": "Argv",
       "terminator": "",
       "argv_form": "sep"
@@ -934,14 +934,14 @@
     "bindings": [
      {
       "source": 0,
-      "key": "mnemonic bundle --slot @N.phrase=",
+      "key": "mnemonic bundle --passphrase",
       "kind": "Argv",
       "terminator": "",
       "argv_form": "sep"
      },
      {
       "source": 1,
-      "key": "mnemonic bundle --passphrase",
+      "key": "mnemonic bundle --slot @N.phrase=",
       "kind": "Argv",
       "terminator": "",
       "argv_form": "sep"
@@ -952,17 +952,17 @@
     "bindings": [
      {
       "source": 0,
-      "key": "mnemonic bundle --slot @N.phrase=",
-      "kind": "EnvRef",
-      "terminator": "",
-      "env": "MNEMONIC_GUI_S0"
-     },
-     {
-      "source": 1,
       "key": "mnemonic bundle --passphrase",
       "kind": "StdinToggle",
       "terminator": "\r\n",
       "flag": "--passphrase-stdin"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic bundle --slot @N.phrase=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
      }
     ]
    }
@@ -972,16 +972,16 @@
     "case": "typed",
     "os": "linux",
     "kinds": [
-     "EnvRef",
-     "StdinToggle"
+     "StdinToggle",
+     "EnvRef"
     ],
     "provenance": [
      "typed",
      "typed"
     ],
     "payloads": [
-     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
-     "hunter2-passphrase\r\n"
+     "hunter2-passphrase\r\n",
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
     ]
    },
    {
@@ -996,8 +996,8 @@
      "typed"
     ],
     "payloads": [
-     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
-     "hunter2-passphrase"
+     "hunter2-passphrase",
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
     ]
    },
    {
@@ -1012,24 +1012,24 @@
      "typed"
     ],
     "payloads": [
-     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
-     "hunter2-passphrase"
+     "hunter2-passphrase",
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
     ]
    },
    {
     "case": "src0 as @env:USER_SECRET",
     "os": "linux",
     "kinds": [
-     "EnvRef",
-     "StdinToggle"
+     "StdinToggle",
+     "EnvRef"
     ],
     "provenance": [
      "$USER_SECRET",
      "typed"
     ],
     "payloads": [
-     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  ",
-     "hunter2-passphrase\r\n"
+     "hunter2-passphrase  \r\n",
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
     ]
    },
    {
@@ -1044,8 +1044,8 @@
      "typed"
     ],
     "payloads": [
-     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  ",
-     "hunter2-passphrase"
+     "hunter2-passphrase  ",
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
     ]
    },
    {
@@ -1060,24 +1060,24 @@
      "typed"
     ],
     "payloads": [
-     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  ",
-     "hunter2-passphrase"
+     "hunter2-passphrase  ",
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
     ]
    },
    {
     "case": "src1 as @env:USER_SECRET",
     "os": "linux",
     "kinds": [
-     "EnvRef",
-     "StdinToggle"
+     "StdinToggle",
+     "EnvRef"
     ],
     "provenance": [
      "typed",
      "$USER_SECRET"
     ],
     "payloads": [
-     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
-     "hunter2-passphrase  \r\n"
+     "hunter2-passphrase\r\n",
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  "
     ]
    },
    {
@@ -1092,8 +1092,8 @@
      "$USER_SECRET"
     ],
     "payloads": [
-     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
-     "hunter2-passphrase  "
+     "hunter2-passphrase",
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  "
     ]
    },
    {
@@ -1108,8 +1108,8 @@
      "$USER_SECRET"
     ],
     "payloads": [
-     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
-     "hunter2-passphrase  "
+     "hunter2-passphrase",
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  "
     ]
    }
   ]
@@ -1344,24 +1344,24 @@
     "bindings": [
      {
       "source": 0,
-      "key": "mnemonic bundle --slot @N.phrase=",
-      "kind": "EnvRef",
-      "terminator": "",
-      "env": "MNEMONIC_GUI_S0"
+      "key": "mnemonic bundle --passphrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--passphrase-stdin"
      },
      {
       "source": 1,
-      "key": "mnemonic bundle --slot @N.ms1=",
+      "key": "mnemonic bundle --slot @N.phrase=",
       "kind": "EnvRef",
       "terminator": "",
       "env": "MNEMONIC_GUI_S1"
      },
      {
       "source": 2,
-      "key": "mnemonic bundle --passphrase",
-      "kind": "StdinToggle",
-      "terminator": "\r\n",
-      "flag": "--passphrase-stdin"
+      "key": "mnemonic bundle --slot @N.ms1=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S2"
      }
     ]
    },
@@ -1369,21 +1369,21 @@
     "bindings": [
      {
       "source": 0,
-      "key": "mnemonic bundle --slot @N.phrase=",
+      "key": "mnemonic bundle --passphrase",
       "kind": "Argv",
       "terminator": "",
       "argv_form": "sep"
      },
      {
       "source": 1,
-      "key": "mnemonic bundle --slot @N.ms1=",
+      "key": "mnemonic bundle --slot @N.phrase=",
       "kind": "Argv",
       "terminator": "",
       "argv_form": "sep"
      },
      {
       "source": 2,
-      "key": "mnemonic bundle --passphrase",
+      "key": "mnemonic bundle --slot @N.ms1=",
       "kind": "Argv",
       "terminator": "",
       "argv_form": "sep"
@@ -1394,21 +1394,21 @@
     "bindings": [
      {
       "source": 0,
-      "key": "mnemonic bundle --slot @N.phrase=",
+      "key": "mnemonic bundle --passphrase",
       "kind": "Argv",
       "terminator": "",
       "argv_form": "sep"
      },
      {
       "source": 1,
-      "key": "mnemonic bundle --slot @N.ms1=",
+      "key": "mnemonic bundle --slot @N.phrase=",
       "kind": "Argv",
       "terminator": "",
       "argv_form": "sep"
      },
      {
       "source": 2,
-      "key": "mnemonic bundle --passphrase",
+      "key": "mnemonic bundle --slot @N.ms1=",
       "kind": "Argv",
       "terminator": "",
       "argv_form": "sep"
@@ -1419,24 +1419,24 @@
     "bindings": [
      {
       "source": 0,
-      "key": "mnemonic bundle --slot @N.phrase=",
-      "kind": "EnvRef",
-      "terminator": "",
-      "env": "MNEMONIC_GUI_S0"
+      "key": "mnemonic bundle --passphrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--passphrase-stdin"
      },
      {
       "source": 1,
-      "key": "mnemonic bundle --slot @N.ms1=",
+      "key": "mnemonic bundle --slot @N.phrase=",
       "kind": "EnvRef",
       "terminator": "",
       "env": "MNEMONIC_GUI_S1"
      },
      {
       "source": 2,
-      "key": "mnemonic bundle --passphrase",
-      "kind": "StdinToggle",
-      "terminator": "\r\n",
-      "flag": "--passphrase-stdin"
+      "key": "mnemonic bundle --slot @N.ms1=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S2"
      }
     ]
    }
@@ -1446,9 +1446,9 @@
     "case": "typed",
     "os": "linux",
     "kinds": [
+     "StdinToggle",
      "EnvRef",
-     "EnvRef",
-     "StdinToggle"
+     "EnvRef"
     ],
     "provenance": [
      "typed",
@@ -1456,9 +1456,9 @@
      "typed"
     ],
     "payloads": [
+     "hunter2-passphrase\r\n",
      "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
-     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w",
-     "hunter2-passphrase\r\n"
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w"
     ]
    },
    {
@@ -1475,9 +1475,9 @@
      "typed"
     ],
     "payloads": [
+     "hunter2-passphrase",
      "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
-     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w",
-     "hunter2-passphrase"
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w"
     ]
    },
    {
@@ -1494,18 +1494,18 @@
      "typed"
     ],
     "payloads": [
+     "hunter2-passphrase",
      "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
-     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w",
-     "hunter2-passphrase"
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w"
     ]
    },
    {
     "case": "src0 as @env:USER_SECRET",
     "os": "linux",
     "kinds": [
+     "StdinToggle",
      "EnvRef",
-     "EnvRef",
-     "StdinToggle"
+     "EnvRef"
     ],
     "provenance": [
      "$USER_SECRET",
@@ -1513,9 +1513,9 @@
      "typed"
     ],
     "payloads": [
-     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  ",
-     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w",
-     "hunter2-passphrase\r\n"
+     "hunter2-passphrase  \r\n",
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w"
     ]
    },
    {
@@ -1532,9 +1532,9 @@
      "typed"
     ],
     "payloads": [
-     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  ",
-     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w",
-     "hunter2-passphrase"
+     "hunter2-passphrase  ",
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w"
     ]
    },
    {
@@ -1551,28 +1551,28 @@
      "typed"
     ],
     "payloads": [
+     "hunter2-passphrase  ",
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "StdinToggle",
+     "EnvRef",
+     "EnvRef"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "hunter2-passphrase\r\n",
      "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  ",
-     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w",
-     "hunter2-passphrase"
-    ]
-   },
-   {
-    "case": "src1 as @env:USER_SECRET",
-    "os": "linux",
-    "kinds": [
-     "EnvRef",
-     "EnvRef",
-     "StdinToggle"
-    ],
-    "provenance": [
-     "typed",
-     "$USER_SECRET",
-     "typed"
-    ],
-    "payloads": [
-     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
-     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w  ",
-     "hunter2-passphrase\r\n"
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w"
     ]
    },
    {
@@ -1589,9 +1589,9 @@
      "typed"
     ],
     "payloads": [
-     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
-     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w  ",
-     "hunter2-passphrase"
+     "hunter2-passphrase",
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  ",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w"
     ]
    },
    {
@@ -1608,18 +1608,18 @@
      "typed"
     ],
     "payloads": [
-     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
-     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w  ",
-     "hunter2-passphrase"
+     "hunter2-passphrase",
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  ",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w"
     ]
    },
    {
     "case": "src2 as @env:USER_SECRET",
     "os": "linux",
     "kinds": [
+     "StdinToggle",
      "EnvRef",
-     "EnvRef",
-     "StdinToggle"
+     "EnvRef"
     ],
     "provenance": [
      "typed",
@@ -1627,9 +1627,9 @@
      "$USER_SECRET"
     ],
     "payloads": [
+     "hunter2-passphrase\r\n",
      "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
-     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w",
-     "hunter2-passphrase  \r\n"
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w  "
     ]
    },
    {
@@ -1646,9 +1646,9 @@
      "$USER_SECRET"
     ],
     "payloads": [
+     "hunter2-passphrase",
      "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
-     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w",
-     "hunter2-passphrase  "
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w  "
     ]
    },
    {
@@ -1665,9 +1665,9 @@
      "$USER_SECRET"
     ],
     "payloads": [
+     "hunter2-passphrase",
      "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
-     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w",
-     "hunter2-passphrase  "
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqcwugpdxtfme2w  "
     ]
    }
   ]
@@ -3620,17 +3620,18 @@
     "bindings": [
      {
       "source": 0,
-      "key": "mnemonic silent-payment --secret",
+      "key": "mnemonic silent-payment --passphrase",
       "kind": "StdinToggle",
       "terminator": "\r\n",
-      "flag": "--secret-stdin"
+      "flag": "--passphrase-stdin"
      },
      {
       "source": 1,
-      "key": "mnemonic silent-payment --passphrase",
-      "kind": "EnvRef",
-      "terminator": "",
-      "env": "MNEMONIC_GUI_S1"
+      "key": "mnemonic silent-payment --secret",
+      "kind": "FileFlag",
+      "terminator": "\r\n",
+      "flag": "--secret-file",
+      "fd": 3
      }
     ]
    },
@@ -3638,14 +3639,14 @@
     "bindings": [
      {
       "source": 0,
-      "key": "mnemonic silent-payment --secret",
+      "key": "mnemonic silent-payment --passphrase",
       "kind": "Argv",
       "terminator": "",
       "argv_form": "sep"
      },
      {
       "source": 1,
-      "key": "mnemonic silent-payment --passphrase",
+      "key": "mnemonic silent-payment --secret",
       "kind": "Argv",
       "terminator": "",
       "argv_form": "sep"
@@ -3656,14 +3657,14 @@
     "bindings": [
      {
       "source": 0,
-      "key": "mnemonic silent-payment --secret",
+      "key": "mnemonic silent-payment --passphrase",
       "kind": "Argv",
       "terminator": "",
       "argv_form": "sep"
      },
      {
       "source": 1,
-      "key": "mnemonic silent-payment --passphrase",
+      "key": "mnemonic silent-payment --secret",
       "kind": "Argv",
       "terminator": "",
       "argv_form": "sep"
@@ -3674,17 +3675,17 @@
     "bindings": [
      {
       "source": 0,
+      "key": "mnemonic silent-payment --passphrase",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
       "key": "mnemonic silent-payment --secret",
       "kind": "StdinToggle",
       "terminator": "\r\n",
       "flag": "--secret-stdin"
-     },
-     {
-      "source": 1,
-      "key": "mnemonic silent-payment --passphrase",
-      "kind": "EnvRef",
-      "terminator": "",
-      "env": "MNEMONIC_GUI_S1"
      }
     ]
    }
@@ -3695,15 +3696,15 @@
     "os": "linux",
     "kinds": [
      "StdinToggle",
-     "EnvRef"
+     "FileFlag"
     ],
     "provenance": [
      "typed",
      "typed"
     ],
     "payloads": [
-     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\r\n",
-     "hunter2-passphrase"
+     "hunter2-passphrase\r\n",
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\r\n"
     ]
    },
    {
@@ -3718,8 +3719,8 @@
      "typed"
     ],
     "payloads": [
-     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
-     "hunter2-passphrase"
+     "hunter2-passphrase",
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
     ]
    },
    {
@@ -3734,8 +3735,8 @@
      "typed"
     ],
     "payloads": [
-     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
-     "hunter2-passphrase"
+     "hunter2-passphrase",
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
     ]
    },
    {
@@ -3743,15 +3744,15 @@
     "os": "linux",
     "kinds": [
      "StdinToggle",
-     "EnvRef"
+     "FileFlag"
     ],
     "provenance": [
      "$USER_SECRET",
      "typed"
     ],
     "payloads": [
-     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  \r\n",
-     "hunter2-passphrase"
+     "hunter2-passphrase  \r\n",
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\r\n"
     ]
    },
    {
@@ -3766,8 +3767,8 @@
      "typed"
     ],
     "payloads": [
-     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  ",
-     "hunter2-passphrase"
+     "hunter2-passphrase  ",
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
     ]
    },
    {
@@ -3782,24 +3783,24 @@
      "typed"
     ],
     "payloads": [
-     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  ",
-     "hunter2-passphrase"
+     "hunter2-passphrase  ",
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
     ]
    },
    {
     "case": "src1 as @env:USER_SECRET",
     "os": "linux",
     "kinds": [
-     "FileFlag",
-     "StdinToggle"
+     "StdinToggle",
+     "FileFlag"
     ],
     "provenance": [
      "typed",
      "$USER_SECRET"
     ],
     "payloads": [
-     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about\r\n",
-     "hunter2-passphrase  \r\n"
+     "hunter2-passphrase\r\n",
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  \r\n"
     ]
    },
    {
@@ -3814,8 +3815,8 @@
      "$USER_SECRET"
     ],
     "payloads": [
-     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
-     "hunter2-passphrase  "
+     "hunter2-passphrase",
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  "
     ]
    },
    {
@@ -3830,8 +3831,8 @@
      "$USER_SECRET"
     ],
     "payloads": [
-     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
-     "hunter2-passphrase  "
+     "hunter2-passphrase",
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  "
     ]
    }
   ]
@@ -5293,24 +5294,24 @@
     "bindings": [
      {
       "source": 0,
-      "key": "mnemonic verify-bundle --ms1",
-      "kind": "EnvRef",
-      "terminator": "",
-      "env": "MNEMONIC_GUI_S0"
+      "key": "mnemonic verify-bundle --passphrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--passphrase-stdin"
      },
      {
       "source": 1,
-      "key": "mnemonic verify-bundle --slot @N.phrase=",
+      "key": "mnemonic verify-bundle --ms1",
       "kind": "EnvRef",
       "terminator": "",
       "env": "MNEMONIC_GUI_S1"
      },
      {
       "source": 2,
-      "key": "mnemonic verify-bundle --passphrase",
-      "kind": "StdinToggle",
-      "terminator": "\r\n",
-      "flag": "--passphrase-stdin"
+      "key": "mnemonic verify-bundle --slot @N.phrase=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S2"
      }
     ]
    },
@@ -5318,21 +5319,21 @@
     "bindings": [
      {
       "source": 0,
-      "key": "mnemonic verify-bundle --ms1",
+      "key": "mnemonic verify-bundle --passphrase",
       "kind": "Argv",
       "terminator": "",
       "argv_form": "sep"
      },
      {
       "source": 1,
-      "key": "mnemonic verify-bundle --slot @N.phrase=",
+      "key": "mnemonic verify-bundle --ms1",
       "kind": "Argv",
       "terminator": "",
       "argv_form": "sep"
      },
      {
       "source": 2,
-      "key": "mnemonic verify-bundle --passphrase",
+      "key": "mnemonic verify-bundle --slot @N.phrase=",
       "kind": "Argv",
       "terminator": "",
       "argv_form": "sep"
@@ -5343,21 +5344,21 @@
     "bindings": [
      {
       "source": 0,
-      "key": "mnemonic verify-bundle --ms1",
+      "key": "mnemonic verify-bundle --passphrase",
       "kind": "Argv",
       "terminator": "",
       "argv_form": "sep"
      },
      {
       "source": 1,
-      "key": "mnemonic verify-bundle --slot @N.phrase=",
+      "key": "mnemonic verify-bundle --ms1",
       "kind": "Argv",
       "terminator": "",
       "argv_form": "sep"
      },
      {
       "source": 2,
-      "key": "mnemonic verify-bundle --passphrase",
+      "key": "mnemonic verify-bundle --slot @N.phrase=",
       "kind": "Argv",
       "terminator": "",
       "argv_form": "sep"
@@ -5368,24 +5369,24 @@
     "bindings": [
      {
       "source": 0,
-      "key": "mnemonic verify-bundle --ms1",
-      "kind": "EnvRef",
-      "terminator": "",
-      "env": "MNEMONIC_GUI_S0"
+      "key": "mnemonic verify-bundle --passphrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--passphrase-stdin"
      },
      {
       "source": 1,
-      "key": "mnemonic verify-bundle --slot @N.phrase=",
+      "key": "mnemonic verify-bundle --ms1",
       "kind": "EnvRef",
       "terminator": "",
       "env": "MNEMONIC_GUI_S1"
      },
      {
       "source": 2,
-      "key": "mnemonic verify-bundle --passphrase",
-      "kind": "StdinToggle",
-      "terminator": "\r\n",
-      "flag": "--passphrase-stdin"
+      "key": "mnemonic verify-bundle --slot @N.phrase=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S2"
      }
     ]
    }
@@ -5395,9 +5396,9 @@
     "case": "typed",
     "os": "linux",
     "kinds": [
+     "StdinToggle",
      "EnvRef",
-     "EnvRef",
-     "StdinToggle"
+     "EnvRef"
     ],
     "provenance": [
      "typed",
@@ -5405,9 +5406,9 @@
      "typed"
     ],
     "payloads": [
+     "hunter2-passphrase\r\n",
      "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
-     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
-     "hunter2-passphrase\r\n"
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
     ]
    },
    {
@@ -5424,9 +5425,9 @@
      "typed"
     ],
     "payloads": [
+     "hunter2-passphrase",
      "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
-     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
-     "hunter2-passphrase"
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
     ]
    },
    {
@@ -5443,18 +5444,18 @@
      "typed"
     ],
     "payloads": [
+     "hunter2-passphrase",
      "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
-     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
-     "hunter2-passphrase"
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
     ]
    },
    {
     "case": "src0 as @env:USER_SECRET",
     "os": "linux",
     "kinds": [
+     "StdinToggle",
      "EnvRef",
-     "EnvRef",
-     "StdinToggle"
+     "EnvRef"
     ],
     "provenance": [
      "$USER_SECRET",
@@ -5462,9 +5463,9 @@
      "typed"
     ],
     "payloads": [
-     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f  ",
-     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
-     "hunter2-passphrase\r\n"
+     "hunter2-passphrase  \r\n",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
     ]
    },
    {
@@ -5481,9 +5482,9 @@
      "typed"
     ],
     "payloads": [
-     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f  ",
-     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
-     "hunter2-passphrase"
+     "hunter2-passphrase  ",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
     ]
    },
    {
@@ -5500,28 +5501,28 @@
      "typed"
     ],
     "payloads": [
+     "hunter2-passphrase  ",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
+    ]
+   },
+   {
+    "case": "src1 as @env:USER_SECRET",
+    "os": "linux",
+    "kinds": [
+     "StdinToggle",
+     "EnvRef",
+     "EnvRef"
+    ],
+    "provenance": [
+     "typed",
+     "$USER_SECRET",
+     "typed"
+    ],
+    "payloads": [
+     "hunter2-passphrase\r\n",
      "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f  ",
-     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
-     "hunter2-passphrase"
-    ]
-   },
-   {
-    "case": "src1 as @env:USER_SECRET",
-    "os": "linux",
-    "kinds": [
-     "EnvRef",
-     "EnvRef",
-     "StdinToggle"
-    ],
-    "provenance": [
-     "typed",
-     "$USER_SECRET",
-     "typed"
-    ],
-    "payloads": [
-     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
-     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  ",
-     "hunter2-passphrase\r\n"
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
     ]
    },
    {
@@ -5538,9 +5539,9 @@
      "typed"
     ],
     "payloads": [
-     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
-     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  ",
-     "hunter2-passphrase"
+     "hunter2-passphrase",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f  ",
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
     ]
    },
    {
@@ -5557,18 +5558,18 @@
      "typed"
     ],
     "payloads": [
-     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
-     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  ",
-     "hunter2-passphrase"
+     "hunter2-passphrase",
+     "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f  ",
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
     ]
    },
    {
     "case": "src2 as @env:USER_SECRET",
     "os": "linux",
     "kinds": [
+     "StdinToggle",
      "EnvRef",
-     "EnvRef",
-     "StdinToggle"
+     "EnvRef"
     ],
     "provenance": [
      "typed",
@@ -5576,9 +5577,9 @@
      "$USER_SECRET"
     ],
     "payloads": [
+     "hunter2-passphrase\r\n",
      "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
-     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
-     "hunter2-passphrase  \r\n"
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  "
     ]
    },
    {
@@ -5595,9 +5596,9 @@
      "$USER_SECRET"
     ],
     "payloads": [
+     "hunter2-passphrase",
      "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
-     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
-     "hunter2-passphrase  "
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  "
     ]
    },
    {
@@ -5614,9 +5615,9 @@
      "$USER_SECRET"
     ],
     "payloads": [
+     "hunter2-passphrase",
      "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f",
-     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
-     "hunter2-passphrase  "
+     "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about  "
     ]
    }
   ]

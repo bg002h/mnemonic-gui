@@ -198,6 +198,17 @@ for sh in SHAPES:
                 check(f"Nm13 {sh['name']} src{i} {plat}: eq form, got {form}", form == "eq")
             else:
                 check(f"Nm13 {sh['name']} src{i} {plat}: refuse, got {got}", got == "value-starts-with-dash")
+# F-694: ms 0.20.1 made `ms derive --passphrase=VALUE` exact, and that was the only shape input
+# whose `--flag=VALUE` was not — so the shape walk above no longer reaches the refusal. Pin it on
+# the input that still does, `ms hashlock --hashlock-phrase` (single-source, so in no shape), and
+# fail LOUDLY if a re-pin makes it exact too, rather than letting this leg go vacuous.
+NM13_KEY = "ms hashlock --hashlock-phrase"
+check(f"Nm13 {NM13_KEY}: still measured not argv-exact (else re-point this leg)",
+      TABLE[NM13_KEY]["argv_eq_exact"] is False)
+for plat in ("macos", "windows"):
+    got = refusal(lambda: P.plan([{"key": NM13_KEY, "form": "value", "flag": "--hashlock-phrase",
+                                   "value": "-lead  "}], TABLE, plat))
+    check(f"Nm13 {NM13_KEY} {plat}: refuse, got {got}", got == "value-starts-with-dash")
 
 # R2 Nit 1: C1-env-empty is judged on the TARGET; NUL refuses on every OS.
 check("env-empty after rule", refusal(lambda: P.resolve(src, {"MY_PW": "\n"}, None, "strip-one-trailing-newline")) == "C1-env-empty")
