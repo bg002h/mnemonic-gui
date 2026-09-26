@@ -1,7 +1,7 @@
 | mutation | verdict | first failing tests |
 |---|---|---|
 | CONTROL: no-op (must SURVIVE) | survived |  |
-| assignment: step 3 never picks EnvRef | KILLED | t1_plan_property_with_distinct_sentinels, t3prime_every_admitted_plan_matches_its_independent_oracle, t6_copy_disabled_for_multiline_typed_envref_and_refusals |
+| assignment: step 3 never picks EnvRef | KILLED | t1_m5_permutations_never_change_plan_vs_refuse, t1_plan_property_with_distinct_sentinels, t3prime_every_admitted_plan_matches_its_independent_oracle |
 | assignment: step 2 takes the LAST toggle | KILLED | t6_shell_leg_printed_recipes_equal_argv_exact_in_bash_zsh_fish, t8_describe_matches_the_design_a5_linux_column, t8_rust_plan_equals_plans_pure_on_every_shape_and_os |
 | assignment: two-stdin refusal off | KILLED | t8_rust_plan_equals_plans_pure_on_every_shape_and_os |
 | assignment: env name off by one | KILLED | t6_copy_typed_values_never_appear_and_use_the_a7_spellings, t6_every_shape_through_the_real_form_plans_as_the_pure_planner, t6_preview_and_confirm_show_bindings_with_provenance_and_no_secret |

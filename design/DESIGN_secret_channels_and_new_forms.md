@@ -581,7 +581,7 @@ The two Linux refusals are `ms derive` with `--phrase`/`--hex` plus `--passphras
 1. C1 resolution (§A3a);
 2. `no-table-entry` and `nul-in-value` refusals;
 3. the channel-lookalike and trailing-newline refusals (§A0.1), which apply on every path and subsume fold 3's `value-is-a-channel-spelling`. That check read the measured `reinterpret.json`; the broad predicate does not;
-4. a leading-dash value (R3 Nm13) goes as `--flag=VALUE` where that form measured byte-exact (`argv_eq_exact`); otherwise it refuses `value-starts-with-dash`. Measured: `--flag=VALUE` is exact on 39 inputs and **not** on `ms derive --passphrase` and `ms hashlock --hashlock-phrase`, where ms trims the `=` form (`--passphrase=pw\n` derives `pw`'s wallet);
+4. a leading-dash value (R3 Nm13) goes as `--flag=VALUE` where that form measured byte-exact (`argv_eq_exact`); otherwise it refuses `value-starts-with-dash`. Measured on ms 0.20.1: `--flag=VALUE` is exact on 40 inputs and **not** on `ms hashlock --hashlock-phrase`, where ms trims the `=` form. (On ms 0.19.1 `ms derive --passphrase` was not exact either: `--passphrase=pw\n` derived `pw`'s wallet.) `test_plan.py` pins the refusal on `ms hashlock --hashlock-phrase` and goes red if a re-pin makes it exact (F-694);
 5. the target bytes of every other source on argv as separate words, with `--allow-argv-secret`.
 
 That is today's admission path minus its pass-through of `-` and `@env:`, and minus its double resolution. Nothing typed as `-` or `@env:`, no unmeasured source, and no value the CLI would re-read reaches argv on any OS.
