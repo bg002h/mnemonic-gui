@@ -4,6 +4,13 @@ This file is auto-loaded by Claude Code when starting a session in this reposito
 
 @AGENTS.md
 
+## Known hazards
+
+- **Two couplings to the toolkit.** `pinned-upstream.toml` pins the CLI binaries the GUI spawns; `Cargo.toml` and `Cargo.lock` independently select the toolkit library the GUI links (the secret taxonomy comes from it, and the toolkit owns it). Moving one does not move the other, so bump and check both.
+- **JSON shapes are a contract.** The descriptor tree form consumes structured results from the toolkit's `build-descriptor`. A toolkit JSON change can break the GUI while every flag, and so the schema mirror, is unchanged.
+- **Same-change coordination.** A change to CLI flags, JSON shapes, binary pins or the secret taxonomy is coordinated in the same change with the toolkit's GUI manual (`docs/manual-gui`), in addition to the schema-mirror rule below.
+- **Own Rust floor.** The GUI's Rust floor differs from the core CLI crates'; do not assume their toolchain applies. Its MSRV is a two-site edit (`Cargo.toml` and the CI MSRV job move together).
+
 ## What this is
 
 `mnemonic-gui` is the cross-platform GUI overlay for the **m-format constellation** CLIs (`mnemonic`, `md`, `ms`, `mk`). Built with [`egui`](https://github.com/emilk/egui); single statically-linked binary per platform (Linux x86_64/aarch64, macOS x86_64/ARM, Windows x86_64).
