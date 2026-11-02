@@ -2,6 +2,8 @@
 
 This file is auto-loaded by Claude Code when starting a session in this repository.
 
+@AGENTS.md
+
 ## What this is
 
 `mnemonic-gui` is the cross-platform GUI overlay for the **m-format constellation** CLIs (`mnemonic`, `md`, `ms`, `mk`). Built with [`egui`](https://github.com/emilk/egui); single statically-linked binary per platform (Linux x86_64/aarch64, macOS x86_64/ARM, Windows x86_64).
