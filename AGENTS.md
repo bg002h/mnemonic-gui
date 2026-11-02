@@ -17,8 +17,7 @@ Preserve unrelated work and use explicit task-owned paths when staging.
 
 This is the egui utility GUI, distinct from Refugium's mr-gui.
 
-- [app.rs](src/app.rs) selects mnemonic/md/ms/mk; forms construct
-  [invocations](src/form/invocation.rs), and [runner.rs](src/runner.rs) executes subprocesses.
+- [app.rs](src/app.rs) selects mnemonic/md/ms/mk; [invocation.rs](src/form/invocation.rs) assembles argv, [channels/mod.rs](src/form/channels/mod.rs) plans how each secret reaches the child and builds the RunPlan, and [runner.rs](src/runner.rs) executes subprocesses.
 - The GUI also links selected toolkit utilities, including
   [secret taxonomy](src/secrets.rs); this is separate from the CLI boundary.
 - [tree_form.rs](src/form/tree_form.rs) consumes structured descriptor results.
