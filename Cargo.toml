@@ -124,11 +124,15 @@ egui_kittest = { version = "0.31", features = ["wgpu", "snapshot"] }
 proptest = "1"
 
 # F-679: mnemonic-toolkit v0.104.0 pulls md-codec 0.47.0, which needs the
-# rust-miniscript rev the TOOLKIT patches in (PR #915 SortedMultiA in Terminal,
-# `derive_at_index`, `into_definite`) — crates.io 13.x lacks them and md-codec
+# rust-miniscript rev the TOOLKIT patches in (PR #910 SortedMultiA, PR #915
+# SortedMulti in a Terminal, `derive_at_index` and `into_definite` of PR #911)
+# — crates.io 13.x lacks them and md-codec
 # fails to compile. A `[patch]` only applies at the ROOT of a build, so the
 # toolkit's own patch does not reach this crate; this copies it verbatim from
 # mnemonic-toolkit-v0.104.0's Cargo.toml (unchanged at v0.105.1). Drop it in lockstep with the toolkit
 # (its FOLLOWUP `taproot-coverage-cycle-on-miniscript-gt-13-1-0`).
+# Kept by decision 2026-11-03 (architect miniscript-13-2): no 13.x port; drop
+# when one release carries #910, #915, #911 and #929; the tripwire watches for
+# it.
 [patch.crates-io]
 miniscript = { git = "https://github.com/rust-bitcoin/rust-miniscript", rev = "ff4732e5f75aa555682343cb180fa72ee3e8e9d5" }
