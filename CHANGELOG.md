@@ -5,6 +5,8 @@ All notable changes to `mnemonic-gui` are recorded here. Follows
 
 ## Unreleased
 
+## mnemonic-gui [0.63.1] — 2026-11-04
+
 First signed release: its `SHA256SUMS` is signed with minisign key
 EF2B8D34D8409754 (the signing workflow landed after v0.63.0). No functional
 change since 0.63.0; the toolkit, `ms`, `md` and `mk` pins are unchanged.
