@@ -5,6 +5,12 @@ All notable changes to `mnemonic-gui` are recorded here. Follows
 
 ## Unreleased
 
+## mnemonic-gui [0.63.1] — 2026-11-04
+
+First signed release: its `SHA256SUMS` is signed with minisign key
+EF2B8D34D8409754 (the signing workflow landed after v0.63.0). No functional
+change since 0.63.0; the toolkit, `ms`, `md` and `mk` pins are unchanged.
+
 ## mnemonic-gui [0.63.0] — 2026-09-25
 
 **SemVer-MINOR — every secret goes to the CLI privately on Linux, five new forms, and a re-pin to the CLIs that implement F-687: `mnemonic` 0.104.0 → 0.105.1 and `ms` 0.19.1 → 0.20.1** (`md` 0.20.3 and `mk` 0.13.0 unchanged). The toolkit dependency tag moves to `mnemonic-toolkit-v0.105.1`. Its `secret_taxonomy` API and the copied rust-miniscript `[patch]` rev are unchanged.

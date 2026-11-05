@@ -12,7 +12,7 @@ beyond display. The CLI remains the byte-exact source of truth.
 
 ## Status
 
-Latest release: `mnemonic-gui-v0.63.0` (2026-09-25), tracking
+Latest release: `mnemonic-gui-v0.63.1` (2026-11-04), tracking
 `mnemonic-toolkit-v0.105.1`. The GUI is a mature cross-platform overlay for
 all four constellation CLIs (`mnemonic` / `md` / `ms` / `mk`): every
 subcommand is form-driven from a hand-maintained `gui-schema` mirror, guarded
@@ -21,6 +21,8 @@ on every push by a schema flag-name/defaults/choices drift gate plus
 
 Recent releases:
 
+- **v0.63.1** — the first release whose `SHA256SUMS` is minisign-signed (key
+  EF2B8D34D8409754); no functional change, pins unchanged.
 - **v0.63.0** — every secret goes to the CLI over a private channel on Linux
   (`@env:`, stdin or a pipe fd, chosen from measured data); five new forms
   (`md compose` / `shape-key` / `descriptor` / `decompose`, `ms hashlock`);
@@ -86,7 +88,7 @@ rather than failing the whole install.
 To install just the GUI from source at the pinned tag:
 
 ```sh
-cargo install --locked --git https://github.com/bg002h/mnemonic-gui --tag mnemonic-gui-v0.63.0 mnemonic-gui
+cargo install --locked --git https://github.com/bg002h/mnemonic-gui --tag mnemonic-gui-v0.63.1 mnemonic-gui
 ```
 
 The GUI subprocess-runs the four sibling CLIs. If you skip the
