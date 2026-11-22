@@ -12,6 +12,8 @@
 | NI8: normalization without case-fold | KILLED | t1_lookalike_predicate_matches_the_reference_exhaustively, t1_ni8_every_lookalike_refused_on_every_path |
 | NI8: normalization without Cc/Cf removal | KILLED | t1_lookalike_predicate_matches_the_reference_exhaustively, t1_ni8_every_lookalike_refused_on_every_path |
 | NI8: normalization without NFKC | KILLED | t1_lookalike_predicate_matches_the_reference_exhaustively, t1_ni8_every_lookalike_refused_on_every_path |
+| Nm13: leading-dash refusal off | KILLED | t1_nm13_refusal_on_test_only_rows |
+| Nm13: unmeasured row planned as exact | KILLED | t1_nm13_refusal_on_test_only_rows |
 | NI9: trailing CR/LF refusal off | KILLED | t1_ni9_trailing_cr_lf_refused_on_every_path |
 | NI9: only LF refused (CR admitted) | KILLED | t1_ni9_trailing_cr_lf_refused_on_every_path |
 | NI9: the ONE strip-one rule becomes strip-all | KILLED | t1_ni9_trailing_cr_lf_refused_on_every_path, t1_resolution_under_both_rules_and_per_input |
@@ -33,4 +35,4 @@
 | M2: Copy reveal label never raised | KILLED | m2_copy_reveals_a_pasted_private_key_and_says_so, m2_window_labels_copy_and_confirms_run_without_claiming_privacy |
 | B2-B4: pasted xprv no longer masked | KILLED | b2_b4_a_pasted_xprv_is_masked_and_never_persisted |
 
-31/31 mutations killed by assertion with the mutated line run; control survived; problems: none
+33/33 mutations killed by assertion with the mutated line run; control survived; problems: none

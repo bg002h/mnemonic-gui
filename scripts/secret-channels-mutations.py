@@ -62,6 +62,13 @@ M = [
     ("NI8: normalization without NFKC", LOOK,
      "let nfkc: String = v.nfkc().collect();",
      "let nfkc: String = { " + MARK + " let _ = v.nfkc(); v.to_string() };", PURE, None, True),
+    # ── the leading-dash refusal (R3 Nm13; reached only by t1's TEST-ONLY rows since ms 0.21.0) ──
+    ("Nm13: leading-dash refusal off", PLANNER,
+     "if dash && table[&s.key].argv_eq_exact != Some(true) {",
+     "if { " + MARK + " false } && dash && table[&s.key].argv_eq_exact != Some(true) {", PURE, SKIP_SLOW, True),
+    ("Nm13: unmeasured row planned as exact", PLANNER,
+     "if dash && table[&s.key].argv_eq_exact != Some(true) {",
+     "if dash && { " + MARK + " table[&s.key].argv_eq_exact == Some(false) } {", PURE, SKIP_SLOW, True),
     # ── the CR/LF refusal (R4 NI9) ──
     ("NI9: trailing CR/LF refusal off", PLANNER,
      "if policy.refuse_trailing_cr_lf && (v.ends_with('\\r') || v.ends_with('\\n')) {",

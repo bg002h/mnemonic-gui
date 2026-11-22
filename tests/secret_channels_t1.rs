@@ -611,6 +611,66 @@ fn t1_nm13_leading_dash_on_the_interim_path() {
     }
 }
 
+/// Nm13's refusal branch. ms 0.21.0 made the last not-exact input
+/// (`ms hashlock --hashlock-phrase`) exact, so the committed table no longer
+/// reaches it. TEST-ONLY rows (never in `channel_table.json`) copy that real
+/// row and change only `argv_eq_exact`: `Some(false)` (measured not exact) and
+/// `None` (unmeasured). Both refuse on macOS and Windows and plan on Linux;
+/// the real row takes `=`, so the flag alone decides.
+#[test]
+fn t1_nm13_refusal_on_test_only_rows() {
+    const BASE: &str = "ms hashlock --hashlock-phrase";
+    let rows = [
+        ("TEST-ONLY argv_eq_exact=false", Some(false)),
+        ("TEST-ONLY argv_eq_exact absent", None),
+    ];
+    assert!(
+        !channel_table().keys().any(|k| k.starts_with("TEST-ONLY")),
+        "test-only rows stay out of the measured table"
+    );
+    let mut table = channel_table().clone();
+    for (key, flag) in rows {
+        let mut row = table[BASE].clone();
+        row.argv_eq_exact = flag;
+        table.insert(key.into(), row);
+    }
+    let leg = |key: &str, os: &str| {
+        let srcs = [PlanSource {
+            key: key.into(),
+            form: SourceForm::Value,
+            value: SourceValue::one("-lead  "),
+        }];
+        plan_sources(
+            &srcs,
+            &table,
+            policy(),
+            os,
+            &env_of(&[]),
+            PlanOptions {
+                rule_override: None,
+            },
+        )
+    };
+    for os in ["macos", "windows"] {
+        let p = leg(BASE, os).unwrap_or_else(|e| panic!("Nm13 {BASE} {os}: {e}"));
+        assert_eq!(
+            p.bindings[0].argv_form,
+            Some(mnemonic_gui::form::channels::ArgvForm::Eq),
+            "Nm13 {BASE} {os}"
+        );
+        for (key, _) in rows {
+            assert_eq!(
+                code(leg(key, os)),
+                Some("value-starts-with-dash"),
+                "Nm13 {key} {os}"
+            );
+        }
+    }
+    for (key, _) in rows {
+        assert!(leg(key, "linux").is_ok(), "Nm13 {key} linux: private path");
+    }
+}
+
 #[test]
 fn t1_env_empty_is_judged_on_the_target_and_nul_refuses() {
     let r = resolve(

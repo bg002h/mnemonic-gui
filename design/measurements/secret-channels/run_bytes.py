@@ -230,7 +230,7 @@ with open("bytes.md", "w") as f:
     eqc = Counter(str(r.get("argv_eq_exact")) for r in res)
     f.write("\n`--flag=VALUE` byte-identical to `--flag VALUE` (R3 Nm13; None = not a value-form input): "
             + ", ".join(f"{k} {n}" for k, n in sorted(eqc.items())) + "; not exact: "
-            + "; ".join(f"`{r['label']}`" for r in res if r.get("argv_eq_exact") is False) + ".\n")
+            + ("; ".join(f"`{r['label']}`" for r in res if r.get("argv_eq_exact") is False) or "none") + ".\n")
     rc = Counter(str(r.get("cli_env_rule")) for r in res)
     f.write("\nPer-input CLI `@env:` value rule (R3 NI7; None = no working CLI `@env:`, the GUI treats the bytes as typed): "
             + ", ".join(f"{k} {n}" for k, n in sorted(rc.items())) + ".\n")
