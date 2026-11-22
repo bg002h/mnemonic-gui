@@ -557,11 +557,7 @@ fn is_render_suppressed(
     let archetype_mode = sub.name == "build-descriptor"
         && !tree_mode
         && mode_predicates::active_archetype(state).is_some();
-    if archetype_mode && mode_predicates::suppressed_in_archetype_mode(flag_name)
-    {
-        return true;
-    }
-    false
+    archetype_mode && mode_predicates::suppressed_in_archetype_mode(flag_name)
 }
 
 /// `{kind}  {markers}-> {value}{state}` for a flag row.

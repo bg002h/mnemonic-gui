@@ -1,4 +1,4 @@
-//! Pinned schema for the `mk` CLI (mk-cli-v0.16.0).
+//! Pinned schema for the `mk` CLI (mk-cli-v0.17.0).
 //!
 //! Scope: `inspect` (from v0.1) plus `encode`, `decode`, `verify`, `vectors`;
 //! `repair` (backfilled into the mirror at v0.6 — it shipped in v0.4 but was
@@ -85,11 +85,11 @@ const ENCODE_FLAGS: &[FlagSchema] = &[
         },
         required: false,
         repeating: false,
-        help: "Display grouping: break the emitted card into groups of N \
-               characters (default 5; 0 = unbroken single line). Cosmetic — \
-               intake strips separators, so any grouping re-ingests.",
+        help: "Group each mk1 string on stdout every N characters, for hand \
+               engraving (default 0 = unbroken). Cosmetic — intake strips \
+               separators, so any grouping re-ingests.",
         secret: false,
-        default_value: Some("5"),
+        default_value: Some("0"),
         global: false,
     },
     FlagSchema {
@@ -97,8 +97,8 @@ const ENCODE_FLAGS: &[FlagSchema] = &[
         kind: FlagKind::Dropdown(SEPARATORS),
         required: false,
         repeating: false,
-        help: "Engraving-card separator: `space` only (hyphen and comma were \
-               retired constellation-wide). Cosmetic — non-load-bearing.",
+        help: "Separator for --group-size: `space` only (hyphen and comma were \
+               retired). Cosmetic — non-load-bearing.",
         secret: false,
         default_value: Some("space"),
         global: false,
@@ -706,6 +706,6 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
 
 pub const SCHEMA: Schema = Schema {
     cli_name: "mk",
-    pinned_version: "mk 0.16.0",
+    pinned_version: "mk 0.17.0",
     subcommands: SUBCOMMANDS,
 };

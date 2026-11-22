@@ -100,9 +100,9 @@ match [`pinned-upstream.toml`](pinned-upstream.toml)):
 
 ```sh
 cargo install --locked --git https://github.com/bg002h/mnemonic-toolkit     --tag mnemonic-toolkit-v0.107.0           mnemonic-toolkit
-cargo install --locked --git https://github.com/bg002h/descriptor-mnemonic  --tag descriptor-mnemonic-md-cli-v0.20.8  md-cli
-cargo install --locked --git https://github.com/bg002h/mnemonic-secret      --tag ms-cli-v0.20.5                      ms-cli
-cargo install --locked --git https://github.com/bg002h/mnemonic-key         --tag mk-cli-v0.16.0                      mk-cli
+cargo install --locked --git https://github.com/bg002h/descriptor-mnemonic  --tag descriptor-mnemonic-md-cli-v0.21.0  md-cli
+cargo install --locked --git https://github.com/bg002h/mnemonic-secret      --tag ms-cli-v0.21.0                      ms-cli
+cargo install --locked --git https://github.com/bg002h/mnemonic-key         --tag mk-cli-v0.17.0                      mk-cli
 ```
 
 Each of those CLIs also ships **man pages** — the [constellation installer](https://github.com/bg002h/mnemonic-toolkit) installs them automatically (`man mnemonic`, `man md`, `man ms`, `man mk`); the GUI itself has none.
