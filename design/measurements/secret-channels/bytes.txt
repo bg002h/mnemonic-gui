@@ -65,7 +65,7 @@ mnemonic seedqr encode --from phrase=                   DashValue               
 mnemonic seedqr decode --from seedqr=                   DashValue                                terminator='\r\n'
 mnemonic seedqr decode --digits                         DashValue                                terminator='\r\n'
 mnemonic repair --ms1                                   DashValue                                terminator=NONE WORKS  with '\r\n': ('prefix', '\n'):argv-fails/channel-ok, ('prefix', '\r\n'):argv-fails/channel-ok, ('prefix', ' '):argv-fails/channel-ok, ('prefix', '\t'):argv-fails/channel-ok
-mnemonic inspect --ms1                                  DashValue                                terminator=NONE WORKS  with '\r\n': ('suffix', '\nX'):argv-fails/channel-ok, ('prefix', '\n'):argv-fails/channel-ok, ('prefix', '\r\n'):argv-fails/channel-ok, ('prefix', ' '):argv-fails/channel-ok, ('prefix', '\t'):argv-fails/channel-ok
+mnemonic inspect --ms1                                  DashValue                                terminator=NONE WORKS  with '\r\n': ('prefix', '\n'):argv-fails/channel-ok, ('prefix', '\r\n'):argv-fails/channel-ok, ('prefix', ' '):argv-fails/channel-ok, ('prefix', '\t'):argv-fails/channel-ok
 ms encode --phrase                                      DashValue                                terminator='\r\n'
 ms encode --phrase                                      InFile(--in)                             terminator='\r\n'
 ms encode --hex                                         DashValue                                terminator='\r\n'

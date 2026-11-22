@@ -12,8 +12,8 @@ beyond display. The CLI remains the byte-exact source of truth.
 
 ## Status
 
-Latest release: `mnemonic-gui-v0.63.1` (2026-11-04), tracking
-`mnemonic-toolkit-v0.105.1`. The GUI is a mature cross-platform overlay for
+Latest release: `mnemonic-gui-v0.64.0` (2026-11-22), tracking
+`mnemonic-toolkit-v0.107.0`. The GUI is a mature cross-platform overlay for
 all four constellation CLIs (`mnemonic` / `md` / `ms` / `mk`): every
 subcommand is form-driven from a hand-maintained `gui-schema` mirror, guarded
 on every push by a schema flag-name/defaults/choices drift gate plus
@@ -21,6 +21,9 @@ on every push by a schema flag-name/defaults/choices drift gate plus
 
 Recent releases:
 
+- **v0.64.0** — re-pinned to toolkit `v0.107.0`, md `v0.20.8`, ms `v0.20.5`,
+  mk `v0.16.0`; `mk inspect --in` surfaced; `mk encode --separator` is
+  `space` only.
 - **v0.63.1** — the first release whose `SHA256SUMS` is minisign-signed (key
   EF2B8D34D8409754); no functional change, pins unchanged.
 - **v0.63.0** — every secret goes to the CLI over a private channel on Linux
@@ -88,7 +91,7 @@ rather than failing the whole install.
 To install just the GUI from source at the pinned tag:
 
 ```sh
-cargo install --locked --git https://github.com/bg002h/mnemonic-gui --tag mnemonic-gui-v0.63.1 mnemonic-gui
+cargo install --locked --git https://github.com/bg002h/mnemonic-gui --tag mnemonic-gui-v0.64.0 mnemonic-gui
 ```
 
 The GUI subprocess-runs the four sibling CLIs. If you skip the
@@ -96,10 +99,10 @@ constellation installer, install each one separately (pinned tags
 match [`pinned-upstream.toml`](pinned-upstream.toml)):
 
 ```sh
-cargo install --locked --git https://github.com/bg002h/mnemonic-toolkit     --tag mnemonic-toolkit-v0.105.1           mnemonic-toolkit
-cargo install --locked --git https://github.com/bg002h/descriptor-mnemonic  --tag descriptor-mnemonic-md-cli-v0.20.3  md-cli
-cargo install --locked --git https://github.com/bg002h/mnemonic-secret      --tag ms-cli-v0.20.1                      ms-cli
-cargo install --locked --git https://github.com/bg002h/mnemonic-key         --tag mk-cli-v0.13.0                      mk-cli
+cargo install --locked --git https://github.com/bg002h/mnemonic-toolkit     --tag mnemonic-toolkit-v0.107.0           mnemonic-toolkit
+cargo install --locked --git https://github.com/bg002h/descriptor-mnemonic  --tag descriptor-mnemonic-md-cli-v0.20.8  md-cli
+cargo install --locked --git https://github.com/bg002h/mnemonic-secret      --tag ms-cli-v0.20.5                      ms-cli
+cargo install --locked --git https://github.com/bg002h/mnemonic-key         --tag mk-cli-v0.16.0                      mk-cli
 ```
 
 Each of those CLIs also ships **man pages** — the [constellation installer](https://github.com/bg002h/mnemonic-toolkit) installs them automatically (`man mnemonic`, `man md`, `man ms`, `man mk`); the GUI itself has none.

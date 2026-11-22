@@ -645,7 +645,7 @@ const SPLIT_FLAGS: &[FlagSchema] = &[
         required: false,
         repeating: false,
         help: "Write the canonical artifact to FILE, owner-only (0600), instead \
-               of stdout. OVERWRITES an existing file.",
+               of stdout. REFUSES an existing file (ms 0.20.4: exit 64).",
         secret: false,
         default_value: None,
         global: false,
@@ -1021,6 +1021,6 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
 
 pub const SCHEMA: Schema = Schema {
     cli_name: "ms",
-    pinned_version: "ms 0.20.1",
+    pinned_version: "ms 0.20.5",
     subcommands: SUBCOMMANDS,
 };

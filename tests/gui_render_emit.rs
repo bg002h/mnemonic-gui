@@ -154,9 +154,11 @@ fn exact_render_defaulted_text_flag_ghosts_hint() {
 
 #[test]
 fn exact_render_plain_form() {
-    // `mk inspect`: a plain form — one checkbox flag + one positional.
+    // `mk inspect`: a plain form — a path picker (`--in`), one checkbox flag
+    // + one positional.
     let expected = "\
 [ mk > inspect ]
+  --in         path  -> <empty>
   --json       checkbox  -> [ ] off
   mk1-strings  positional...  -> <empty>
   [ Run ]

@@ -1,22 +1,22 @@
 {
  "mnemonic": {
-  "pinned_tag": "mnemonic-toolkit-v0.105.1",
-  "version": "0.105.1",
-  "sha256": "e6925454fb01d807dbf7277f54aaa691d35dae856c212aa1a231439955b124da"
+  "pinned_tag": "mnemonic-toolkit-v0.107.0",
+  "version": "0.107.0",
+  "sha256": "3f34e7b97aa44a4ec3ca02f3033e4daeb4660798c4d67b335159d424887ff6ac"
  },
  "md": {
-  "pinned_tag": "descriptor-mnemonic-md-cli-v0.20.3",
-  "version": "0.20.3",
-  "sha256": "c5b9a26e8b18a6ec2a1c017fa16155d50fbd56d3eba6e07ecb4bbb50bba15679"
+  "pinned_tag": "descriptor-mnemonic-md-cli-v0.20.8",
+  "version": "0.20.8",
+  "sha256": "abfae98604eef5fc548204c2e4566e8ea3a3cfa8c9e50868def6fb46fc6bcf87"
  },
  "ms": {
-  "pinned_tag": "ms-cli-v0.20.1",
-  "version": "0.20.1",
-  "sha256": "f594b26dc1c529c90a4f73c81f6b3094a5aae2ce45fddf40238bb613e8e7d554"
+  "pinned_tag": "ms-cli-v0.20.5",
+  "version": "0.20.5",
+  "sha256": "84345b702990f73cd105a0994095ea4fc10e4817990e59f23a55e7c359a30b97"
  },
  "mk": {
-  "pinned_tag": "mk-cli-v0.13.0",
-  "version": "0.13.0",
-  "sha256": "f0785f5e621a38ba02d3ddc897eec114af6873c2b0ae388b0bde871f1f7de949"
+  "pinned_tag": "mk-cli-v0.16.0",
+  "version": "0.16.0",
+  "sha256": "a8fe84e9b26eb5800946e3050b943244ee6139a4497723e36bd64e67391080e3"
  }
 }

@@ -774,6 +774,25 @@ pub fn mk_encode(state: &FormState) -> FlagVisibility {
     if has_priv {
         vis.push(("--origin-fingerprint", Visibility::Disabled));
     }
+    // mk-cli 0.16.0: `--in FILE` carries its own key records, so it is
+    // mutually exclusive with the single-card inputs (measured refusals:
+    // "--in and --xpub are mutually exclusive; each key record carries its
+    // own origin", likewise --origin-path and --privacy-preserving;
+    // --origin-fingerprint is refused with --in).
+    const SINGLE_CARD: [&str; 4] = [
+        "--xpub",
+        "--origin-path",
+        "--origin-fingerprint",
+        "--privacy-preserving",
+    ];
+    if state.has_value("--in") {
+        for flag in SINGLE_CARD {
+            vis.push((flag, Visibility::Disabled));
+        }
+    }
+    if SINGLE_CARD.iter().any(|f| state.has_value(f)) {
+        vis.push(("--in", Visibility::Disabled));
+    }
     vis
 }
 
