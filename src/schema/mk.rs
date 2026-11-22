@@ -31,7 +31,7 @@ const INSPECT_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Read mk1 strings from FILE, one per line, instead of (or in \
                addition to) the positional arguments. Display separators are \
-               stripped, so a card transcribed from the engraving card in \
+               stripped, so a card transcribed in \
                grouped form re-ingests.",
         secret: false,
         default_value: None,
@@ -270,7 +270,7 @@ const DECODE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Read mk1 strings from FILE, one per line, instead of (or in \
                addition to) the positional arguments. Display separators are \
-               stripped, so a card transcribed from the engraving card in \
+               stripped, so a card transcribed in \
                grouped form re-ingests.",
         secret: false,
         default_value: None,
@@ -312,7 +312,7 @@ const VERIFY_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Read mk1 strings from FILE, one per line, instead of (or in \
                addition to) the positional arguments. Display separators are \
-               stripped, so a card transcribed from the engraving card in \
+               stripped, so a card transcribed in \
                grouped form re-ingests.",
         secret: false,
         default_value: None,
@@ -433,7 +433,7 @@ const REPAIR_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Read mk1 strings from FILE, one per line, instead of (or in \
                addition to) the positional arguments. Display separators are \
-               stripped, so a card transcribed from the engraving card in \
+               stripped, so a card transcribed in \
                grouped form re-ingests.",
         secret: false,
         default_value: None,
@@ -473,7 +473,7 @@ const ADDRESS_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Read mk1 strings from FILE, one per line, instead of (or in \
                addition to) the positional arguments. Display separators are \
-               stripped, so a card transcribed from the engraving card in \
+               stripped, so a card transcribed in \
                grouped form re-ingests.",
         secret: false,
         default_value: None,
@@ -562,7 +562,7 @@ const DERIVE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "Read mk1 strings from FILE, one per line, instead of (or in \
                addition to) the positional arguments. Display separators are \
-               stripped, so a card transcribed from the engraving card in \
+               stripped, so a card transcribed in \
                grouped form re-ingests.",
         secret: false,
         default_value: None,

@@ -13,7 +13,7 @@ beyond display. The CLI remains the byte-exact source of truth.
 ## Status
 
 Latest release: `mnemonic-gui-v0.64.0` (2026-11-22), tracking
-`mnemonic-toolkit-v0.107.0`. The GUI is a mature cross-platform overlay for
+`mnemonic-toolkit-v0.107.1`. The GUI is a mature cross-platform overlay for
 all four constellation CLIs (`mnemonic` / `md` / `ms` / `mk`): every
 subcommand is form-driven from a hand-maintained `gui-schema` mirror, guarded
 on every push by a schema flag-name/defaults/choices drift gate plus
@@ -21,9 +21,9 @@ on every push by a schema flag-name/defaults/choices drift gate plus
 
 Recent releases:
 
-- **v0.64.0** — re-pinned to toolkit `v0.107.0`, md `v0.20.8`, ms `v0.20.5`,
-  mk `v0.16.0`; `mk inspect --in` surfaced; `mk encode --separator` is
-  `space` only.
+- **v0.64.0** — re-pinned to toolkit `v0.107.1`, md `v0.21.0`, ms `v0.21.0`,
+  mk `v0.17.0`; each md1, ms1 and mk1 string printed once; `mk inspect --in`
+  surfaced; `mk encode --separator` is `space` only.
 - **v0.63.1** — the first release whose `SHA256SUMS` is minisign-signed (key
   EF2B8D34D8409754); no functional change, pins unchanged.
 - **v0.63.0** — every secret goes to the CLI over a private channel on Linux
