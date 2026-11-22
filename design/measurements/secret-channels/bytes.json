@@ -4527,7 +4527,7 @@
    "('prefix', ' ')": 0,
    "('prefix', '\\t')": 1
   },
-  "argv_eq_exact": false,
+  "argv_eq_exact": true,
   "cli_env_rule": null
  },
  {

@@ -1,6 +1,6 @@
 {
  "mnemonic": {
-  "version": "0.107.0",
+  "version": "0.107.1",
   "spellings": [
    "-",
    "@env:{V}"
@@ -127,7 +127,7 @@
   }
  },
  "ms": {
-  "version": "0.20.5",
+  "version": "0.21.0",
   "spellings": [
    "-",
    "@env:{V}"

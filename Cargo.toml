@@ -77,7 +77,7 @@ unicode-normalization = "0.1"
 # sandboxes → BIP-39 phrases leaked to state.json). See toolkit
 # `secret-taxonomy-public-api-promotion` FOLLOWUP for the full
 # architectural rationale.
-mnemonic-toolkit = { git = "https://github.com/bg002h/mnemonic-toolkit", tag = "mnemonic-toolkit-v0.107.0" }
+mnemonic-toolkit = { git = "https://github.com/bg002h/mnemonic-toolkit", tag = "mnemonic-toolkit-v0.107.1" }
 
 [target.'cfg(unix)'.dependencies]
 signal-hook = "0.3"

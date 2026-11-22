@@ -126,7 +126,7 @@ jobs:
       # SHA256SUMS; T4 then checks each binary's sha256 against the cache.
       - name: install-pinned-release-binaries
         env:
-          INSTALLER_SHA: 778e9da58f1bb619f8e0945ef4835720a20591ae
+          INSTALLER_SHA: 5da5c7806bf872966d82b92d18c542df3bab5e4f
         run: |
           curl -fsSL --proto '=https' --tlsv1.2 \
             "https://raw.githubusercontent.com/bg002h/mnemonic-toolkit/$INSTALLER_SHA/scripts/install.sh" \
