@@ -27,15 +27,17 @@ alphanumeric, has the bytes `prv` at offsets 1..4. This is the token split `secr
 (`text_holds_private_key`) already uses. No `rsplit`.
 
 Rule A (`is_extended_public_like`, the persist allowlist for `key`/`keys`): true iff all three hold:
+0. Leading ASCII whitespace is judged as absent (Rule T); the stored value keeps it.
 1. Origin strip: if the value starts with `[`, the origin is the text between that `[` and the FIRST `]`, and the
-   body is the text after that `]`; a value that starts with `[` and has no `]` is false. The origin must be at
+   body is the text after that `]`; a value that starts with `[` and has no `]` is an origin being typed: true iff the text after `[` matches the origin grammar below. The origin must be at
    most 8 ASCII hex digits, followed by zero or more `/`-segments, each of at most 10 ASCII digits with an optional
    final `h`, `H` or `'` (empty fingerprint and empty segments are allowed, so `[]xpub…` and a half-typed
    `[73c5/84h]xpub…` still persist); any other origin is false. A value that does not start with `[` is its own
    body (no strip).
 2. The body contains no `[` and no `]`.
-3. The body starts with one of the 10 four-byte literals already listed (`xpub tpub ypub Ypub zpub Zpub upub Upub
+3. The body starts with one of the 10 four-byte literals, or is a proper prefix of one (empty to 3 bytes: a literal being typed), already listed (`xpub tpub ypub Ypub zpub Zpub upub Upub
    vpub Vpub`; unchanged), AND Rule P is false for the whole value.
+BRIAN-Q-1 (Brian 2026-11-22, coordinator memory gui-autosave-keeps-typing-2026-11-22): no rule here blanks a prefix of an honest key being typed; test `q1_every_prefix_of_an_honest_key_persists` enumerates them.
 
 Unchanged: the 10-prefix list, the "do not tighten to {xpub,tpub}" note, the hex/w deny-list arm (it now inherits
 Rule P), the walk's recursion, every holder-visible text. The hint text at `tree_form.rs:784-785`
@@ -60,7 +62,12 @@ Decision table (each row is a test cell in section 4; `TPRV`, `TPUB`, `WIF` are 
 | `[73c5da0a/WIF]TPUB` | false | yes (leak) | no (Rule A.1 origin grammar) |
 | `[HEX64]TPUB` | false | yes (leak) | no (Rule A.1 origin grammar) |
 | `[73c5da0a/84H/1H/0H]TPUB` | false | yes | yes |
-| ` [73c5da0a]TPUB` (leading space) | false | yes | no (does not start with `[`, body starts with a space; the GUI never trims a key; the holder retypes a public value) |
+| ` [73c5da0a]TPUB` (leading space) | false | yes | yes (Rule T) |
+| `tp` | false | no | yes (A.3') |
+| `[73c5da0a/84h` | false | no | yes (A.1') |
+| `[73c5da0a/84h/1h/0h]tp` | false | no | yes |
+| `[WIF` | false | no | no (A.1' origin grammar) |
+| ` [WIF]TPUB` | false | yes (leak) | no (Rule T, then A.1) |
 | `sv` (in `w`) | false | yes | yes |
 
 Doc-comment changes the build makes (code comments, not holder text):
@@ -114,6 +121,14 @@ Expected on 336e544 (measured 2026-11-22; the output contains `Compiling mnemoni
 | `t7b_tree_persist_keeps_origin_and_suffix_public_keys` (`persist_redaction_v0_34_0`) | PASS | PASS | guard: origin, suffix and empty-origin public keys still persist |
 | `t7c_tree_persist_blanks_private_key_inside_origin` (`persist_redaction_v0_34_0`) | FAIL, `secret text inside an origin survived redact_for_persistence for: ["[wif]tpub", "[fp/wif]tpub", "[hex64]tpub"]` | PASS | a WIF or raw hex inside a leading `[...]` blanks (Rule A.1 origin grammar); well-formed, uppercase-`H` and half-typed origins still persist (the leading-space row is documented behaviour with no test cell) |
 
+The typing-prefix fold (BRIAN-Q-1) adds the test file `tests/persist_typing_prefixes.rs` (3 tests, fake testnet-shaped vectors):
+
+| row (test name) | 696914d | after the fold | what it shows |
+|---|---|---|---|
+| `q1_every_prefix_of_an_honest_key_persists` | FAIL, `359 of 1458 honest prefixes blanked` | PASS | no prefix of an honest key being typed blanks |
+| `q1_secret_rows_still_blank_with_prefix_closure` | PASS | PASS | guard: `[WIF`, `[73c5da0a/WIF`, `[HEX64` unclosed, ` WIF`, ` TPRV`, ` [WIF]TPUB`, `[origin]WIF`, `HEX64` still blank; the plant `None => return true` fails it (`["[wif (unclosed)", "[fp/wif (unclosed)", "[hex64 (unclosed)", ...]`) |
+| `q1_known_residual_concat_inside_incomplete_key_still_persists` | PASS | PASS | pins the open row; flip it when Q3 lands |
+
 The build applies the patch as its RED commit (the tests become part of the tree), sees the summary above (`--no-fail-fast` keeps it independent of the job count), then makes
 the section-3 change and sees `4 tests run: 4 passed`.
 
@@ -146,7 +161,6 @@ non-bracket separator, or any secret concatenated with no separator (`TPUB/WIF`,
 with no separator). Ruled by coordinator agent-reports/architect-sec-dialogpw-guiresidual.md: the follow-on
 unit sec-gui-allowlist-shape adds Rule S (a base58 run of at most 111 characters, then only 0-9 / h H ' < > ; *,
 then optional trailing whitespace), which closes the separator and over-length cases and blanks no honest input.
-A private key inside an incomplete public key (run at most 111) stays row gui-persist-allowlist-concat-residue
-until Brian decides whether autosave blanks incomplete keys.
+A private key inside an incomplete public key (run at most 111) stays row gui-persist-allowlist-concat-residue; Brian ruled 2026-11-22 that autosave never blanks a key being typed, so it closes another way (coordinator agent-reports/architect-gui-q1-typing-prefixes.md Q3).
 
 A secret inside a leading `[origin]` is closed by the Rule A.1 origin grammar.
