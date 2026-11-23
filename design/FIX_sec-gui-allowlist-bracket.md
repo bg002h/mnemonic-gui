@@ -27,8 +27,12 @@ alphanumeric, has the bytes `prv` at offsets 1..4. This is the token split `secr
 (`text_holds_private_key`) already uses. No `rsplit`.
 
 Rule A (`is_extended_public_like`, the persist allowlist for `key`/`keys`): true iff all three hold:
-1. Origin strip: if the value starts with `[`, the body is the text after the FIRST `]`; if it starts with `[` and
-   has no `]`, the result is false. A value that does not start with `[` is its own body (no strip).
+1. Origin strip: if the value starts with `[`, the origin is the text between that `[` and the FIRST `]`, and the
+   body is the text after that `]`; a value that starts with `[` and has no `]` is false. The origin must be at
+   most 8 ASCII hex digits, followed by zero or more `/`-segments, each of at most 10 ASCII digits with an optional
+   final `h`, `H` or `'` (empty fingerprint and empty segments are allowed, so `[]xpub…` and a half-typed
+   `[73c5/84h]xpub…` still persist); any other origin is false. A value that does not start with `[` is its own
+   body (no strip).
 2. The body contains no `[` and no `]`.
 3. The body starts with one of the 10 four-byte literals already listed (`xpub tpub ypub Ypub zpub Zpub upub Upub
    vpub Vpub`; unchanged), AND Rule P is false for the whole value.
@@ -52,11 +56,18 @@ Decision table (each row is a test cell in section 4; `TPRV`, `TPUB`, `WIF` are 
 | `[73c5da0a/84'/1'/0']TPUB/<0;1>/*` | false | yes | yes |
 | `TPUB/0/*` | false | yes | yes |
 | `[]TPUB` | false | yes | yes |
+| `[WIF]TPUB` | false | yes (leak) | no (Rule A.1 origin grammar) |
+| `[73c5da0a/WIF]TPUB` | false | yes (leak) | no (Rule A.1 origin grammar) |
+| `[HEX64]TPUB` | false | yes (leak) | no (Rule A.1 origin grammar) |
+| `[73c5da0a/84H/1H/0H]TPUB` | false | yes | yes |
+| ` [73c5da0a]TPUB` (leading space) | false | yes | no (does not start with `[`, body starts with a space; the GUI never trims a key; the holder retypes a public value) |
 | `sv` (in `w`) | false | yes | yes |
 
 Doc-comment changes the build makes (code comments, not holder text):
 - `tree_model.rs:668-678` (`is_xprv_like` doc): replace the "strip an optional `[origin]` prefix via `rsplit(']')`"
-  clause with Rule P in one sentence, and cite this FIX.
+  clause with Rule P in one sentence, and cite this FIX. Also reword the opening sentence ("The toolkit gate's xprv
+  heuristic (`gate.rs::check_secret_key`, verified GUI-reusable)") to "a superset of the toolkit gate's heuristic",
+  because the gate (`gate.rs:340`) keeps `rsplit(']')`.
 - `tree_model.rs:696-698`: replace the "Inherited `rsplit(']')` caveat ... tolerated" bullet with Rule A in one bullet
   citing this FIX and the row id `gui-persist-allowlist-bracket-bypass`.
 
@@ -64,7 +75,7 @@ SPEC amendment (the build replaces one line). Anchor, occurs once in
 `design/SPEC_gui_v0_34_0_persist_redaction_hardening.md`: `` - `rsplit(']')` caveat (R0-r1 M4, pre-existing in `is_xprv_like`) ``.
 Replace that whole line (line 32) with:
 
-    - Origin handling (amended 2026-11-22 by `design/FIX_sec-gui-allowlist-bracket.md`, closing R0-r1 M4 and secret row `gui-persist-allowlist-bracket-bypass`): an origin is stripped only when the key starts with `[`, up to the FIRST `]`; the body must contain no `[` or `]`, must start with one of the 10 prefixes, and the whole key must not be `is_xprv_like`, which now tests every token split on non-ASCII-alphanumeric characters. `xprv…]xpub…`, `WIF]xpub…` and `xpub… xprv…` therefore blank at persist, and an xprv anywhere in the value masks the field.
+    - Origin handling (amended 2026-11-22 by `design/FIX_sec-gui-allowlist-bracket.md`, closing R0-r1 M4 and secret row `gui-persist-allowlist-bracket-bypass`): an origin is stripped only when the key starts with `[`, up to the FIRST `]`, and must be at most 8 hex digits then `/`-segments of at most 10 digits with an optional `h`, `H` or `'` (else the key blanks); the body must contain no `[` or `]`, must start with one of the 10 prefixes, and the whole key must not be `is_xprv_like`, which now tests every token split on non-ASCII-alphanumeric characters. `xprv…]xpub…`, `WIF]xpub…`, `[WIF]xpub…` and `xpub… xprv…` therefore blank at persist, and an xprv anywhere in the value masks the field.
 
 Printed texts and exit codes: none change (no CLI, no holder-visible string). Toolkit manual lockstep: none
 (`docs/manual/src/40-cli-reference/` untouched: no flag or printed text; `docs/manual-gui/src` has no text on the
@@ -86,28 +97,29 @@ which fail identically on unpatched 336e544 here because the local CLI binaries 
 ## 4. RED rows
 
 The tests ship as a patch next to this file: `design/FIX_sec-gui-allowlist-bracket.red.patch` (adds one unit test to
-`src/form/tree_model.rs` and two integration tests plus a helper to `tests/persist_redaction_v0_34_0.rs`; fake
+`src/form/tree_model.rs` and three integration tests plus a helper to `tests/persist_redaction_v0_34_0.rs`; fake
 signet-shaped vectors only). Run on the branch head, from the worktree root:
 
     git apply design/FIX_sec-gui-allowlist-bracket.red.patch
-    PATH=$HOME/.cargo/bin:$PATH cargo nextest run --locked -E 'test(/is_xprv_like_sees_private_key_past_any_bracket|t7_tree_persist_blanks_private_key_around_brackets|t7b_tree_persist_keeps_origin_and_suffix_public_keys/)'
+    PATH=$HOME/.cargo/bin:$PATH cargo nextest run --locked --no-fail-fast -E 'test(/is_xprv_like_sees_private_key_past_any_bracket|t7_tree_persist_blanks_private_key_around_brackets|t7b_tree_persist_keeps_origin_and_suffix_public_keys|t7c_tree_persist_blanks_private_key_inside_origin/)'
 
 Expected on 336e544 (measured 2026-11-22; the output contains `Compiling mnemonic-gui`), exit 100:
 
-    Summary [...] 3 tests run: 1 passed, 2 failed, 779 skipped
+    Summary [...] 4 tests run: 1 passed, 3 failed, 779 skipped
 
 | row (test name) | 336e544 | after the fix | what it shows |
 |---|---|---|---|
 | `is_xprv_like_sees_private_key_past_any_bracket` (unit, `form::tree_model::tests`) | FAIL, first message `assertion failed: is_xprv_like(&format!("{TPRV}]{TPUB}"))` | PASS | mask and hint stay off for a private key before `]` (Rule P) |
 | `t7_tree_persist_blanks_private_key_around_brackets` (`persist_redaction_v0_34_0`) | FAIL, `secret text survived redact_for_persistence for: ["tprv]tpub", "tprv[origin]tpub", "[origin]tprv]tpub", "wif]tpub", "tpub tprv"]` | PASS | secret text reaches the serialized `FormState` (Rule A); the sixth cell `[origin]tpub]wif` is the regression guard and passes on both |
 | `t7b_tree_persist_keeps_origin_and_suffix_public_keys` (`persist_redaction_v0_34_0`) | PASS | PASS | guard: origin, suffix and empty-origin public keys still persist |
+| `t7c_tree_persist_blanks_private_key_inside_origin` (`persist_redaction_v0_34_0`) | FAIL, `secret text inside an origin survived redact_for_persistence for: ["[wif]tpub", "[fp/wif]tpub", "[hex64]tpub"]` | PASS | a WIF or raw hex inside a leading `[...]` blanks (Rule A.1 origin grammar); well-formed, uppercase-`H` and half-typed origins still persist |
 
-The build applies the patch as its RED commit (the tests become part of the tree), sees the summary above, then makes
-the section-3 change and sees `3 tests run: 3 passed`.
+The build applies the patch as its RED commit (the tests become part of the tree), sees the summary above (`--no-fail-fast` keeps it independent of the job count), then makes
+the section-3 change and sees `4 tests run: 4 passed`.
 
 ## 5. Tests that change
 
-- Added (the patch): the three tests above.
+- Added (the patch): the four tests above.
 - Existing tests that must stay green unedited: `form::tree_model::tests::is_xprv_like_matches_gate_heuristic`,
   `persist_redaction_v0_34_0::t5_tree_persist_keeps_only_extended_public_keys`, `::t6_tree_persist_blanks_xprv_in_hex_and_w`,
   `widget_secret_mask_cycle15g` `t7_tree_key*` (4), `ui_harness_i3_secret_nopersist`, `secrets` (token-split callers).
@@ -131,6 +143,10 @@ the PR) are listed in the author report.
 
 Rule A still keeps a value that starts with a public prefix and carries a NON-xprv secret (WIF, raw hex) after a
 non-bracket separator, or any secret concatenated with no separator (`TPUB/WIF`, `TPUB WIF`, `TPUBWIF`, `TPUBTPRV`
-with no separator). Only a full shape check (body = prefix + exact base58 length + derivation-suffix grammar) closes
-that, and it would blank half-typed public keys at autosave: a product point, reported as a STOP for a separate
-row, not decided here.
+with no separator). Ruled by coordinator agent-reports/architect-sec-dialogpw-guiresidual.md: the follow-on
+unit sec-gui-allowlist-shape adds Rule S (a base58 run of at most 111 characters, then only 0-9 / h H ' < > ; *,
+then optional trailing whitespace), which closes the separator and over-length cases and blanks no honest input.
+A private key inside an incomplete public key (run at most 111) stays row gui-persist-allowlist-concat-residue
+until Brian decides whether autosave blanks incomplete keys.
+
+A secret inside a leading `[origin]` is closed by the Rule A.1 origin grammar.

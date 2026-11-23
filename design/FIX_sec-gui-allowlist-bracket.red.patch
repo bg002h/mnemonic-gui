@@ -21,10 +21,10 @@ index d30ee27..3fef8e0 100644
 +    }
  }
 diff --git i/tests/persist_redaction_v0_34_0.rs w/tests/persist_redaction_v0_34_0.rs
-index 9498df3..80afe14 100644
+index 9498df3..e216d20 100644
 --- i/tests/persist_redaction_v0_34_0.rs
 +++ w/tests/persist_redaction_v0_34_0.rs
-@@ -331,3 +331,86 @@ fn t6_tree_persist_blanks_xprv_in_hex_and_w() {
+@@ -331,3 +331,120 @@ fn t6_tree_persist_blanks_xprv_in_hex_and_w() {
          "a legit \"sv\" wrap string in `w` must SURVIVE"
      );
  }
@@ -108,6 +108,40 @@ index 9498df3..80afe14 100644
 +    for key in &kept {
 +        let json = t7_persisted_json(vec![key.clone()]);
 +        let quoted = serde_json::to_string(key).expect("str serializes");
++        assert!(json.contains(&quoted), "public key `{key}` must survive persist");
++    }
++}
++
++#[test]
++fn t7c_tree_persist_blanks_private_key_inside_origin() {
++    let hex64 = "a1".repeat(32);
++    let cases: Vec<(&str, String, String)> = vec![
++        ("[wif]tpub", format!("[{T7_WIF}]{T7_TPUB}"), T7_WIF.to_string()),
++        (
++            "[fp/wif]tpub",
++            format!("[73c5da0a/{T7_WIF}]{T7_TPUB}"),
++            T7_WIF.to_string(),
++        ),
++        ("[hex64]tpub", format!("[{hex64}]{T7_TPUB}"), hex64.clone()),
++    ];
++    let mut leaked = Vec::new();
++    for (label, key, secret) in &cases {
++        let json = t7_persisted_json(vec![key.clone()]);
++        if json.contains(secret.as_str()) {
++            leaked.push(*label);
++        }
++    }
++    assert!(
++        leaked.is_empty(),
++        "secret text inside an origin survived redact_for_persistence for: {leaked:?}"
++    );
++    for key in [
++        format!("[73c5da0a/84H/1H/0H]{T7_TPUB}"),
++        format!("[73c5/84h]{T7_TPUB}"),
++        format!("[73c5da0a/]{T7_TPUB}"),
++    ] {
++        let json = t7_persisted_json(vec![key.clone()]);
++        let quoted = serde_json::to_string(&key).expect("str serializes");
 +        assert!(json.contains(&quoted), "public key `{key}` must survive persist");
 +    }
 +}
