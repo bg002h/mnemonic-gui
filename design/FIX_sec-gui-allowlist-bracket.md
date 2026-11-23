@@ -89,7 +89,7 @@ tree persist allowlist, checked by `git grep` at toolkit origin/master).
 `scripts/secret-channels-mutations.py:130-131`.
 
 Author's feasibility check (not part of the FIX, not committed): a 14-line prototype of Rules P and A on 336e544 made
-all three section-4 tests pass, kept the full suite at its base result (776 run, 769 passed, the same 7 local
+the three then-current section-4 tests pass, kept the full suite at its base result (776 run, 769 passed, the same 7 local
 real-binary failures as base: `part_b_forms`, `schema_mirror` mk, `secret_channels_t2` x2, `t3prime`, `t6`, `t9`,
 which fail identically on unpatched 336e544 here because the local CLI binaries are not the pinned ones), and passed
 `cargo clippy --locked --all-targets -- -D warnings`.
@@ -112,7 +112,7 @@ Expected on 336e544 (measured 2026-11-22; the output contains `Compiling mnemoni
 | `is_xprv_like_sees_private_key_past_any_bracket` (unit, `form::tree_model::tests`) | FAIL, first message `assertion failed: is_xprv_like(&format!("{TPRV}]{TPUB}"))` | PASS | mask and hint stay off for a private key before `]` (Rule P) |
 | `t7_tree_persist_blanks_private_key_around_brackets` (`persist_redaction_v0_34_0`) | FAIL, `secret text survived redact_for_persistence for: ["tprv]tpub", "tprv[origin]tpub", "[origin]tprv]tpub", "wif]tpub", "tpub tprv"]` | PASS | secret text reaches the serialized `FormState` (Rule A); the sixth cell `[origin]tpub]wif` is the regression guard and passes on both |
 | `t7b_tree_persist_keeps_origin_and_suffix_public_keys` (`persist_redaction_v0_34_0`) | PASS | PASS | guard: origin, suffix and empty-origin public keys still persist |
-| `t7c_tree_persist_blanks_private_key_inside_origin` (`persist_redaction_v0_34_0`) | FAIL, `secret text inside an origin survived redact_for_persistence for: ["[wif]tpub", "[fp/wif]tpub", "[hex64]tpub"]` | PASS | a WIF or raw hex inside a leading `[...]` blanks (Rule A.1 origin grammar); well-formed, uppercase-`H` and half-typed origins still persist |
+| `t7c_tree_persist_blanks_private_key_inside_origin` (`persist_redaction_v0_34_0`) | FAIL, `secret text inside an origin survived redact_for_persistence for: ["[wif]tpub", "[fp/wif]tpub", "[hex64]tpub"]` | PASS | a WIF or raw hex inside a leading `[...]` blanks (Rule A.1 origin grammar); well-formed, uppercase-`H` and half-typed origins still persist (the leading-space row is documented behaviour with no test cell) |
 
 The build applies the patch as its RED commit (the tests become part of the tree), sees the summary above (`--no-fail-fast` keeps it independent of the job count), then makes
 the section-3 change and sees `4 tests run: 4 passed`.
