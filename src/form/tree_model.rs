@@ -699,10 +699,12 @@ fn is_origin_like(origin: &str) -> bool {
 
 /// v0.34.0 (audit I6) — the persist walk's POSITIVE allowlist (Rule A of
 /// `design/FIX_sec-gui-allowlist-bracket.md`, closing secret row
-/// `gui-persist-allowlist-bracket-bypass`): true iff (1) an optional leading
-/// `[origin]` (up to the FIRST `]`) matches the origin grammar, (2) the
-/// remaining body has no `[` or `]`, and (3) the body starts with one of the
-/// 10 SLIP-132 extended-PUBLIC prefixes AND the whole value is not
+/// `gui-persist-allowlist-bracket-bypass`): true iff (0) leading ASCII whitespace is
+/// judged as absent, (1) an optional leading
+/// `[origin]` (up to the FIRST `]`, or to the end while
+/// unclosed) matches the origin grammar, (2) the
+/// remaining body has no `[` or `]`, and (3) the body starts with, or is a proper prefix of, one of the
+/// 10 SLIP-132 extended-PUBLIC prefixes (BRIAN-Q-1: no prefix of an honest key being typed blanks) AND the whole value is not
 /// `is_xprv_like`. Everything else (xprv-likes, WIF, raw hex, garbage) is
 /// blanked at persist — fail-closed, because this path has NO `from_str`
 /// backstop (the toolkit gate's WIF/raw-hex refusal lives in its step-2
@@ -720,20 +722,25 @@ fn is_extended_public_like(key: &str) -> bool {
     const XPUB_PREFIXES: &[&[u8; 4]] = &[
         b"xpub", b"tpub", b"ypub", b"Ypub", b"zpub", b"Zpub", b"upub", b"Upub", b"vpub", b"Vpub",
     ];
-    let body = match key.strip_prefix('[') {
+    // Leading ASCII whitespace is kept, and judged as absent (BRIAN-Q-1).
+    let v = key.trim_start_matches(|c: char| c.is_ascii_whitespace());
+    let body = match v.strip_prefix('[') {
         Some(rest) => match rest.split_once(']') {
             Some((origin, body)) if is_origin_like(origin) => body,
-            _ => return false,
+            Some(_) => return false,
+            // An unclosed origin is an origin being typed (BRIAN-Q-1).
+            None => return is_origin_like(rest) && !is_xprv_like(key),
         },
-        None => key,
+        None => v,
     };
     if body.contains(['[', ']']) || is_xprv_like(key) {
         return false;
     }
-    match body.as_bytes().get(..4) {
-        Some(prefix) => XPUB_PREFIXES.iter().any(|p| prefix == &p[..]),
-        None => false,
-    }
+    // The body starts with one of the 10 literals, or is a proper prefix of
+    // one (at most 3 bytes: a literal being typed, no key material).
+    let b = body.as_bytes();
+    let n = b.len().min(4);
+    XPUB_PREFIXES.iter().any(|p| b[..n] == p[..n])
 }
 
 /// Blank every `key` / `keys` entry that is NOT positively extended-public,
