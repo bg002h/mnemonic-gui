@@ -399,12 +399,7 @@ pub fn is_render_suppressed(
     let archetype_mode = sub.name == "build-descriptor"
         && !tree_mode
         && mnemonic_gui::form::mode_predicates::active_archetype(state).is_some();
-    if archetype_mode
-        && mnemonic_gui::form::mode_predicates::suppressed_in_archetype_mode(flag_name)
-    {
-        return true;
-    }
-    false
+    archetype_mode && mnemonic_gui::form::mode_predicates::suppressed_in_archetype_mode(flag_name)
 }
 
 /// The body of `src/main.rs`'s per-flag render loop (`main.rs:601-686`),
