@@ -665,43 +665,72 @@ fn parse_uint(
 // Persistence redaction walk (SPEC §1.3)
 // ======================================================================
 
-/// The toolkit gate's xprv heuristic (`gate.rs::check_secret_key`,
-/// verified GUI-reusable — brainstorm R0-r1 M1): strip an optional
-/// `[origin]` prefix via `rsplit(']')`, then extended-private prefixes
-/// `xprv`/`tprv`/`yprv`/`zprv`/`uprv`/`vprv` (+ capitals) all have `prv`
-/// at byte offset 1..4 (`xpub`/`tpub` have `pub`).
+/// A superset of the toolkit gate's xprv heuristic (`gate.rs::check_secret_key`,
+/// which keeps `rsplit(']')`): Rule P of `design/FIX_sec-gui-allowlist-bracket.md`
+/// — true iff ANY token of the value, split on every character that is not
+/// ASCII alphanumeric, has `prv` at byte offsets 1..4 (the extended-private
+/// prefixes `xprv`/`tprv`/`yprv`/`zprv`/`uprv`/`vprv` + capitals; `xpub`/`tpub`
+/// have `pub`). This is the token split `secrets::text_holds_private_key` uses.
 ///
 /// v0.34.0 (audit I6): this DENY-list heuristic serves the live render-side
-/// hint ONLY (`tree_form::xprv_hint` — warn-now semantics, false-negatives
-/// tolerable). Persist-redaction uses the POSITIVE allowlist
-/// (`is_extended_public_like`), NOT this — WIF / raw-hex / garbage are
-/// blanked at persist even though this fn returns false for them.
+/// hint and mask, and the `hex`/`w` persist arm (warn-now semantics,
+/// false-negatives tolerable). Persist-redaction of `key`/`keys` uses the
+/// POSITIVE allowlist (`is_extended_public_like`) — WIF / raw-hex / garbage
+/// are blanked at persist even though this fn returns false for them.
 pub fn is_xprv_like(key: &str) -> bool {
-    let key_part = key.rsplit(']').next().unwrap_or(key);
-    key_part.is_char_boundary(4) && key_part.as_bytes().get(1..4) == Some(b"prv")
+    key.split(|c: char| !c.is_ascii_alphanumeric())
+        .any(|tok| tok.is_char_boundary(4) && tok.as_bytes().get(1..4) == Some(b"prv"))
 }
 
-/// v0.34.0 (audit I6) — the persist walk's POSITIVE allowlist: true iff the
-/// origin-stripped part starts with one of the 10 SLIP-132 extended-PUBLIC
-/// prefixes. Everything else (xprv-likes, WIF, raw hex, garbage) is blanked
-/// at persist — fail-closed, because this path has NO `from_str` backstop
-/// (the toolkit gate's WIF/raw-hex refusal lives in its step-2 type-check,
-/// which never runs here). Notes:
+/// Origin grammar of Rule A.1: at most 8 ASCII hex digits, then zero or more
+/// `/`-segments, each at most 10 ASCII digits with an optional final
+/// `h`/`H`/`'` (empty fingerprint and empty segments allowed).
+fn is_origin_like(origin: &str) -> bool {
+    let mut parts = origin.split('/');
+    let fp = parts.next().unwrap_or("");
+    if fp.len() > 8 || !fp.bytes().all(|b| b.is_ascii_hexdigit()) {
+        return false;
+    }
+    parts.all(|seg| {
+        let digits = seg.strip_suffix(['h', 'H', '\'']).unwrap_or(seg);
+        digits.len() <= 10 && digits.bytes().all(|b| b.is_ascii_digit())
+    })
+}
+
+/// v0.34.0 (audit I6) — the persist walk's POSITIVE allowlist (Rule A of
+/// `design/FIX_sec-gui-allowlist-bracket.md`, closing secret row
+/// `gui-persist-allowlist-bracket-bypass`): true iff (1) an optional leading
+/// `[origin]` (up to the FIRST `]`) matches the origin grammar, (2) the
+/// remaining body has no `[` or `]`, and (3) the body starts with one of the
+/// 10 SLIP-132 extended-PUBLIC prefixes AND the whole value is not
+/// `is_xprv_like`. Everything else (xprv-likes, WIF, raw hex, garbage) is
+/// blanked at persist — fail-closed, because this path has NO `from_str`
+/// backstop (the toolkit gate's WIF/raw-hex refusal lives in its step-2
+/// type-check, which never runs here). Notes:
 /// - Byte 0 is constrained ON PURPOSE: a bare "`pub` at bytes 1..4" probe
 ///   would keep a `Kpub…`-form WIF in cleartext (base58 contains p/u/b).
 /// - The list admits SLIP-132 forms (`ypub`/`zpub`/…) the toolkit's
 ///   `Xpub::from_str` would refuse anyway — correct trade (public material,
 ///   no leak direction). Do NOT "tighten" to {xpub,tpub} (back-door
 ///   behavior change) or mistake this allowlist for a validity check.
-/// - Inherited `rsplit(']')` caveat (same as `is_xprv_like`): everything
-///   before the LAST `]` goes unexamined, so `xprv…]xpub…` keeps the whole
-///   string — tolerated; such a string is not a parseable key anywhere.
+/// - Origin handling (FIX_sec-gui-allowlist-bracket, row
+///   `gui-persist-allowlist-bracket-bypass`): the origin is stripped only when
+///   the value starts with `[`; nothing before a `]` goes unexamined.
 fn is_extended_public_like(key: &str) -> bool {
     const XPUB_PREFIXES: &[&[u8; 4]] = &[
         b"xpub", b"tpub", b"ypub", b"Ypub", b"zpub", b"Zpub", b"upub", b"Upub", b"vpub", b"Vpub",
     ];
-    let key_part = key.rsplit(']').next().unwrap_or(key);
-    match key_part.as_bytes().get(..4) {
+    let body = match key.strip_prefix('[') {
+        Some(rest) => match rest.split_once(']') {
+            Some((origin, body)) if is_origin_like(origin) => body,
+            _ => return false,
+        },
+        None => key,
+    };
+    if body.contains(['[', ']']) || is_xprv_like(key) {
+        return false;
+    }
+    match body.as_bytes().get(..4) {
         Some(prefix) => XPUB_PREFIXES.iter().any(|p| prefix == &p[..]),
         None => false,
     }
