@@ -849,4 +849,17 @@ mod tests {
         assert!(!is_xprv_like(""));
         assert!(!is_xprv_like("926a54995ca48600920a19bf7bc502ca"));
     }
+
+    #[test]
+    fn is_xprv_like_sees_private_key_past_any_bracket() {
+        const TPRV: &str = "tprv8ZgxMBicQKsPFAKEFAKEFAKEnotarealkeyT7";
+        const TPUB: &str = "tpubD6NzVbkrYhZ4XgiXtGrdW5XDAPFCL9h7we1vwNCpn8tGbBcgfVYjXyhWo4E1xkh56hjod1RhGjxbaTLV3X4FyWuejifB9jusQ46QzG87VKp";
+        assert!(is_xprv_like(&format!("{TPRV}]{TPUB}")));
+        assert!(is_xprv_like(&format!("{TPRV}[73c5da0a/84h/1h/0h]{TPUB}")));
+        assert!(is_xprv_like(&format!("[73c5da0a/84h/1h/0h]{TPRV}]{TPUB}")));
+        assert!(is_xprv_like(&format!("{TPUB} {TPRV}")));
+        assert!(is_xprv_like(&format!("[73c5da0a/84h/1h/0h]{TPUB}]{TPRV}")));
+        assert!(!is_xprv_like(&format!("[73c5da0a/84'/1'/0']{TPUB}/<0;1>/*")));
+        assert!(!is_xprv_like("sv"));
+    }
 }
