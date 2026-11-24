@@ -310,13 +310,15 @@ fn ci_build_version_step_present() {
     // Required: artifact-name templates use `env.VERSION`. Four sites
     // mirror the four template locations in build.yml: `package-unix`
     // ARTIFACT, `package-windows` ARTIFACT, `upload-artifact` name,
-    // `upload-artifact` path.
+    // `upload-artifact` path. The `build` and `build-nightly` jobs
+    // (alpha-mode split of the Linux and Windows/macOS legs) each carry
+    // all four, so the file holds eight.
     let env_version_count = body.matches("env.VERSION").count();
     assert_eq!(
-        env_version_count, 4,
-        "build.yml must reference `env.VERSION` exactly 4 times (one \
-         each for package-unix ARTIFACT, package-windows ARTIFACT, \
-         upload-artifact name, upload-artifact path) — found {}",
+        env_version_count, 8,
+        "build.yml must reference `env.VERSION` exactly 8 times (four \
+         in each of `build` and `build-nightly`: package-unix ARTIFACT, \
+         package-windows ARTIFACT, upload-artifact name, upload-artifact path) — found {}",
         env_version_count
     );
 }
