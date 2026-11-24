@@ -16,10 +16,11 @@
 //! leak class — see `src/secrets.rs` module doc + CHANGELOG v0.3.3). This
 //! gate fires immediately on drift.
 //!
-//! Binary lookup mirrors `schema_check::json_flag_names`: `MNEMONIC_BIN`
-//! env-var wins; otherwise `mnemonic` is invoked through `$PATH`. If the
-//! binary cannot be located OR the output isn't v5+, the cell SKIPS (so
-//! dev-laptop runs without the v5 binary don't spuriously fail).
+//! Binary lookup (FIX sec-secret-drift-gate-fail-closed): `MNEMONIC_BIN`, if
+//! set (even empty), is the binary; otherwise `mnemonic` through `$PATH`. The
+//! gate SKIPS only when `MNEMONIC_BIN` is unset and `mnemonic` is not on
+//! `$PATH`. Every other failure (spawn error, non-zero exit, non-UTF-8,
+//! non-JSON, schema version < 5) fails the test.
 //!
 //! Companion to `tests/secret_taxonomy_pin.rs` (which pins the
 //! NodeType / SlotSubkey constants) — this gate covers the per-flag
@@ -51,43 +52,73 @@ struct GuiSchemaV5Flag {
     secret: bool,
 }
 
-fn resolve_mnemonic_bin() -> String {
-    std::env::var("MNEMONIC_BIN").unwrap_or_else(|_| "mnemonic".to_string())
+/// Outcome of fetching the gui-schema document (FIX
+/// sec-secret-drift-gate-fail-closed).
+enum Fetch {
+    Doc(String, Vec<GuiSchemaV5Subcommand>),
+    /// The only skip (Rule S): `MNEMONIC_BIN` unset and `mnemonic` not on PATH.
+    Skip,
+    Fail(String),
 }
 
-/// Returns Some((cli, subcommands)) on success; None if the binary can't
-/// be located, fails to produce gui-schema output, or emits a pre-v5
-/// schema (the drift-gate is v5-only — pre-v5 docs lack per-flag `secret`).
-fn fetch_v5_schema() -> Option<(String, Vec<GuiSchemaV5Subcommand>)> {
-    let bin = resolve_mnemonic_bin();
-    let output = Command::new(&bin).arg("gui-schema").output().ok()?;
+/// Runs `<bin> gui-schema`. Skips ONLY when `MNEMONIC_BIN` is unset and
+/// spawning `mnemonic` fails with NotFound; every other failure (spawn,
+/// non-zero exit, non-UTF-8, non-JSON, version < 5) is `Fetch::Fail`.
+fn fetch_v5_schema() -> Fetch {
+    let env_bin = std::env::var_os("MNEMONIC_BIN");
+    let unset = env_bin.is_none();
+    let bin = env_bin.unwrap_or_else(|| "mnemonic".into());
+    let shown = std::path::Path::new(&bin).display().to_string();
+    let output = match Command::new(&bin).arg("gui-schema").output() {
+        Ok(o) => o,
+        Err(e) if unset && e.kind() == std::io::ErrorKind::NotFound => return Fetch::Skip,
+        Err(e) => {
+            return Fetch::Fail(format!(
+                "schema_mirror_secret_drift: cannot run `{shown} gui-schema`: {e}"
+            ))
+        }
+    };
     if !output.status.success() {
-        eprintln!(
-            "schema_mirror_secret_drift: `{bin} gui-schema` exited {:?}; skipping",
-            output.status,
-        );
-        return None;
+        return Fetch::Fail(format!(
+            "schema_mirror_secret_drift: `{shown} gui-schema` failed: {}",
+            output.status
+        ));
     }
-    let stdout = String::from_utf8(output.stdout).ok()?;
-    let root: GuiSchemaV5Root = serde_json::from_str(&stdout).ok()?;
+    let Ok(stdout) = String::from_utf8(output.stdout) else {
+        return Fetch::Fail(format!(
+            "schema_mirror_secret_drift: `{shown} gui-schema` stdout is not UTF-8"
+        ));
+    };
+    let root: GuiSchemaV5Root = match serde_json::from_str(&stdout) {
+        Ok(r) => r,
+        Err(e) => {
+            return Fetch::Fail(format!(
+                "schema_mirror_secret_drift: `{shown} gui-schema` stdout is not a gui-schema JSON document: {e}"
+            ))
+        }
+    };
     if root.version < 5 {
-        eprintln!(
-            "schema_mirror_secret_drift: gui-schema version {} (< 5); \
-             skipping drift gate (v5 introduces the per-flag `secret` field)",
-            root.version,
-        );
-        return None;
+        return Fetch::Fail(format!(
+            "schema_mirror_secret_drift: `{shown} gui-schema` reports schema version {}; \
+             this gate needs version 5 or later (per-flag `secret` field)",
+            root.version
+        ));
     }
-    Some((root.cli, root.subcommands))
+    Fetch::Doc(root.cli, root.subcommands)
 }
 
 #[test]
 fn secret_drift_gate_mnemonic_v5_schema_matches_gui_handcode() {
-    let Some((cli, subcommands)) = fetch_v5_schema() else {
-        // SKIP (not failure): the gate is best-effort against a live
-        // toolkit binary. CI gates this via pinned-upstream + the
-        // schema-mirror workflow's binary install.
-        return;
+    let (cli, subcommands) = match fetch_v5_schema() {
+        Fetch::Doc(c, s) => (c, s),
+        Fetch::Skip => {
+            // The only skip (Rule S).
+            eprintln!(
+                "schema_mirror_secret_drift: SKIP: MNEMONIC_BIN is unset and `mnemonic` is not on PATH; set MNEMONIC_BIN to the pinned toolkit binary to run this gate"
+            );
+            return;
+        }
+        Fetch::Fail(msg) => panic!("{msg}"),
     };
     assert_eq!(cli, "mnemonic", "gui-schema cli field mismatch");
 
