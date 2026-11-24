@@ -341,4 +341,33 @@ mod gate_contract {
         });
         assert!(ok, "gate must PASS on a matching v5 document; output:\n{text}");
     }
+
+    #[test]
+    fn drift_gate_fails_when_bin_unset_and_path_mnemonic_not_executable() {
+        // Rule S skips only on NotFound: a `mnemonic` that exists but cannot be
+        // run (PermissionDenied) must FAIL, not skip.
+        let dir = tempfile::tempdir().unwrap();
+        let p = fake_bin(dir.path(), "mnemonic", "exit 0");
+        std::fs::set_permissions(&p, std::fs::Permissions::from_mode(0o644)).unwrap();
+        let (ok, text) = run_gate(|c| {
+            c.env_remove("MNEMONIC_BIN").env("PATH", dir.path());
+        });
+        assert_fails_with(ok, &text, "schema_mirror_secret_drift: cannot run `mnemonic gui-schema`: ");
+    }
+
+    #[test]
+    fn drift_gate_fails_on_empty_v5_document() {
+        // A well-formed v5 document with no subcommands must not pass: the GUI
+        // hand-code has secret flags the document lacks.
+        let dir = tempfile::tempdir().unwrap();
+        let bin = fake_bin(
+            dir.path(),
+            "mnemonic",
+            r#"echo '{"version":5,"cli":"mnemonic","subcommands":[]}'"#,
+        );
+        let (ok, text) = run_gate(|c| {
+            c.env("MNEMONIC_BIN", &bin);
+        });
+        assert_fails_with(ok, &text, "secret-flag drift between toolkit v5 schema and GUI hand-code");
+    }
 }
