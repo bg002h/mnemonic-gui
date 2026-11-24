@@ -150,7 +150,7 @@ new file mode 100644
 index 0000000..abe947b
 --- /dev/null
 +++ w/tests/tree_key_marker.rs
-@@ -0,0 +1,39 @@
+@@ -0,0 +1,40 @@
 +//! FIX_sec-gui-allowlist-shape (architect-gui-q1-typing-prefixes Q2): the one
 +//! line shown under a tree `key`/`keys[i]` field. Fake signet/testnet-shaped
 +//! vectors only.
@@ -166,6 +166,7 @@ index 0000000..abe947b
 +    let m = |s: &str| key_marker(s).map(|(t, a)| format!("{}{t}", if a { "A:" } else { "w:" }));
 +    let rows: Vec<(String, Option<&str>)> = vec![
 +        (String::new(), None),
++        ("  ".into(), None),
 +        (TPUB.into(), None),
 +        (format!("[73c5da0a/84h/1h/0h]{TPUB}"), None),
 +        (format!("{TPUB}/<0;1>/*"), None),

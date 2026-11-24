@@ -69,12 +69,13 @@ which become `key_hint(ui, …)`; a field shows at most one line. The xprv hint 
 and its text is unchanged. Otherwise the new pure `pub fn tree_model::key_marker(&str) -> Option<(String, bool)>`
 (`bool` = amber) gives the first that applies, judged on the value trimmed as in Rule T:
 
+0. the value trimmed as in Rule T is empty, or the value is is_xprv_like: no line (key_hint shows the xprv hint for the latter).
 1. the value is not empty and fails the persist rule above (A, S or E): amber `⚠ not an extended public key: this value will not be saved`
 2. `[` with no `]`: grey `incomplete: the origin needs a closing ]`
 3. a closed origin whose fingerprint is not 8 characters: grey `incomplete: the fingerprint needs 8 hex digits`
 4. a run shorter than 111: grey `incomplete: {n} of 111 key characters` (`{n}` = the run length, literal included)
 5. a run of 111 that fails `bitcoin::base58::decode_check`: amber `⚠ checksum fails: a character is wrong or swapped`
-6. otherwise (also: empty, or `is_xprv_like`, which keeps the xprv hint) no line.
+6. otherwise no line.
 
 Grey is `ui.weak(text)`; amber is `ui.colored_label(AMBER, text)` (`tree_form.rs:55`). `bitcoin` becomes a direct
 dependency: `bitcoin = { version = "0.32", default-features = false, features = ["std"] }` in `[dependencies]`
@@ -151,7 +152,7 @@ Expected on 7e1b498 (measured 2026-11-24), exit 101, the compile failure (no `ke
 
 | row (test name, `tree_key_marker`) | 7e1b498 | after the fix | what it shows |
 |---|---|---|---|
-| `m1_key_marker_texts` | does not compile (E0432) | PASS | the 5 marker texts, their colour, and no line for an empty, whole, origin+whole, suffixed, trailing-space or xprv value (15 cells) |
+| `m1_key_marker_texts` | does not compile (E0432) | PASS | the 5 marker texts, their colour, and no line for an empty, whole, origin+whole, suffixed, trailing-space or xprv value (16 cells) |
 
 The build applies the patch as its RED commit, sees both results above (`--no-fail-fast` keeps the first independent of
 the job count), then makes the section-3 change and sees `8 tests run: 8 passed` and `1 test run: 1 passed`.
@@ -174,8 +175,7 @@ the job count), then makes the section-3 change and sees `8 tests run: 8 passed`
 
 Not covered locally: the `snapshots`, `tutorial-snapshots` (lavapipe) and `schema-mirror` real-binary jobs, and the
 PARTB rows of `secret-channels-mutations.py`, need the pinned binaries; take them as green CI on the PR head.
-`key_hint` changes the tree form's rendering under a key field, so a `snapshots` image that shows a tree key field
-with a value may change; the build regenerates it only if CI shows the diff, and names it in the PR.
+`key_hint` changes the tree form's rendering under a key field, no snapshot shows a non-empty tree key field, so no image is expected to change; if CI shows a diff, that is a finding.
 
 ## 7. Review class
 
@@ -190,7 +190,5 @@ mutation-gate survivors.
 ## 8. Rows closing on GREEN, and residual
 
 On GREEN: `gui-persist-allowlist-concat-residue` (123) closes; `fixdoc-secguibracket-r1-concat-residue` (404) closes
-as its duplicate. Residual, not closed, below the rows' bar (no standard private-key encoding): a decimal number
-typed inside an INCOMPLETE key (digits 1-9 are base58, so they lengthen the run, which may reach 111), digit runs of
-at most 10 separated by `h` in the suffix, and a fragment of a WIF or of hex (a secret cut short). Closes no repo
+as its duplicate. Residual, not closed (filed as Minor secret rows by the FIX review r1): digit runs of at most 10 separated by `/`, `h` or the other suffix characters, in the suffix or in an origin path (word indices or a split decimal); a fragment of a WIF, tprv or hex shorter than the whole (including a whole WIF with one wrong character) inside an incomplete key; a BIP-39 phrase typed with no separators after a public prefix when no word has an `l`. A decimal secret of 64 or more digits blanks under E.1 (digits are hex digits). Closes no repo
 FOLLOWUPS line; proposed lines, if any, are in the author report.
