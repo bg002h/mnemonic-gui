@@ -19,7 +19,7 @@
 url = "https://github.com/bg002h/mnemonic-toolkit"
 # Cross-cite with Cargo.toml's [dependencies] mnemonic-toolkit tag.
 # Both should bump in lockstep when the toolkit is upgraded.
-tag = "mnemonic-toolkit-v0.105.1"
+tag = "mnemonic-toolkit-v0.107.1"
 bin = "mnemonic"
 workspace-member-path = "crates/mnemonic-toolkit"
 # v0.2 Phase C.1: GUI consults `<cli> gui-schema` JSON path when true;
@@ -39,7 +39,7 @@ gui-schema-capable = true
 # can't fire a false-positive banner. v0.11.0 adds the visible `md
 # gen-man --out` subcommand (mirrored in src/schema/md.rs this cycle).
 url = "https://github.com/bg002h/descriptor-mnemonic"
-tag = "descriptor-mnemonic-md-cli-v0.20.3"
+tag = "descriptor-mnemonic-md-cli-v0.21.0"
 bin = "md"
 workspace-member-path = "crates/md-cli"
 gui-schema-capable = true
@@ -60,14 +60,14 @@ url = "https://github.com/bg002h/mnemonic-secret"
 # v0.13.0 has NONE of them, so the schema-mirror gate was red on a mirror that
 # described a RELEASED ms the pin had not caught up to. v0.16.0 is tagged
 # upstream; the mirror is right and this pin was stale.
-tag = "ms-cli-v0.20.1"
+tag = "ms-cli-v0.21.0"
 bin = "ms"
 workspace-member-path = "crates/ms-cli"
 gui-schema-capable = true
 
 [mk]
 url = "https://github.com/bg002h/mnemonic-key"
-tag = "mk-cli-v0.13.0"
+tag = "mk-cli-v0.17.0"
 bin = "mk"
 workspace-member-path = "crates/mk-cli"
 gui-schema-capable = true

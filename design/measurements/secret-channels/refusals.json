@@ -157,10 +157,12 @@
   "cli": "mnemonic",
   "sub": "verify-bundle",
   "input": "--ms1",
-  "exit": 64,
-  "refused": false,
-  "channels": [],
-  "first": "error: the following required arguments were not provided:"
+  "exit": 2,
+  "refused": true,
+  "channels": [
+   "--ms1 -   (stdin, one card; or --ms1 @env:VAR)"
+  ],
+  "first": "mnemonic: argument 2 on ARGV (--ms1) is a codex32 (ms1) card -- seed-equivalent -- 50 characters. Nothing about it is printed here."
  },
  {
   "cli": "mnemonic",
@@ -461,10 +463,12 @@
   "cli": "mnemonic",
   "sub": "seed-xor combine",
   "input": "--share phrase=",
-  "exit": 64,
-  "refused": false,
-  "channels": [],
-  "first": "error: the following required arguments were not provided:"
+  "exit": 2,
+  "refused": true,
+  "channels": [
+   "--share phrase=-   (stdin, one share; or --share phrase=@env:VAR, once per share)"
+  ],
+  "first": "mnemonic: argument 3 on ARGV (--share phrase=) is a BIP-39 phrase -- 93 characters. Nothing about it is printed here."
  },
  {
   "cli": "mnemonic",
@@ -536,10 +540,12 @@
   "cli": "mnemonic",
   "sub": "slip39 combine",
   "input": "--share",
-  "exit": 0,
-  "refused": false,
-  "channels": [],
-  "first": "warning: secret material on argv (--share) \u2014 pipe via --share - to avoid /proc/$PID/cmdline exposure"
+  "exit": 2,
+  "refused": true,
+  "channels": [
+   "--share -   (stdin, one share; or --share @env:VAR, once per share)"
+  ],
+  "first": "mnemonic: argument 3 on ARGV (--share) is a share of a seed (recovers the secret with K others) -- 145 characters. Nothing about it is printed here."
  },
  {
   "cli": "mnemonic",
@@ -579,9 +585,11 @@
   "sub": "ms-shares combine",
   "input": "--share",
   "exit": 2,
-  "refused": false,
-  "channels": [],
-  "first": "warning: secret material on argv (--share) \u2014 pipe via --share - to avoid /proc/$PID/cmdline exposure"
+  "refused": true,
+  "channels": [
+   "--share -   (stdin, one share; or --share @env:VAR, once per share)"
+  ],
+  "first": "mnemonic: argument 3 on ARGV (--share) is a share of a seed (recovers the secret with K others) -- 50 characters. Nothing about it is printed here."
  },
  {
   "cli": "mnemonic",
@@ -609,10 +617,12 @@
   "cli": "mnemonic",
   "sub": "import-wallet",
   "input": "--ms1",
-  "exit": 64,
-  "refused": false,
-  "channels": [],
-  "first": "error: the following required arguments were not provided:"
+  "exit": 2,
+  "refused": true,
+  "channels": [
+   "--ms1 @env:VAR"
+  ],
+  "first": "mnemonic: argument 2 on ARGV (--ms1) is a codex32 (ms1) card -- seed-equivalent -- 50 characters. Nothing about it is printed here."
  },
  {
   "cli": "mnemonic",

@@ -8,7 +8,7 @@
 - **Fold 1** answered R0 and the operator's F-687 ruling; its map is `gui-design-fold1.md`.
 
 **Baseline:** mnemonic-gui `gui-followups`, fold 4 at `462c648`.
-**Measured against the release binaries:** mnemonic 0.105.1, md 0.20.3, ms 0.20.1, mk 0.13.0, installed with `mnemonic-toolkit/scripts/install.sh --no-gui --no-man` (F-694 re-pin, 2026-09-25; the generated blocks below are from these). Fold 1–5 measured mnemonic 0.104.0 and ms 0.19.1, which **predate** the F-687 CLI change (§A3b); prose that quotes those releases says so. The F-687 **master** builds (toolkit `9da32e2f`, ms `d1ab447`; sha256 `88cb9fbf…`/`1d13f0f8…`) report **the same version strings**, so binaries are identified by **pinned tag + sha256** (§A0).
+**Measured against the release binaries:** mnemonic 0.107.1, md 0.21.0, ms 0.21.0, mk 0.17.0, installed with `mnemonic-toolkit/scripts/install.sh --no-gui --no-man` (re-pin, 2026-11-22; the previous re-pin measured 0.107.0 / 0.20.8 / 0.20.5 / 0.16.0 and F-694 measured 0.105.1 / 0.20.3 / 0.20.1 / 0.13.0; the generated blocks below are from these). Fold 1–5 measured mnemonic 0.104.0 and ms 0.19.1, which **predate** the F-687 CLI change (§A3b); prose that quotes those releases says so. The F-687 **master** builds (toolkit `9da32e2f`, ms `d1ab447`; sha256 `88cb9fbf…`/`1d13f0f8…`) report **the same version strings**, so binaries are identified by **pinned tag + sha256** (§A0).
 **Follow-ups this covers:** `argv-secret-via-private-channels` (Part A), `md-ms-new-subcommands-unsurfaced` (Part B).
 
 ---
@@ -178,7 +178,7 @@ python3 check_design_tables.py             # the document gate
   - `run_plans.py` runs the Linux plans through a real runner.
   - `test_plan.py` pins every refusal.
   - `mutations.py` shows each of those tests can fail.
-- **Argv re-interpretation** (`measure_reinterpret.py`): for every input, is a value of `@env:VAR` or `-` on argv resolved a second time? mnemonic 0.105.1: `-` and `@env:`; ms 0.20.1: `-` and `@env:` (ms 0.19.1 re-read only `-`).
+- **Argv re-interpretation** (`measure_reinterpret.py`): for every input, is a value of `@env:VAR` or `-` on argv resolved a second time? mnemonic 0.107.1: `-` and `@env:`; ms 0.21.0: `-` and `@env:` (ms 0.19.1 re-read only `-`).
 - **Copy recipes** (`copy_evidence.py`): the §A7 recipes run in bash, zsh and fish, compared against argv-exact.
 - **T10** (`os_gate.py`, `fixtures/ci/`): the OS gate, pinned against 10 decoy and 3 genuine workflow fixtures.
 - **T4** (`regen_check.py`): identity and re-derivation (§A0). `demo_ni5.sh` runs it against the F-687 builds.
@@ -221,7 +221,7 @@ Legend:
 | `mnemonic silent-payment --passphrase` | refused | OK | OK | OK | — | yes |
 | `mnemonic final-word --from phrase=` | refused | OK | fails closed | n/a | n/a | yes |
 | `mnemonic seed-xor split --from phrase=` | refused | OK | OK | n/a | n/a | yes |
-| `mnemonic seed-xor combine --share phrase=` | NOT refused (exit 0) | OK | OK | n/a | n/a | yes |
+| `mnemonic seed-xor combine --share phrase=` | refused | OK | OK | n/a | n/a | yes |
 | `mnemonic seedqr encode --from phrase=` | refused | OK | fails closed | n/a | n/a | yes |
 | `mnemonic seedqr decode --from seedqr=` | refused | OK | fails closed | n/a | n/a | yes |
 | `mnemonic seedqr decode --digits` | refused | OK | fails closed | — | — | yes |
@@ -243,7 +243,7 @@ Legend:
 | `mnemonic verify-bundle --slot @0.phrase=` | refused | OK | OK | n/a | n/a | yes |
 | `mnemonic verify-bundle --passphrase` | refused | OK | OK | OK | — | yes |
 | `mnemonic verify-bundle --ms1` | refused | OK | OK | — | — | yes |
-| `mnemonic import-wallet --ms1` | NOT refused (exit 0) | fails closed | OK | — | — | yes |
+| `mnemonic import-wallet --ms1` | refused | fails closed | OK | — | — | yes |
 | `mnemonic import-wallet --slot @0.phrase=` | refused | fails closed | OK | n/a | n/a | yes |
 | `mnemonic electrum-decrypt --decrypt-password` | refused | OK | OK | OK | OK (`-file`) | yes |
 | `mnemonic xpub-search path-of-xpub --phrase` | refused | fails closed | OK | OK | — | yes |
@@ -256,10 +256,10 @@ Legend:
 | `mnemonic xpub-search passphrase-of-xpub --phrase` | refused | fails closed | OK | OK | — | yes |
 | `mnemonic slip39 split --from phrase=` | refused | OK | OK | n/a | n/a | yes |
 | `mnemonic slip39 split --passphrase` | refused | OK | OK | OK | — | yes |
-| `mnemonic slip39 combine --share` | NOT refused (exit 0) | OK | OK | — | — | yes |
+| `mnemonic slip39 combine --share` | refused | OK | OK | — | — | yes |
 | `mnemonic slip39 combine --passphrase` | refused | OK | OK | OK | — | yes |
 | `mnemonic ms-shares split --from phrase=` | refused | OK | OK | n/a | n/a | yes |
-| `mnemonic ms-shares combine --share` | NOT refused (exit 0) | OK | OK | — | — | yes |
+| `mnemonic ms-shares combine --share` | refused | OK | OK | — | — | yes |
 | `ms split --phrase` | refused | OK | fails closed | — | OK (`--in`) | yes |
 | `ms split --hex` | refused | OK | fails closed | — | —/fails closed | yes |
 | `ms hashlock --hashlock-phrase` | refused | fails closed | fails closed | OK | —/fails closed | yes |
@@ -406,7 +406,7 @@ A user whose real secret is literally `-` or begins with `@env:` cannot type it 
 **A resolved value that is itself a channel spelling (R2 NC1; broadened in fold 5, §A0.1).** `$MY_PW` may *contain* `@env:OTHER`, `-`, or a padded or case-varied form of either. Since fold 5 every such value is refused on **every** path (`value-looks-like-a-channel`), whatever any CLI does; the history below explains why.
 - **On the private path** these are just bytes. The CLI resolves the planner's `@env:MNEMONIC_GUI_S<i>` **once** and does not look inside, and stdin/fd content is never resolved. This is measured: Linux equals the CLI's own `@env:MY_PW` on every shape and never gives `$OTHER`'s wallet (§A9 NC1 column).
 - **On the interim argv path** the CLI would resolve them a second time. This is measured below: an unguarded interim run gives `$OTHER`'s wallet, `ca2c62d2`. Fold 3 refused them on the interim path from the measured data (`value-is-a-channel-spelling`). Fold 5 refuses them, and every padded or case-varied form, on **every** path, by decision (`value-looks-like-a-channel`, §A0.1).
-- Which spellings each CLI re-interprets is **derived** (`reinterpret.json`, by `measure_reinterpret.py`), not a policy row. Today (F-694 re-pin): mnemonic 0.105.1 `-` and `@env:`; ms 0.20.1 `-` and `@env:`. On ms 0.19.1 it was `-` only; F-687 added `@env:`. CI re-derives the file and diffs it (§A0). The oracle leg catches a stale file independently, by executing the admitted plan.
+- Which spellings each CLI re-interprets is **derived** (`reinterpret.json`, by `measure_reinterpret.py`), not a policy row. Today (2026-11-22 re-pin): mnemonic 0.107.1 `-` and `@env:`; ms 0.21.0 `-` and `@env:`. On ms 0.19.1 it was `-` only; F-687 added `@env:`. CI re-derives the file and diffs it (§A0). The oracle leg catches a stale file independently, by executing the admitted plan.
 - The operator ruled that nobody wants these as passphrases.
 
 #### A3b. F-687 on the pinned binaries, and the pin bump
@@ -423,7 +423,7 @@ A bump that changes a tag, or a rebuild that changes a binary, is red until the 
 - `-`, `--passphrase-stdin` and `@env:` strip exactly one trailing `\n` or `\r\n` **on `--passphrase`**;
 - an argv literal is verbatim;
 - ms gains `@env:` on `--passphrase`;
-- F-687 fold 1 stopped ms trimming the `=` form, so **`ms derive --passphrase=VALUE` is now exact** (`argv_eq_exact` flips to `True`). `ms hashlock --hashlock-phrase` stays not exact.
+- F-687 fold 1 stopped ms trimming the `=` form, so **`ms derive --passphrase=VALUE` is now exact** (`argv_eq_exact` flips to `True`). `ms hashlock --hashlock-phrase` stayed not exact until ms 0.21.0 (§A6, interim step 4).
 
 Re-derived per input, the `@env:` rule is `strip-one-trailing-newline` on the 13 `--passphrase` inputs and **stays `verbatim` on `--bip38-passphrase`** and the other `@env:` inputs. The operator may extend F-687 to `--bip38-passphrase` and `--decrypt-password` (pending). Either outcome is a re-derivation with no code change: the rule is per input and measured (R3 NI7).
 
@@ -471,7 +471,7 @@ Value variants (corpus.py, shared): suffixes '', '\n', '\r\n', '\r', '\n\n', '\r
 
 Lenient cells (terminator null; every mismatch is argv-fails/channel-ok, 108 are both-ok-different): `mnemonic addresses --passphrase` EnvRef; `mnemonic bundle --passphrase` EnvRef; `mnemonic convert --from entropy=` DashValue; `mnemonic convert --from xprv=` DashValue; `mnemonic convert --from minikey=` DashValue; `mnemonic convert --passphrase` EnvRef; `mnemonic convert --bip38-passphrase` EnvRef; `mnemonic restore --passphrase` EnvRef; `mnemonic derive-child --passphrase` EnvRef; `mnemonic silent-payment --passphrase` EnvRef; `mnemonic repair --ms1` DashValue; `mnemonic inspect --ms1` DashValue; `ms derive --passphrase` EnvRef; `mnemonic derive-child --from xprv=` DashValue; `mnemonic convert --from wif=` DashValue; `mnemonic verify-bundle --passphrase` EnvRef; `mnemonic electrum-decrypt --decrypt-password` EnvRef; `mnemonic xpub-search path-of-xpub --ms1` StdinToggle(--ms1-stdin); `mnemonic xpub-search path-of-xpub --passphrase` EnvRef; `mnemonic xpub-search account-of-descriptor --ms1` StdinToggle(--ms1-stdin); `mnemonic xpub-search account-of-descriptor --passphrase` EnvRef; `mnemonic xpub-search passphrase-of-xpub --passphrase` EnvRef; `mnemonic slip39 split --passphrase` EnvRef; `mnemonic slip39 combine --passphrase` EnvRef; `mnemonic convert --from bip38=` DashValue; `mnemonic slip39 split --from entropy=` DashValue; `mnemonic ms-shares split --from entropy=` DashValue; `mnemonic xpub-search passphrase-of-xpub --ms1` StdinToggle(--ms1-stdin); `mnemonic import-wallet --decrypt-password` EnvRef.
 
-`--flag=VALUE` byte-identical to `--flag VALUE` (R3 Nm13; None = not a value-form input): False 1, None 43, True 40; not exact: `ms hashlock --hashlock-phrase`.
+`--flag=VALUE` byte-identical to `--flag VALUE` (R3 Nm13; None = not a value-form input): None 43, True 41; not exact: none.
 
 Per-input CLI `@env:` value rule (R3 NI7; None = no working CLI `@env:`, the GUI treats the bytes as typed): None 27, strip-one-trailing-newline 16, verbatim 41.
 
@@ -535,7 +535,7 @@ The `*-stdin` toggles stay rendered disabled; only the planner emits them. `buil
 
 `gen_plans.py` applies `plan.py` to every shape in `shapes.py`, using `channel_table.json` and `channel_policy.json`. `check_design_tables.py` regenerates this block on every run (R1 Nm3). The Rust planner must produce these on every shape and OS (T8). The last column shows what macOS and Windows get the day their `private_channels_on` entry flips; fd stays Linux-only.
 
-Policy (decided): private channels on ['linux'], fd channel on ['linux']. Derived (measured, CI-regenerated): per-input CLI `@env:` rule None ×28, strip-one-trailing-newline ×16, verbatim ×41; measured argv re-reads (informational; safety is the broad predicate) mnemonic 0.105.1: `-` `@env:{V}`, ms 0.20.1: `-` `@env:{V}`.
+Policy (decided): private channels on ['linux'], fd channel on ['linux']. Derived (measured, CI-regenerated): per-input CLI `@env:` rule None ×28, strip-one-trailing-newline ×16, verbatim ×41; measured argv re-reads (informational; safety is the broad predicate) mnemonic 0.107.1: `-` `@env:{V}`, ms 0.21.0: `-` `@env:{V}`.
 
 | shape | Linux plan | macOS | Windows | macOS/Windows once their flag flips |
 |---|---|---|---|---|
@@ -581,7 +581,7 @@ The two Linux refusals are `ms derive` with `--phrase`/`--hex` plus `--passphras
 1. C1 resolution (§A3a);
 2. `no-table-entry` and `nul-in-value` refusals;
 3. the channel-lookalike and trailing-newline refusals (§A0.1), which apply on every path and subsume fold 3's `value-is-a-channel-spelling`. That check read the measured `reinterpret.json`; the broad predicate does not;
-4. a leading-dash value (R3 Nm13) goes as `--flag=VALUE` where that form measured byte-exact (`argv_eq_exact`); otherwise it refuses `value-starts-with-dash`. Measured on ms 0.20.1: `--flag=VALUE` is exact on 40 inputs and **not** on `ms hashlock --hashlock-phrase`, where ms trims the `=` form. (On ms 0.19.1 `ms derive --passphrase` was not exact either: `--passphrase=pw\n` derived `pw`'s wallet.) `test_plan.py` pins the refusal on `ms hashlock --hashlock-phrase` and goes red if a re-pin makes it exact (F-694);
+4. a leading-dash value (R3 Nm13) goes as `--flag=VALUE` where that form measured byte-exact (`argv_eq_exact`); otherwise (measured not exact, or not measured) it refuses `value-starts-with-dash`. Measured on mnemonic 0.107.1 and ms 0.21.0: `--flag=VALUE` is exact on all 41 value-form inputs, so no measured input refuses today. ms 0.21.0 made `ms hashlock --hashlock-phrase` exact, the last input that was not (ms 0.20.5 trimmed its `=` form). (On ms 0.19.1 `ms derive --passphrase` was not exact either: `--passphrase=pw\n` derived `pw`'s wallet.) `test_plan.py` walks every measured value-form input against its own `argv_eq_exact`, and it and the Rust `t1_nm13_refusal_on_test_only_rows` keep the refusal covered on two test-only rows, never written to `channel_table.json`: a copy of the hashlock row with `argv_eq_exact` false, and one with it absent;
 5. the target bytes of every other source on argv as separate words, with `--allow-argv-secret`.
 
 That is today's admission path minus its pass-through of `-` and `@env:`, and minus its double resolution. Nothing typed as `-` or `@env:`, no unmeasured source, and no value the CLI would re-read reaches argv on any OS.
@@ -594,7 +594,7 @@ argv is byte-transparent **only** for values the CLI does not re-interpret. That
   - with endings `""`, `\n`, `\r\n` and trailing spaces, **compared with the oracle**: the CLI's own `@env:` run, or known bytes;
   - with the variable holding `@env:OTHER` or `-`, executed whenever admitted: it must equal the oracle and **never** be `$OTHER`'s wallet;
   - with typed `-leading`, `--help` and `-lead  ` values against the oracle.
-- **Mutations:** R2's mutation (the interim plan sends the typed text), the NC1 refusal off, and the Nm13 refusal off are each killed **by assertion** in `run_plans.py` as well as in `test_plan.py`.
+- **Mutations:** R2's mutation (the interim plan sends the typed text) and the NC1 refusal off are each killed **by assertion** in `run_plans.py` as well as in `test_plan.py`. The Nm13 refusal off, and an unmeasured row planned as exact, are killed in `test_plan.py` and in the Rust `t1` on the test-only rows; since ms 0.21.0 no measured input reaches the refusal, so `run_plans.py` cannot kill them.
 - **T8's** `plans_pure.json` pins **values**: the exact bytes each binding delivers, per OS.
 
 **Flipping an OS is one list edit, and it is gated (T10, hardened for R3 Nm10).** An OS may be in `private_channels_on` only if some workflow **triggered on `push` or `pull_request`** has a job that meets all of these (`os_gate.py`, parsed YAML):
@@ -890,7 +890,7 @@ Fits.
 | `--emit-record` | Boolean | no | phrase source only ("--emit-record needs a phrase", exit 64) |
 | `--no-engraving-card`, `--phrase-looks-like-digest-ok` | Boolean | no | — |
 | `--group-size` | Number (default 5) | no | — |
-| `--separator` | Dropdown `space, hyphen, comma` | no | — |
+| `--separator` | Dropdown `space` (one value; hyphen and comma retired, F-679) | no | — |
 | `--allow-argv-secret` | GUI-managed, never rendered | — | — |
 
 - **Source exclusivity (R0 M6).** Phrase, `--hex`, `<ms1>`, `--in` and `--random` get a conditional: the first one filled wins, and the others grey out (the v0.62.0 `ms` input-source pattern). Otherwise phrase + hex would reach A8's `two-stdin` refusal instead of "exactly one source".

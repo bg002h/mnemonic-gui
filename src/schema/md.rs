@@ -89,11 +89,11 @@ const ENCODE_FLAGS: &[FlagSchema] = &[
         },
         required: false,
         repeating: false,
-        help: "Group the ENGRAVING CARD on stderr into N-character groups \
-               (default 5; 0 = unbroken). stdout is always the unbroken md1 \
-               string. Cosmetic — intake strips separators.",
+        help: "Group each md1 string on stdout every N characters, for hand \
+               engraving (default 0 = unbroken). Cosmetic — intake strips \
+               separators.",
         secret: false,
-        default_value: Some("5"),
+        default_value: Some("0"),
         global: false,
     },
     FlagSchema {
@@ -101,7 +101,7 @@ const ENCODE_FLAGS: &[FlagSchema] = &[
         kind: FlagKind::Dropdown(SEPARATORS),
         required: false,
         repeating: false,
-        help: "Engraving-card separator: `space` only (hyphen and comma were \
+        help: "Separator for --group-size: `space` only (hyphen and comma were \
                retired constellation-wide). Cosmetic — non-load-bearing.",
         secret: false,
         default_value: Some("space"),
@@ -241,7 +241,7 @@ const ENCODE_FLAGS: &[FlagSchema] = &[
         required: false,
         repeating: false,
         help: "Write the md1 artifact to FILE (created 0600; OVERWRITES) instead \
-               of stdout. The stderr engraving card is unaffected.",
+               of stdout; the file holds exactly what stdout would.",
         secret: false,
         default_value: None,
         global: false,
@@ -1014,10 +1014,10 @@ const DESCRIPTOR_FLAGS: &[FlagSchema] = &[
         },
         required: false,
         repeating: false,
-        help: "Insert a separator every N characters in the engraving card on stderr \
-               (0 = unbroken). Default 5. Only with --emit md1.",
+        help: "Group each md1 string on stdout every N characters (0 = \
+               unbroken, the default). Only with --emit md1.",
         secret: false,
-        default_value: Some("5"),
+        default_value: Some("0"),
         global: false,
     },
     FlagSchema {
@@ -1025,7 +1025,7 @@ const DESCRIPTOR_FLAGS: &[FlagSchema] = &[
         kind: FlagKind::Dropdown(SEPARATORS),
         required: false,
         repeating: false,
-        help: "Separator for the engraving card. Default space. Only with --emit md1.",
+        help: "Separator for --group-size. Default space. Only with --emit md1.",
         secret: false,
         default_value: Some("space"),
         global: false,
@@ -1246,6 +1246,6 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
 
 pub const SCHEMA: Schema = Schema {
     cli_name: "md",
-    pinned_version: "md 0.20.3",
+    pinned_version: "md 0.21.0",
     subcommands: SUBCOMMANDS,
 };

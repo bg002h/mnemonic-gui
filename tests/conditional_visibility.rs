@@ -457,6 +457,41 @@ fn cell_d2_mk_encode_origin_fingerprint_conflicts_privacy_preserving() {
     );
 }
 
+// mk-cli 0.16.0: `mk encode --in FILE` is mutually exclusive with the
+// single-card inputs (measured: "--in and --xpub are mutually exclusive; each
+// key record carries its own origin", likewise --origin-path,
+// --privacy-preserving, and --origin-fingerprint is refused with --in).
+#[test]
+fn cell_mk_encode_in_disables_single_card_inputs() {
+    let state = FormState::from_pairs(vec![("--in", FlagValue::Text("keys.txt".into()))]);
+    let vis = run_conditional_for_cli("encode", &state, "mk");
+    for flag in [
+        "--xpub",
+        "--origin-path",
+        "--origin-fingerprint",
+        "--privacy-preserving",
+    ] {
+        assert_eq!(vis_of(&vis, flag), Visibility::Disabled, "{flag}");
+    }
+}
+
+#[test]
+fn cell_mk_encode_single_card_inputs_disable_in() {
+    for (flag, val) in [
+        ("--xpub", FlagValue::Text("xpub".into())),
+        ("--origin-path", FlagValue::Text("m/84'/0'/0'".into())),
+        ("--origin-fingerprint", FlagValue::Text("12345678".into())),
+        ("--privacy-preserving", FlagValue::Boolean(true)),
+    ] {
+        let state = FormState::from_pairs(vec![(flag, val)]);
+        assert_eq!(
+            vis_of(&run_conditional_for_cli("encode", &state, "mk"), "--in"),
+            Visibility::Disabled,
+            "{flag}"
+        );
+    }
+}
+
 // ─── v0.2 D.3: md encode / compile / address constraints ─────────────────
 
 #[test]

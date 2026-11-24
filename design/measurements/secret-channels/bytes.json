@@ -2214,21 +2214,18 @@
     "terminator": null,
     "mismatches": {
      "'\\r\\n'": [
-      "('suffix', '\\nX'):argv-fails/channel-ok",
       "('prefix', '\\n'):argv-fails/channel-ok",
       "('prefix', '\\r\\n'):argv-fails/channel-ok",
       "('prefix', ' '):argv-fails/channel-ok",
       "('prefix', '\\t'):argv-fails/channel-ok"
      ],
      "'\\n'": [
-      "('suffix', '\\nX'):argv-fails/channel-ok",
       "('prefix', '\\n'):argv-fails/channel-ok",
       "('prefix', '\\r\\n'):argv-fails/channel-ok",
       "('prefix', ' '):argv-fails/channel-ok",
       "('prefix', '\\t'):argv-fails/channel-ok"
      ],
      "''": [
-      "('suffix', '\\nX'):argv-fails/channel-ok",
       "('prefix', '\\n'):argv-fails/channel-ok",
       "('prefix', '\\r\\n'):argv-fails/channel-ok",
       "('prefix', ' '):argv-fails/channel-ok",
@@ -2236,7 +2233,6 @@
      ]
     },
     "naive_no_terminator": [
-     "('suffix', '\\nX'):argv-fails/channel-ok",
      "('prefix', '\\n'):argv-fails/channel-ok",
      "('prefix', '\\r\\n'):argv-fails/channel-ok",
      "('prefix', ' '):argv-fails/channel-ok",
@@ -4531,7 +4527,7 @@
    "('prefix', ' ')": 0,
    "('prefix', '\\t')": 1
   },
-  "argv_eq_exact": false,
+  "argv_eq_exact": true,
   "cli_env_rule": null
  },
  {

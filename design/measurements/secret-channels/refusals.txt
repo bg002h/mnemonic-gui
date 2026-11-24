@@ -12,7 +12,7 @@ mnemonic bundle | --slot @0.wif= | exit 2 | refused=True | --slot @0.wif=-
 mnemonic bundle | --passphrase | exit 2 | refused=True | --passphrase -   (stdin; or --passphrase-stdin, or --passphrase @env:VAR)
 mnemonic verify-bundle | --passphrase | exit 2 | refused=True | --passphrase -   (stdin; or --passphrase-stdin, or --passphrase @env:VAR)
 mnemonic verify-bundle | --from ms1= | exit 2 | refused=True | --from ms1=-
-mnemonic verify-bundle | --ms1 | exit 64 | refused=False | error: the following required arguments were not provided:
+mnemonic verify-bundle | --ms1 | exit 2 | refused=True | --ms1 -   (stdin, one card; or --ms1 @env:VAR)
 mnemonic verify-bundle | --slot @0.phrase= | exit 2 | refused=True | --slot @0.phrase=-
 mnemonic convert | --from phrase= | exit 2 | refused=True | --from phrase=-
 mnemonic convert | --from seedqr= | exit 2 | refused=True | --from seedqr=-
@@ -40,21 +40,21 @@ mnemonic silent-payment | --passphrase | exit 2 | refused=True | --passphrase - 
 mnemonic silent-payment | --secret | exit 2 | refused=True | --secret-stdin
 mnemonic final-word | --from phrase= | exit 2 | refused=True | --from phrase=-
 mnemonic seed-xor split | --from phrase= | exit 2 | refused=True | --from phrase=-
-mnemonic seed-xor combine | --share phrase= | exit 64 | refused=False | error: the following required arguments were not provided:
+mnemonic seed-xor combine | --share phrase= | exit 2 | refused=True | --share phrase=-   (stdin, one share; or --share phrase=@env:VAR, once per share)
 mnemonic seedqr encode | --from phrase= | exit 2 | refused=True | --from phrase=-
 mnemonic seedqr decode | --from seedqr= | exit 2 | refused=True | --from seedqr=-
 mnemonic seedqr decode | --digits | exit 2 | refused=True | --digits -
 mnemonic slip39 split | --from phrase= | exit 2 | refused=True | --from phrase=-
 mnemonic slip39 split | --from entropy= | exit 2 | refused=True | --from entropy=-
 mnemonic slip39 split | --passphrase | exit 2 | refused=True | --passphrase -   (stdin; or --passphrase-stdin, or --passphrase @env:VAR)
-mnemonic slip39 combine | --share | exit 0 | refused=False | warning: secret material on argv (--share) — pipe via --share - to avoid /proc/$PID/cmdline exposure
+mnemonic slip39 combine | --share | exit 2 | refused=True | --share -   (stdin, one share; or --share @env:VAR, once per share)
 mnemonic slip39 combine | --passphrase | exit 2 | refused=True | --passphrase -   (stdin; or --passphrase-stdin, or --passphrase @env:VAR)
 mnemonic ms-shares split | --from phrase= | exit 2 | refused=True | --from phrase=-
 mnemonic ms-shares split | --from entropy= | exit 2 | refused=True | --from entropy=-
-mnemonic ms-shares combine | --share | exit 2 | refused=False | warning: secret material on argv (--share) — pipe via --share - to avoid /proc/$PID/cmdline exposure
+mnemonic ms-shares combine | --share | exit 2 | refused=True | --share -   (stdin, one share; or --share @env:VAR, once per share)
 mnemonic repair | --ms1 | exit 2 | refused=True | --ms1 -
 mnemonic inspect | --ms1 | exit 2 | refused=True | --ms1 -
-mnemonic import-wallet | --ms1 | exit 64 | refused=False | error: the following required arguments were not provided:
+mnemonic import-wallet | --ms1 | exit 2 | refused=True | --ms1 @env:VAR
 mnemonic import-wallet | --decrypt-password | exit 2 | refused=True | --decrypt-password -   (stdin; or --decrypt-password-stdin, or --decrypt-password @env:VAR)
 mnemonic import-wallet | --slot @0.phrase= | exit 2 | refused=True | --slot @0.phrase=@env:VAR
 mnemonic xpub-search path-of-xpub | --phrase | exit 2 | refused=True | --phrase-stdin

@@ -1,4 +1,4 @@
-//! Pinned schema for the `mk` CLI (mk-cli-v0.9.0).
+//! Pinned schema for the `mk` CLI (mk-cli-v0.17.0).
 //!
 //! Scope: `inspect` (from v0.1) plus `encode`, `decode`, `verify`, `vectors`;
 //! `repair` (backfilled into the mirror at v0.6 — it shipped in v0.4 but was
@@ -10,23 +10,44 @@
 use super::{FlagKind, FlagSchema, NumberMax, PositionalArgSchema, Schema, SubcommandSchema};
 
 // mstring display-grouping (mk-cli v0.9.0): `--separator` keyword values.
-// SPEC §I7 — keyword dropdown (space|hyphen|comma); the toolkit reports
-// `--separator` as kind `text`, the GUI narrows it. Names-only gate.
-const SEPARATORS: &[&str] = &["space", "hyphen", "comma"];
+// SPEC §I7 — keyword dropdown; the toolkit reports `--separator` as kind
+// `text`, the GUI narrows it. Names-only gate.
+// F-679 (mk-cli v0.16.0): `hyphen` and `comma` are RETIRED — mk refuses them
+// ("separator hyphen was removed: display grouping is whitespace-only"). The
+// drift gate cannot see it (mk reports `--separator` as `text`), so this was
+// measured against the release binary. One-value dropdown, as md/ms/mnemonic.
+const SEPARATORS: &[&str] = &["space"];
 
 // ─── inspect ─────────────────────────────────────────────────────────────
 
 // `mk inspect [MK1_STRINGS]... [--json]`
-const INSPECT_FLAGS: &[FlagSchema] = &[FlagSchema {
-    name: "--json",
-    kind: FlagKind::Boolean,
-    required: false,
-    repeating: false,
-    help: "Emit structured JSON instead of multi-line text.",
-    secret: false,
-    default_value: None,
-    global: false,
-}];
+const INSPECT_FLAGS: &[FlagSchema] = &[
+    FlagSchema {
+        name: "--in",
+        kind: FlagKind::Path {
+            stdio_sentinel: false,
+        },
+        required: false,
+        repeating: false,
+        help: "Read mk1 strings from FILE, one per line, instead of (or in \
+               addition to) the positional arguments. Display separators are \
+               stripped, so a card transcribed in \
+               grouped form re-ingests.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--json",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Emit structured JSON instead of multi-line text.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+];
 
 const INSPECT_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
     name: "mk1-strings",
@@ -64,11 +85,11 @@ const ENCODE_FLAGS: &[FlagSchema] = &[
         },
         required: false,
         repeating: false,
-        help: "Display grouping: break the emitted card into groups of N \
-               characters (default 5; 0 = unbroken single line). Cosmetic — \
-               intake strips separators, so any grouping re-ingests.",
+        help: "Group each mk1 string on stdout every N characters, for hand \
+               engraving (default 0 = unbroken). Cosmetic — intake strips \
+               separators, so any grouping re-ingests.",
         secret: false,
-        default_value: Some("5"),
+        default_value: Some("0"),
         global: false,
     },
     FlagSchema {
@@ -76,8 +97,8 @@ const ENCODE_FLAGS: &[FlagSchema] = &[
         kind: FlagKind::Dropdown(SEPARATORS),
         required: false,
         repeating: false,
-        help: "Display-grouping separator keyword (space|hyphen|comma; \
-               default space). Cosmetic — non-load-bearing.",
+        help: "Separator for --group-size: `space` only (hyphen and comma were \
+               retired). Cosmetic — non-load-bearing.",
         secret: false,
         default_value: Some("space"),
         global: false,
@@ -113,6 +134,34 @@ const ENCODE_FLAGS: &[FlagSchema] = &[
         global: false,
     },
     FlagSchema {
+        name: "--in",
+        kind: FlagKind::Path {
+            stdio_sentinel: false,
+        },
+        required: false,
+        repeating: false,
+        help: "Read the key records from FILE, `mk encode`'s own input \
+               material (one `[fingerprint/path]xpub` per line). Mutually \
+               exclusive with --xpub, --origin-path, --origin-fingerprint \
+               and --privacy-preserving.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--out",
+        kind: FlagKind::Path {
+            stdio_sentinel: false,
+        },
+        required: false,
+        repeating: false,
+        help: "Write the mk1 artifact to FILE, created 0600, instead of to \
+               stdout. OVERWRITES an existing file.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
         name: "--policy-id-stub",
         kind: FlagKind::Text,
         required: false,
@@ -128,6 +177,21 @@ const ENCODE_FLAGS: &[FlagSchema] = &[
         required: false,
         repeating: true,
         help: "Derive --policy-id-stub from the supplied md1. Repeating.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--from-md1-set",
+        kind: FlagKind::Path {
+            stdio_sentinel: false,
+        },
+        required: false,
+        repeating: true,
+        help: "Repeatable. Read md1 strings from FILE (what `md encode --out` \
+               writes) and bind their stubs exactly as repeated --from-md1 \
+               does. Lines that are not md1 strings are skipped; a file with \
+               no md1 string is refused.",
         secret: false,
         default_value: None,
         global: false,
@@ -196,16 +260,33 @@ const ENCODE_POSITIONALS: &[PositionalArgSchema] = &[];
 // ─── decode ──────────────────────────────────────────────────────────────
 
 // `mk decode [MK1_STRINGS]... [--json]`
-const DECODE_FLAGS: &[FlagSchema] = &[FlagSchema {
-    name: "--json",
-    kind: FlagKind::Boolean,
-    required: false,
-    repeating: false,
-    help: "Emit JSON instead of text output.",
-    secret: false,
-    default_value: None,
-    global: false,
-}];
+const DECODE_FLAGS: &[FlagSchema] = &[
+    FlagSchema {
+        name: "--in",
+        kind: FlagKind::Path {
+            stdio_sentinel: false,
+        },
+        required: false,
+        repeating: false,
+        help: "Read mk1 strings from FILE, one per line, instead of (or in \
+               addition to) the positional arguments. Display separators are \
+               stripped, so a card transcribed in \
+               grouped form re-ingests.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--json",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Emit JSON instead of text output.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+];
 
 const DECODE_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
     name: "mk1-strings",
@@ -222,6 +303,21 @@ const DECODE_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
 //
 // All content-match flags are optional; --policy-id-stub is order-sensitive.
 const VERIFY_FLAGS: &[FlagSchema] = &[
+    FlagSchema {
+        name: "--in",
+        kind: FlagKind::Path {
+            stdio_sentinel: false,
+        },
+        required: false,
+        repeating: false,
+        help: "Read mk1 strings from FILE, one per line, instead of (or in \
+               addition to) the positional arguments. Display separators are \
+               stripped, so a card transcribed in \
+               grouped form re-ingests.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
     FlagSchema {
         name: "--xpub",
         kind: FlagKind::Text,
@@ -327,16 +423,33 @@ const VECTORS_POSITIONALS: &[PositionalArgSchema] = &[];
 // ─── repair (v0.4; backfilled into the mirror at v0.6) ───────────────────
 
 // `mk repair [MK1_STRINGS]... [--json]`
-const REPAIR_FLAGS: &[FlagSchema] = &[FlagSchema {
-    name: "--json",
-    kind: FlagKind::Boolean,
-    required: false,
-    repeating: false,
-    help: "Emit JSON instead of text output.",
-    secret: false,
-    default_value: None,
-    global: false,
-}];
+const REPAIR_FLAGS: &[FlagSchema] = &[
+    FlagSchema {
+        name: "--in",
+        kind: FlagKind::Path {
+            stdio_sentinel: false,
+        },
+        required: false,
+        repeating: false,
+        help: "Read mk1 strings from FILE, one per line, instead of (or in \
+               addition to) the positional arguments. Display separators are \
+               stripped, so a card transcribed in \
+               grouped form re-ingests.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--json",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Emit JSON instead of text output.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+];
 
 const REPAIR_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
     name: "mk1-strings",
@@ -351,6 +464,21 @@ const REPAIR_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
 // `mk address [MK1_STRINGS]... [--address-type] [--count] [--range]
 //             [--chain] [--network] [--json]`
 const ADDRESS_FLAGS: &[FlagSchema] = &[
+    FlagSchema {
+        name: "--in",
+        kind: FlagKind::Path {
+            stdio_sentinel: false,
+        },
+        required: false,
+        repeating: false,
+        help: "Read mk1 strings from FILE, one per line, instead of (or in \
+               addition to) the positional arguments. Display separators are \
+               stripped, so a card transcribed in \
+               grouped form re-ingests.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
     FlagSchema {
         name: "--address-type",
         kind: FlagKind::Dropdown(&["p2pkh", "p2sh-p2wpkh", "p2wpkh", "p2tr"]),
@@ -425,6 +553,21 @@ const ADDRESS_POSITIONALS: &[PositionalArgSchema] = &[PositionalArgSchema {
 
 // `mk derive [MK1_STRINGS]... (--path | --index) [--json]`
 const DERIVE_FLAGS: &[FlagSchema] = &[
+    FlagSchema {
+        name: "--in",
+        kind: FlagKind::Path {
+            stdio_sentinel: false,
+        },
+        required: false,
+        repeating: false,
+        help: "Read mk1 strings from FILE, one per line, instead of (or in \
+               addition to) the positional arguments. Display separators are \
+               stripped, so a card transcribed in \
+               grouped form re-ingests.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
     FlagSchema {
         name: "--path",
         kind: FlagKind::Text,
@@ -563,6 +706,6 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
 
 pub const SCHEMA: Schema = Schema {
     cli_name: "mk",
-    pinned_version: "mk 0.13.0",
+    pinned_version: "mk 0.17.0",
     subcommands: SUBCOMMANDS,
 };

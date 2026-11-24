@@ -1193,7 +1193,7 @@
   ],
   "measured_in": "single-input harness",
   "cli_env_rule": null,
-  "argv_eq_exact": false
+  "argv_eq_exact": true
  },
  "ms hashlock --hex": {
   "channels": [

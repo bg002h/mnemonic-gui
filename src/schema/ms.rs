@@ -104,11 +104,11 @@ const ENCODE_FLAGS: &[FlagSchema] = &[
         },
         required: false,
         repeating: false,
-        help: "Display grouping: break the emitted card into groups of N \
-               characters (default 5; 0 = unbroken single line). Cosmetic — \
-               intake strips separators, so any grouping re-ingests.",
+        help: "Group the ms1 on stdout every N characters, for hand \
+               engraving (default 0 = unbroken). Cosmetic — intake strips \
+               separators, so any grouping re-ingests.",
         secret: false,
-        default_value: Some("5"),
+        default_value: Some("0"),
         global: false,
     },
     FlagSchema {
@@ -157,7 +157,7 @@ const ENCODE_FLAGS: &[FlagSchema] = &[
         kind: FlagKind::Boolean,
         required: false,
         repeating: false,
-        help: "Suppress the human-readable engraving-card panel.",
+        help: "Suppress the word count, language and passphrase lines on stderr.",
         secret: false,
         default_value: None,
         global: false,
@@ -645,7 +645,7 @@ const SPLIT_FLAGS: &[FlagSchema] = &[
         required: false,
         repeating: false,
         help: "Write the canonical artifact to FILE, owner-only (0600), instead \
-               of stdout. OVERWRITES an existing file.",
+               of stdout. REFUSES an existing file (ms 0.20.4: exit 64).",
         secret: false,
         default_value: None,
         global: false,
@@ -871,8 +871,9 @@ const HASHLOCK_FLAGS: &[FlagSchema] = &[
         kind: FlagKind::Boolean,
         required: false,
         repeating: false,
-        help: "Also print a `phrase:` record on the card (for `me sysw pack \
-               --pack-preimage`). Phrase source only.",
+        help: "Also print a `phrase:` record on the card (under --json, in the \
+               object instead), for `me sysw pack --pack-preimage`. Phrase \
+               source only.",
         secret: false,
         default_value: None,
         global: false,
@@ -1021,6 +1022,6 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
 
 pub const SCHEMA: Schema = Schema {
     cli_name: "ms",
-    pinned_version: "ms 0.20.1",
+    pinned_version: "ms 0.21.0",
     subcommands: SUBCOMMANDS,
 };

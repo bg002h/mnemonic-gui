@@ -198,17 +198,43 @@ for sh in SHAPES:
                 check(f"Nm13 {sh['name']} src{i} {plat}: eq form, got {form}", form == "eq")
             else:
                 check(f"Nm13 {sh['name']} src{i} {plat}: refuse, got {got}", got == "value-starts-with-dash")
-# F-694: ms 0.20.1 made `ms derive --passphrase=VALUE` exact, and that was the only shape input
-# whose `--flag=VALUE` was not — so the shape walk above no longer reaches the refusal. Pin it on
-# the input that still does, `ms hashlock --hashlock-phrase` (single-source, so in no shape), and
-# fail LOUDLY if a re-pin makes it exact too, rather than letting this leg go vacuous.
-NM13_KEY = "ms hashlock --hashlock-phrase"
-check(f"Nm13 {NM13_KEY}: still measured not argv-exact (else re-point this leg)",
-      TABLE[NM13_KEY]["argv_eq_exact"] is False)
-for plat in ("macos", "windows"):
-    got = refusal(lambda: P.plan([{"key": NM13_KEY, "form": "value", "flag": "--hashlock-phrase",
-                                   "value": "-lead  "}], TABLE, plat))
-    check(f"Nm13 {NM13_KEY} {plat}: refuse, got {got}", got == "value-starts-with-dash")
+# Nm13 on EVERY measured value-form input (argv_eq_exact not None), single-source: the shapes skip
+# single-source inputs such as `ms hashlock --hashlock-phrase`. The planned form follows the data:
+# `=` where exact, the refusal where not.
+def nm13_leg(table, key, flag, plat):
+    srcs = [{"key": key, "form": "value", "flag": flag, "value": "-lead  "}]
+    got = refusal(lambda: P.plan(srcs, table, plat))
+    if got is not None:
+        return got
+    return "eq" if P.plan(srcs, table, plat)[0][0].get("argv_form") == "eq" else "not-eq"
+nm13_real = {True: 0, False: 0}
+for key, v in TABLE.items():
+    if v["argv_eq_exact"] is None:
+        continue
+    nm13_real[v["argv_eq_exact"]] += 1
+    for plat in ("macos", "windows"):
+        got = nm13_leg(TABLE, key, key.split()[-1], plat)
+        want = "eq" if v["argv_eq_exact"] else "value-starts-with-dash"
+        check(f"Nm13 {key} {plat}: want {want}, got {got}", got == want)
+print(f"Nm13 measured value-form inputs: {nm13_real[True]} exact, {nm13_real[False]} not exact")
+# ms 0.21.0 made the last not-exact input (`ms hashlock --hashlock-phrase`) exact, so the measured
+# data no longer reaches the refusal. Pin it on TEST-ONLY rows, never written to channel_table.json:
+# each copies the real hashlock row and changes only argv_eq_exact, to False (measured not exact)
+# or absent (unmeasured; plan.py reads it as not exact). On macOS and Windows both must refuse,
+# on Linux both must plan, and the real row (above) takes `=`, so the flag alone decides.
+NM13_BASE = "ms hashlock --hashlock-phrase"
+syn = copy.deepcopy(TABLE)
+syn["TEST-ONLY argv_eq_exact=False"] = dict(copy.deepcopy(TABLE[NM13_BASE]), argv_eq_exact=False)
+syn["TEST-ONLY argv_eq_exact absent"] = {k: w for k, w in copy.deepcopy(TABLE[NM13_BASE]).items()
+                                          if k != "argv_eq_exact"}
+for key in ("TEST-ONLY argv_eq_exact=False", "TEST-ONLY argv_eq_exact absent"):
+    for plat in ("macos", "windows"):
+        got = nm13_leg(syn, key, "--hashlock-phrase", plat)
+        check(f"Nm13 {key} {plat}: refuse, got {got}", got == "value-starts-with-dash")
+    got = refusal(lambda: P.plan([{"key": key, "form": "value", "flag": "--hashlock-phrase",
+                                   "value": "-lead  "}], syn, "linux"))
+    check(f"Nm13 {key} linux: plans (private path), got {got}", got is None)
+check("Nm13 test-only rows stay out of the measured table", not any(k.startswith("TEST-ONLY") for k in TABLE))
 
 # R2 Nit 1: C1-env-empty is judged on the TARGET; NUL refuses on every OS.
 check("env-empty after rule", refusal(lambda: P.resolve(src, {"MY_PW": "\n"}, None, "strip-one-trailing-newline")) == "C1-env-empty")
