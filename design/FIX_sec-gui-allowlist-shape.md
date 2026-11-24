@@ -42,7 +42,7 @@ Rule A (FIX_sec-gui-allowlist-bracket, as folded for BRIAN-Q-1) stays, with two 
 - **E (new).** Neither holds: (E.1) the value contains 64 consecutive ASCII hex digits (`0-9 a-f A-F`); (E.2) some
   window of 51 or 52 consecutive characters of the run base58check-decodes (`bitcoin::base58::decode_check`) to
   bytes whose first byte is `0x80` or `0xef` and whose length is 33 or 34 (a WIF: version byte, 32-byte key,
-  optional `0x01`; bitcoin 0.32.9 `src/crypto/key.rs:477-487` `PrivateKey::from_wif`).
+  optional `0x01`; bitcoin 0.32.9 `src/crypto/key.rs:474-490` `PrivateKey::from_wif`).
 
 E applies to `key`/`keys[i]` only. The `hex` and `w` arms (`is_xprv_like` deny-list, `:770-775`) do not change: a
 hashlock digest is legitimately 64 hex.
@@ -69,7 +69,7 @@ which become `key_hint(ui, …)`; a field shows at most one line. The xprv hint 
 and its text is unchanged. Otherwise the new pure `pub fn tree_model::key_marker(&str) -> Option<(String, bool)>`
 (`bool` = amber) gives the first that applies, judged on the value trimmed as in Rule T:
 
-0. the value trimmed as in Rule T is empty, or the value is is_xprv_like: no line (key_hint shows the xprv hint for the latter).
+0. the value trimmed as in Rule T is empty, or the value is_xprv_like: no line (key_hint shows the xprv hint for the latter).
 1. the value is not empty and fails the persist rule above (A, S or E): amber `⚠ not an extended public key: this value will not be saved`
 2. `[` with no `]`: grey `incomplete: the origin needs a closing ]`
 3. a closed origin whose fingerprint is not 8 characters: grey `incomplete: the fingerprint needs 8 hex digits`
@@ -87,7 +87,7 @@ coordinator's WORDING_REVIEW (architect Q2), the coordinator's step, not the bui
 Doc-comment changes the build makes (code comments, not holder text):
 - `tree_model.rs:705-720` (`is_extended_public_like` doc): add Rules T (both ends), S and E in one bullet each, citing
   this FIX and the row ids `gui-persist-allowlist-concat-residue` / `fixdoc-secguibracket-r1-concat-residue`.
-- `persistence.rs:155-158`: the comment still says keys are blanked "when xprv-matching (the toolkit gate.rs heuristic —
+- `persistence.rs:154-159`: the comment still says keys are blanked "when xprv-matching (the toolkit gate.rs heuristic —
   strip `[origin]` via rsplit(']')…"; replace it with "blanked unless they have the shape of an extended public key
   (`tree_model::is_extended_public_like`, Rules A, S and E)".
 
