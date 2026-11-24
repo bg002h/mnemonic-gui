@@ -686,7 +686,7 @@ fn render_payload(
                 let key_is_xprv = crate::form::tree_model::is_xprv_like(&node.key);
                 ui.add(egui::TextEdit::singleline(&mut node.key).password(key_is_xprv));
             });
-            xprv_hint(ui, &node.key);
+            key_hint(ui, &node.key);
         }
         PayloadShape::KeyQuorum => {
             ui.horizontal(|ui| {
@@ -715,7 +715,7 @@ fn render_payload(
                             remove_at = Some(i);
                         }
                     });
-                    xprv_hint(ui, &node.keys[i]);
+                    key_hint(ui, &node.keys[i]);
                 });
             }
             if let Some(i) = remove_at {
@@ -784,5 +784,20 @@ fn xprv_hint(ui: &mut egui::Ui, key: &str) {
             "⚠ looks like an extended PRIVATE key — the builder is watch-only; \
              this value will not be saved and the gate will refuse it",
         );
+    }
+}
+
+/// FIX_sec-gui-allowlist-shape: one line under a tree key field. The xprv
+/// hint keeps priority; otherwise `tree_model::key_marker` (grey = weak,
+/// amber = warning).
+fn key_hint(ui: &mut egui::Ui, key: &str) {
+    if is_xprv_like(key) {
+        xprv_hint(ui, key);
+    } else if let Some((text, amber)) = crate::form::tree_model::key_marker(key) {
+        if amber {
+            ui.colored_label(AMBER, text);
+        } else {
+            ui.weak(text);
+        }
     }
 }

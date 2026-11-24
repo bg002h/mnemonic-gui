@@ -152,9 +152,8 @@ pub fn redact_for_persistence(state: &FormState) -> FormState {
         // satisfied by type.
         secret_widgets: BTreeMap::new(),
         // v0.32.0 (node-tree builder SPEC §1.3): tree persists with every
-        // node's `key`/`keys` entries BLANKED when xprv-matching (the
-        // toolkit gate.rs heuristic — strip `[origin]` via rsplit(']'),
-        // bytes 1..4 == b"prv"; recursive walk incl. surplus children).
+        // node's `key`/`keys` entries BLANKED unless they have the shape of an extended public key
+        // (`tree_model::is_extended_public_like`, Rules A, S and E).
         // Hashlock `hex` digests deliberately survive (public
         // commitments); diagnostics/validate_ok are absent by type.
         tree: state

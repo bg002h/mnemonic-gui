@@ -699,7 +699,7 @@ fn is_origin_like(origin: &str) -> bool {
 
 /// v0.34.0 (audit I6) — the persist walk's POSITIVE allowlist (Rule A of
 /// `design/FIX_sec-gui-allowlist-bracket.md`, closing secret row
-/// `gui-persist-allowlist-bracket-bypass`): true iff (0) leading ASCII whitespace is
+/// `gui-persist-allowlist-bracket-bypass`): true iff (0) leading and trailing ASCII whitespace is
 /// judged as absent, (1) an optional leading
 /// `[origin]` (up to the FIRST `]`, or to the end while
 /// unclosed) matches the origin grammar, (2) the
@@ -718,29 +718,134 @@ fn is_origin_like(origin: &str) -> bool {
 /// - Origin handling (FIX_sec-gui-allowlist-bracket, row
 ///   `gui-persist-allowlist-bracket-bypass`): the origin is stripped only when
 ///   the value starts with `[`; nothing before a `]` goes unexamined.
+/// - Rule T (`design/FIX_sec-gui-allowlist-shape.md`, rows
+///   `gui-persist-allowlist-concat-residue` and
+///   `fixdoc-secguibracket-r1-concat-residue`): trailing ASCII whitespace is
+///   judged as absent, like leading.
+/// - Rule S (same FIX and rows): the body's leading base58 run is at most
+///   111 characters and is followed only by `0-9 / h H ' < > ; *`, with no
+///   digit run over 10.
+/// - Rule E (same FIX and rows): no 64 consecutive hex digits, and no 51/52
+///   character window of the run that base58check-decodes to a WIF
+///   (version 0x80/0xef, 33/34 bytes).
 fn is_extended_public_like(key: &str) -> bool {
     const XPUB_PREFIXES: &[&[u8; 4]] = &[
         b"xpub", b"tpub", b"ypub", b"Ypub", b"zpub", b"Zpub", b"upub", b"Upub", b"vpub", b"Vpub",
     ];
-    // Leading ASCII whitespace is kept, and judged as absent (BRIAN-Q-1).
-    let v = key.trim_start_matches(|c: char| c.is_ascii_whitespace());
+    if is_xprv_like(key) {
+        return false;
+    }
+    // Rule T: leading and trailing ASCII whitespace are kept, judged as absent.
+    let v = key.trim_matches(|c: char| c.is_ascii_whitespace());
     let body = match v.strip_prefix('[') {
         Some(rest) => match rest.split_once(']') {
             Some((origin, body)) if is_origin_like(origin) => body,
             Some(_) => return false,
             // An unclosed origin is an origin being typed (BRIAN-Q-1).
-            None => return is_origin_like(rest) && !is_xprv_like(key),
+            None => return is_origin_like(rest),
         },
         None => v,
     };
-    if body.contains(['[', ']']) || is_xprv_like(key) {
+    if body.contains(['[', ']']) {
         return false;
     }
     // The body starts with one of the 10 literals, or is a proper prefix of
     // one (at most 3 bytes: a literal being typed, no key material).
     let b = body.as_bytes();
     let n = b.len().min(4);
-    XPUB_PREFIXES.iter().any(|p| b[..n] == p[..n])
+    if !XPUB_PREFIXES.iter().any(|p| b[..n] == p[..n]) {
+        return false;
+    }
+    // Rule S: a base58 run of at most 111, then only `0-9 / h H ' < > ; *`
+    // with no digit run longer than 10.
+    let run = b.iter().take_while(|c| is_base58(**c)).count();
+    if run > XPUB_B58_LEN {
+        return false;
+    }
+    let tail = &body[run..];
+    if !tail
+        .bytes()
+        .all(|c| c.is_ascii_digit() || b"/hH'<>;*".contains(&c))
+    {
+        return false;
+    }
+    if tail.split(|c: char| !c.is_ascii_digit()).any(|d| d.len() > 10) {
+        return false;
+    }
+    // Rule E.1: 64 consecutive hex digits.
+    if has_hex64(key) {
+        return false;
+    }
+    // Rule E.2: a 51- or 52-character window of the run that decodes to a WIF.
+    let r = &body[..run];
+    !([51usize, 52].iter().any(|&w| {
+        (0..r.len().saturating_sub(w - 1)).any(|i| {
+            bitcoin::base58::decode_check(&r[i..i + w]).is_ok_and(|d| {
+                matches!(d.first(), Some(0x80 | 0xef)) && matches!(d.len(), 33 | 34)
+            })
+        })
+    }))
+}
+
+/// Length of every extended key in base58 (all 10 versions).
+const XPUB_B58_LEN: usize = 111;
+
+fn has_hex64(v: &str) -> bool {
+    let mut n = 0;
+    for c in v.bytes() {
+        n = if c.is_ascii_hexdigit() { n + 1 } else { 0 };
+        if n >= 64 {
+            return true;
+        }
+    }
+    false
+}
+
+fn is_base58(c: u8) -> bool {
+    c.is_ascii_alphanumeric() && !matches!(c, b'0' | b'O' | b'I' | b'l')
+}
+
+/// FIX_sec-gui-allowlist-shape: the line under a tree key field,
+/// `(text, amber)`; the first rule that applies.
+pub fn key_marker(key: &str) -> Option<(String, bool)> {
+    let v = key.trim_matches(|c: char| c.is_ascii_whitespace());
+    if v.is_empty() || is_xprv_like(key) {
+        return None;
+    }
+    if !is_extended_public_like(key) {
+        return Some((
+            "⚠ not an extended public key: this value will not be saved".into(),
+            true,
+        ));
+    }
+    let body = match v.strip_prefix('[') {
+        Some(rest) => match rest.split_once(']') {
+            None => {
+                return Some(("incomplete: the origin needs a closing ]".into(), false));
+            }
+            Some((origin, body)) => {
+                if origin.split('/').next().unwrap_or("").len() != 8 {
+                    return Some((
+                        "incomplete: the fingerprint needs 8 hex digits".into(),
+                        false,
+                    ));
+                }
+                body
+            }
+        },
+        None => v,
+    };
+    let run = body.bytes().take_while(|c| is_base58(*c)).count();
+    if run < XPUB_B58_LEN {
+        return Some((format!("incomplete: {run} of 111 key characters"), false));
+    }
+    if bitcoin::base58::decode_check(&body[..run]).is_err() {
+        return Some((
+            "⚠ checksum fails: a character is wrong or swapped".into(),
+            true,
+        ));
+    }
+    None
 }
 
 /// Blank every `key` / `keys` entry that is NOT positively extended-public,
