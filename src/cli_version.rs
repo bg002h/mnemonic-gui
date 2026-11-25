@@ -62,37 +62,58 @@ pub fn pinned_version_for(cli_name: &str) -> Option<&'static str> {
 
 /// Judge a binary's `--version` output against the pinned string. `Ok(())`
 /// iff the output names the same program as `pinned` at a version `>=` the
-/// pinned one; otherwise `Err` with a message for the user.
+/// pinned one; otherwise `Err` with the short reason (the gate adds the
+/// platform-accurate context, [`refusal_text`]).
 pub fn check_reported(pinned: &str, reported: &str) -> Result<(), String> {
     let (want_name, want) = parse_version_line(pinned)
         .ok_or_else(|| format!("internal error: unparseable pinned version {pinned:?}"))?;
-    let refuse = |what: String| {
-        Err(format!(
-            "{what}. This GUI sends secrets to `{want_name}` over private channels \
-             (@env:, stdin, pipes) that were checked against {pinned}; an older or \
-             different binary could read a channel reference as the secret itself \
-             and derive the wrong wallet. Install {pinned} or newer first on $PATH \
-             (or move the old one out of the way), then retry."
-        ))
-    };
     let Some((got_name, got)) = parse_version_line(reported) else {
         let first = reported.lines().next().unwrap_or("").trim();
-        return refuse(format!(
+        return Err(format!(
             "`{want_name} --version` printed {first:?}, not a version this GUI recognises"
         ));
     };
     if got_name != want_name {
-        return refuse(format!(
-            "the `{want_name}` on $PATH reports itself as `{got_name}`, not `{want_name}`"
+        return Err(format!(
+            "the `{want_name}` this GUI runs reports itself as `{got_name}`, not `{want_name}`"
         ));
     }
     if got < want {
-        return refuse(format!(
-            "the `{want_name}` on $PATH is version {}.{}.{}, older than the pinned {pinned}",
+        return Err(format!(
+            "the `{want_name}` this GUI runs is version {}.{}.{}, older than the pinned {pinned}",
             got.0, got.1, got.2
         ));
     }
     Ok(())
+}
+
+/// The user-facing refusal: `reason` plus how this OS's Run sends the secret
+/// (`interim` = the argv path of macOS/Windows; else the private channels of
+/// Linux — the same split as the run-confirm dialog and the paste warning),
+/// a warning that the Copy command is not safe with this binary either (it
+/// always uses the private-channel spelling), and the remedy.
+pub fn refusal_text(reason: &str, pinned: &str, interim: bool) -> String {
+    let cli = pinned.split_whitespace().next().unwrap_or(pinned);
+    let how = if interim {
+        format!(
+            "On this OS the GUI passes secrets to `{cli}` on its command line with \
+             --allow-argv-secret, checked against {pinned}; an older or different \
+             binary may refuse or misread them."
+        )
+    } else {
+        format!(
+            "This GUI sends secrets to `{cli}` over private channels (@env:, stdin or \
+             a pipe) checked against {pinned}; an older or different binary can read \
+             a reference such as @env:MNEMONIC_GUI_S0 as the secret itself and derive \
+             the wrong wallet."
+        )
+    };
+    format!(
+        "{reason}. {how} The copied command (Copy buttons) is not safe with this \
+         binary either: an older `{cli}` can take its @env: or stdin references \
+         literally as the secret. Install {pinned} or newer (README, \"Install\") so \
+         that it is the `{cli}` found first on the search path, then retry."
+    )
 }
 
 /// Ask `bin` for its version: stdout of `<bin> --version` on exit 0.
@@ -121,8 +142,8 @@ pub fn gate_secret_run(
     let bin = plan.argv.first().map(String::as_str).unwrap_or("");
     let pinned = pinned_version_for(bin)
         .ok_or_else(|| format!("refusing a secret-bearing run of unknown binary `{bin}`"))?;
-    let reported = probe(bin)?;
-    check_reported(pinned, &reported)
+    let reported = probe(bin).map_err(|e| refusal_text(&e, pinned, plan.interim))?;
+    check_reported(pinned, &reported).map_err(|e| refusal_text(&e, pinned, plan.interim))
 }
 
 #[cfg(test)]
@@ -171,6 +192,31 @@ mod tests {
         assert!(check_reported("md 0.21.0", "markdown 3.0.0\n").is_err());
         assert!(check_reported("md 0.21.0", "usage: md [options]\n").is_err());
         assert!(check_reported("md 0.21.0", "").is_err());
+    }
+
+    #[test]
+    fn refusal_text_is_platform_accurate_and_warns_about_copy() {
+        let private = refusal_text("r", "ms 0.21.0", false);
+        assert!(
+            private.contains("over private channels (@env:"),
+            "{private}"
+        );
+        assert!(!private.contains("--allow-argv-secret"), "{private}");
+        let interim = refusal_text("r", "ms 0.21.0", true);
+        assert!(
+            interim.contains("on its command line with --allow-argv-secret"),
+            "{interim}"
+        );
+        assert!(!interim.contains("private channels"), "{interim}");
+        for t in [&private, &interim] {
+            assert!(t.starts_with("r. "), "{t}");
+            assert!(
+                t.contains("The copied command (Copy buttons) is not safe with this binary either"),
+                "{t}"
+            );
+            assert!(t.contains("Install ms 0.21.0 or newer"), "{t}");
+            assert!(!t.contains("$PATH"), "{t}");
+        }
     }
 
     #[test]

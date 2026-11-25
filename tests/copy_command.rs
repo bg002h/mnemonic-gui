@@ -400,3 +400,43 @@ fn g2_windows_copy_disabled_when_a_secret_plan_carries_a_cmd_unsafe_token() {
     assert!(matches!(posix, CopyState::Ready(_)), "{posix:?}");
     assert_eq!(windows, CopyState::Disabled(WINDOWS_CMD_UNSAFE_TOOLTIP.into()));
 }
+
+/// Review F-M1 / r2-m1: a secret-bearing Copy (either flavour) starts with a
+/// comment saying it needs the pinned CLI version or newer; a Copy with no
+/// secret does not carry it.
+#[test]
+fn fm1_secret_copy_starts_with_the_version_warning() {
+    use mnemonic_gui::cli_version::pinned_version_for;
+    use mnemonic_gui::form::channels::copy::copy_version_warning;
+    let restore = gui_schema::mnemonic::SCHEMA
+        .subcommands
+        .iter()
+        .find(|s| s.name == "restore")
+        .unwrap();
+    let env = |k: &str| {
+        (k == "SEED").then(|| "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f".to_string())
+    };
+    let pinned = pinned_version_for("mnemonic").unwrap();
+    let st = FormState::from_pairs(vec![("--from", FlagValue::Text("ms1=@env:SEED".into()))]);
+    let (posix, windows) = copy_commands(&gui_schema::mnemonic::SCHEMA, restore, &st, &env);
+    for (state, c) in [(&posix, "#"), (&windows, "REM")] {
+        let CopyState::Ready(t) = state else {
+            panic!("precondition: ready {state:?}")
+        };
+        let first = t.lines().next().unwrap();
+        assert_eq!(first, copy_version_warning(c, pinned), "{t:?}");
+        assert!(
+            first.contains(&format!("Needs {pinned} or newer")),
+            "{first}"
+        );
+        let last = t.lines().last().unwrap();
+        assert!(
+            !last.starts_with(c),
+            "the command stays after the comments: {t:?}"
+        );
+    }
+    let none = |_: &str| None;
+    let st = FormState::from_pairs(vec![("--from", FlagValue::Text("xpub=xpubABC".into()))]);
+    let (posix, _) = copy_commands(&gui_schema::mnemonic::SCHEMA, restore, &st, &none);
+    assert!(!posix.text().unwrap().contains("Needs "), "{posix:?}");
+}

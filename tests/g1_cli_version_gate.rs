@@ -108,3 +108,32 @@ fn g1_spawn_and_capture_calls_the_gate_before_spawning() {
     let spawn = body.find("runner::run_plan(").expect("spawn site");
     assert!(gate < spawn, "the gate must run before the spawn");
 }
+
+/// Review m5 / F-M1: the refusal names the channel this OS's Run really uses
+/// (argv + `--allow-argv-secret` on the interim path, private channels on
+/// Linux) and warns that the Copy command is not safe with that binary.
+#[test]
+fn g1_refusal_text_matches_the_platform_path_and_warns_about_copy() {
+    let linux = gate_secret_run(&env_ref_plan(), |_| Ok("mnemonic 0.25.0\n".into())).unwrap_err();
+    assert!(linux.contains("over private channels (@env:"), "{linux}");
+    assert!(!linux.contains("--allow-argv-secret"), "{linux}");
+
+    let st = FormState::from_pairs(vec![("--from", FlagValue::Text("ms1=@env:SEED".into()))]);
+    let env = |k: &str| (k == "SEED").then(|| MS1.to_string());
+    let mac = channels::plan(&schema::mnemonic::SCHEMA, restore(), &st, &env, "macos").unwrap();
+    assert!(mac.interim, "precondition: macOS takes the interim path");
+    let mac = gate_secret_run(&mac, |_| Ok("mnemonic 0.25.0\n".into())).unwrap_err();
+    assert!(
+        mac.contains("on its command line with --allow-argv-secret"),
+        "{mac}"
+    );
+    assert!(!mac.contains("private channels"), "{mac}");
+
+    for t in [&linux, &mac] {
+        assert!(t.contains("older than the pinned mnemonic "), "{t}");
+        assert!(
+            t.contains("The copied command (Copy buttons) is not safe with this binary either"),
+            "{t}"
+        );
+    }
+}
