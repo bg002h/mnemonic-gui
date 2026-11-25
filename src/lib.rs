@@ -5,6 +5,7 @@
 //! calls into this library. Modules below mirror SPEC §B.2 source tree.
 
 pub mod app;
+pub mod cli_version;
 // P0 spike (gui_example_tutorial SPEC §3.1(a)): the real application shell,
 // relocated verbatim from `src/main.rs`. Gated like the egui form-widget
 // modules — `--no-default-features` builds must not pull the egui stack.

@@ -15,15 +15,21 @@
 //! | `StdinMulti` | typed | `-- -` + `# stdin: paste each share on its own line, then Ctrl-D` |
 //! | `StdinMulti` | `$S1`… | `printf '%s\n' "$S1" "$S2" \| <command>` |
 //!
+//! A secret-bearing Copy starts with one more comment line: the command needs
+//! the pinned CLI version or newer ([`copy_version_warning`]).
+//!
 //! Disabled: when the plan is refused (the tooltip is the refusal); for a
 //! typed EnvRef-bound value holding CR or LF (a shell `read` takes one line);
-//! on Windows for any stdin-bound binding.
+//! on Windows for any stdin-bound binding, or for a value holding a char
+//! `cmd.exe` acts on inside double quotes (`"`, `%`, `!`, CR, LF; G2).
 
 use super::{
     channel_table, plan_with, policy, BindingView, ChannelKind, ChannelTable, EnvRule, Policy,
     Provenance, RunPlan,
 };
-use crate::form::invocation::{cmd_quote, posix_quote, render_copy_command, ShellFlavor};
+use crate::form::invocation::{
+    cmd_quote, posix_quote, render_copy_command, windows_cmd_copy_blocker, ShellFlavor,
+};
 use crate::schema::{FormState, Schema, SubcommandSchema};
 
 /// Copy is disabled for a typed EnvRef-bound value holding CR or LF (R3 Nm11).
@@ -32,6 +38,16 @@ pub const MULTILINE_TOOLTIP: &str =
 
 /// The Windows Copy cannot feed a pipe (§A7).
 pub const WINDOWS_STDIN_TOOLTIP: &str = "needs a pipe; use the POSIX copy";
+
+/// The first comment line of a secret-bearing Copy (`c` is `#` or `REM`):
+/// the command needs the pinned CLI version or newer (review F-M1 / r2-m1).
+pub fn copy_version_warning(c: &str, pinned: &str) -> String {
+    let cli = pinned.split_whitespace().next().unwrap_or(pinned);
+    format!(
+        "{c} Needs {pinned} or newer: an older {cli} can take an @env:/stdin \
+         reference below literally as the secret."
+    )
+}
 
 /// One Copy button's state.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -164,6 +180,12 @@ fn var_names(b: &BindingView) -> Option<Vec<String>> {
 fn render(plan: &RunPlan, table: &ChannelTable, flavor: ShellFlavor) -> CopyState {
     let posix = flavor == ShellFlavor::Posix;
     if !plan.has_secrets() {
+        if !posix {
+            // G2: a token cmd.exe would act on inside its quotes.
+            if let Some(t) = windows_cmd_copy_blocker(plan.argv.iter().map(String::as_str)) {
+                return CopyState::Disabled(t.into());
+            }
+        }
         return CopyState::Ready(render_copy_command(&plan.argv, flavor));
     }
     // Tokens as (text, quote?) — `<FILE>` placeholders stay bare.
@@ -302,6 +324,13 @@ fn render(plan: &RunPlan, table: &ChannelTable, flavor: ShellFlavor) -> CopyStat
             }
         }
     }
+    if !posix {
+        // G2: a quoted token cmd.exe would act on inside its quotes.
+        let quoted_tokens = toks.iter().flatten().filter(|(_, q)| *q).map(|(t, _)| t.as_str());
+        if let Some(t) = windows_cmd_copy_blocker(quoted_tokens) {
+            return CopyState::Disabled(t.into());
+        }
+    }
     let quoted: Vec<String> = toks
         .iter()
         .flatten()
@@ -316,6 +345,16 @@ fn render(plan: &RunPlan, table: &ChannelTable, flavor: ShellFlavor) -> CopyStat
     } else {
         quoted.join(" ^\r\n  ")
     };
+    // Review F-M1 / r2-m1: the copied command spells each secret as an
+    // `@env:`/stdin reference, which an older CLI can take literally as the
+    // secret (the hazard the G1 gate refuses for Run). Say so first.
+    if let Some(pinned) = plan
+        .argv
+        .first()
+        .and_then(|b| crate::cli_version::pinned_version_for(b))
+    {
+        comments.insert(0, copy_version_warning(c, pinned));
+    }
     let nl = if posix { "\n" } else { "\r\n" };
     let mut out = comments.join(nl);
     out.push_str(nl);

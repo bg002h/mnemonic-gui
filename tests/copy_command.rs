@@ -265,3 +265,178 @@ fn windows_roundtrip_all_embedded_quote_shapes() {
     assert_cmd_roundtrip(r"C:\tmp\"); // trailing `\`
     assert_cmd_roundtrip(r"C:\Users\Alice\file.txt"); // interior `\`
 }
+
+// ── G2 (bug hunt 2026-11-25): cmd.exe, not only CommandLineToArgvW ─────────
+//
+// `cmd_quote` produces text for `CommandLineToArgvW`; the Windows Copy is
+// pasted into `cmd.exe`, which parses it first. `cmd.exe` toggles its quote
+// state on EVERY `"` (it does not know `\"`), acts on `& | < > ( )` outside
+// quotes, expands `%NAME%` even inside quotes, `!NAME!` under delayed
+// expansion, and ends the line at CR/LF. The Windows Copy is therefore
+// disabled for a token holding `"`, `%`, `!`, CR or LF; anything else passed
+// through `cmd_quote` is inert to cmd.exe.
+
+use mnemonic_gui::form::channels::copy::{copy_commands, CopyState};
+use mnemonic_gui::form::invocation::{windows_cmd_copy_blocker, WINDOWS_CMD_UNSAFE_TOOLTIP};
+use mnemonic_gui::schema::{self as gui_schema, FlagValue, FormState};
+
+/// `cmd.exe`'s phase-2 view of a pasted line: the characters it would act on
+/// outside its quoted regions (quote state toggled by every `"`, `^` escapes
+/// the next char), plus any `%` or `!` anywhere (expanded inside quotes too).
+fn cmd_active_chars(line: &str) -> Vec<char> {
+    let mut out = Vec::new();
+    let mut in_q = false;
+    let mut chars = line.chars().peekable();
+    while let Some(c) = chars.next() {
+        match c {
+            '"' => in_q = !in_q,
+            '%' | '!' => out.push(c),
+            '^' if !in_q => {
+                chars.next(); // escaped (the `^\r\n` continuation, too)
+            }
+            '&' | '|' | '<' | '>' | '(' | ')' if !in_q => out.push(c),
+            _ => {}
+        }
+    }
+    out
+}
+
+#[test]
+fn g2_hostile_quote_value_shows_cmd_would_run_it_and_is_blocked() {
+    let hostile = r#"x" & calc.exe & rem ""#;
+    let argv = vec!["mnemonic".to_string(), "--label".to_string(), hostile.to_string()];
+    // The bug: cmd_quote's output leaves `&` outside cmd.exe's quotes.
+    let rendered = render_copy_command(&argv, ShellFlavor::WindowsCmd);
+    assert!(cmd_active_chars(&rendered).contains(&'&'), "{rendered}");
+    // The fix: the Windows Copy refuses such a token.
+    assert_eq!(
+        windows_cmd_copy_blocker(argv.iter().map(String::as_str)),
+        Some(WINDOWS_CMD_UNSAFE_TOOLTIP)
+    );
+}
+
+#[test]
+fn g2_percent_bang_and_newlines_are_blocked() {
+    for v in ["%USERPROFILE%", "a!b!", "50%", "line1\nline2", "a\rb", "\""] {
+        assert!(windows_cmd_copy_blocker([v]).is_some(), "{v:?} must block");
+    }
+}
+
+#[test]
+fn g2_every_admitted_token_is_inert_to_cmd_and_round_trips() {
+    // Shell metacharacters WITHOUT `"`/`%`/`!` stay inside cmd's quotes.
+    let admitted = [
+        "simple",
+        "with space",
+        "a & b | c < d > e (f) ^g",
+        r"C:\tmp\",
+        r"C:\Users\Alice\file (1).txt",
+        "wsh(sortedmulti(2,[aabbccdd/48'/0'/0'/2']xpub/<0;1>/*))#abcd1234",
+        "@env:MNEMONIC_GUI_S0",
+    ];
+    for v in admitted {
+        assert!(windows_cmd_copy_blocker([v]).is_none(), "{v:?} must be admitted");
+        let argv = vec!["mnemonic".to_string(), "--x".to_string(), v.to_string()];
+        let line = render_copy_command(&argv, ShellFlavor::WindowsCmd);
+        assert_eq!(cmd_active_chars(&line), Vec::<char>::new(), "{v:?} → {line:?}");
+        let flat = line.replace(" ^\r\n  ", " ");
+        assert_eq!(parse_cmdline_argv_w(&flat), argv, "{v:?}");
+    }
+}
+
+#[test]
+fn g2_windows_copy_button_disabled_for_a_cmd_unsafe_field_posix_unaffected() {
+    let restore = gui_schema::mnemonic::SCHEMA
+        .subcommands
+        .iter()
+        .find(|s| s.name == "restore")
+        .unwrap();
+    let none = |_: &str| None;
+    let st = FormState::from_pairs(vec![(
+        "--from",
+        FlagValue::Text(r#"xpub=x" & calc.exe & rem ""#.into()),
+    )]);
+    let (posix, windows) = copy_commands(&gui_schema::mnemonic::SCHEMA, restore, &st, &none);
+    assert!(matches!(posix, CopyState::Ready(_)), "{posix:?}");
+    assert_eq!(windows, CopyState::Disabled(WINDOWS_CMD_UNSAFE_TOOLTIP.into()));
+    // control: an ordinary value still copies on Windows
+    let st = FormState::from_pairs(vec![("--from", FlagValue::Text("xpub=xpubABC".into()))]);
+    let (_, windows) = copy_commands(&gui_schema::mnemonic::SCHEMA, restore, &st, &none);
+    assert!(matches!(windows, CopyState::Ready(_)), "{windows:?}");
+}
+
+#[test]
+fn g2_windows_copy_disabled_when_a_secret_plan_carries_a_cmd_unsafe_token() {
+    // The secret-bearing branch of the Copy renderer is gated too: the ms1
+    // card goes by `@env:` (an EnvRef binding, which the Windows Copy can
+    // spell), and a PUBLIC field beside it holds a `"` that cmd would act on.
+    let restore = gui_schema::mnemonic::SCHEMA
+        .subcommands
+        .iter()
+        .find(|s| s.name == "restore")
+        .unwrap();
+    let env = |k: &str| {
+        (k == "SEED").then(|| "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f".to_string())
+    };
+    let with_output = |out: &str| {
+        FormState::from_pairs(vec![
+            ("--from", FlagValue::Text("ms1=@env:SEED".into())),
+            ("--output", FlagValue::Path(out.into())),
+        ])
+    };
+    // control: the secret branch is reached and copies on Windows
+    let (_, windows) =
+        copy_commands(&gui_schema::mnemonic::SCHEMA, restore, &with_output("out.txt"), &env);
+    let CopyState::Ready(t) = &windows else {
+        panic!("precondition: an EnvRef-only plan copies on Windows: {windows:?}")
+    };
+    assert!(t.contains("@env:SEED") && t.contains("out.txt"), "{t:?}");
+    let (posix, windows) = copy_commands(
+        &gui_schema::mnemonic::SCHEMA,
+        restore,
+        &with_output(r#"o" & calc.exe & rem ""#),
+        &env,
+    );
+    assert!(matches!(posix, CopyState::Ready(_)), "{posix:?}");
+    assert_eq!(windows, CopyState::Disabled(WINDOWS_CMD_UNSAFE_TOOLTIP.into()));
+}
+
+/// Review F-M1 / r2-m1: a secret-bearing Copy (either flavour) starts with a
+/// comment saying it needs the pinned CLI version or newer; a Copy with no
+/// secret does not carry it.
+#[test]
+fn fm1_secret_copy_starts_with_the_version_warning() {
+    use mnemonic_gui::cli_version::pinned_version_for;
+    use mnemonic_gui::form::channels::copy::copy_version_warning;
+    let restore = gui_schema::mnemonic::SCHEMA
+        .subcommands
+        .iter()
+        .find(|s| s.name == "restore")
+        .unwrap();
+    let env = |k: &str| {
+        (k == "SEED").then(|| "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f".to_string())
+    };
+    let pinned = pinned_version_for("mnemonic").unwrap();
+    let st = FormState::from_pairs(vec![("--from", FlagValue::Text("ms1=@env:SEED".into()))]);
+    let (posix, windows) = copy_commands(&gui_schema::mnemonic::SCHEMA, restore, &st, &env);
+    for (state, c) in [(&posix, "#"), (&windows, "REM")] {
+        let CopyState::Ready(t) = state else {
+            panic!("precondition: ready {state:?}")
+        };
+        let first = t.lines().next().unwrap();
+        assert_eq!(first, copy_version_warning(c, pinned), "{t:?}");
+        assert!(
+            first.contains(&format!("Needs {pinned} or newer")),
+            "{first}"
+        );
+        let last = t.lines().last().unwrap();
+        assert!(
+            !last.starts_with(c),
+            "the command stays after the comments: {t:?}"
+        );
+    }
+    let none = |_: &str| None;
+    let st = FormState::from_pairs(vec![("--from", FlagValue::Text("xpub=xpubABC".into()))]);
+    let (posix, _) = copy_commands(&gui_schema::mnemonic::SCHEMA, restore, &st, &none);
+    assert!(!posix.text().unwrap().contains("Needs "), "{posix:?}");
+}

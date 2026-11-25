@@ -105,6 +105,13 @@ cargo install --locked --git https://github.com/bg002h/mnemonic-secret      --ta
 cargo install --locked --git https://github.com/bg002h/mnemonic-key         --tag mk-cli-v0.17.0                      mk-cli
 ```
 
+**Upgrading the GUI alone is not enough for secret-bearing runs.** Before any
+Run that carries a secret (a passphrase, phrase, ms1 card…), the GUI asks the
+CLI for `--version` and refuses the run unless it is the pinned version above
+or newer: an older CLI can read the GUI's `@env:`/stdin reference as the
+secret itself and derive the wrong wallet. The copied command has the same
+requirement. Runs without a secret are not checked.
+
 Each of those CLIs also ships **man pages** — the [constellation installer](https://github.com/bg002h/mnemonic-toolkit) installs them automatically (`man mnemonic`, `man md`, `man ms`, `man mk`); the GUI itself has none.
 
 Tabs for CLIs not present on `$PATH` are greyed at launch.
