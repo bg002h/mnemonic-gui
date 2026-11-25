@@ -848,6 +848,38 @@ pub fn key_marker(key: &str) -> Option<(String, bool)> {
     None
 }
 
+/// True iff `s` holds a 51/52-character base58 window that decodes to a WIF
+/// (version 0x80/0xef, 33/34 bytes): a WIF can never be a digest or a wrapper.
+fn has_wif_window(s: &str) -> bool {
+    if !s.is_ascii() {
+        return false;
+    }
+    [51usize, 52].iter().any(|&w| {
+        (0..s.len().saturating_sub(w - 1)).any(|i| {
+            bitcoin::base58::decode_check(&s[i..i + w]).is_ok_and(|d| {
+                matches!(d.first(), Some(0x80 | 0xef)) && matches!(d.len(), 33 | 34)
+            })
+        })
+    })
+}
+
+/// A `hex` / `w` value persist blanks: an xprv-shaped or WIF-shaped mis-paste
+/// (architect-secret-mn-decisions-1124 G1). A 64-hex value is the field's
+/// legitimate public digest shape and persists.
+fn non_key_field_is_private(v: &str) -> bool {
+    !v.is_empty() && (is_xprv_like(v) || has_wif_window(v))
+}
+
+/// True iff any node holds a shape that persist would blank (a private-key
+/// shape in `key`/`keys`/`hex`/`w`). Gates the tree-mode copies (G3).
+pub fn holds_private_shape(node: &TreeNode) -> bool {
+    (!node.key.is_empty() && !is_extended_public_like(&node.key))
+        || node.keys.iter().any(|k| !k.is_empty() && !is_extended_public_like(k))
+        || non_key_field_is_private(&node.hex)
+        || non_key_field_is_private(&node.w)
+        || node.children.iter().any(holds_private_shape)
+}
+
 /// Blank every `key` / `keys` entry that is NOT positively extended-public,
 /// recursively over ALL children (incl. surplus — they persist too).
 /// v0.34.0 (audit I6): replaces the deny-list walk (`is_xprv_like`-only),
@@ -869,13 +901,13 @@ fn blank_non_extended_public_keys(node: &mut TreeNode) {
     // digest) + `w` (wrapper) are NOT key fields — they have a legitimate
     // non-key shape (64-hex digest / "sv"), so the positive allowlist above
     // would destroy valid data. Apply the NARROW `is_xprv_like` DENY-list:
-    // blank ONLY an xprv-SHAPED mis-paste, preserve legit digests/wrap strings.
+    // blank ONLY an xprv-SHAPED or WIF-SHAPED mis-paste (G1), preserve legit digests/wrap strings.
     // (Asymmetric to the `is_extended_public_like` ALLOWLIST used for key/keys
     // above — correct: key/keys have NO legitimate non-key shape, hex/w do.)
-    if !node.hex.is_empty() && is_xprv_like(&node.hex) {
+    if non_key_field_is_private(&node.hex) {
         node.hex.clear();
     }
-    if !node.w.is_empty() && is_xprv_like(&node.w) {
+    if non_key_field_is_private(&node.w) {
         node.w.clear();
     }
     for child in &mut node.children {
