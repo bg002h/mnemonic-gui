@@ -1,4 +1,5 @@
-//! Pinned schema for the `md` CLI (descriptor-mnemonic-md-cli-v0.7.0).
+//! Pinned schema for the `md` CLI (the tag is `pinned-upstream.toml`'s `[md].tag`;
+//! the version is `SCHEMA.pinned_version` below).
 //!
 //! v0.2 scope: `inspect` (from v0.1) plus `encode`, `decode`, `verify`,
 //! `bytecode`, `vectors`, `compile`, `address`. See Phase D.1 audit report

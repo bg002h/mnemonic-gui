@@ -36,3 +36,35 @@ fn cargo_toolkit_pin_matches_pinned_upstream_mnemonic_tag() {
          {pinned_tag:?}; bump BOTH in lockstep (CHANGELOG v0.22.0 bug class)"
     );
 }
+
+/// Bug hunt 2026-11-25 G5: each `pinned-upstream.toml` tag's version equals
+/// the schema's `pinned_version`. Since G1 that string is the minimum
+/// `cli_version` admits for a secret-bearing run, so a schema version left
+/// behind (or pushed ahead of) the tag the README/CI install is a functional
+/// drift, not a cosmetic one.
+#[test]
+fn g5_every_pinned_tag_matches_the_schema_pinned_version() {
+    use mnemonic_gui::cli_version::{parse_version, parse_version_line, pinned_version_for};
+    let pinned: toml::Value = toml::from_str(&read("pinned-upstream.toml")).unwrap();
+    for cli in ["mnemonic", "md", "ms", "mk"] {
+        let tag = pinned[cli]["tag"].as_str().expect("tag");
+        let tag_version = tag.rsplit("-v").next().and_then(parse_version);
+        let schema = pinned_version_for(cli).unwrap();
+        let (name, schema_version) = parse_version_line(schema).unwrap();
+        assert_eq!(name, cli);
+        assert_eq!(
+            tag_version,
+            Some(schema_version),
+            "[{cli}].tag {tag:?} vs schema pinned_version {schema:?}"
+        );
+    }
+}
+
+/// G5: the header must not promise a runtime soft-check or banner that the
+/// app does not have, and must name the check that exists.
+#[test]
+fn g5_pinned_upstream_header_describes_the_real_runtime_check() {
+    let t = read("pinned-upstream.toml");
+    assert!(!t.contains("src/schema_check.rs runtime soft-check"));
+    assert!(t.contains("src/cli_version.rs"));
+}

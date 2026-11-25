@@ -1,8 +1,16 @@
 # pinned-upstream.toml — schema-mirror pin map (SPEC §11)
 #
 # Consumed by:
-#   1. .github/workflows/schema-mirror.yml CI gate (Phase 9).
-#   2. src/schema_check.rs runtime soft-check (Phase 9).
+#   1. .github/workflows/schema-mirror.yml CI gate (Phase 9), which installs
+#      these tags and runs the schema-mirror tests against them.
+#   2. tests/pin_coherence.rs and tests/readme_pin_coherence.rs.
+#
+# The running app does NOT read this file (schema_check.rs reads it only
+# from the build tree, for the tests). Its runtime check is
+# src/cli_version.rs: before a run that carries a secret it asks the binary
+# for `--version` and refuses one older than the schema's `pinned_version`
+# (src/schema/<cli>.rs), which moves in lockstep with the tag here. There is
+# no banner (bug hunt 2026-11-25 G1/G5).
 #
 # v0.4.0 update: the [mnemonic].tag field is now documentary only.
 # Prior to v0.4.0 the GUI's build.rs scraped the toolkit's private
@@ -29,14 +37,18 @@ workspace-member-path = "crates/mnemonic-toolkit"
 gui-schema-capable = true
 
 [md]
+# v0.64.0: v0.20.3 -> v0.21.0 (each md1 string printed once; --group-size
+# defaults to 0). md-cli v0.21.1 exists (four md-codec fixes, no flag
+# change); the toolkit installer still ships v0.21.0, so the pin moves with
+# it (bug hunt 2026-11-25 G5 follow-up).
 # F-679 (2026-09-24): v0.11.0 -> v0.20.3, the released md the toolkit
 # installer ships. Mirror updated in lockstep (src/schema/md.rs); new
 # upstream-only subcommands (compose, shape-key, descriptor, decompose) are
 # deliberately NOT surfaced yet (CHANGELOG 0.62.0).
 # man-pages cycle: bumped to descriptor-mnemonic-md-cli-v0.11.0 to match
 # the released binary (md --version → "md 0.11.0"). Schema and
-# pinned-upstream tag must move in lockstep so the runtime soft-check
-# can't fire a false-positive banner. v0.11.0 adds the visible `md
+# pinned-upstream tag must move in lockstep (the schema's pinned_version is
+# the minimum src/cli_version.rs admits for a secret-bearing run). v0.11.0 adds the visible `md
 # gen-man --out` subcommand (mirrored in src/schema/md.rs this cycle).
 url = "https://github.com/bg002h/descriptor-mnemonic"
 tag = "descriptor-mnemonic-md-cli-v0.21.0"
@@ -66,6 +78,9 @@ workspace-member-path = "crates/ms-cli"
 gui-schema-capable = true
 
 [mk]
+# v0.64.0: v0.13.0 -> v0.17.0. v0.17.0 is the newest mk-cli tag; the
+# bh-mk-C1 fix (`mk address`/`mk derive` on a toolkit WIF card) is not yet
+# released, so there is nothing newer to pin (bug hunt 2026-11-25 G5).
 url = "https://github.com/bg002h/mnemonic-key"
 tag = "mk-cli-v0.17.0"
 bin = "mk"

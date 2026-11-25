@@ -1,6 +1,9 @@
-//! Runtime soft-check + `--gui-schema` JSON consumer.
+//! `--gui-schema` JSON consumer for the schema-mirror TESTS.
 //!
-//! v0.1: `--version` runtime soft-check stub (placeholder).
+//! The running app calls nothing here: `pinned-upstream.toml` is read from
+//! `CARGO_MANIFEST_DIR`, which exists only in the build tree. The app's
+//! runtime version check is `crate::cli_version` (bug hunt 2026-11-25 G1).
+//! v0.1: `--version` runtime soft-check stub (placeholder, never wired).
 //! v0.2 Phase C.1 (SPEC §7): `--gui-schema` JSON consumer. The GUI
 //! shells out to `<cli> gui-schema` when `pinned-upstream.toml`'s
 //! per-CLI `gui-schema-capable` field is `true`, parses the emitted
