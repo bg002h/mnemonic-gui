@@ -720,17 +720,12 @@ pub fn render_copy_command(argv: &[String], flavor: ShellFlavor) -> String {
 /// real [`render_copy_command`] feeds Run and the deliberate-reveal copy.
 ///
 /// `mask` is the parallel vector from [`assemble_argv_with_secret_mask`];
-/// `mask.len()` is expected to equal `argv.len()` (a shorter mask defaults the
-/// tail to non-secret — fail-open is acceptable here only because the assembler
-/// guarantees equal length, asserted in debug).
+/// `mask.len()` is expected to equal `argv.len()`; a shorter mask FAILS CLOSED
+/// (every token past the mask's end renders as [`SECRET_MASK`]), in debug and
+/// release alike (gui-mask-failopen-release).
 pub fn render_copy_command_masked(argv: &[String], mask: &[bool], flavor: ShellFlavor) -> String {
-    debug_assert_eq!(
-        argv.len(),
-        mask.len(),
-        "render_copy_command_masked: mask/argv length mismatch — a secret token could render cleartext"
-    );
     let render = |i: usize, s: &String| -> String {
-        if mask.get(i).copied().unwrap_or(false) {
+        if mask.get(i).copied().unwrap_or(true) {
             SECRET_MASK.to_string()
         } else {
             match flavor {

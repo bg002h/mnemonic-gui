@@ -63,6 +63,28 @@ pub fn render(ui: &mut egui::Ui, state: &mut SlotState, path_hint: Option<&str>)
                                 .password(!reveal),
                         );
                         crate::form::secret_widget::clear_reveal_on_blur(&ctx, field_id, &resp);
+                        // gui-slot-field-paste-warn-uncovered: same trigger as
+                        // SecretLineEdit::show / widget.rs — an over-threshold
+                        // paste attributed to THIS field (response.changed())
+                        // raises the ctx-data paste-warn bus flag.
+                        let pasted_len = ui.input(|i| {
+                            i.events.iter().find_map(|e| match e {
+                                egui::Event::Paste(s) => Some(s.chars().count()),
+                                _ => None,
+                            })
+                        });
+                        if resp.changed() {
+                            if let Some(len) = pasted_len {
+                                if len >= crate::secrets::PASTE_WARN_THRESHOLD {
+                                    ctx.data_mut(|d| {
+                                        d.insert_temp(
+                                            crate::form::secret_widget::paste_warn_id(),
+                                            true,
+                                        )
+                                    });
+                                }
+                            }
+                        }
                     } else {
                         match (row.subkey, path_hint) {
                             (SlotSubkey::Path, Some(hint)) if row.value.is_empty() => {

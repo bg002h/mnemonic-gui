@@ -1190,13 +1190,10 @@ impl MnemonicGuiApp {
                     ui.label("Argv:");
                     // v0.39.0 (Item 1): an interim-path secret value is
                     // masked; the private path's argv carries none.
-                    debug_assert_eq!(
-                        plan.argv.len(),
-                        plan.mask.len(),
-                        "confirm-modal: mask/argv length mismatch — a secret token may render cleartext"
-                    );
+                    // A mask shorter than argv fails CLOSED (masked), in
+                    // release as in debug (gui-mask-failopen-release).
                     for (i, tok) in plan.argv.iter().enumerate() {
-                        let shown = if plan.mask.get(i).copied().unwrap_or(false) {
+                        let shown = if plan.mask.get(i).copied().unwrap_or(true) {
                             crate::form::invocation::SECRET_MASK
                         } else {
                             tok.as_str()
