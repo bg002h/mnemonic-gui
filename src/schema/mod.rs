@@ -15,8 +15,9 @@ pub mod nodes;
 pub struct Schema {
     /// Binary name (`"mnemonic"`, `"md"`, `"ms"`, `"mk"`).
     pub cli_name: &'static str,
-    /// Pinned `--version` output string that the runtime soft-check
-    /// (SPEC §11) compares against `<cli> --version`. Example for
+    /// Pinned `--version` output string. `cli_version::gate_secret_run`
+    /// refuses a secret-bearing run unless `<cli> --version` names this CLI
+    /// at this version or newer (bug hunt 2026-11-25 G1). Example for
     /// mnemonic-toolkit-v0.8.1: `"mnemonic 0.8.0"` (the v0.8.1 git tag
     /// did NOT bump the crate package version). The git-tag string for CI
     /// install lives separately in `pinned-upstream.toml`. R1 I-1 fold.

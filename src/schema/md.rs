@@ -6,7 +6,8 @@
 //! provenance.
 //!
 //! NOTE: `pinned_version` is the literal `<bin> --version` output string
-//! that the runtime soft-check compares against (R1 I-1 fold). The
+//! that the runtime version gate (`cli_version`) uses as the minimum for a
+//! secret-bearing run (R1 I-1 fold; bug hunt 2026-11-25 G1). The
 //! `pinned-upstream.toml::[md].tag` field is the git tag for CI install
 //! commands (separate concern); both are bumped in lockstep when the GUI
 //! advances its md pin.

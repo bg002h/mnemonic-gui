@@ -1379,6 +1379,17 @@ fn spawn_and_capture(app: &mut MnemonicGuiApp, plan: crate::form::channels::RunP
         ));
         return;
     }
+    // G1 (bug hunt 2026-11-25): a run that carries a secret goes only to a
+    // binary that reports the pinned version or newer — an older CLI can take
+    // `@env:MNEMONIC_GUI_S<i>` (or `-`) literally as the secret itself. The
+    // gate never alters the plan; a refusal spawns nothing.
+    if let Err(why) =
+        crate::cli_version::gate_secret_run(&plan, crate::cli_version::probe)
+    {
+        app.last_run = None;
+        app.last_run_error = Some(format!("Run refused — {why}"));
+        return;
+    }
     // DESIGN (secret channels) §A4.4/§A6: the runner scrubs inherited
     // MNEMONIC_GUI_* variables, sets the plan's, writes stdin and the pipe
     // payloads (write ends closed before spawn). The result carries the
