@@ -1241,7 +1241,10 @@ impl MnemonicGuiApp {
                 .resizable(false)
                 .anchor(egui::Align2::CENTER_CENTER, [0.0, 0.0])
                 .show(ctx, |ui| {
-                    ui.label(secrets::PASTE_WARN_MODAL_TEXT);
+                    // G4: the text matches the channel path this OS's Run uses.
+                    ui.label(secrets::paste_warn_modal_text(
+                        crate::form::channels::current_os(),
+                    ));
                     ui.separator();
                     if ui.button("Dismiss").clicked() {
                         self.pending_paste_warn = false;

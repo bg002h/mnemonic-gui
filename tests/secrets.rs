@@ -455,3 +455,29 @@ fn node_type_is_secret_matches_upstream_set() {
         assert!(!secrets::node_type_is_secret(n));
     }
 }
+
+/// G4 (bug hunt 2026-11-25): on an OS in `private_channels_on` (Linux) Run
+/// never puts a secret on argv, so the paste warning must not say it does;
+/// elsewhere (the interim argv path) it must.
+#[test]
+fn g4_paste_warning_matches_the_os_channel_path() {
+    use mnemonic_gui::form::channels::policy;
+    use mnemonic_gui::secrets::{paste_warn_modal_text, PASTE_WARN_MODAL_TEXT_PRIVATE};
+    let on = &policy().private_channels_on;
+    assert!(on.iter().any(|o| o == "linux"), "precondition: {on:?}");
+    for os in ["linux", "macos", "windows"] {
+        let t = paste_warn_modal_text(os);
+        let private = on.iter().any(|o| o == os);
+        assert_eq!(t.contains("as a command-line argument."), !private, "{os}: {t}");
+        assert_eq!(t.contains("not as a command-line\nargument"), private, "{os}: {t}");
+        // the shared tail survives on both paths
+        for s in ["BIP-39 phrase", "gui-os-snapshot-secret-occlusion", "undo ring"] {
+            assert!(t.contains(s), "{os} lacks {s:?}");
+        }
+    }
+    assert!(!PASTE_WARN_MODAL_TEXT_PRIVATE.contains("runs the binary with the value you pasted"));
+    // the app shows the OS-picked text, not the fixed interim constant
+    let app = include_str!("../src/app_window.rs");
+    assert!(app.contains("secrets::paste_warn_modal_text("));
+    assert!(!app.contains("ui.label(secrets::PASTE_WARN_MODAL_TEXT)"));
+}
