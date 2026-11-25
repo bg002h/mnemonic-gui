@@ -356,6 +356,18 @@ mod gate_contract {
     }
 
     #[test]
+    fn drift_gate_fails_when_bin_set_empty() {
+        // Rule S skips only when MNEMONIC_BIN is UNSET: a set-but-empty value
+        // is a configuration error and must FAIL, not skip (PATH is empty here,
+        // so a build that treated "" as unset would skip and pass).
+        let dir = tempfile::tempdir().unwrap();
+        let (ok, text) = run_gate(|c| {
+            c.env("MNEMONIC_BIN", "").env("PATH", dir.path());
+        });
+        assert_fails_with(ok, &text, "schema_mirror_secret_drift: cannot run ` gui-schema`: ");
+    }
+
+    #[test]
     fn drift_gate_fails_on_empty_v5_document() {
         // A well-formed v5 document with no subcommands must not pass: the GUI
         // hand-code has secret flags the document lacks.
