@@ -203,3 +203,16 @@ fn k2_live_field_is_never_changed() {
     assert_eq!(state.root.key, FWIF, "the live key field changed");
     assert!(persisted.root.key.is_empty(), "the persisted copy kept the WIF");
 }
+
+#[test]
+fn e3_rule_e_blanks_every_wif_form() {
+    let mc = "KwFfpDsaF7yxCELuyrH9gP5XL7TAt5b9HPWC1xCQbmrxvhJgMQHb";
+    let mu = "5HpjKrb7dH5kKQQzmbjB87Mxova7mek5bXUTWfndcX6tBoqUwzm";
+    let tu = "91bMubQfDW9tHTvHPwd5zhuvTavpvpHGwULQbJ98xFqvxsUsWbZ";
+    let mut cases: Vec<(&str, String, String)> = vec![];
+    for (l, w) in [("main-compressed", mc), ("main-uncompressed", mu), ("test-uncompressed", tu)] {
+        cases.push((l, format!("{}{w}", &TPUB[..40]), w.into()));
+    }
+    let leaked = leaked(&cases);
+    assert!(leaked.is_empty(), "secret survived persist for: {leaked:?}");
+}
