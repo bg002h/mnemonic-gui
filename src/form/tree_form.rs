@@ -94,6 +94,36 @@ pub fn spec_json_pretty(state: &FormState) -> Option<String> {
     serde_json::to_string_pretty(&to_spec_json(&t.root)).ok()
 }
 
+/// Tooltip of the three tree-mode Copy buttons while the tree holds a shape
+/// that persist would blank (architect-secret-mn-decisions-1124 G3).
+pub const PRIVATE_COPY_REASON: &str =
+    "the tree holds a private key; Run sends it privately, Copy would not";
+
+/// `Some(reason)` when the tree holds a private-key shape (one that
+/// `redacted_for_persistence` would blank); every tree-mode copy is then
+/// disabled. Stdin (Run's private channel) is unaffected.
+pub fn tree_copy_blocker(state: &FormState) -> Option<&'static str> {
+    let t = state.tree.as_ref()?;
+    crate::form::tree_model::holds_private_shape(&t.root).then_some(PRIVATE_COPY_REASON)
+}
+
+/// The three tree-mode copy texts `(POSIX pipeline, Windows argv, spec JSON)`;
+/// all `None` while [`tree_copy_blocker`] holds. `tree_argv` is the Run argv
+/// with `--spec -` appended.
+pub fn tree_copy_texts(
+    state: &FormState,
+    tree_argv: &[String],
+) -> (Option<String>, Option<String>, Option<String>) {
+    if tree_copy_blocker(state).is_some() {
+        return (None, None, None);
+    }
+    (
+        posix_pipeline_command(state, tree_argv),
+        Some(render_copy_command(tree_argv, ShellFlavor::WindowsCmd)),
+        spec_json_pretty(state),
+    )
+}
+
 /// v0.32.0 P3 (SPEC §3) — the tree-mode POSIX pipeline copy string:
 /// `printf '%s' '<json>' | mnemonic build-descriptor … --spec -`.
 /// `argv` is the host-assembled Run argv (the user's mode-independent

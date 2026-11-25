@@ -25,7 +25,7 @@ use eframe::egui;
 
 use crate::app::{AppState, CliTab};
 use crate::form::invocation::{
-    assemble_argv_with_secret_mask, render_copy_command, render_copy_command_masked, ShellFlavor,
+    assemble_argv_with_secret_mask, render_copy_command_masked, ShellFlavor,
 };
 use crate::form::slot_editor::{SlotState, SlotSubkey};
 use crate::form::widget;
@@ -941,11 +941,6 @@ impl MnemonicGuiApp {
             } else {
                 None
             };
-            let spec_copy = if tree_mode {
-                crate::form::tree_form::spec_json_pretty(state)
-            } else {
-                None
-            };
             let mut tree_argv = masked_argv.clone();
             if tree_mode {
                 tree_argv.push("--spec".to_string());
@@ -972,8 +967,14 @@ impl MnemonicGuiApp {
             // `--spec -`) instead of the bare argv (which would hang on
             // terminal stdin). Completeness-gated like Copy spec JSON;
             // the Windows copy stays argv + the separate JSON copy.
-            let posix_pipeline = if tree_mode {
-                crate::form::tree_form::posix_pipeline_command(state, &tree_argv)
+            let (posix_pipeline, tree_windows_copy, spec_copy) = if tree_mode {
+                crate::form::tree_form::tree_copy_texts(state, &tree_argv)
+            } else {
+                (None, None, None)
+            };
+            // G3: the tree holds a private key, so every tree-mode copy says why it is off.
+            let tree_copy_tip = if tree_mode {
+                crate::form::tree_form::tree_copy_blocker(state).map(str::to_string)
             } else {
                 None
             };
@@ -998,7 +999,7 @@ impl MnemonicGuiApp {
                 ),
             };
             let (copy_posix_text, copy_posix_tip) = if tree_mode {
-                (posix_pipeline.clone(), None)
+                (posix_pipeline.clone(), tree_copy_tip.clone())
             } else {
                 match &copy_posix_state {
                     crate::form::channels::copy::CopyState::Ready(t) => (Some(t.clone()), None),
@@ -1006,7 +1007,7 @@ impl MnemonicGuiApp {
                 }
             };
             let (copy_windows_text, copy_windows_tip) = if tree_mode {
-                (Some(render_copy_command(&tree_argv, ShellFlavor::WindowsCmd)), None)
+                (tree_windows_copy.clone(), tree_copy_tip.clone())
             } else {
                 match &copy_windows_state {
                     crate::form::channels::copy::CopyState::Ready(t) => (Some(t.clone()), None),
@@ -1072,13 +1073,15 @@ impl MnemonicGuiApp {
                 // self-contained printf pipeline since P3.)
                 if tree_mode {
                     ui.weak("(Windows copy: spec via stdin — use Copy spec JSON)");
-                    if ui
-                        .add_enabled(
-                            spec_copy.is_some(),
-                            egui::Button::new("Copy spec JSON"),
-                        )
-                        .clicked()
-                    {
+                    let spec_btn = ui.add_enabled(
+                        spec_copy.is_some(),
+                        egui::Button::new("Copy spec JSON"),
+                    );
+                    let spec_btn = match &tree_copy_tip {
+                        Some(t) => spec_btn.on_disabled_hover_text(t),
+                        None => spec_btn,
+                    };
+                    if spec_btn.clicked() {
                         copy_spec = true;
                     }
                 }
