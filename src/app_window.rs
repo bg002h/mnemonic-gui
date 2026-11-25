@@ -1006,7 +1006,13 @@ impl MnemonicGuiApp {
                 }
             };
             let (copy_windows_text, copy_windows_tip) = if tree_mode {
-                (Some(render_copy_command(&tree_argv, ShellFlavor::WindowsCmd)), None)
+                // G2: the tree-mode Windows copy is gated like the others.
+                match crate::form::invocation::windows_cmd_copy_blocker(
+                    tree_argv.iter().map(String::as_str),
+                ) {
+                    Some(t) => (None, Some(t.to_string())),
+                    None => (Some(render_copy_command(&tree_argv, ShellFlavor::WindowsCmd)), None),
+                }
             } else {
                 match &copy_windows_state {
                     crate::form::channels::copy::CopyState::Ready(t) => (Some(t.clone()), None),

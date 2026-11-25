@@ -17,13 +17,16 @@
 //!
 //! Disabled: when the plan is refused (the tooltip is the refusal); for a
 //! typed EnvRef-bound value holding CR or LF (a shell `read` takes one line);
-//! on Windows for any stdin-bound binding.
+//! on Windows for any stdin-bound binding, or for a value holding a char
+//! `cmd.exe` acts on inside double quotes (`"`, `%`, `!`, CR, LF; G2).
 
 use super::{
     channel_table, plan_with, policy, BindingView, ChannelKind, ChannelTable, EnvRule, Policy,
     Provenance, RunPlan,
 };
-use crate::form::invocation::{cmd_quote, posix_quote, render_copy_command, ShellFlavor};
+use crate::form::invocation::{
+    cmd_quote, posix_quote, render_copy_command, windows_cmd_copy_blocker, ShellFlavor,
+};
 use crate::schema::{FormState, Schema, SubcommandSchema};
 
 /// Copy is disabled for a typed EnvRef-bound value holding CR or LF (R3 Nm11).
@@ -164,6 +167,12 @@ fn var_names(b: &BindingView) -> Option<Vec<String>> {
 fn render(plan: &RunPlan, table: &ChannelTable, flavor: ShellFlavor) -> CopyState {
     let posix = flavor == ShellFlavor::Posix;
     if !plan.has_secrets() {
+        if !posix {
+            // G2: a token cmd.exe would act on inside its quotes.
+            if let Some(t) = windows_cmd_copy_blocker(plan.argv.iter().map(String::as_str)) {
+                return CopyState::Disabled(t.into());
+            }
+        }
         return CopyState::Ready(render_copy_command(&plan.argv, flavor));
     }
     // Tokens as (text, quote?) — `<FILE>` placeholders stay bare.
@@ -300,6 +309,13 @@ fn render(plan: &RunPlan, table: &ChannelTable, flavor: ShellFlavor) -> CopyStat
                 // The Copy plan is private by construction (Policy::for_copy).
                 return CopyState::Disabled("Copy has no private plan here".into());
             }
+        }
+    }
+    if !posix {
+        // G2: a quoted token cmd.exe would act on inside its quotes.
+        let quoted_tokens = toks.iter().flatten().filter(|(_, q)| *q).map(|(t, _)| t.as_str());
+        if let Some(t) = windows_cmd_copy_blocker(quoted_tokens) {
+            return CopyState::Disabled(t.into());
         }
     }
     let quoted: Vec<String> = toks

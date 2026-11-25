@@ -698,6 +698,10 @@ fn emit_one(
 /// Render a shell-quoted single-line command for display copy-paste.
 /// Per SPEC §6.6 this output is for the user's eyes only — it is NEVER
 /// re-parsed or used to spawn the subprocess.
+///
+/// The `WindowsCmd` form is safe to paste into `cmd.exe` only when
+/// [`windows_cmd_copy_blocker`] returns `None` for `argv`; every Copy button
+/// checks that first (G2).
 pub fn render_copy_command(argv: &[String], flavor: ShellFlavor) -> String {
     match flavor {
         ShellFlavor::Posix => argv
@@ -763,6 +767,35 @@ pub fn posix_quote(s: &str) -> String {
             format!("'{}'", escaped)
         }
     }
+}
+
+/// Characters that `cmd.exe` acts on even inside the `"…"` that [`cmd_quote`]
+/// produces (bug hunt 2026-11-25, G2). [`cmd_quote`] targets
+/// `CommandLineToArgvW` only: a literal `"` becomes `\"`, which `cmd.exe`
+/// does not know — its `"` ends cmd's quoted region, so a following `&`, `|`,
+/// `<` or `>` runs as shell syntax. `%NAME%` is expanded inside quotes, `!` is
+/// expanded under delayed expansion, and CR/LF end the command line. Rather
+/// than add a second, untestable-here layer of `cmd` escaping, the Windows
+/// Copy is disabled for a token holding any of these.
+pub const CMD_UNSAFE_CHARS: &[char] = &['"', '%', '!', '\r', '\n'];
+
+/// The Windows Copy tooltip when a value holds a [`CMD_UNSAFE_CHARS`] char.
+pub const WINDOWS_CMD_UNSAFE_TOOLTIP: &str =
+    "a value holds \" % ! or a line break, which cmd.exe would not pass through \
+     unchanged; use Run, or the POSIX copy";
+
+/// `Some(tooltip)` when any of `tokens` holds a char `cmd.exe` would act on
+/// inside [`cmd_quote`]'s quotes (see [`CMD_UNSAFE_CHARS`]); the Windows Copy
+/// must then be disabled. `None` means every token survives `cmd.exe`
+/// verbatim inside its double quotes.
+pub fn windows_cmd_copy_blocker<'a, I>(tokens: I) -> Option<&'static str>
+where
+    I: IntoIterator<Item = &'a str>,
+{
+    tokens
+        .into_iter()
+        .any(|t| t.contains(CMD_UNSAFE_CHARS))
+        .then_some(WINDOWS_CMD_UNSAFE_TOOLTIP)
 }
 
 /// Windows quoting compatible with `CommandLineToArgvW` (the universal
