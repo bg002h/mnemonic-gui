@@ -52,6 +52,7 @@ directories = "5"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 zeroize = "1"
+bitcoin = { version = "0.32", default-features = false, features = ["std"] }
 shlex = "1"
 # v0.2 Phase C.1: pinned-upstream.toml reader in schema_check.rs.
 # Was [dev-dependencies] only in v0.1; promoted to runtime dep in

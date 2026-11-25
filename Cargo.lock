@@ -2364,6 +2364,7 @@ dependencies = [
 name = "mnemonic-gui"
 version = "0.64.0"
 dependencies = [
+ "bitcoin",
  "clap",
  "command-fds",
  "ctrlc",
