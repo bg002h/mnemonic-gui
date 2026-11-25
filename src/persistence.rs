@@ -296,9 +296,25 @@ fn write_atomic(path: &Path, body: &str) -> std::io::Result<()> {
         .to_string_lossy()
         .into_owned();
     let tmp = path.with_file_name(format!("{file_name}.{}.tmp", std::process::id()));
-    fs::write(&tmp, body).inspect_err(|_| {
-        let _ = fs::remove_file(&tmp);
-    })?;
+    // G3 (bug hunt 2026-11-25): secrets are stripped, but descriptors, xpubs,
+    // fingerprints and paths stay — enough to watch the wallet. Create the
+    // temp owner-only (0600) on Unix; the rename then installs that inode, so
+    // an older 0644 `state.json` is replaced by a 0600 one. A stale temp of a
+    // crashed process with this PID is removed first, and `create_new`
+    // (O_EXCL) never follows a symlink planted at the temp path.
+    let _ = fs::remove_file(&tmp);
+    let mut opts = fs::OpenOptions::new();
+    opts.write(true).create_new(true);
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::OpenOptionsExt;
+        opts.mode(0o600);
+    }
+    opts.open(&tmp)
+        .and_then(|mut f| std::io::Write::write_all(&mut f, body.as_bytes()))
+        .inspect_err(|_| {
+            let _ = fs::remove_file(&tmp);
+        })?;
     fs::rename(&tmp, path).inspect_err(|_| {
         let _ = fs::remove_file(&tmp);
     })

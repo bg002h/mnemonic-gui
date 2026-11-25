@@ -586,3 +586,32 @@ fn f6_migration_never_touches_other_forms() {
         "another form's persisted --network mainnet must NOT be touched by the F6 migration"
     );
 }
+
+/// G3 (bug hunt 2026-11-25): `state.json` holds descriptors, xpubs,
+/// fingerprints and paths (secrets are stripped) — owner-only on Unix, also
+/// when it replaces an older world-readable file, and also via
+/// `save_if_changed` (the autosave path).
+#[cfg(unix)]
+#[test]
+fn g3_state_json_is_owner_only_on_unix() {
+    use std::os::unix::fs::PermissionsExt;
+    let dir = tempfile::TempDir::new().unwrap();
+    let path = dir.path().join("state.json");
+    // an older GUI's world-readable file
+    fs::write(&path, "{}").unwrap();
+    fs::set_permissions(&path, fs::Permissions::from_mode(0o644)).unwrap();
+    let state = populated_persisted_state(watch_only_form());
+    save(&state, &path).unwrap();
+    let mode = fs::metadata(&path).unwrap().permissions().mode() & 0o777;
+    assert_eq!(mode & 0o077, 0, "state.json mode {mode:o} is readable by others");
+    assert!(load(&path).is_some(), "still loads");
+
+    let path2 = dir.path().join("sub").join("state.json");
+    let mut cache = None;
+    assert!(mnemonic_gui::persistence::save_if_changed(&state, &path2, &mut cache).unwrap());
+    let mode = fs::metadata(&path2).unwrap().permissions().mode() & 0o777;
+    assert_eq!(mode & 0o077, 0, "autosave mode {mode:o}");
+    // no temp left behind
+    let left: Vec<_> = fs::read_dir(dir.path().join("sub")).unwrap().collect();
+    assert_eq!(left.len(), 1);
+}
