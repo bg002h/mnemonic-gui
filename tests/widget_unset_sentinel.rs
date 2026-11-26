@@ -252,7 +252,7 @@ fn argv_does_not_emit_unset_numeric_flag() {
     // assembler's emit_one type-mismatch arm silently skips it.
     let state = FormState::from_pairs(vec![
         ("--network", FlagValue::Dropdown("mainnet".into())),
-        ("--template", FlagValue::Dropdown("bip84".into())),
+        ("--scheme", FlagValue::Dropdown("bip84".into())),
         // --account explicitly Unset — must NOT emit.
         ("--account", FlagValue::Unset),
     ]);
@@ -263,7 +263,7 @@ fn argv_does_not_emit_unset_numeric_flag() {
     );
     // Sanity: non-Unset flags still emit.
     assert!(argv.iter().any(|a| a == "--network"));
-    assert!(argv.iter().any(|a| a == "--template"));
+    assert!(argv.iter().any(|a| a == "--scheme"));
 }
 
 #[test]
@@ -271,7 +271,7 @@ fn argv_does_not_emit_unset_range_flag() {
     // --range on `bundle` is a Range kind; same Unset semantic.
     let state = FormState::from_pairs(vec![
         ("--network", FlagValue::Dropdown("mainnet".into())),
-        ("--template", FlagValue::Dropdown("bip84".into())),
+        ("--scheme", FlagValue::Dropdown("bip84".into())),
         ("--range", FlagValue::Unset),
     ]);
     let argv = assemble_argv(&schema::mnemonic::SCHEMA, subcommand("bundle"), &state);

@@ -139,7 +139,7 @@ fn s_bundle_descriptor(st: &mut FormState, sub: &'static SubcommandSchema) {
     seed(st, sub, "--descriptor", "wpkh(@0)");
 }
 fn s_bundle_singlesig(st: &mut FormState, sub: &'static SubcommandSchema) {
-    seed(st, sub, "--template", "bip84"); // ∈ SINGLE_SIG_TEMPLATES
+    seed(st, sub, "--scheme", "bip84"); // ∈ SINGLE_SIG_TEMPLATES
 }
 fn s_verify_bundle_json(st: &mut FormState, sub: &'static SubcommandSchema) {
     seed(st, sub, "--bundle-json", "{}");
@@ -147,35 +147,35 @@ fn s_verify_bundle_json(st: &mut FormState, sub: &'static SubcommandSchema) {
 fn s_convert_address(st: &mut FormState, sub: &'static SubcommandSchema) {
     seed_composite(st, "--from", "phrase", "x"); // NOT electrum
     seed(st, sub, "--to", "address");
-    // Seed --template EMPTY so the form-loop's auto-seed (which would default a
+    // Seed --scheme EMPTY so the form-loop's auto-seed (which would default a
     // Dropdown to a PRESENT opts[0]) cannot set `has_template`, keeping the
     // `to_has_address && !has_template ⇒ --script-type Required` arm reachable.
-    seed(st, sub, "--template", "");
+    seed(st, sub, "--scheme", "");
 }
 fn s_convert_phrase(st: &mut FormState, sub: &'static SubcommandSchema) {
     seed_composite(st, "--from", "phrase", "x");
     seed(st, sub, "--to", "phrase");
 }
 fn s_export_tr(st: &mut FormState, sub: &'static SubcommandSchema) {
-    seed(st, sub, "--template", "tr-multi-a"); // ∈ TAPROOT_INTERNAL_KEY_TEMPLATES
+    seed(st, sub, "--scheme", "tr-multi-a"); // ∈ TAPROOT_INTERNAL_KEY_TEMPLATES
 }
 fn s_export_singlesig(st: &mut FormState, sub: &'static SubcommandSchema) {
-    seed(st, sub, "--template", "bip84"); // ∈ SINGLE_SIG_TEMPLATES
+    seed(st, sub, "--scheme", "bip84"); // ∈ SINGLE_SIG_TEMPLATES
 }
 fn s_export_descriptor(st: &mut FormState, sub: &'static SubcommandSchema) {
     seed(st, sub, "--descriptor", "wsh(sortedmulti(2,@0,@1))");
-    // Empty --template (defeat the form-loop auto-seed) so `has_template` stays
-    // false ⇒ the descriptor-mode `--template Disabled` arm is observable and
+    // Empty --scheme (defeat the form-loop auto-seed) so `has_template` stays
+    // false ⇒ the descriptor-mode `--scheme Disabled` arm is observable and
     // --descriptor itself is NOT cross-disabled.
-    seed(st, sub, "--template", "");
+    seed(st, sub, "--scheme", "");
 }
 fn s_build_spec(st: &mut FormState, sub: &'static SubcommandSchema) {
-    // --spec set + --archetype empty ⇒ active_archetype None (no mode
-    // suppression) ⇒ the conditional's `--archetype Disabled` is observable.
+    // --spec set + --scheme empty ⇒ active_archetype None (no mode
+    // suppression) ⇒ the conditional's `--scheme Disabled` is observable.
     seed(st, sub, "--spec", "/tmp/x.json");
 }
 fn s_build_archetype(st: &mut FormState, sub: &'static SubcommandSchema) {
-    seed(st, sub, "--archetype", "decaying-multisig"); // valid id
+    seed(st, sub, "--scheme", "decaying-multisig"); // valid id
 }
 fn s_build_tree(st: &mut FormState, _sub: &'static SubcommandSchema) {
     st.tree = Some(TreeState {
@@ -275,7 +275,7 @@ fn i1_bundle() {
     // Descriptor mode (canonical): mutex Disables + the --account PinValue.
     let h = form(CliTab::Mnemonic, "bundle", s_bundle_descriptor);
     assert_disabled(&h, "--descriptor-file");
-    assert_disabled(&h, "--template");
+    assert_disabled(&h, "--scheme");
     assert_disabled(&h, "--threshold");
     assert_disabled(&h, "--multisig-path-family");
     // PinValue is NOT consumed in render (argv-only) → best-effort: the
@@ -289,13 +289,13 @@ fn i1_bundle() {
     );
     assert_enabled(&h, "--account");
 
-    // Empty form: --template Required (present + enabled).
+    // Empty form: --scheme Required (present + enabled).
     let h = form(CliTab::Mnemonic, "bundle", s_noop);
     assert_eq!(
-        eff(CliTab::Mnemonic, "bundle", &h, "--template"),
+        eff(CliTab::Mnemonic, "bundle", &h, "--scheme"),
         Visibility::Required
     );
-    assert_enabled(&h, "--template");
+    assert_enabled(&h, "--scheme");
 
     // Single-sig template Disables threshold + path-family.
     let h = form(CliTab::Mnemonic, "bundle", s_bundle_singlesig);
@@ -311,7 +311,7 @@ fn i1_verify_bundle() {
     assert_disabled(&h, "--mk1");
     assert_disabled(&h, "--md1");
 
-    // Empty: --mk1/--md1 Required, --template Required (present + enabled).
+    // Empty: --mk1/--md1 Required, --scheme Required (present + enabled).
     let h = form(CliTab::Mnemonic, "verify-bundle", s_noop);
     assert_eq!(
         eff(CliTab::Mnemonic, "verify-bundle", &h, "--mk1"),
@@ -319,12 +319,12 @@ fn i1_verify_bundle() {
     );
     assert_enabled(&h, "--mk1");
     assert_enabled(&h, "--md1");
-    assert_enabled(&h, "--template");
+    assert_enabled(&h, "--scheme");
 }
 
 #[test]
 fn i1_convert() {
-    // --to address (no --template): --script-type + --path Required; --xpub-prefix
+    // --to address (no --scheme): --script-type + --path Required; --xpub-prefix
     // + --electrum-version Disabled.
     let h = form(CliTab::Mnemonic, "convert", s_convert_address);
     assert_enabled(&h, "--script-type");
@@ -336,21 +336,21 @@ fn i1_convert() {
     assert_disabled(&h, "--xpub-prefix");
     assert_disabled(&h, "--electrum-version");
 
-    // --to phrase: --script-type / --path / --template Disabled.
+    // --to phrase: --script-type / --path / --scheme Disabled.
     let h = form(CliTab::Mnemonic, "convert", s_convert_phrase);
     assert_disabled(&h, "--script-type");
     assert_disabled(&h, "--path");
-    assert_disabled(&h, "--template");
+    assert_disabled(&h, "--scheme");
 }
 
 #[test]
 fn i1_export_wallet() {
-    // Descriptor mode (--template kept empty): --template Disabled; --descriptor
+    // Descriptor mode (--scheme kept empty): --scheme Disabled; --descriptor
     // enabled. (The "neither set ⇒ both Required" arm is NOT render-reachable —
-    // the form-loop auto-seeds --template to a present opts[0] on a fresh form,
+    // the form-loop auto-seeds --scheme to a present opts[0] on a fresh form,
     // so `has_template` is always true there; tested via the seeded modes below.)
     let h = form(CliTab::Mnemonic, "export-wallet", s_export_descriptor);
-    assert_disabled(&h, "--template");
+    assert_disabled(&h, "--scheme");
     assert_enabled(&h, "--descriptor");
 
     // Taproot multi-leaf template: --taproot-internal-key Required; --descriptor
@@ -373,22 +373,22 @@ fn i1_export_wallet() {
 
 #[test]
 fn i1_build_descriptor() {
-    // --spec set (archetype EMPTY ⇒ no mode suppression): --archetype Disabled,
+    // --spec set (archetype EMPTY ⇒ no mode suppression): --scheme Disabled,
     // --spec present + enabled.
     let h = form(CliTab::Mnemonic, "build-descriptor", s_build_spec);
-    assert_disabled(&h, "--archetype");
+    assert_disabled(&h, "--scheme");
     assert_enabled(&h, "--spec");
 
     // Archetype mode: --spec is mode-suppressed (ABSENT) by
-    // `suppressed_in_archetype_mode`; --archetype stays present + enabled.
+    // `suppressed_in_archetype_mode`; --scheme stays present + enabled.
     let h = form(CliTab::Mnemonic, "build-descriptor", s_build_archetype);
     assert_absent(&h, "--spec");
-    assert_enabled(&h, "--archetype");
+    assert_enabled(&h, "--scheme");
 
-    // Tree mode: --spec / --archetype / --emit-spec all mode-suppressed (ABSENT).
+    // Tree mode: --spec / --scheme / --emit-spec all mode-suppressed (ABSENT).
     let h = form(CliTab::Mnemonic, "build-descriptor", s_build_tree);
     assert_absent(&h, "--spec");
-    assert_absent(&h, "--archetype");
+    assert_absent(&h, "--scheme");
     assert_absent(&h, "--emit-spec");
 }
 
@@ -1036,7 +1036,7 @@ fn i3_visibility_projection_roundtrip_universal() {
         (CliTab::Ms, "encode", s_ms_encode_hex, "--hex"),
         (CliTab::Mk, "encode", s_mk_encode_fp, "--origin-fingerprint"),
         (CliTab::Md, "compile", s_md_compile_segwit, "--context"),
-        (CliTab::Mnemonic, "export-wallet", s_export_tr, "--template"),
+        (CliTab::Mnemonic, "export-wallet", s_export_tr, "--scheme"),
         // slip39-combine: OFF (no --to) already Hides --language (`to.is_none()`),
         // so the non-vacuous toggle is --to=phrase (which UN-hides --language).
         (CliTab::Mnemonic, "slip39-combine", s_slip39_combine_phrase, "--to"),

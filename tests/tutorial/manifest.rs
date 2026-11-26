@@ -9,12 +9,12 @@
 //!   - **F2**: engrave-shape bundle + export-wallet descriptor inputs ride
 //!     `--descriptor` TEXT, not `--descriptor-file` (ruling 6).
 //!
-//! The restore-form single-sig `--template` leak (a real GUI papercut found at
+//! The restore-form single-sig `--scheme` leak (a real GUI papercut found at
 //! P1.5) is now FIXED (P1.3 `RESTORE_TEMPLATES` A1-APPEND `(none)`): the six
 //! restore steps set **Template → `(none)`** (the `""` sentinel), which the CLI
 //! accepts in `--md1` mode by dropping the refused single-sig template. This is
 //! the clean md1 restore the tutorial now teaches. Output is byte-identical to
-//! the old MULTISIG-`--template` route-around (P1.3-verified: the multisig
+//! the old MULTISIG-`--scheme` route-around (P1.3-verified: the multisig
 //! template was inert in md1 mode), so the restore transcripts do NOT move.
 
 use super::{
@@ -113,7 +113,7 @@ const fn refusal_step(
 macro_rules! export_descriptor_text {
     ($val:expr, $fmt:expr) => {
         &[
-            Drive::SelectDropdown { flag: "--template", value: "" },
+            Drive::SelectDropdown { flag: "--scheme", value: "" },
             Drive::TypeText { flag: "--descriptor", value: $val },
             Drive::SelectDropdown { flag: "--format", value: $fmt },
         ]
@@ -122,7 +122,7 @@ macro_rules! export_descriptor_text {
 macro_rules! export_descriptor_fixture {
     ($fix:expr, $fmt:expr) => {
         &[
-            Drive::SelectDropdown { flag: "--template", value: "" },
+            Drive::SelectDropdown { flag: "--scheme", value: "" },
             Drive::TypeTextFromFixture { flag: "--descriptor", fixture: $fix },
             Drive::SelectDropdown { flag: "--format", value: $fmt },
         ]
@@ -135,21 +135,21 @@ macro_rules! convert_drives {
         &[
             Drive::TypeComposite { flag: "--from", node: "phrase", value: $seed },
             Drive::SelectRowDropdown { flag: "--to", next_flag: "--network", value: $to },
-            Drive::SelectDropdown { flag: "--template", value: "wsh-sortedmulti" },
+            Drive::SelectDropdown { flag: "--scheme", value: "wsh-sortedmulti" },
         ]
     };
 }
 
-/// restore-from-md1 drives: `--template` set to `(none)` (the `""` sentinel) +
+/// restore-from-md1 drives: `--scheme` set to `(none)` (the `""` sentinel) +
 /// the md1 chain. P1.4: the papercut is FIXED (P1.3 `RESTORE_TEMPLATES`
 /// A1-APPEND), so the tutorial teaches the CLEAN md1 restore — `(none)` drops the
 /// single-sig template the CLI refuses in `--md1` mode. Output is byte-identical
-/// to the old multisig-`--template` route-around (P1.3-verified: the multisig
+/// to the old multisig-`--scheme` route-around (P1.3-verified: the multisig
 /// template was inert in md1 mode), so the transcripts do NOT move.
 macro_rules! restore_drives {
     ($template:expr, $feed:expr) => {
         &[
-            Drive::SelectDropdown { flag: "--template", value: $template },
+            Drive::SelectDropdown { flag: "--scheme", value: $template },
             Drive::TypeMd1Chain { flag: "--md1", chain_from: $feed },
         ]
     };
@@ -249,7 +249,7 @@ pub const MANIFEST: &[Step] = &[
         subcommand: "bundle",
         select: None,
         drives: &[
-            Drive::SelectDropdown { flag: "--template", value: "wsh-sortedmulti" },
+            Drive::SelectDropdown { flag: "--scheme", value: "wsh-sortedmulti" },
             Drive::SelectDropdown { flag: "--multisig-path-family", value: "bip87" },
             Drive::AddSlots { count: 2 },
             Drive::SetSlotIndex { occ: 1, index: 1 },
@@ -366,12 +366,12 @@ pub const MANIFEST: &[Step] = &[
           Drive::ToggleBoolean { flag: "--json" }]),
     // 23. restore --format descriptor (chained md1 → bare canonical descriptor).
     run_step("tut-j5-23-restore-descriptor", "restore", Some(HN_RESTORE),
-        &[Drive::SelectDropdown { flag: "--template", value: "" },
+        &[Drive::SelectDropdown { flag: "--scheme", value: "" },
           Drive::SelectDropdown { flag: "--format", value: "descriptor" },
           Drive::TypeMd1Chain { flag: "--md1", chain_from: "tut-j5-22-bundle-json" }]),
     // 24. restore --format bitcoin-core (chained md1 → importdescriptors array).
     run_step("tut-j5-24-restore-core", "restore", Some(HN_RESTORE),
-        &[Drive::SelectDropdown { flag: "--template", value: "" },
+        &[Drive::SelectDropdown { flag: "--scheme", value: "" },
           Drive::SelectDropdown { flag: "--format", value: "bitcoin-core" },
           Drive::TypeMd1Chain { flag: "--md1", chain_from: "tut-j5-22-bundle-json" }]),
 ];

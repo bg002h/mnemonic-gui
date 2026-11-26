@@ -34,7 +34,7 @@ pub const SINGLE_SIG_TEMPLATES: &[&str] = &["bip44", "bip49", "bip84", "bip86"];
 /// `crates/mnemonic-toolkit/src/template.rs::CliTemplate::is_multisig()`
 /// returning `true`. v0.7.0 SPEC §6.10.7 v3-cycle uses this list for
 /// the bundle row-11 `disable_options` visibility projection
-/// (`slot_count_eq: 1` → `--template` multisig options greyed out).
+/// (`slot_count_eq: 1` → `--scheme` multisig options greyed out).
 /// Parity with the toolkit's `meta.template_groups.multisig` is gated
 /// by `tests/schema_mirror.rs` (sibling of the SINGLE_SIG parity test).
 pub const MULTISIG_TEMPLATES: &[&str] = &[
@@ -49,6 +49,13 @@ pub const MULTISIG_TEMPLATES: &[&str] = &[
     "tr-multi-a",
     "tr-sortedmulti-a",
 ];
+
+/// The toolkit subcommands whose `--scheme` is the named-wallet-scheme
+/// dropdown (`CliTemplate`; `--template` before the 2026-11-26 rename).
+/// `build-descriptor --scheme` (ex-`--archetype`) is a different value set
+/// and is deliberately absent.
+pub const SCHEME_TEMPLATE_SUBCOMMANDS: &[&str] =
+    &["bundle", "verify-bundle", "convert", "export-wallet", "restore"];
 
 /// SPEC §6.10.7 taproot-multi-leaf template set (templates that require an
 /// explicit internal key). Same source-of-truth + drift-gate posture as
@@ -144,13 +151,13 @@ fn is_descriptor_non_canonical(state: &FormState) -> bool {
 }
 
 /// v0.6.0 P4 — return the template-aware default flag values for a given
-/// `--template` selection. Single-sig templates have no template-specific
+/// `--scheme` selection. Single-sig templates have no template-specific
 /// defaults (the universal defaults at the form-state seed already cover
 /// `--network` / `--account`). Multisig templates default `--threshold = 2`
 /// AND `--multisig-path-family = bip48` so the form is one-click-runnable
 /// after the user picks a multisig template.
 ///
-/// The egui-frame hook in `main.rs` consumes this on `--template` change,
+/// The egui-frame hook in `main.rs` consumes this on `--scheme` change,
 /// applying defaults ONLY to flags that aren't already set (seed-on-empty
 /// pattern — preserves any value the user explicitly typed across template
 /// switches). The visibility gate handles the inverse direction (single-sig
@@ -169,7 +176,7 @@ pub fn template_defaults_for(template: &str) -> Vec<(&'static str, crate::schema
         Vec::new()
     } else {
         // All other templates are multisig (or external like --descriptor
-        // mode, which doesn't use --template). Seed canonical defaults.
+        // mode, which doesn't use --scheme). Seed canonical defaults.
         vec![
             ("--threshold", FlagValue::Number(2)),
             ("--multisig-path-family", FlagValue::Dropdown("bip48".into())),
@@ -179,7 +186,7 @@ pub fn template_defaults_for(template: &str) -> Vec<(&'static str, crate::schema
 
 fn template_is_in(state: &FormState, names: &[&str]) -> bool {
     state
-        .dropdown_value("--template")
+        .dropdown_value("--scheme")
         .map(|v| names.contains(&v))
         .unwrap_or(false)
 }
@@ -187,7 +194,7 @@ fn template_is_in(state: &FormState, names: &[&str]) -> bool {
 /// `bundle` subcommand conditionals.
 ///
 /// Upstream (`crates/mnemonic-toolkit/src/cmd/bundle.rs`):
-///   :25 `--template` required_unless_present_any = ["descriptor", "descriptor_file"]
+///   :25 `--scheme` required_unless_present_any = ["descriptor", "descriptor_file"]
 ///   :30 `--descriptor` conflicts_with = "descriptor_file"
 ///   :51 (v0.13.0 drift fix) `--passphrase-stdin` conflicts_with = "passphrase"
 pub fn bundle(state: &FormState) -> FlagVisibility {
@@ -199,7 +206,7 @@ pub fn bundle(state: &FormState) -> FlagVisibility {
     let template_is_single_sig = template_is_in(state, SINGLE_SIG_TEMPLATES);
 
     if !has_descriptor && !has_descriptor_file {
-        vis.push(("--template", Visibility::Required));
+        vis.push(("--scheme", Visibility::Required));
     }
     if has_descriptor_file {
         vis.push(("--descriptor", Visibility::Disabled));
@@ -214,14 +221,14 @@ pub fn bundle(state: &FormState) -> FlagVisibility {
     if has_passphrase_stdin {
         vis.push(("--passphrase", Visibility::Disabled));
     }
-    // v0.16.0 SPEC §6.10.7: descriptor-mode disables --template /
+    // v0.16.0 SPEC §6.10.7: descriptor-mode disables --scheme /
     // --threshold / --multisig-path-family. Emit BEFORE the single-sig
     // template rules so first-rule-wins per `main.rs:391-394` picks the
     // more-specific predicate. SPEC §6.6 row 2 +
     // bundle.rs::mode_text::{DESCRIPTOR_AND_TEMPLATE, DESCRIPTOR_WITH_THRESHOLD,
     // DESCRIPTOR_WITH_PATH_FAMILY}.
     if has_descriptor {
-        vis.push(("--template", Visibility::Disabled));
+        vis.push(("--scheme", Visibility::Disabled));
         vis.push(("--threshold", Visibility::Disabled));
         vis.push(("--multisig-path-family", Visibility::Disabled));
         // v0.17.0 SPEC §6.10.7 row 12 (DESCRIPTOR_WITH_NONZERO_ACCOUNT):
@@ -270,7 +277,7 @@ pub fn bundle(state: &FormState) -> FlagVisibility {
 
 /// v0.7.2 SPEC §6.6 rows 10/11 — GUI-internal template/slot_count
 /// mismatch detector. Returns `Some(warning_text)` when the chosen
-/// `--template` value combined with the current `slot_count` would
+/// `--scheme` value combined with the current `slot_count` would
 /// fail CLI row 10 or row 11 at runtime; `None` otherwise.
 ///
 /// The returned text is rendered as an inline warning banner adjacent
@@ -283,7 +290,7 @@ pub fn bundle(state: &FormState) -> FlagVisibility {
 /// The CLI's mode-violation ladder (§6.6 rows 10/11) remains the
 /// authoritative gate.
 ///
-/// `template` is `None` when descriptor mode is active (`--template`
+/// `template` is `None` when descriptor mode is active (`--scheme`
 /// disabled by the v0.16.0 mutex rule); the warning suppresses there.
 /// v0.8.1 F3 — `coin_type` for the `--network` dropdown value. Mirrors
 /// `mnemonic-toolkit::network::CliNetwork::coin_type` semantics inline
@@ -374,7 +381,7 @@ pub fn template_slot_count_warning(
 /// `verify-bundle` subcommand conditionals.
 ///
 /// Upstream (`crates/mnemonic-toolkit/src/cmd/verify_bundle.rs`):
-///   :28 `--template`     required_unless_present_any = ["descriptor", "descriptor_file"]
+///   :28 `--scheme`     required_unless_present_any = ["descriptor", "descriptor_file"]
 ///   :32 `--descriptor`   conflicts_with = "descriptor_file"
 ///   :51 (v0.13.0 drift fix) `--passphrase-stdin` conflicts_with = "passphrase"
 ///   :54 `--ms1`          conflicts_with = "bundle_json"
@@ -396,7 +403,7 @@ pub fn verify_bundle(state: &FormState) -> FlagVisibility {
 
     // Descriptor-side mutual-required-one-of + XOR.
     if !has_descriptor && !has_descriptor_file {
-        vis.push(("--template", Visibility::Required));
+        vis.push(("--scheme", Visibility::Required));
     }
     if has_descriptor_file {
         vis.push(("--descriptor", Visibility::Disabled));
@@ -404,10 +411,10 @@ pub fn verify_bundle(state: &FormState) -> FlagVisibility {
     if has_descriptor {
         vis.push(("--descriptor-file", Visibility::Disabled));
     }
-    // v0.16.0 SPEC §6.10.7: --template disabled when --descriptor present
+    // v0.16.0 SPEC §6.10.7: --scheme disabled when --descriptor present
     // (mirrors bundle rule). SPEC §6.6 row 2 (verify-bundle mirror).
     if has_descriptor {
-        vis.push(("--template", Visibility::Disabled));
+        vis.push(("--scheme", Visibility::Disabled));
     }
     // v0.16.0 SPEC §6.10.7: single-sig template disables --threshold
     // (mirrors bundle rule T1).
@@ -505,7 +512,7 @@ pub fn convert(state: &FormState) -> FlagVisibility {
     let to_has_xpub = to_contains(state, "xpub");
     let to_has_xprv = to_contains(state, "xprv");
     let to_has_fingerprint = to_contains(state, "fingerprint");
-    let has_template = state.has_value("--template");
+    let has_template = state.has_value("--scheme");
 
     // Gap 1 + 2: --electrum-version / --electrum-language are used ONLY by
     // the (entropy, electrum-phrase) encode arm (convert.rs:1138-1151) and
@@ -518,7 +525,7 @@ pub fn convert(state: &FormState) -> FlagVisibility {
 
     // Gap 3: --script-type is used ONLY by (*, address) edges via
     // `resolve_script_type` (convert.rs:1461-1469).
-    //   - Required when --to contains "address" AND no --template (else
+    //   - Required when --to contains "address" AND no --scheme (else
     //     the toolkit refuses with `refusal_address_no_script_type` when
     //     both are absent).
     //   - Disabled when --to does NOT contain "address".
@@ -532,7 +539,7 @@ pub fn convert(state: &FormState) -> FlagVisibility {
         vis.push(("--script-type", Visibility::Disabled));
     }
 
-    // Gap 4: --template is consumed by TWO paths in convert.rs:
+    // Gap 4: --scheme is consumed by TWO paths in convert.rs:
     //   - Phrase/Entropy → {Xpub, Xprv, Fingerprint} derivation
     //     (convert.rs:1049-1063 — `needs_derive` gate).
     //   - resolve_script_type for (*, Address) script-type inference
@@ -542,7 +549,7 @@ pub fn convert(state: &FormState) -> FlagVisibility {
     // legitimate phrase→xpub template-derivation case; we widen to match
     // toolkit ground truth.)
     if !to_has_address && !to_has_xpub && !to_has_xprv && !to_has_fingerprint {
-        vis.push(("--template", Visibility::Disabled));
+        vis.push(("--scheme", Visibility::Disabled));
     }
 
     // Gap 5: --path is consumed when --to contains any of:
@@ -552,7 +559,7 @@ pub fn convert(state: &FormState) -> FlagVisibility {
     //              refusal helper as wif)
     //   - address (convert.rs:1164 / 1216 phrase|entropy→address and
     //              xpub→address; toolkit refuses with refusal_address_no_path)
-    // --path is mandatory for these edges regardless of --template
+    // --path is mandatory for these edges regardless of --scheme
     // (template feeds script-type, NOT path inference — line 1465 only
     // routes to script_type_from_template). Disable when --to has none
     // of {wif, bip38, address}.
@@ -578,9 +585,9 @@ pub fn convert(state: &FormState) -> FlagVisibility {
 /// `export-wallet` subcommand conditionals.
 ///
 /// Upstream:
-///   `cmd/export_wallet.rs:43`      — `--template conflicts_with = "descriptor"`
+///   `cmd/export_wallet.rs:43`      — `--scheme conflicts_with = "descriptor"`
 ///   `cmd/export_wallet.rs:215-219` — runtime pre-check: neither flag set → BadInput
-///                                    "export-wallet requires either --template or --descriptor"
+///                                    "export-wallet requires either --scheme or --descriptor"
 ///
 /// Phase 5 R1 I-1 fold: model BOTH the clap conflicts_with AND the runtime
 /// required-one-of pre-check, since the upstream help text already labels
@@ -589,12 +596,12 @@ pub fn convert(state: &FormState) -> FlagVisibility {
 pub fn export_wallet(state: &FormState) -> FlagVisibility {
     let mut vis = Vec::new();
     let has_descriptor = state.has_value("--descriptor");
-    let has_template = state.has_value("--template");
+    let has_template = state.has_value("--scheme");
     let template_is_single_sig = template_is_in(state, SINGLE_SIG_TEMPLATES);
     let template_needs_tr_internal_key = template_is_in(state, TAPROOT_INTERNAL_KEY_TEMPLATES);
 
     if has_descriptor {
-        vis.push(("--template", Visibility::Disabled));
+        vis.push(("--scheme", Visibility::Disabled));
     }
     if has_template {
         vis.push(("--descriptor", Visibility::Disabled));
@@ -603,7 +610,7 @@ pub fn export_wallet(state: &FormState) -> FlagVisibility {
     // upstream refuses with BadInput. Mark both as Required so the form
     // signals the constraint pre-Run.
     if !has_descriptor && !has_template {
-        vis.push(("--template", Visibility::Required));
+        vis.push(("--scheme", Visibility::Required));
         vis.push(("--descriptor", Visibility::Required));
     }
     // v0.16.0 SPEC §6.10.7: --taproot-internal-key is Required when the
@@ -626,11 +633,11 @@ pub fn export_wallet(state: &FormState) -> FlagVisibility {
 
 /// `build-descriptor` subcommand conditionals (v0.30.0).
 ///
-/// Upstream (toolkit presets, v0.51.0/v0.52.0): `--archetype` conflicts_with
+/// Upstream (toolkit presets, v0.51.0/v0.52.0): `--scheme` conflicts_with
 /// `--spec` — a curated preset and a hand-written node-tree spec are
 /// exclusive input modes. Mirrors the `export_wallet` mutex pattern above.
 ///
-/// `--archetype`'s `""` UNSET sentinel (v0.30.0 R0-r1 C1): `has_value` is
+/// `--scheme`'s `""` UNSET sentinel (v0.30.0 R0-r1 C1): `has_value` is
 /// `false` for an empty Dropdown, so the default form (seeded `Dropdown("")`)
 /// leaves `--spec` enabled; selecting an archetype disables `--spec`;
 /// re-selecting the "(none)" row re-enables it (R0-r2 I-1 round-trip).
@@ -646,10 +653,10 @@ pub fn export_wallet(state: &FormState) -> FlagVisibility {
 /// (argv-suppressed); declared params stay un-overridden (they must emit).
 ///
 /// v0.32.0 adds the TREE-mode arm (node-tree SPEC §0 mode mutex): tree
-/// enabled ⇒ `--spec` + `--archetype` `Disabled` AND ALL TEN
+/// enabled ⇒ `--spec` + `--scheme` `Disabled` AND ALL TEN
 /// `requires = "archetype"` flags `Hidden` (the 9 params + `--emit-spec` —
 /// a stale checked `--emit-spec` would emit the bare flag with
-/// `--archetype` suppressed and clap-fail every tree-mode run; brainstorm
+/// `--scheme` suppressed and clap-fail every tree-mode run; brainstorm
 /// R0-r2 I-1). Both Disabled and Hidden suppress argv, so stale-populated
 /// values from the other two modes NEVER ride a tree-mode run. The tree
 /// arm returns early — it overrides the dropdown-derived rules below.
@@ -657,7 +664,7 @@ pub fn build_descriptor(state: &FormState) -> FlagVisibility {
     if state.tree.as_ref().is_some_and(|t| t.enabled) {
         let mut vis: FlagVisibility = vec![
             ("--spec", Visibility::Disabled),
-            ("--archetype", Visibility::Disabled),
+            ("--scheme", Visibility::Disabled),
             ("--emit-spec", Visibility::Hidden),
         ];
         for &name in crate::schema::archetypes::ARCHETYPE_PARAM_FLAGS {
@@ -666,13 +673,13 @@ pub fn build_descriptor(state: &FormState) -> FlagVisibility {
         return vis;
     }
     let mut vis = Vec::new();
-    if state.has_value("--archetype") {
+    if state.has_value("--scheme") {
         vis.push(("--spec", Visibility::Disabled));
     }
     if state.has_value("--spec") {
-        vis.push(("--archetype", Visibility::Disabled));
+        vis.push(("--scheme", Visibility::Disabled));
     }
-    // v0.31.0 (archetype forms SPEC §5): when --archetype is a non-empty
+    // v0.31.0 (archetype forms SPEC §5): when --scheme is a non-empty
     // ARCHETYPE_SPECS id, each of the 9 param flags NOT declared by that
     // archetype is Hidden — the toolkit refuses inapplicable params, and
     // the assembler already suppresses Hidden flags, so stale rows carried
@@ -680,7 +687,7 @@ pub fn build_descriptor(state: &FormState) -> FlagVisibility {
     // here (they must emit; the host loop's name-set `continue` handles
     // their render suppression — NOT Hidden, see archetype_form). The
     // `--spec` handling above is UNCHANGED (still Disabled — cell_13).
-    if let Some(id) = state.dropdown_value("--archetype") {
+    if let Some(id) = state.dropdown_value("--scheme") {
         if let Some(spec) = crate::schema::archetypes::find(id) {
             for &name in crate::schema::archetypes::ARCHETYPE_PARAM_FLAGS {
                 if !spec.params.iter().any(|p| p.flag == name) {
@@ -1120,22 +1127,22 @@ pub fn ms_combine(state: &FormState) -> FlagVisibility {
 
 // ─── DESIGN secret channels Part B: the five forms ──────────────────────────
 
-/// B1 `md compose`: `--path` (repeating) XOR `--preset` (clap "cannot be used
+/// B1 `md compose`: `--path` (repeating) XOR `--scheme` (clap "cannot be used
 /// with"; one of them is needed), and `--unspendable` only with `--wrapper
 /// tr` (md refuses it with `wsh`, exit 1) — greyed otherwise.
 pub fn md_compose(state: &FormState) -> FlagVisibility {
     let mut vis = Vec::new();
     let has_path = state.has_value("--path");
-    let has_preset = state.has_value("--preset");
+    let has_scheme = state.has_value("--scheme");
     if has_path {
-        vis.push(("--preset", Visibility::Disabled));
+        vis.push(("--scheme", Visibility::Disabled));
     }
-    if has_preset {
+    if has_scheme {
         vis.push(("--path", Visibility::Disabled));
     }
-    if !has_path && !has_preset {
+    if !has_path && !has_scheme {
         vis.push(("--path", Visibility::Required));
-        vis.push(("--preset", Visibility::Required));
+        vis.push(("--scheme", Visibility::Required));
     }
     if state.dropdown_value("--wrapper") != Some("tr") {
         vis.push(("--unspendable", Visibility::Disabled));

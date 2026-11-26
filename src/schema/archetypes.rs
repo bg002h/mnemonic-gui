@@ -42,7 +42,7 @@ pub struct ArchetypeSpec {
     /// Archetype id — equals an `ARCHETYPES` const value (minus the GUI's
     /// `""` UNSET sentinel).
     pub id: &'static str,
-    /// Toolkit registry summary, shown under the `--archetype` dropdown.
+    /// Toolkit registry summary, shown under the `--scheme` dropdown.
     pub summary: &'static str,
     /// Params in toolkit schema order (render order is load-bearing).
     pub params: &'static [ArchetypeParamSpec],
@@ -297,16 +297,16 @@ mod tests {
             .expect("build-descriptor must appear in mnemonic SUBCOMMANDS")
     }
 
-    /// The `--archetype` Dropdown options minus the leading `""` UNSET
+    /// The `--scheme` Dropdown options minus the leading `""` UNSET
     /// sentinel — the public route to the private `ARCHETYPES` const.
     fn archetype_dropdown_values() -> &'static [&'static str] {
         let flag = build_descriptor_sub()
             .flags
             .iter()
-            .find(|f| f.name == "--archetype")
-            .expect("--archetype flag");
+            .find(|f| f.name == "--scheme")
+            .expect("--scheme flag");
         let FlagKind::Dropdown(opts) = flag.kind else {
-            panic!("--archetype must be a Dropdown");
+            panic!("--scheme must be a Dropdown");
         };
         assert_eq!(opts.first(), Some(&""), "ARCHETYPES[0] is the sentinel");
         &opts[1..]

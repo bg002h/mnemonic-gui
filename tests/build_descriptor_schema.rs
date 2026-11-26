@@ -18,7 +18,7 @@
 //!      broken form. Pinning Path guards against a regression to Text.
 //!   3. argv assembly is panic-free for build-descriptor's flag kinds and the
 //!      default (empty) form emits no `--spec`;
-//!   4. `--archetype` value-list pin: `ARCHETYPES` = the `""` UNSET sentinel
+//!   4. `--scheme` value-list pin: `ARCHETYPES` = the `""` UNSET sentinel
 //!      (R0-r1 C1) + the 5 binary archetypes in `CliArchetype` order, with
 //!      `default_value: Some("")` so the seeded form emits nothing;
 //!   5. `--allow` value-list pin: byte-equal to the binary's 5 sanity-rule
@@ -55,7 +55,7 @@ fn build_descriptor_flag_set_matches_v0_52_0_surface() {
         "--allow",
         // F-679: toolkit v0.104.0's global secret-on-argv opt-in (GUI-managed).
         "--allow-argv-secret",
-        "--archetype",
+        "--scheme",
         "--emit-spec",
         "--final-key",
         "--format",
@@ -122,9 +122,9 @@ fn build_descriptor_argv_assembles_without_panic() {
 
 #[test]
 fn build_descriptor_archetype_values_pin_v0_52_0() {
-    let archetype = flag("--archetype");
+    let archetype = flag("--scheme");
     let FlagKind::Dropdown(opts) = &archetype.kind else {
-        panic!("--archetype must be a Dropdown");
+        panic!("--scheme must be a Dropdown");
     };
     // The leading "" is the GUI-side UNSET sentinel (R0-r1 C1) — NOT part
     // of the binary's value list (an empty Dropdown is never emitted).
@@ -143,15 +143,15 @@ fn build_descriptor_archetype_values_pin_v0_52_0() {
             "tiered-recovery",
         ],
         "ARCHETYPES minus the sentinel must byte-equal the v0.52.0 binary's \
-         --archetype possible-values (CliArchetype order)"
+         --scheme possible-values (CliArchetype order)"
     );
     assert_eq!(
         archetype.default_value,
         Some(""),
-        "--archetype default_value must be the \"\" sentinel so the seeded \
-         default form emits no --archetype and the spec mutex stays open"
+        "--scheme default_value must be the \"\" sentinel so the seeded \
+         default form emits no --scheme and the spec mutex stays open"
     );
-    assert!(!archetype.repeating, "--archetype is single-valued");
+    assert!(!archetype.repeating, "--scheme is single-valued");
 }
 
 #[test]

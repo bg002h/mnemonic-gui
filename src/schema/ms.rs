@@ -329,9 +329,10 @@ const VECTORS_FLAGS: &[FlagSchema] = &[FlagSchema {
 const VECTORS_POSITIONALS: &[PositionalArgSchema] = &[];
 
 // ─── derive (v0.5) ───────────────────────────────────────────────────────
-// `ms derive [ms1] [--hex|--phrase] [--template] [--account] [--network]
+// `ms derive [ms1] [--hex|--phrase] [--origin-path] [--account] [--network]
 //            [--passphrase|--passphrase-stdin] [--language] [--json]`.
-// `--template`/`--network`/`--language` reflect as ValueEnum dropdowns;
+// `--origin-path` (`--template` before the 2026-11-26 rename, now a hidden
+// alias)/`--network`/`--language` reflect as ValueEnum dropdowns;
 // `--account` reflects as text (ms-cli gui-schema classifies u32 as text).
 const DERIVE_FLAGS: &[FlagSchema] = &[
     FlagSchema {
@@ -355,7 +356,7 @@ const DERIVE_FLAGS: &[FlagSchema] = &[
         global: false,
     },
     FlagSchema {
-        name: "--template",
+        name: "--origin-path",
         // Order is upstream's, verified against `ms gui-schema` (the CLI's own
         // JSON) rather than its --help prose. The three bip48-* entries are
         // MULTISIG account paths at depth 4; the first four are single-sig at
@@ -375,8 +376,8 @@ const DERIVE_FLAGS: &[FlagSchema] = &[
         ]),
         required: false,
         repeating: false,
-        help: "Account-path template; emits an account xpub. bip44/49/84/86 are \
-               single-sig account paths; the bip48-* variants are multisig \
+        help: "Named account path (a derivation scheme); emits an account xpub. \
+               bip44/49/84/86 are single-sig account paths; the bip48-* variants are multisig \
                account paths (m/48'/coin'/account'/script'); bip48-p2tr is the \
                taproot-multisig convention (script 3'); bg002h-tr / bg002h-wsh \
                are the constellation's own paths (m/270028'/coin'/account'/0' \
@@ -390,7 +391,7 @@ const DERIVE_FLAGS: &[FlagSchema] = &[
         kind: FlagKind::Text,
         required: false,
         repeating: false,
-        help: "Account index for --template (default 0).",
+        help: "Account index for --origin-path (default 0).",
         secret: false,
         default_value: Some("0"),
         global: false,

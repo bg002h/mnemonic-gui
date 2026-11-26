@@ -173,7 +173,7 @@ fn gui_render_emit_is_faithful_to_real_form_for_all_61_forms() {
         // re-evaluates `conditional` to convergence. Both sides therefore reflect
         // the same on-load fixed point, so presence AND disabled compare
         // like-for-like — e.g. on bundle/verify-bundle/export-wallet the seeded
-        // single-sig `--template -> bip44` greys the multisig-only
+        // single-sig `--scheme -> bip44` greys the multisig-only
         // `--threshold`/`--multisig-path-family` (+ export-wallet `--descriptor`)
         // on BOTH sides.
         let wf = ui_harness::render_extended_form_harness(tab, sub, render_fixture(tab, sub.name));

@@ -284,7 +284,7 @@ const PWSENT: &str = "PASSWORDsentinel9";
 fn restore_state(from: &str, pw: &str) -> FormState {
     let mut st = FormState::from_pairs(vec![
         ("--from", FlagValue::Text(from.into())),
-        ("--template", FlagValue::Dropdown("bip84".into())),
+        ("--scheme", FlagValue::Dropdown("bip84".into())),
     ]);
     st.secret_widgets
         .insert("--passphrase".into(), vec![SecretLineEdit::from_text(pw)]);
@@ -524,7 +524,7 @@ fn t6_shell_leg_printed_recipes_equal_argv_exact_in_bash_zsh_fish() {
             "--allow-argv-secret",
             "--from",
             &format!("phrase={P}"),
-            "--template",
+            "--scheme",
             "bip84",
             "--passphrase",
             v,
@@ -563,7 +563,7 @@ fn t6_shell_leg_printed_recipes_equal_argv_exact_in_bash_zsh_fish() {
             &format!("phrase={P}"),
             "--to",
             "xpub",
-            "--template",
+            "--scheme",
             "bip84",
             "--passphrase",
             v,

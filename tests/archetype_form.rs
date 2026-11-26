@@ -48,12 +48,12 @@ fn occurrences(argv: &[String], flag: &str) -> Vec<String> {
 /// FormState with rows for ALL 9 archetype params + two mode-independent
 /// flags, plus the selected archetype. NO `--spec` row: a populated
 /// `--spec` fires the OTHER direction of the v0.30.0 mutex (`--spec`
-/// present → `--archetype` Disabled → neither emits), a state the live
+/// present → `--scheme` Disabled → neither emits), a state the live
 /// form can't reach (the `--spec` widget is Disabled the moment an
 /// archetype is selected, and suppressed entirely in archetype mode).
 fn state_with_all_nine_params(archetype: &str) -> FormState {
     FormState::from_pairs(vec![
-        ("--archetype", FlagValue::Dropdown(archetype.into())),
+        ("--scheme", FlagValue::Dropdown(archetype.into())),
         ("--key", FlagValue::Text("xpubKEY1".into())),
         ("--key", FlagValue::Text("xpubKEY2".into())),
         ("--threshold", FlagValue::Number(2)),
@@ -92,7 +92,7 @@ fn assert_only_declared_params_emit(id: &str) {
         "{id}: --spec must not emit in archetype mode: {argv:?}",
     );
     assert_eq!(
-        occurrences(&argv, "--archetype"),
+        occurrences(&argv, "--scheme"),
         [id],
         "{id}: the selected archetype must emit: {argv:?}",
     );
@@ -131,7 +131,7 @@ fn cell_kofn_happy_path_argv_shape() {
     // SPEC §6: the kofn happy path end-to-end — state → exact argv (flag
     // emission order = schema declaration order; row order = quorum order).
     let state = FormState::from_pairs(vec![
-        ("--archetype", FlagValue::Dropdown("kofn-recovery".into())),
+        ("--scheme", FlagValue::Dropdown("kofn-recovery".into())),
         ("--key", FlagValue::Text("xpubA".into())),
         ("--key", FlagValue::Text("xpubB".into())),
         ("--threshold", FlagValue::Number(2)),
@@ -144,7 +144,7 @@ fn cell_kofn_happy_path_argv_shape() {
         [
             "mnemonic",
             "build-descriptor",
-            "--archetype",
+            "--scheme",
             "kofn-recovery",
             "--key",
             "xpubA",
@@ -196,7 +196,7 @@ fn cell_from_row_count_counts_all_rows_floors_at_one() {
 
 /// Harness mirroring main.rs's dispatch: the generic per-flag loop with the
 /// archetype-mode name-set `continue`, plus `archetype_form::render` under
-/// the `--archetype` dropdown. The form logic under test is entirely the
+/// the `--scheme` dropdown. The form logic under test is entirely the
 /// library's (`active_archetype` / `suppressed_in_archetype_mode` /
 /// `render`); this closure is dispatch-only, like main.rs.
 fn dispatch_form_harness(initial: FormState) -> Harness<'static, FormState> {
@@ -218,7 +218,7 @@ fn dispatch_form_harness(initial: FormState) -> Harness<'static, FormState> {
                     state,
                     &[],
                 );
-                if flag.name == "--archetype" {
+                if flag.name == "--scheme" {
                     if let Some(spec) = spec {
                         archetype_form::render(
                             ui,
@@ -235,16 +235,16 @@ fn dispatch_form_harness(initial: FormState) -> Harness<'static, FormState> {
     )
 }
 
-/// Set the stored `--archetype` Dropdown row to `id` (what selecting a row
+/// Set the stored `--scheme` Dropdown row to `id` (what selecting a row
 /// in the combobox popup does; the popup-interaction path itself is pinned
 /// by `repeating_rows::cell_archetype_unset_sentinel_displays_as_none_label`).
 fn select_archetype(state: &mut FormState, id: &str) {
-    if let Some(row) = state.values.iter_mut().find(|(k, _)| k == "--archetype") {
+    if let Some(row) = state.values.iter_mut().find(|(k, _)| k == "--scheme") {
         row.1 = FlagValue::Dropdown(id.to_string());
     } else {
         state
             .values
-            .push(("--archetype".to_string(), FlagValue::Dropdown(id.to_string())));
+            .push(("--scheme".to_string(), FlagValue::Dropdown(id.to_string())));
     }
 }
 
@@ -339,7 +339,7 @@ fn cell_c1_switch_surplus_recovery_keys_render_with_add_suppressed_and_emit() {
     // "+ add" suppressed and an `(exactly 1)` annotation, and argv carries
     // both until the user removes one — what emits is what renders.
     let initial = FormState::from_pairs(vec![
-        ("--archetype", FlagValue::Dropdown("tiered-recovery".into())),
+        ("--scheme", FlagValue::Dropdown("tiered-recovery".into())),
         ("--recovery-key", FlagValue::Text("xpubR1".into())),
         ("--recovery-key", FlagValue::Text("xpubR2".into())),
     ]);
@@ -401,14 +401,14 @@ fn cell_mode_independent_flags_render_in_archetype_mode() {
     // --spec-schema + --no-auto-repair) keep their generic widgets in
     // archetype mode.
     let initial = FormState::from_pairs(vec![(
-        "--archetype",
+        "--scheme",
         FlagValue::Dropdown("kofn-recovery".into()),
     )]);
     let mut harness = dispatch_form_harness(initial);
     harness.run();
     for name in [
         "--spec-schema",
-        "--archetype",
+        "--scheme",
         "--emit-spec",
         "--allow",
         "--format",
@@ -430,7 +430,7 @@ fn cell_threshold_clamps_to_live_key_row_count_on_render() {
     // NumberMax::FromRowCount("--key") and egui DragValue clamps the
     // existing value to range by default.
     let initial = FormState::from_pairs(vec![
-        ("--archetype", FlagValue::Dropdown("kofn-recovery".into())),
+        ("--scheme", FlagValue::Dropdown("kofn-recovery".into())),
         ("--key", FlagValue::Text("xpubA".into())),
         ("--key", FlagValue::Text("xpubB".into())),
         ("--threshold", FlagValue::Number(5)),
@@ -461,7 +461,7 @@ fn cell_hex_digest_warning_renders_only_when_non_empty_and_invalid() {
     // empty and for a valid 64-hex digest.
     const WARNING: &str = "⚠ expected 64 hex chars";
     let initial = FormState::from_pairs(vec![
-        ("--archetype", FlagValue::Dropdown("hashlock-gated".into())),
+        ("--scheme", FlagValue::Dropdown("hashlock-gated".into())),
         ("--hash", FlagValue::Text(String::new())),
     ]);
     let mut harness = dispatch_form_harness(initial);

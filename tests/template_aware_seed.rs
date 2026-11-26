@@ -89,9 +89,9 @@ fn apply_seed_on_empty(state: &mut FormState, new_template: &str) {
 
 #[test]
 fn seed_on_empty_pushes_defaults_for_absent_flags() {
-    // Starting state has --template but no --threshold / --multisig-path-family.
+    // Starting state has --scheme but no --threshold / --multisig-path-family.
     let mut state = FormState::from_pairs(vec![(
-        "--template",
+        "--scheme",
         FlagValue::Dropdown("wsh-sortedmulti".into()),
     )]);
     assert!(!state.has_value("--threshold"));
@@ -114,7 +114,7 @@ fn seed_on_empty_preserves_user_typed_values() {
     // User typed --threshold = 3; switching to multisig template must NOT
     // overwrite their value with the seed default (2).
     let mut state = FormState::from_pairs(vec![
-        ("--template", FlagValue::Dropdown("wsh-sortedmulti".into())),
+        ("--scheme", FlagValue::Dropdown("wsh-sortedmulti".into())),
         ("--threshold", FlagValue::Number(3)),
     ]);
 
@@ -145,7 +145,7 @@ fn template_round_trip_multisig_to_single_sig_preserves_seeded_values() {
     // to multisig (seeds defaults), once on template change back to
     // single-sig (template_defaults_for returns empty → no clear).
     let mut state = FormState::from_pairs(vec![(
-        "--template",
+        "--scheme",
         FlagValue::Dropdown("wsh-sortedmulti".into()),
     )]);
 
@@ -155,11 +155,11 @@ fn template_round_trip_multisig_to_single_sig_preserves_seeded_values() {
     assert!(state.has_value("--multisig-path-family"));
 
     // Frame 2: user changed template back to single-sig.
-    // Update --template in state.
+    // Update --scheme in state.
     state
         .values
         .iter_mut()
-        .find(|(k, _)| k == "--template")
+        .find(|(k, _)| k == "--scheme")
         .unwrap()
         .1 = FlagValue::Dropdown("bip84".into());
     apply_seed_on_empty(&mut state, "bip84");

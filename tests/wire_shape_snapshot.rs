@@ -73,7 +73,7 @@ const LITERAL_XPUB_DESC_NO_MATCH: &str =
 
 /// A FORWARD-DERIVED (passphrase, xpub) pair for the abandon×11+about seed:
 /// passphrase `wave3test` → bip84 account-0 acct xpub. Captured at impl time
-/// via `bundle … --passphrase wave3test --template bip84 --account 0 --json`
+/// via `bundle … --passphrase wave3test --scheme bip84 --account 0 --json`
 /// then `convert --from mk1=<chunks> --to xpub` (the bundle's mk1 card decodes
 /// to this xpub). Live MATCH under `passphrase-of-xpub`.
 const PASSPHRASE: &str = "wave3test";

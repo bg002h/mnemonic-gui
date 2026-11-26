@@ -16,7 +16,7 @@ pub fn tree_enabled(state: &FormState) -> bool {
 }
 
 /// True iff `flag_name` is suppressed from the generic flag loop in TREE
-/// mode (SPEC §0 mode mutex render leg): `--spec` + `--archetype` (their
+/// mode (SPEC §0 mode mutex render leg): `--spec` + `--scheme` (their
 /// argv suppression is the conditional's `Disabled`; their ROWS don't
 /// render — the mode selector + tree form replace them) + the 10
 /// `requires = "archetype"` flags (9 params + `--emit-spec`; argv-
@@ -25,7 +25,7 @@ pub fn tree_enabled(state: &FormState) -> bool {
 /// `--format`, `--network`, `--json`, `--no-auto-repair`) render normally.
 pub fn suppressed_in_tree_mode(flag_name: &str) -> bool {
     flag_name == "--spec"
-        || flag_name == "--archetype"
+        || flag_name == "--scheme"
         || flag_name == "--emit-spec"
         || ARCHETYPE_PARAM_FLAGS.contains(&flag_name)
 }
@@ -36,18 +36,18 @@ pub fn suppressed_in_tree_mode(flag_name: &str) -> bool {
 /// `Disabled` ghost row is replaced by a cleaner mode switch — the
 /// conditional itself is UNCHANGED for `--spec`, R0-r1 M1). Full 18-flag
 /// accounting (R0-r1 I1): 9 params + `--spec` suppressed; the 8
-/// mode-independent flags (`--archetype`, `--spec-schema`, `--emit-spec`,
+/// mode-independent flags (`--scheme`, `--spec-schema`, `--emit-spec`,
 /// `--allow`, `--format`, `--network`, `--json`, `--no-auto-repair`) keep
 /// their generic widgets.
 pub fn suppressed_in_archetype_mode(flag_name: &str) -> bool {
     flag_name == "--spec" || ARCHETYPE_PARAM_FLAGS.contains(&flag_name)
 }
 
-/// The archetype-mode predicate: `Some(spec)` iff `--archetype` holds a
+/// The archetype-mode predicate: `Some(spec)` iff `--scheme` holds a
 /// non-empty value matching an `ARCHETYPE_SPECS` id ("" is the GUI-side
 /// UNSET sentinel — generic mode).
 pub fn active_archetype(state: &FormState) -> Option<&'static ArchetypeSpec> {
-    let id = state.dropdown_value("--archetype")?;
+    let id = state.dropdown_value("--scheme")?;
     if id.is_empty() {
         return None;
     }

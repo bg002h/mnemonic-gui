@@ -3,7 +3,7 @@
 //! Layers (the repo's established split — `tests/archetype_form.rs` /
 //! `tests/repeating_rows.rs` are the references):
 //!   - state-level argv cells: the three-way mode mutex through
-//!     `assemble_argv` (tree mode emits NO `--spec <path>` / `--archetype`
+//!     `assemble_argv` (tree mode emits NO `--spec <path>` / `--scheme`
 //!     / param flags / `--emit-spec` even with all of them
 //!     stale-populated; switching back restores) + the fixed Validate
 //!     argv incl. the `--allow` pass-through (R0-r2 M3);
@@ -111,12 +111,12 @@ fn sigless_root() -> TreeNode {
 
 /// FormState with ALL THREE modes' inputs stale-populated (the §5
 /// mode-mutex matrix worst case): a `--spec` path, a selected
-/// `--archetype`, all 9 params, a checked `--emit-spec`, PLUS the
+/// `--scheme`, all 9 params, a checked `--emit-spec`, PLUS the
 /// mode-independent `--allow`/`--network`/`--json` — and the tree.
 fn state_with_everything_stale(tree_enabled: bool) -> FormState {
     let mut state = FormState::from_pairs(vec![
         ("--spec", FlagValue::Path("/tmp/stale-spec.json".into())),
-        ("--archetype", FlagValue::Dropdown("kofn-recovery".into())),
+        ("--scheme", FlagValue::Dropdown("kofn-recovery".into())),
         ("--key", FlagValue::Text("xpubKEY1".into())),
         ("--key", FlagValue::Text("xpubKEY2".into())),
         ("--threshold", FlagValue::Number(2)),
@@ -158,13 +158,13 @@ fn run_result(stdout: &str, stderr: &str, exit: i32) -> RunResult {
 #[test]
 fn cell_tree_mode_argv_suppresses_all_other_mode_flags() {
     // Tree mode with EVERYTHING stale-populated: argv must carry NO
-    // --spec <path> / --archetype / param flags / --emit-spec; the
+    // --spec <path> / --scheme / param flags / --emit-spec; the
     // mode-independent flags keep emitting.
     let state = state_with_everything_stale(true);
     let argv = build_descriptor_argv(&state);
     for name in [
         "--spec",
-        "--archetype",
+        "--scheme",
         "--key",
         "--threshold",
         "--recovery-key",
@@ -189,11 +189,11 @@ fn cell_tree_mode_argv_suppresses_all_other_mode_flags() {
 #[test]
 fn cell_switching_back_from_tree_mode_restores_the_other_modes() {
     // enabled=false with the archetype still selected → the v0.31.0
-    // archetype rules return verbatim: --archetype + its declared params
+    // archetype rules return verbatim: --scheme + its declared params
     // emit again (--spec stays suppressed by the archetype↔spec mutex).
     //
     // The stale --spec row is dropped for this leg: a state with BOTH
-    // --spec and --archetype populated trips the v0.30.0 mutex in both
+    // --spec and --scheme populated trips the v0.30.0 mutex in both
     // directions (neither emits) — a state the live form can't reach
     // (the --spec widget is Disabled the moment an archetype is selected;
     // see archetype_form.rs). Restoration is asserted per live-reachable
@@ -201,7 +201,7 @@ fn cell_switching_back_from_tree_mode_restores_the_other_modes() {
     let mut state = state_with_everything_stale(false);
     state.values.retain(|(k, _)| k != "--spec");
     let argv = build_descriptor_argv(&state);
-    assert_eq!(occurrences(&argv, "--archetype"), ["kofn-recovery"], "{argv:?}");
+    assert_eq!(occurrences(&argv, "--scheme"), ["kofn-recovery"], "{argv:?}");
     for declared in ["--key", "--threshold", "--recovery-key", "--older"] {
         assert!(
             argv.contains(&declared.to_string()),
@@ -215,7 +215,7 @@ fn cell_switching_back_from_tree_mode_restores_the_other_modes() {
 
     // Deselect the archetype ("" sentinel — the Generic gesture) and
     // restore the --spec row: it emits again (generic / spec-file mode).
-    if let Some(row) = state.values.iter_mut().find(|(k, _)| k == "--archetype") {
+    if let Some(row) = state.values.iter_mut().find(|(k, _)| k == "--scheme") {
         row.1 = FlagValue::Dropdown(String::new());
     }
     state
@@ -231,7 +231,7 @@ fn cell_switching_back_from_tree_mode_restores_the_other_modes() {
 
 #[test]
 fn cell_tree_mode_visibility_map_disables_two_hides_ten() {
-    // The conditional arm itself (SPEC §0): --spec + --archetype Disabled;
+    // The conditional arm itself (SPEC §0): --spec + --scheme Disabled;
     // the 9 params + --emit-spec Hidden.
     let state = state_with_everything_stale(true);
     let vis = mnemonic_gui::form::conditional::build_descriptor(&state);
@@ -242,7 +242,7 @@ fn cell_tree_mode_visibility_map_disables_two_hides_ten() {
             .unwrap_or(Visibility::Visible)
     };
     assert_eq!(vis_of("--spec"), Visibility::Disabled);
-    assert_eq!(vis_of("--archetype"), Visibility::Disabled);
+    assert_eq!(vis_of("--scheme"), Visibility::Disabled);
     for name in [
         "--key",
         "--threshold",
@@ -265,7 +265,7 @@ fn cell_tree_mode_visibility_map_disables_two_hides_ten() {
 
 #[test]
 fn cell_suppressed_in_tree_mode_is_exactly_the_twelve() {
-    // Render-half accounting: --spec + --archetype + 9 params +
+    // Render-half accounting: --spec + --scheme + 9 params +
     // --emit-spec suppressed; the 6 mode-independent flags render.
     let sub = subcommand("build-descriptor");
     let (suppressed, independent): (Vec<&str>, Vec<&str>) = sub
@@ -418,7 +418,7 @@ fn selector_harness(initial: FormState) -> Harness<'static, FormState> {
 fn cell_selector_gestures_tree_archetype_generic() {
     // Start in archetype mode (dropdown-derived) with no tree yet.
     let initial = FormState::from_pairs(vec![
-        ("--archetype", FlagValue::Dropdown("kofn-recovery".into())),
+        ("--scheme", FlagValue::Dropdown("kofn-recovery".into())),
         ("--key", FlagValue::Text("xpubA".into())),
     ]);
     let mut harness = selector_harness(initial);
@@ -444,7 +444,7 @@ fn cell_selector_gestures_tree_archetype_generic() {
     let state = harness.state();
     assert!(!tree_form::tree_enabled(state), "Archetype click clears enabled");
     assert_eq!(
-        state.values.iter().find(|(k, _)| k == "--archetype").map(|(_, v)| v.clone()),
+        state.values.iter().find(|(k, _)| k == "--scheme").map(|(_, v)| v.clone()),
         Some(FlagValue::Dropdown("kofn-recovery".into())),
         "Archetype click must NOT reset the dropdown"
     );
@@ -465,7 +465,7 @@ fn cell_selector_gestures_tree_archetype_generic() {
     let state = harness.state();
     assert!(!tree_form::tree_enabled(state), "Generic click clears enabled");
     assert_eq!(
-        state.values.iter().find(|(k, _)| k == "--archetype").map(|(_, v)| v.clone()),
+        state.values.iter().find(|(k, _)| k == "--scheme").map(|(_, v)| v.clone()),
         Some(FlagValue::Dropdown(String::new())),
         "Generic click resets the dropdown to \"(none)\""
     );
@@ -785,7 +785,7 @@ fn fixture(name: &str) -> serde_json::Value {
 /// `--emit-spec` argv (`--json`/`--format` are clap-conflicting with it).
 fn kofn_archetype_form() -> FormState {
     FormState::from_pairs(vec![
-        ("--archetype", FlagValue::Dropdown("kofn-recovery".into())),
+        ("--scheme", FlagValue::Dropdown("kofn-recovery".into())),
         ("--key", FlagValue::Text(XPUB_A.into())),
         ("--key", FlagValue::Text(XPUB_B.into())),
         ("--key", FlagValue::Text(XPUB_C.into())),
@@ -811,7 +811,7 @@ fn edit_as_tree_harness(initial: FormState, bin: String) -> Harness<'static, For
 
 #[test]
 fn cell_emit_spec_argv_archetype_params_only() {
-    // Purpose-built argv (SPEC §3): --archetype + the declared param rows
+    // Purpose-built argv (SPEC §3): --scheme + the declared param rows
     // in schema order + --emit-spec; NO mode-independent flags (--json /
     // --format clap-conflict with --emit-spec — probed) and no --spec.
     let state = kofn_archetype_form();
@@ -821,7 +821,7 @@ fn cell_emit_spec_argv_archetype_params_only() {
         [
             "mnemonic",
             "build-descriptor",
-            "--archetype",
+            "--scheme",
             "kofn-recovery",
             "--key",
             XPUB_A,
@@ -844,12 +844,12 @@ fn cell_emit_spec_argv_archetype_params_only() {
     // Empty Text rows skip (the emit_one rule); missing params are not
     // pre-gated — the binary's [param] diagnostics are the validator.
     let sparse = FormState::from_pairs(vec![
-        ("--archetype", FlagValue::Dropdown("kofn-recovery".into())),
+        ("--scheme", FlagValue::Dropdown("kofn-recovery".into())),
         ("--key", FlagValue::Text(String::new())), // added-but-blank row
     ]);
     assert_eq!(
         tree_form::emit_spec_argv(&sparse, spec),
-        ["mnemonic", "build-descriptor", "--archetype", "kofn-recovery", "--emit-spec"],
+        ["mnemonic", "build-descriptor", "--scheme", "kofn-recovery", "--emit-spec"],
     );
 }
 
@@ -900,7 +900,7 @@ fn cell_edit_as_tree_failure_stays_archetype_and_surfaces_stderr() {
     // archetype mode unchanged, no tree created, the error label renders.
     let Some(bin) = resolve_bin() else { return };
     let initial = FormState::from_pairs(vec![(
-        "--archetype",
+        "--scheme",
         FlagValue::Dropdown("kofn-recovery".into()),
     )]);
     let mut harness = edit_as_tree_harness(initial, bin);

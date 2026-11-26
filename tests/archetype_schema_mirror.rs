@@ -74,7 +74,7 @@ fn archetype_specs_match_pinned_binary_spec_schema() {
             wire["summary"].as_str(),
             Some(spec.summary),
             "summary drift for `{}` (the summary renders verbatim under \
-             the --archetype dropdown)",
+             the --scheme dropdown)",
             spec.id,
         );
         let params = wire["params"]

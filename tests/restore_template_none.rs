@@ -1,4 +1,4 @@
-//! P1.3 — restore `--template` `(none)` UNSET affordance (batch
+//! P1.3 — restore `--scheme` `(none)` UNSET affordance (batch
 //! `tutorial_surfaced_fixes_batch`; SPEC `restore_template_none_affordance`,
 //! R0-GREEN). Mirrors `tests/export_wallet_template_none.rs` (F1 A1-APPEND).
 //!
@@ -15,15 +15,15 @@
 //! mutex — restore's conditional keys ONLY on `--md1`): single-sig `(none)` =
 //! the CLI emits all four `bip44/49/84/86`; md1 `(none)` = drops the single-sig
 //! template the CLI REFUSES in `--md1` mode (exit 2). Selecting `(none)` writes
-//! `Dropdown("")` ⇒ `has_value` false ⇒ no `--template` token — the clean md1
+//! `Dropdown("")` ⇒ `has_value` false ⇒ no `--scheme` token — the clean md1
 //! restore the tutorial now teaches.
 //!
 //! The 5 TDD cells (all always-run, not env-gated):
-//!   1. `(none)` clears → no `--template` token, `has_value` false;
+//!   1. `(none)` clears → no `--scheme` token, `has_value` false;
 //!   2. `(none)` never leaks `""` into argv or the masked copy-command (both
 //!      flavors); re-selecting `bip44` re-emits;
 //!   3. materialization both ways + the restore conditional projection is
-//!      UNCHANGED across bip44 / (none) / bip49 (it never reads `--template`);
+//!      UNCHANGED across bip44 / (none) / bip49 (it never reads `--scheme`);
 //!   4. `(none)` display via `display_or` (open popup + closed seam), stored raw
 //!      `Dropdown("")`, all 10 real rows still listed;
 //!   5. ★ append census — `RESTORE_TEMPLATES.len()==11`, `opts[0]=="bip44"`,
@@ -52,20 +52,20 @@ fn restore_sub() -> &'static mnemonic_gui::schema::SubcommandSchema {
     sub_of(CliTab::Mnemonic, "restore")
 }
 
-/// A single-flag `--template` harness — restore renders `--format` (Dropdown) and
-/// `--from` (composite) BEFORE `--template`, so `--template` is NOT the first
+/// A single-flag `--scheme` harness — restore renders `--format` (Dropdown) and
+/// `--from` (composite) BEFORE `--scheme`, so `--scheme` is NOT the first
 /// ComboBox in the whole form; the single-flag render surfaces exactly ONE
 /// ComboBox, uniquely targetable (mirrors export-wallet cell 4's approach, used
 /// here for the driving cells too).
 fn template_harness() -> Harness<'static, FormState> {
-    let flag = flag_of(restore_sub(), "--template");
+    let flag = flag_of(restore_sub(), "--scheme");
     let mut h = render_flag_harness(CliTab::Mnemonic, restore_sub(), flag, FormState::default());
     h.run();
     h.run(); // settle: virgin materialization of opts[0] into state.values
     h
 }
 
-/// Select `opt` in the single `--template` combo (unique ComboBox in the
+/// Select `opt` in the single `--scheme` combo (unique ComboBox in the
 /// single-flag render). egui's ComboBox does not auto-close on a
 /// `selectable_value` click, so only open when `opt` is not already visible.
 fn select_template(h: &mut Harness<'static, FormState>, opt: &str) {
@@ -87,11 +87,11 @@ fn template_value(state: &FormState) -> Option<FlagValue> {
     state
         .values
         .iter()
-        .find(|(k, _)| k == "--template")
+        .find(|(k, _)| k == "--scheme")
         .map(|(_, v)| v.clone())
 }
 
-// ── 1. (none) clears → no --template token, has_value false ─────────────────
+// ── 1. (none) clears → no --scheme token, has_value false ─────────────────
 
 #[test]
 fn none_sentinel_clears_template_from_argv() {
@@ -99,19 +99,19 @@ fn none_sentinel_clears_template_from_argv() {
     // Virgin: materialized opts[0] (= bip44) IS a present value → argv carries it.
     let argv0 = argv_of(h.state());
     assert!(
-        argv0.windows(2).any(|w| w[0] == "--template" && w[1] == "bip44"),
-        "virgin restore must emit --template bip44 (opts[0] materialization); got {argv0:?}"
+        argv0.windows(2).any(|w| w[0] == "--scheme" && w[1] == "bip44"),
+        "virgin restore must emit --scheme bip44 (opts[0] materialization); got {argv0:?}"
     );
 
     select_template(&mut h, "(none)");
     assert!(
-        !h.state().has_value("--template"),
-        "(none) must clear --template presence (Dropdown(\"\") is not a value)"
+        !h.state().has_value("--scheme"),
+        "(none) must clear --scheme presence (Dropdown(\"\") is not a value)"
     );
     let argv = argv_of(h.state());
     assert!(
-        !argv.iter().any(|a| a == "--template"),
-        "argv must carry NO --template token after (none); got {argv:?}"
+        !argv.iter().any(|a| a == "--scheme"),
+        "argv must carry NO --scheme token after (none); got {argv:?}"
     );
 }
 
@@ -125,8 +125,8 @@ fn none_never_leaks_empty_string_and_reselection_reemits() {
     let (argv, mask) =
         assemble_argv_with_secret_mask(schema_for(CliTab::Mnemonic), restore_sub(), h.state());
     assert!(
-        !argv.iter().any(|a| a == "--template"),
-        "empty Dropdown must be presence-suppressed (no --template); got {argv:?}"
+        !argv.iter().any(|a| a == "--scheme"),
+        "empty Dropdown must be presence-suppressed (no --scheme); got {argv:?}"
     );
     assert!(
         argv.iter().all(|t| !t.is_empty()),
@@ -134,21 +134,21 @@ fn none_never_leaks_empty_string_and_reselection_reemits() {
     );
     let posix = render_copy_command_masked(&argv, &mask, ShellFlavor::Posix);
     assert!(
-        !posix.contains("--template") && !posix.contains("''"),
-        "posix copy-command must carry neither --template nor an empty-string artifact; got {posix:?}"
+        !posix.contains("--scheme") && !posix.contains("''"),
+        "posix copy-command must carry neither --scheme nor an empty-string artifact; got {posix:?}"
     );
     let windows = render_copy_command_masked(&argv, &mask, ShellFlavor::WindowsCmd);
     assert!(
-        !windows.contains("--template") && !windows.contains("\"\""),
-        "windows copy-command must carry neither --template nor an empty-string artifact; got {windows:?}"
+        !windows.contains("--scheme") && !windows.contains("\"\""),
+        "windows copy-command must carry neither --scheme nor an empty-string artifact; got {windows:?}"
     );
 
-    // Re-selecting a real template re-emits `--template <v>`.
+    // Re-selecting a real template re-emits `--scheme <v>`.
     select_template(&mut h, "bip44");
     let argv2 = argv_of(h.state());
     assert!(
-        argv2.windows(2).any(|w| w[0] == "--template" && w[1] == "bip44"),
-        "re-selection must re-emit --template bip44; got {argv2:?}"
+        argv2.windows(2).any(|w| w[0] == "--scheme" && w[1] == "bip44"),
+        "re-selection must re-emit --scheme bip44; got {argv2:?}"
     );
 }
 
@@ -158,27 +158,27 @@ fn none_never_leaks_empty_string_and_reselection_reemits() {
 fn has_value_tracks_transitions_and_conditional_is_template_independent() {
     let mut h = template_harness();
     assert!(
-        h.state().has_value("--template"),
-        "virgin materialization must yield a present --template value"
+        h.state().has_value("--scheme"),
+        "virgin materialization must yield a present --scheme value"
     );
     select_template(&mut h, "(none)");
     assert!(
-        !h.state().has_value("--template"),
+        !h.state().has_value("--scheme"),
         "(none) must clear presence"
     );
     select_template(&mut h, "bip84");
     assert!(
-        h.state().has_value("--template"),
+        h.state().has_value("--scheme"),
         "re-selecting a real template must restore presence"
     );
 
-    // The restore conditional keys ONLY on `--md1`, never `--template`, so the
+    // The restore conditional keys ONLY on `--md1`, never `--scheme`, so the
     // visibility projection is IDENTICAL across bip44 / (none) / bip49 (the
     // "conditional rule set unchanged" invariant). It changes ONLY on --md1.
     let sub = restore_sub();
     let proj = |template: FlagValue| {
         let mut st = FormState::default();
-        st.values.push(("--template".into(), template));
+        st.values.push(("--scheme".into(), template));
         visibility_projection(sub, &st)
     };
     let p_bip44 = proj(FlagValue::Dropdown("bip44".into()));
@@ -186,11 +186,11 @@ fn has_value_tracks_transitions_and_conditional_is_template_independent() {
     let p_bip49 = proj(FlagValue::Dropdown("bip49".into()));
     assert_eq!(
         p_bip44, p_none,
-        "the restore conditional must not react to a (none) --template"
+        "the restore conditional must not react to a (none) --scheme"
     );
     assert_eq!(
         p_bip49, p_none,
-        "the restore conditional must not react to the --template value at all"
+        "the restore conditional must not react to the --scheme value at all"
     );
 
     // And it DOES react to --md1 (non-vacuity: the projection is not a constant).
@@ -198,7 +198,7 @@ fn has_value_tracks_transitions_and_conditional_is_template_independent() {
     with_md1.values.push(("--md1".into(), FlagValue::Text("md1xyz".into())));
     with_md1
         .values
-        .push(("--template".into(), FlagValue::Dropdown(String::new())));
+        .push(("--scheme".into(), FlagValue::Dropdown(String::new())));
     assert_ne!(
         visibility_projection(sub, &with_md1),
         p_none,
@@ -266,9 +266,9 @@ fn none_sentinel_displays_in_open_popup_and_stores_raw_empty() {
 #[test]
 fn restore_templates_append_census() {
     let sub = restore_sub();
-    let flag = flag_of(sub, "--template");
+    let flag = flag_of(sub, "--scheme");
     let FlagKind::Dropdown(opts) = &flag.kind else {
-        panic!("restore --template must be a Dropdown");
+        panic!("restore --scheme must be a Dropdown");
     };
     assert_eq!(opts.len(), 11, "10 shared template values + the appended sentinel");
     assert_eq!(
@@ -285,14 +285,14 @@ fn restore_templates_append_census() {
 
     // The 10 real values are exactly bundle's shared TEMPLATES, in order; bundle
     // stays 10 (the sentinel is export-wallet ∪ restore-scoped, NOT shared).
-    let bundle_flag = flag_of(sub_of(CliTab::Mnemonic, "bundle"), "--template");
+    let bundle_flag = flag_of(sub_of(CliTab::Mnemonic, "bundle"), "--scheme");
     let FlagKind::Dropdown(bundle_opts) = &bundle_flag.kind else {
-        panic!("bundle --template must be a Dropdown");
+        panic!("bundle --scheme must be a Dropdown");
     };
     assert_eq!(
         bundle_opts.len(),
         10,
-        "bundle --template must stay 10 values — the sentinel is not shared"
+        "bundle --scheme must stay 10 values — the sentinel is not shared"
     );
     assert_eq!(
         &opts[..opts.len() - 1],
@@ -300,7 +300,7 @@ fn restore_templates_append_census() {
         "restore's real values must mirror the shared TEMPLATES in order"
     );
 
-    // Virgin settled form materializes --template == "bip44" (NOT "") — the
+    // Virgin settled form materializes --scheme == "bip44" (NOT "") — the
     // gallery-PNG-stable steady state (mirrors export-wallet's append pin).
     let mut h = render_whole_form_harness(CliTab::Mnemonic, sub, FormState::default());
     h.run();
@@ -308,6 +308,6 @@ fn restore_templates_append_census() {
     assert_eq!(
         template_value(h.state()),
         Some(FlagValue::Dropdown("bip44".into())),
-        "virgin settled restore must materialize --template == \"bip44\""
+        "virgin settled restore must materialize --scheme == \"bip44\""
     );
 }

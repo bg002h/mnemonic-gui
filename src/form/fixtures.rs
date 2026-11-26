@@ -10,7 +10,7 @@
 //! ALL 61 forms (it is `sweep_candidate_bases`'s first element for every
 //! form — the blank-form state, every flag Visible, no context needed). A
 //! form with a MODE (e.g. `build-descriptor`: archetype vs tree vs generic)
-//! renders its generic/default mode here (tree `None`, `--archetype` unset),
+//! renders its generic/default mode here (tree `None`, `--scheme` unset),
 //! which is the canonical screen per SPEC §6.
 
 use crate::app::CliTab;

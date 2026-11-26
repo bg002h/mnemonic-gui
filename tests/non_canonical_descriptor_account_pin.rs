@@ -188,14 +188,14 @@ fn h_notation_non_canonical_descriptor_lifts_account_pin() {
 
 #[test]
 fn descriptor_other_disables_still_fire_regardless_of_canonicity() {
-    // `--template`, `--threshold`, `--multisig-path-family` disables fire
+    // `--scheme`, `--threshold`, `--multisig-path-family` disables fire
     // for ANY `--descriptor` presence, canonical or not — they have no
     // canonicity dependence.
     let canonical = state_with_descriptor("pkh(@0)");
     let non_canonical = state_with_descriptor("wsh(andor(pkh(@0),after(N),pk(@1)))");
     for state in [canonical, non_canonical] {
         let vis = bundle(&state);
-        for flag in ["--template", "--threshold", "--multisig-path-family"] {
+        for flag in ["--scheme", "--threshold", "--multisig-path-family"] {
             let disabled = vis
                 .iter()
                 .any(|(k, v)| *k == flag && matches!(v, Visibility::Disabled));

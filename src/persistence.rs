@@ -417,6 +417,7 @@ pub fn load(path: &Path) -> Option<PersistedState> {
 /// non-default (e.g. `p2tr`) is PRESERVED, and it is idempotent (post-fix
 /// `""` ≠ `"p2pkh"`/`"mainnet"`).
 fn normalize_loaded_form_values(state: &mut PersistedState) {
+    rename_legacy_flag_keys(state);
     for (key, form) in state.form_state_per_subcommand.iter_mut() {
         let Some((tab_name, sub_name)) = key.split_once(':') else {
             continue; // (b) malformed key → fail-open
@@ -460,6 +461,45 @@ fn normalize_loaded_form_values(state: &mut PersistedState) {
                 _ => true,
             }
         });
+    }
+}
+
+/// The 2026-11-26 flag renames, as `(persisted form key, old flag, new flag)`:
+/// toolkit `--template` → `--scheme` on the five wallet-scheme verbs and
+/// `build-descriptor --archetype` → `--scheme`; `md compose --preset` →
+/// `--scheme`; `ms derive --template` → `--origin-path`. The CLIs keep the
+/// old spellings as hidden aliases, but the GUI looks values up by the
+/// schema's flag name, so an autosave written before the rename would
+/// otherwise lose the user's choice (the old entry is an unknown flag:
+/// kept, never rendered, never emitted).
+pub const LEGACY_FLAG_RENAMES: &[(&str, &str, &str)] = &[
+    ("mnemonic:bundle", "--template", "--scheme"),
+    ("mnemonic:verify-bundle", "--template", "--scheme"),
+    ("mnemonic:convert", "--template", "--scheme"),
+    ("mnemonic:export-wallet", "--template", "--scheme"),
+    ("mnemonic:restore", "--template", "--scheme"),
+    ("mnemonic:build-descriptor", "--archetype", "--scheme"),
+    ("md:compose", "--preset", "--scheme"),
+    ("ms:derive", "--template", "--origin-path"),
+];
+
+/// Load-time rename of [`LEGACY_FLAG_RENAMES`] keys in the persisted
+/// per-subcommand `values`. Value shapes are unchanged by the rename, so the
+/// entry moves verbatim. Idempotent; when a form somehow carries both
+/// spellings, the new one wins and the old entry is dropped.
+fn rename_legacy_flag_keys(state: &mut PersistedState) {
+    for (form_key, old, new) in LEGACY_FLAG_RENAMES {
+        let Some(form) = state.form_state_per_subcommand.get_mut(*form_key) else {
+            continue;
+        };
+        let has_new = form.values.iter().any(|(k, _)| k == new);
+        if has_new {
+            form.values.retain(|(k, _)| k != old);
+        } else {
+            for (k, _) in form.values.iter_mut().filter(|(k, _)| k == old) {
+                *k = (*new).to_string();
+            }
+        }
     }
 }
 

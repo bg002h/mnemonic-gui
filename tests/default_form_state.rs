@@ -30,7 +30,7 @@ fn bundle_subcommand() -> &'static schema::SubcommandSchema {
 fn default_bundle_form_state_with_phrase() -> FormState {
     FormState::from_pairs(vec![
         ("--network", FlagValue::Dropdown("mainnet".into())),
-        ("--template", FlagValue::Dropdown("bip84".into())),
+        ("--scheme", FlagValue::Dropdown("bip84".into())),
         ("--account", FlagValue::Number(0)),
     ])
     .with_slots(SlotState {
@@ -67,7 +67,7 @@ fn default_bundle_form_state_argv_has_required_minimum() {
     assert_eq!(&argv[0], "mnemonic");
     assert_eq!(&argv[1], "bundle");
     assert!(argv.iter().any(|a| a == "--network"));
-    assert!(argv.iter().any(|a| a == "--template"));
+    assert!(argv.iter().any(|a| a == "--scheme"));
     // Slot is emitted via SlotState; assert the slot=@0.phrase line is there.
     assert!(
         argv.iter().any(|a| a.starts_with("@0.phrase=")),

@@ -54,10 +54,11 @@ const VERIFY_FORMATS: &[&str] = &["auto", "legacy", "bip322"];
 // toolkit v0.50.0: `build-descriptor --format` value-enum (CliBuildFormat).
 const BUILD_FORMATS: &[&str] = &["descriptor", "bip388"];
 // toolkit v0.51.0/v0.52.0: `build-descriptor --archetype` value-enum
-// (CliArchetype order). The leading `""` is the GUI-side UNSET sentinel
+// (CliArchetype order; the flag is `--scheme` since the 2026-11-26 rename,
+// `--archetype` a hidden alias). The leading `""` is the GUI-side UNSET sentinel
 // (v0.30.0 R0-r1 C1): `emit_one` skips an empty Dropdown, `has_value` is
 // false, and the user can re-select the "(none)" display row — without it
-// the default form would emit a guaranteed-refusal `--archetype
+// the default form would emit a guaranteed-refusal `--scheme
 // decaying-multisig` AND the archetype↔spec mutex would deadlock `--spec`
 // from frame 1. The sentinel is GUI-only; the toolkit never sees it
 // (empty Dropdown is never emitted). Value-list parity with the binary is
@@ -96,10 +97,10 @@ const TEMPLATES: &[&str] = &[
 
 // gui_example P1.3 (F1, mini-R0 A1-APPEND ruling — persisted at
 // mnemonic-toolkit `docs/manual-gui/design/agent-reports/
-// gui-example-f1-mini-r0.md`): export-wallet's `--template` opts — the 10
+// gui-example-f1-mini-r0.md`): export-wallet's `--scheme` opts — the 10
 // shared `TEMPLATES` values IN ORDER plus a trailing `""` UNSET sentinel
-// (renders "(none)" via `display_or`, the `--archetype` precedent).
-// Selecting it clears `--template` (`Dropdown("")` ⇒ `has_value` false) so
+// (renders "(none)" via `display_or`, the `--scheme` precedent).
+// Selecting it clears `--scheme` (`Dropdown("")` ⇒ `has_value` false) so
 // the template/descriptor mutex releases and the `--descriptor` arm becomes
 // reachable from the GUI — pre-F1 the virgin `opts[0]` materialization kept
 // it permanently Disabled.
@@ -130,10 +131,10 @@ const EXPORT_WALLET_TEMPLATES: &[&str] = &[
 ];
 
 // batch `tutorial_surfaced_fixes_batch` P1.3 (restore-R0 A1-APPEND): restore's
-// `--template` opts — the 10 shared `TEMPLATES` values IN ORDER + a trailing
+// `--scheme` opts — the 10 shared `TEMPLATES` values IN ORDER + a trailing
 // `""` UNSET sentinel (renders "(none)" via `display_or`; mirrors
-// `EXPORT_WALLET_TEMPLATES`). Selecting it clears `--template`
-// (`Dropdown("")` ⇒ `has_value` false) so no `--template` token emits.
+// `EXPORT_WALLET_TEMPLATES`). Selecting it clears `--scheme`
+// (`Dropdown("")` ⇒ `has_value` false) so no `--scheme` token emits.
 //
 // APPENDED, never prepended: virgin materialization takes `opts[0]`
 // (`flag_defaults.rs`), which must stay `bip44` — a prepend would flip the
@@ -383,11 +384,11 @@ const BUNDLE_FLAGS: &[FlagSchema] = &[
         global: false,
     },
     FlagSchema {
-        name: "--template",
+        name: "--scheme",
         kind: FlagKind::Dropdown(TEMPLATES),
         required: false,
         repeating: false,
-        help: "Pre-built template name. Mutually-required-one-of with \
+        help: "Named wallet scheme. Mutually-required-one-of with \
                --descriptor / --descriptor-file.",
         secret: false,
         default_value: None,
@@ -424,7 +425,7 @@ const BUNDLE_FLAGS: &[FlagSchema] = &[
         repeating: false,
         help: "v0.27.0 — synthesize a bundle from an import-wallet --json \
                envelope. Accepts a file path or - for stdin. Mutually \
-               exclusive with --template / --descriptor / --descriptor-file.",
+               exclusive with --scheme / --descriptor / --descriptor-file.",
         secret: false,
         default_value: None,
         global: false,
@@ -581,7 +582,7 @@ const BUNDLE_FLAGS: &[FlagSchema] = &[
 // `restore` re-derives a wallet export (its inverse-ish sibling of
 // `export-wallet`) from a third-party source given via `--from` (required).
 // It shares export-wallet's `--format` (EXPORT_FORMATS, 12 values since F-679),
-// `--template` (TEMPLATES), `--language` (LANGUAGES), `--network`
+// `--scheme` (TEMPLATES), `--language` (LANGUAGES), `--network`
 // (NETWORKS) dropdowns plus `--account` / `--output` defaults. The two
 // passphrase flags are the only secret-bearing flags (mirrored from the
 // toolkit v5 schema's per-flag `secret` field; see
@@ -614,17 +615,17 @@ const RESTORE_FLAGS: &[FlagSchema] = &[
         global: false,
     },
     FlagSchema {
-        name: "--template",
+        name: "--scheme",
         // P1.3 (restore-R0 A1-APPEND): the per-flag `RESTORE_TEMPLATES` (10
         // shared values + a trailing `""` "(none)" sentinel). `default_value`
         // STAYS `None` so the virgin form-loop still materializes `opts[0]`
-        // (`bip44`) — selecting "(none)" writes `Dropdown("")` ⇒ no `--template`.
+        // (`bip44`) — selecting "(none)" writes `Dropdown("")` ⇒ no `--scheme`.
         kind: FlagKind::Dropdown(RESTORE_TEMPLATES),
         required: false,
         repeating: false,
-        help: "Pre-built descriptor template for the restored wallet. \
+        help: "Named wallet scheme for the restored wallet. \
                (none) drops it — the CLI emits all four bip44/49/84/86 for a \
-               single-sig restore, and drops the single-sig template it refuses \
+               single-sig restore, and drops the single-sig scheme it refuses \
                in --md1 mode.",
         secret: false,
         default_value: None,
@@ -962,11 +963,11 @@ const VERIFY_BUNDLE_FLAGS: &[FlagSchema] = &[
         global: false,
     },
     FlagSchema {
-        name: "--template",
+        name: "--scheme",
         kind: FlagKind::Dropdown(TEMPLATES),
         required: false,
         repeating: false,
-        help: "Template. Mutually-required-one-of with --descriptor / \
+        help: "Named wallet scheme. Mutually-required-one-of with --descriptor / \
                --descriptor-file.",
         secret: false,
         default_value: None,
@@ -1370,11 +1371,11 @@ const CONVERT_FLAGS: &[FlagSchema] = &[
         global: false,
     },
     FlagSchema {
-        name: "--template",
+        name: "--scheme",
         kind: FlagKind::Dropdown(TEMPLATES),
         required: false,
         repeating: false,
-        help: "Template (when --to involves derivation).",
+        help: "Named wallet scheme (when --to involves derivation).",
         secret: false,
         default_value: None,
         global: false,
@@ -1520,16 +1521,16 @@ const CONVERT_FLAGS: &[FlagSchema] = &[
 
 const EXPORT_WALLET_FLAGS: &[FlagSchema] = &[
     FlagSchema {
-        name: "--template",
+        name: "--scheme",
         // F1 (gui_example P1.3): per-flag opts WITH the trailing "" unset
         // sentinel — see `EXPORT_WALLET_TEMPLATES`. `default_value` STAYS
         // `None`: `Some("bip44")` would trip `is_at_default` suppression and
-        // drop `--template` from a virgin run's argv (both-required refusal);
+        // drop `--scheme` from a virgin run's argv (both-required refusal);
         // the virgin default comes from `opts[0]` materialization instead.
         kind: FlagKind::Dropdown(EXPORT_WALLET_TEMPLATES),
         required: false,
         repeating: false,
-        help: "Pre-built template. Mutually-required-one-of with --descriptor.",
+        help: "Named wallet scheme. Mutually-required-one-of with --descriptor.",
         secret: false,
         default_value: None,
         global: false,
@@ -1732,7 +1733,7 @@ const EXPORT_WALLET_FLAGS: &[FlagSchema] = &[
         required: false,
         repeating: false,
         help: "v0.27.0 — emit wallet config from an import-wallet --json \
-               envelope. Mutually exclusive with --template / --descriptor.",
+               envelope. Mutually exclusive with --scheme / --descriptor.",
         secret: false,
         default_value: None,
         global: false,
@@ -4171,22 +4172,22 @@ const BUILD_DESCRIPTOR_FLAGS: &[FlagSchema] = &[
         default_value: None,
         global: false,
     },
-    // toolkit v0.51.0/v0.52.0 — archetype presets (12 flags). `--archetype`
+    // toolkit v0.51.0/v0.52.0 — archetype presets (12 flags). `--scheme`
     // carries the GUI-side `""` UNSET sentinel (default_value Some("") —
     // see the ARCHETYPES const comment). `--key`/`--recovery-key`/`--allow`
     // are repeating (row order = argv order = quorum order). The 10
-    // `requires = "archetype"` clap edges + the `--emit-spec`
+    // `requires = "scheme"` clap edges + the `--emit-spec`
     // conflicts_with_all stay deliberately UN-projected (SPEC §4 recorded
     // decision: the CLI is the gate; the A2 archetype wizard supersedes the
     // generic form as the preset surface). The archetype↔spec mutex IS
     // projected (`conditional::build_descriptor`).
     FlagSchema {
-        name: "--archetype",
+        name: "--scheme",
         kind: FlagKind::Dropdown(ARCHETYPES),
         required: false,
         repeating: false,
-        help: "Build from a curated archetype preset instead of a --spec node-tree; \
-               parameters come from the preset flags. \"(none)\" = no preset.",
+        help: "Build from a named wallet scheme instead of a --spec node-tree; \
+               parameters come from the scheme flags. \"(none)\" = no scheme.",
         secret: false,
         default_value: Some(""),
         global: false,

@@ -487,7 +487,7 @@ fn gui_tutorial_snapshots() {
 /// Assert the fresh headless app's determinism baseline EXPLICITLY (not just
 /// implicitly via the ch0 snapshot byte-compare + row-0 drive dependency): the
 /// active subcommand is `mnemonic:bundle`, and its form carries the demo seed —
-/// `--template=bip84`, `--network=mainnet`, and exactly ONE (empty, Xpub) slot
+/// `--scheme=bip84`, `--network=mainnet`, and exactly ONE (empty, Xpub) slot
 /// row. A future demo-seed change then breaks HERE by name, not as an
 /// undiagnosed pixel diff or a `slots.rows[occ]` index panic (R0 m1;
 /// `src/app_window.rs` `new_headless` demo-seed block).
@@ -503,9 +503,9 @@ fn assert_demo_seed_baseline() {
     );
     let form = &st.form_state["mnemonic:bundle"];
     assert_eq!(
-        form.dropdown_value("--template"),
+        form.dropdown_value("--scheme"),
         Some("bip84"),
-        "demo-seed baseline: bundle --template must pre-fill bip84 (SPEC §6.3)"
+        "demo-seed baseline: bundle --scheme must pre-fill bip84 (SPEC §6.3)"
     );
     assert_eq!(
         form.dropdown_value("--network"),
