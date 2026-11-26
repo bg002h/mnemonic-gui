@@ -65,3 +65,19 @@ fn no_display_exits_32_cannot_start() {
         "{o:?}"
     );
 }
+
+/// Final review N5 (R8): `--help` whose stdout cannot be written exits 32.
+#[cfg(target_os = "linux")]
+#[test]
+fn help_to_a_full_disk_exits_32() {
+    let full = std::fs::OpenOptions::new()
+        .write(true)
+        .open("/dev/full")
+        .expect("/dev/full");
+    let o = Command::new(env!("CARGO_BIN_EXE_mnemonic-gui"))
+        .arg("--help")
+        .stdout(full)
+        .output()
+        .expect("mnemonic-gui runs");
+    assert_eq!(o.status.code(), Some(32), "{o:?}");
+}

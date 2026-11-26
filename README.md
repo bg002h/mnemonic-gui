@@ -119,8 +119,10 @@ no, 2 an input is invalid, 4 verify the result before trusting it, 8 refused,
 16 a correction was applied, 32 a file, device or helper failed; the badge
 names each one. A CLI speaks these codes when its `--help` ends with that
 legend; the GUI asks each binary once (cached until the file changes). A
-CLI released before the change is read by its old codes (for example `md
-descriptor --verify-against` 5 = NOT spend-equal, `ms repair` 4 = VERIFY-ME).
+CLI whose help has no exit-status legend at all was released before the
+change and is read by its old codes (for example `md descriptor
+--verify-against` 5 = NOT spend-equal, `ms repair` 4 = VERIFY-ME); one whose
+legend differs from the GUI's is shown undecoded.
 The GUI's own exit status is 0, 32 (cannot start: no display), 64 (bad
 command line), 101 (internal error), or 130 when a signal's clean shutdown
 times out.

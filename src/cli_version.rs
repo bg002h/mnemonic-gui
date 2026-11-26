@@ -201,23 +201,54 @@ pub fn run_probe(bin: &str, arg: &str, timeout: std::time::Duration) -> Result<S
     }
 }
 
-/// True iff a root `--help` text ENDS with the R11 legend
-/// ([`crate::exit_code::HELP_LEGEND`]), whitespace-normalised because clap
-/// may re-wrap it. Every CLI that speaks the constellation's exit codes
-/// prints it there (spec R11); no CLI before the renumber does.
-pub fn speaks_bits(help: &str) -> bool {
+/// Which exit codes a CLI speaks, read from its root `--help` (spec R11;
+/// final review I4), three-way on content:
+/// - its last paragraph is exactly the R11 legend
+///   ([`crate::exit_code::HELP_LEGEND`], whitespace-normalised because clap
+///   may re-wrap it): [`CodeScheme::Bits`];
+/// - no paragraph begins `Exit status:`: [`CodeScheme::Legacy`] (no CLI
+///   printed one before the renumber);
+/// - a paragraph begins `Exit status:` but the last paragraph is not the
+///   exact legend (a drifted copy, or text after it):
+///   [`CodeScheme::Undecoded`]. Reading such a CLI as Legacy would be the more
+///   reassuring misreading (old 5 green, new 1/2/8 uncoloured).
+pub fn scheme_from_help(help: &str) -> CodeScheme {
     let norm = |t: &str| t.split_whitespace().collect::<Vec<_>>().join(" ");
-    norm(help).ends_with(&norm(crate::exit_code::HELP_LEGEND))
+    let mut paragraphs: Vec<String> = Vec::new();
+    let mut current = String::new();
+    for line in help.lines() {
+        if line.trim().is_empty() {
+            if !current.is_empty() {
+                paragraphs.push(norm(&current));
+                current.clear();
+            }
+        } else {
+            current.push_str(line);
+            current.push('\n');
+        }
+    }
+    if !current.is_empty() {
+        paragraphs.push(norm(&current));
+    }
+    let legend = norm(crate::exit_code::HELP_LEGEND);
+    if paragraphs.last() == Some(&legend) {
+        return CodeScheme::Bits;
+    }
+    if paragraphs.iter().any(|p| p.starts_with("Exit status:")) {
+        return CodeScheme::Undecoded(
+            "its `--help` has an `Exit status:` paragraph that is not the exact \
+             exit-code legend at its end"
+                .to_string(),
+        );
+    }
+    CodeScheme::Legacy
 }
 
-/// Ask `bin --help` (within `timeout`) which exit codes it speaks:
-/// [`CodeScheme::Bits`] if its help ends with the legend,
-/// [`CodeScheme::Legacy`] if it answered without it, and
-/// [`CodeScheme::Undecoded`] if it could not be asked.
+/// Ask `bin --help` (within `timeout`) which exit codes it speaks
+/// ([`scheme_from_help`]); [`CodeScheme::Undecoded`] if it could not be asked.
 pub fn probe_scheme(bin: &str, timeout: std::time::Duration) -> CodeScheme {
     match run_probe(bin, "--help", timeout) {
-        Ok(help) if speaks_bits(&help) => CodeScheme::Bits,
-        Ok(_) => CodeScheme::Legacy,
+        Ok(help) => scheme_from_help(&help),
         Err(e) => CodeScheme::Undecoded(e),
     }
 }
@@ -246,8 +277,8 @@ fn scheme_cache() -> &'static std::sync::Mutex<std::collections::HashMap<SchemeK
 
 /// [`probe_scheme`] for the binary a run of `bin` executes, probed once per
 /// (resolved path, mtime, size): an upgrade in place is probed again. Only a
-/// definite answer (Bits or Legacy) is cached; a failed probe is retried on
-/// the next run.
+/// definite answer (Bits or Legacy) is cached; a failed probe or a drifted
+/// legend is retried on the next run.
 pub fn exit_scheme_cached(bin: &str) -> CodeScheme {
     let Some(path) = resolve(bin) else {
         return CodeScheme::Undecoded(format!("`{bin}` not found on the search path"));

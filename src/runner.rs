@@ -292,6 +292,22 @@ pub fn run_plan_with_env_prefix(
     plan: &crate::form::channels::RunPlan,
     reserved_prefix: &str,
 ) -> io::Result<RunResult> {
+    match plan.argv.first() {
+        Some(bin) => run_plan_program(plan, OsStr::new(bin), reserved_prefix),
+        None => Err(io::Error::new(
+            io::ErrorKind::InvalidInput,
+            "runner::run_plan: argv must contain at least the binary name",
+        )),
+    }
+}
+
+/// [`run_plan_with_env_prefix`], executing `program` in place of the lookup
+/// of `plan.argv[0]` (whose text is kept for display).
+fn run_plan_program(
+    plan: &crate::form::channels::RunPlan,
+    program: &OsStr,
+    reserved_prefix: &str,
+) -> io::Result<RunResult> {
     let argv = &plan.argv;
     if argv.is_empty() {
         return Err(io::Error::new(
@@ -308,7 +324,7 @@ pub fn run_plan_with_env_prefix(
         fds = plan.fds.len(),
         "subprocess spawn (planned channels)",
     );
-    let mut cmd = Command::new(OsStr::new(&argv[0]));
+    let mut cmd = Command::new(program);
     cmd.env("MNEMONIC_FORCE_TTY", "1").args(&argv[1..]);
     for (k, _) in std::env::vars_os() {
         if k.as_encoded_bytes().starts_with(reserved_prefix.as_bytes()) {
@@ -388,16 +404,22 @@ pub fn run_plan_with_env_prefix(
     })
 }
 
-/// [`run_plan`], then stamp the result with the exit-code scheme the binary
-/// speaks (`cli_version::exit_scheme_cached`: its root `--help` ends with the
-/// R11 legend, probed once per binary), so the badge decodes it correctly
-/// (exit-code spec §7j, R12). The app's single run site.
-pub fn run_plan_decoded(plan: &crate::form::channels::RunPlan) -> io::Result<RunResult> {
-    let scheme = match plan.argv.first() {
-        Some(bin) => crate::cli_version::exit_scheme_cached(bin),
-        None => unchecked_scheme(),
-    };
-    let mut result = run_plan(plan)?;
+/// Run `plan` by executing `program` (the file `plan.argv[0]` resolved to)
+/// and stamp the result with the exit-code scheme that same file speaks
+/// (`cli_version::exit_scheme_cached`: three-way on its root `--help`,
+/// probed once per binary), so the badge decodes it correctly (exit-code
+/// spec §7j, R12; final review M12: one file for probe and run). The result's
+/// `argv` is the plan's. The app's single run site.
+pub fn run_plan_decoded(
+    plan: &crate::form::channels::RunPlan,
+    program: &std::path::Path,
+) -> io::Result<RunResult> {
+    let scheme = crate::cli_version::exit_scheme_cached(&program.to_string_lossy());
+    let mut result = run_plan_program(
+        plan,
+        program.as_os_str(),
+        &crate::form::channels::policy().reserved_env_prefix,
+    )?;
     result.exit_scheme = scheme;
     Ok(result)
 }

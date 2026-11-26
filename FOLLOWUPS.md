@@ -7,6 +7,13 @@ mirrors it.
 
 ## Active
 
+### `exit-codes-sibling-binaries-ci-job` — a CI job that runs the real-binary tests with `MD_BIN` / `MS_BIN` / `MK_BIN` (and `MNEMONIC_BIN`) set
+
+- **Surfaced:** 2026-11-26, exit-code spec final review M14 (`mnemonic-engrave/design/agent-reports/exit-codes-2026-11-26/final-review-toolkit-gui.md`). The GUI's exit-code scheme detection (`cli_version::scheme_from_help`) is tested against fake CLIs only; the real-binary tests (schema mirror, runner integration, secret channels, part-B forms) run only when the sibling binaries are on `PATH` or named by `MD_BIN`/`MS_BIN`/`MK_BIN`/`MNEMONIC_BIN`. The same holds for the toolkit's sibling-parity rows. Nothing in CI sets them for the renumbered builds, so sibling drift (a legend edited in one CLI, a changed code) goes unseen. Measured by hand on 2026-11-26: the renumbered md/mk/ms/mnemonic builds read as `Bits`, the pre-renumber builds as `Legacy`.
+- **Fix:** a CI job that builds (or installs at the pins) the four CLIs, sets the variables, and runs the real-binary tests plus one test asserting `probe_scheme` is `Bits` for each.
+- **Companion:** mnemonic-toolkit `design/FOLLOWUPS.md` (the sibling-parity rows' CI job), to be mirrored by the toolkit agent.
+- **Status:** OPEN. **Owning phase:** the exit-code pin bump.
+
 ### `restore-from-secret-node-unmasked-and-persisted` — `restore --from ms1=<card>` is a plain Text field: unmasked, unconfirmed, and PERSISTED
 
 - **Surfaced:** 2026-09-24, F-679 (the toolkit v0.104.0 argv-secret refusal made it visible: the Run path's secret mask never marked `restore --from ms1=…`, so the toolkit refused the GUI's own restore-from-ms1 run). `restore --from` is `FlagKind::Text`, `secret: false` (upstream `gui-schema` agrees — its secrecy depends on the NODE the user types). Measured on the F-679 tree with `FormState{--from: Text("ms1=…")}`: `redact_for_persistence` KEEPS `--from` (the ms1 reaches the autosave file), `should_confirm_run` is `false` (no run-confirm modal), and `assemble_argv_with_secret_mask` marks nothing (the Preview shows the ms1 in cleartext). Same for any `SECRET_NODE_TYPES_ARGV` node (`phrase=`, `wif=`, `xprv=`, …).

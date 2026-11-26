@@ -15,7 +15,7 @@ use std::os::unix::fs::PermissionsExt;
 use std::path::{Path, PathBuf};
 use std::time::{Duration, Instant};
 
-use mnemonic_gui::cli_version::{exit_scheme_cached, probe_scheme, speaks_bits};
+use mnemonic_gui::cli_version::{exit_scheme_cached, probe_scheme, scheme_from_help};
 use mnemonic_gui::exit_badge::CodeScheme;
 use mnemonic_gui::exit_code::HELP_LEGEND;
 use mnemonic_gui::form::channels::RunPlan;
@@ -80,16 +80,63 @@ fn help_with_wrapped_legend() -> String {
     out
 }
 
+fn undecoded(help: &str) -> String {
+    match scheme_from_help(help) {
+        CodeScheme::Undecoded(why) => why,
+        other => panic!("expected Undecoded, got {other:?} for {help:?}"),
+    }
+}
+
 #[test]
-fn the_legend_at_the_end_of_help_means_bits() {
-    assert!(speaks_bits(&help_with_legend()));
-    assert!(speaks_bits(&help_with_wrapped_legend()));
-    assert!(!speaks_bits("Usage: md <COMMAND>\n"));
-    assert!(!speaks_bits(""));
-    // R11 puts it at the END; quoted elsewhere it does not count.
-    assert!(!speaks_bits(&format!(
-        "{HELP_LEGEND}\n\nMore help after it.\n"
-    )));
+fn the_exact_legend_at_the_end_of_help_means_bits() {
+    assert_eq!(scheme_from_help(&help_with_legend()), CodeScheme::Bits);
+    assert_eq!(
+        scheme_from_help(&help_with_wrapped_legend()),
+        CodeScheme::Bits
+    );
+}
+
+#[test]
+fn no_exit_status_paragraph_at_all_means_legacy() {
+    assert_eq!(
+        scheme_from_help("Usage: md <COMMAND>\n"),
+        CodeScheme::Legacy
+    );
+    assert_eq!(scheme_from_help(""), CodeScheme::Legacy);
+    // The words inside a sentence are not a paragraph beginning with them.
+    assert_eq!(
+        scheme_from_help("Usage: md\n\n  Prints the exit status: see the manual.\n"),
+        CodeScheme::Legacy
+    );
+}
+
+/// Review I4 / M14: a legend that drifted is neither scheme.
+#[test]
+fn a_legend_that_is_not_last_is_undecoded() {
+    let why = undecoded(&format!("{}\nMore help after it.\n", help_with_legend()));
+    assert!(why.contains("Exit status:"), "{why}");
+}
+
+#[test]
+fn a_legend_with_one_word_changed_is_undecoded() {
+    let changed = help_with_legend().replace("a check said no", "a check said nay");
+    assert_ne!(changed, help_with_legend());
+    let why = undecoded(&changed);
+    assert!(why.contains("Exit status:"), "{why}");
+    // Wrapped the way ms and mnemonic wrap it, too.
+    let changed = help_with_wrapped_legend().replace("refused", "declined");
+    undecoded(&changed);
+}
+
+#[test]
+fn a_fake_cli_with_a_drifted_legend_is_undecoded() {
+    let d = dir("drift");
+    let help = help_with_legend().replace("16 a correction", "16 the correction");
+    let p = fake(&d, "md", &help, 0, "md 0.22.0", 5);
+    assert!(matches!(
+        probe_scheme(p.to_str().unwrap(), Duration::from_secs(5)),
+        CodeScheme::Undecoded(_)
+    ));
 }
 
 #[test]
@@ -168,32 +215,53 @@ fn an_undecoded_answer_is_not_cached() {
 fn run_plan_decoded_stamps_the_scheme_on_the_result() {
     let d = dir("stamp");
     let p = fake(&d, "mk", &help_with_legend(), 0, "mk 0.18.0", 20);
-    let r = run_plan_decoded(&RunPlan::plain(vec![
-        p.to_str().unwrap().to_string(),
-        "verify".into(),
-    ]))
+    let r = run_plan_decoded(
+        &RunPlan::plain(vec![p.to_str().unwrap().to_string(), "verify".into()]),
+        &p,
+    )
     .expect("runs");
     assert_eq!(r.exit_code, Some(20));
     assert_eq!(r.exit_scheme, CodeScheme::Bits);
 
     let q = fake(&d, "old", "Usage: md\n", 0, "md 0.21.0", 5);
-    let r = run_plan_decoded(&RunPlan::plain(vec![q.to_str().unwrap().to_string()])).unwrap();
+    let r = run_plan_decoded(&RunPlan::plain(vec![q.to_str().unwrap().to_string()]), &q).unwrap();
     assert_eq!(
         (r.exit_code, r.exit_scheme.clone()),
         (Some(5), CodeScheme::Legacy)
     );
 }
 
-/// Review M1: the app's single run site uses the stamping runner, after G1.
+/// Review M12: the run executes the very file whose `--help` was read, even
+/// when `argv[0]` is a bare name that would resolve elsewhere (or nowhere),
+/// and the displayed argv is the plan's.
 #[test]
-fn spawn_and_capture_runs_through_run_plan_decoded_after_the_gate() {
+fn the_run_executes_the_probed_file_not_a_fresh_lookup() {
+    let d = dir("samefile");
+    let p = fake(&d, "mk", &help_with_legend(), 0, "mk 0.18.0", 20);
+    let plan = RunPlan::plain(vec!["mk-not-on-path-anywhere".into(), "verify".into()]);
+    let r = run_plan_decoded(&plan, &p).expect("runs the resolved file");
+    assert_eq!(r.exit_code, Some(20));
+    assert_eq!(r.exit_scheme, CodeScheme::Bits);
+    assert_eq!(r.argv, plan.argv);
+    assert_eq!(probes(&d, "mk"), 1);
+}
+
+/// Review M1 / M12: the app's single run site resolves the binary once and
+/// hands that file to the G1 `--version` probe and to the run (whose scheme
+/// probe reads the same file), after the G1 gate.
+#[test]
+fn spawn_and_capture_runs_the_resolved_file_after_the_gate() {
     let src = include_str!("../src/app_window.rs");
     let body = &src[src.find("fn spawn_and_capture(").unwrap()..];
     let body = &body[..body.find("\n}\n").unwrap()];
     let gate = body.find("cli_version::gate_secret_run(").expect("G1 gate");
+    assert!(
+        body.contains("crate::cli_version::probe(&program_str)"),
+        "the G1 probe reads the resolved file"
+    );
     let run = body
-        .find("runner::run_plan_decoded(")
-        .expect("spawn_and_capture must run through run_plan_decoded");
+        .find("runner::run_plan_decoded(&plan, &program)")
+        .expect("spawn_and_capture must run the resolved file through run_plan_decoded");
     assert!(gate < run);
     assert!(
         !body.contains("runner::run_plan(&"),

@@ -15,14 +15,18 @@
 //! numbers cannot tell the two apart (`mk 0.18.0-dev` exists on both sides).
 //! So the scheme is read from the binary: R11 makes every renumbered CLI's
 //! root `--help` end with the legend ([`crate::cli_version::exit_scheme_cached`]).
-//! - [`CodeScheme::Bits`]: the legend is there; decode the bits.
-//! - [`CodeScheme::Legacy`]: it is not; the old codes, whose 4 and 5 mean
+//! - [`CodeScheme::Bits`]: the last paragraph is the exact legend; decode
+//!   the bits.
+//! - [`CodeScheme::Legacy`]: no `Exit status:` paragraph at all; the old
+//!   codes, whose 4 and 5 mean
 //!   different things per command (exit-code survey §8, `a5fa42d`): 5 is
 //!   REPAIR_APPLIED for `md`/`mk repair` and the toolkit's auto-repair, but NOT
 //!   spend-equal for `md descriptor --verify-against`; 4 is VERIFY-ME for `ms
 //!   repair`, `md` partial decodes and the toolkit's project-wide class, but a
 //!   MISMATCH for `mk verify` / `ms verify`.
-//! - [`CodeScheme::Undecoded`]: the CLI could not be asked; the number alone.
+//! - [`CodeScheme::Undecoded`]: the CLI could not be asked, or its
+//!   `Exit status:` paragraph is not the exact legend at the end; the number
+//!   alone.
 //!
 //! Egui-free so it is testable without the `gui` feature.
 
@@ -50,9 +54,13 @@ pub enum BadgeKind {
     /// Amber: bit 4 without a failure bit (old scheme: VERIFY-ME); verify the
     /// result before trusting it.
     VerifyMe,
-    /// Green: bit 16 alone (old scheme: Repair Applied); a correction was
-    /// applied and the plate is damaged.
+    /// Green: old scheme only, 5 from a `repair` verb or the toolkit's
+    /// auto-repair: Repair Applied, verified.
     Repaired,
+    /// Amber: bit 16 alone. A correction was applied and the plate is
+    /// damaged; under decision 7 a lone chunk of a larger set also exits 16,
+    /// unverified until the whole set is read, so this is not green.
+    Corrected,
     /// Amber: 130, stopped by the operator. Not the colour of success.
     Stopped,
     /// Red: a "no" (1), an invalid input (2), a refusal (8), an IO failure
@@ -155,7 +163,14 @@ fn bits_badge(code: i32, bits: Bits) -> Badge {
     } else if bits.contains(Bits::UNVERIFIED) {
         BadgeKind::VerifyMe
     } else {
-        BadgeKind::Repaired
+        // 16 alone: say what the code cannot tell apart (decision 7).
+        return badge(
+            BadgeKind::Corrected,
+            format!(
+                "{head} — a correction was applied — verified, or verifiable only once the \
+                 whole set is read; re-engrave the damaged plate"
+            ),
+        );
     };
     badge(kind, format!("{head} — {}", names.join("; ")))
 }
@@ -173,6 +188,11 @@ fn cli_and_sub(argv: &[String]) -> (&str, &str) {
 }
 
 /// The old codes (`a5fa42d`), for a CLI whose `--help` has no legend.
+///
+/// Known limit (final review M13, left as is by ruling): old `mnemonic` 4 is
+/// amber VERIFY-ME on every verb, though `verify-bundle`, `restore` and
+/// `xpub-search` also exited 4 for a mismatch; the old code cannot tell the
+/// mismatch from a partial result, so the warning colour is kept.
 fn legacy(argv: &[String], code: i32) -> Badge {
     let (cli, sub) = cli_and_sub(argv);
     match code {
@@ -191,11 +211,17 @@ fn legacy(argv: &[String], code: i32) -> Badge {
             "exit: 4 — VERIFY-ME (confirm the result out-of-band before \
              trusting it; see the output below)",
         ),
-        5 => badge(
-            BadgeKind::Repaired,
-            "exit: 5 — Repair Applied (BCH correction succeeded: \
+        // Only a `repair` verb, or the toolkit's auto-repair paths (spec R7:
+        // inspect, convert, verify-bundle), exited 5 for REPAIR_APPLIED.
+        5 if sub == "repair"
+            || (cli == "mnemonic" && matches!(sub, "inspect" | "convert" | "verify-bundle")) =>
+        {
+            badge(
+                BadgeKind::Repaired,
+                "exit: 5 — Repair Applied (BCH correction succeeded: \
              re-engrave the damaged plate)",
-        ),
+            )
+        }
         n => badge(BadgeKind::Plain, format!("exit: {n}")),
     }
 }

@@ -1318,7 +1318,7 @@ fn render_exit_badge(ui: &mut egui::Ui, result: &runner::RunResult) {
         BadgeKind::Plain => {
             ui.label(badge.text);
         }
-        BadgeKind::VerifyMe | BadgeKind::Stopped => {
+        BadgeKind::VerifyMe | BadgeKind::Stopped | BadgeKind::Corrected => {
             ui.colored_label(egui::Color32::from_rgb(220, 165, 0), badge.text);
         }
         BadgeKind::Repaired => {
@@ -1353,24 +1353,26 @@ fn spawn_and_capture(app: &mut MnemonicGuiApp, plan: crate::form::channels::RunP
     }
     // SPEC §B.8 class 1: detect-missing-binary path — surface a friendly
     // error rather than crashing.
+    // Final review M12: resolve the binary ONCE; the G1 `--version` probe,
+    // the exit-code scheme probe and the run all use this one file, so no
+    // platform lookup rule (e.g. Windows' application directory first) can
+    // make them read different binaries.
     let bin = &plan.argv[0];
-    if !matches!(
-        crate::path_detect::detect(bin),
-        Detected::Found(_)
-    ) {
-        app.last_run = None;
-        app.last_run_error = Some(format!(
-            "`{}` not found on $PATH",
-            bin
-        ));
-        return;
-    }
+    let program = match crate::path_detect::detect(bin) {
+        Detected::Found(path) => path,
+        Detected::NotFound => {
+            app.last_run = None;
+            app.last_run_error = Some(format!("`{}` not found on $PATH", bin));
+            return;
+        }
+    };
+    let program_str = program.to_string_lossy().into_owned();
     // G1 (bug hunt 2026-11-25): a run that carries a secret goes only to a
     // binary that reports the pinned version or newer — an older CLI can take
     // `@env:MNEMONIC_GUI_S<i>` (or `-`) literally as the secret itself. The
     // gate never alters the plan; a refusal spawns nothing.
     if let Err(why) =
-        crate::cli_version::gate_secret_run(&plan, crate::cli_version::probe)
+        crate::cli_version::gate_secret_run(&plan, |_| crate::cli_version::probe(&program_str))
     {
         app.last_run = None;
         app.last_run_error = Some(format!("Run refused — {why}"));
@@ -1383,7 +1385,7 @@ fn spawn_and_capture(app: &mut MnemonicGuiApp, plan: crate::form::channels::RunP
     // Exit-code spec §7j: the result carries the exit-code scheme the binary
     // speaks (its `--help` ends with the R11 legend, or not), probed once per
     // binary, so the badge never reads an old code as a new sum.
-    match runner::run_plan_decoded(&plan) {
+    match runner::run_plan_decoded(&plan, &program) {
         Ok(result) => {
             app.last_run = Some(result);
             app.last_run_error = None;

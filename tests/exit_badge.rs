@@ -84,7 +84,7 @@ fn colour_follows_the_bits_not_the_command() {
     }
     assert_eq!(bits(4).kind, BadgeKind::VerifyMe);
     assert_eq!(bits(20).kind, BadgeKind::VerifyMe);
-    assert_eq!(bits(16).kind, BadgeKind::Repaired);
+    assert_eq!(bits(16).kind, BadgeKind::Corrected);
     // The same code means the same thing whatever ran.
     for a in [
         argv(&["md", "descriptor", "--verify-against", "x"]),
@@ -102,14 +102,16 @@ fn colour_follows_the_bits_not_the_command() {
 }
 
 #[test]
-fn sixteen_alone_says_to_re_engrave() {
-    // Review M3: green, but the §3 action is in the text.
+fn sixteen_alone_is_amber_and_says_it_may_not_be_verified_yet() {
+    // Review M11 (final round), coordinator ruling: under decision 7 a lone
+    // corrected chunk of a larger set also exits 16, unverified until the
+    // set is read, so 16 alone is not green.
     let b = bits(16);
-    assert_eq!(b.kind, BadgeKind::Repaired);
-    assert!(
-        b.text.contains("re-engrave the damaged plate"),
-        "{}",
-        b.text
+    assert_eq!(b.kind, BadgeKind::Corrected);
+    assert_eq!(
+        b.text,
+        "exit: 16 — a correction was applied — verified, or verifiable only once \
+         the whole set is read; re-engrave the damaged plate"
     );
 }
 
@@ -204,15 +206,35 @@ fn legacy_md_descriptor_5_is_not_spend_equal_not_repair() {
 
 #[test]
 fn legacy_repair_5_is_green_repair_applied() {
+    // `repair` verbs, and the toolkit's auto-repair paths (inspect, convert,
+    // verify-bundle; spec R7), are the only old 5 = REPAIR_APPLIED.
     for a in [
         argv(&["md", "repair", "md1..."]),
         argv(&["mk", "repair", "mk1..."]),
         argv(&["mnemonic", "repair", "--md1", "md1..."]),
         argv(&["mnemonic", "verify-bundle", "--md1", "x"]),
+        argv(&["mnemonic", "inspect", "--md1", "x"]),
+        argv(&["mnemonic", "convert", "--from", "mk1=x", "--to", "xpub"]),
     ] {
         let b = classify(&a, Some(5), None, &LEGACY);
         assert_eq!(b.kind, BadgeKind::Repaired, "{a:?}");
         assert!(b.text.contains("Repair Applied"), "{}", b.text);
+    }
+}
+
+#[test]
+fn legacy_5_elsewhere_is_not_green() {
+    // Review I4 (final round): no old CLI gave 5 elsewhere (but md
+    // descriptor), so a 5 from another verb is not dressed as a repair.
+    for a in [
+        argv(&["md", "decode", "md1..."]),
+        argv(&["mk", "verify", "mk1..."]),
+        argv(&["mnemonic", "restore", "--md1", "x"]),
+        argv(&["ms", "inspect", "ms1..."]),
+    ] {
+        let b = classify(&a, Some(5), None, &LEGACY);
+        assert_eq!(b.kind, BadgeKind::Plain, "{a:?}");
+        assert_eq!(b.text, "exit: 5", "{a:?}");
     }
 }
 

@@ -45,11 +45,18 @@ fn main() -> ExitCode {
     let cli = match Cli::try_parse() {
         Ok(cli) => cli,
         Err(e) => {
-            let _ = e.print();
-            return ExitCode::from(if e.exit_code() == 0 {
-                mnemonic_gui::exit_code::OK
-            } else {
+            // R8: `--help`/`--version` whose stdout cannot be written (a full
+            // disk, a closed stdout) is an IO failure, 32; EPIPE (the reader
+            // went away) keeps the code. A usage error stays 64 whether or
+            // not its message reached stderr.
+            let printed = e.print();
+            let io_failed = printed.is_err_and(|err| err.kind() != std::io::ErrorKind::BrokenPipe);
+            return ExitCode::from(if e.exit_code() != 0 {
                 mnemonic_gui::exit_code::USAGE
+            } else if io_failed {
+                mnemonic_gui::exit_code::IO
+            } else {
+                mnemonic_gui::exit_code::OK
             });
         }
     };
