@@ -1233,3 +1233,12 @@ Consequences on this repo:
 - **Where:** the GUI's `ms split` form has no `ms_split` conditional, so `--language` stays visible and emitted under `--hex` (`src/schema/ms.rs:990-996`, `conditional: None`). The flag help at `src/schema/ms.rs:612` still says "ignored under --hex", which is false once the pinned ms carries PR #48.
 - **Fix:** add an `ms_split` conditional that hides/disables `--language` under `--hex`, mirroring `ms_encode`'s, and correct the help text. Apply it with the ms pin bump that brings in PR #48 (until then the pinned ms 0.21.0 still ignores the flag), with the schema-mirror and toolkit manual-gui lockstep.
 - **Status:** open. **Tier:** `cross-repo`.
+
+## `gui-bh1125-sibling-pr-couplings` — GUI changes owed when its pins move past the 2026-11-25 bug-hunt fix PRs
+
+- **Surfaced:** 2026-11-26, the combined fresh-clone build gate of the bug-hunt fix PRs. Every item passes at today's pins and fails only against the sibling PR heads (gate run of this repo against them).
+- **md schema mirror:** `md address` and `md descriptor` gain `--allow-invalid-miniscript` (descriptor-mnemonic#76, md-cli 0.21.2). The md schema mirror and its pinned-upstream tag must add it at the md pin bump past #76. **Companion:** `md-address-allow-invalid-miniscript-gui-schema` (descriptor-mnemonic `design/FOLLOWUPS.md`).
+- **`secret_channels_t2` cells:** they use `--slot @N.wif`, which mnemonic-toolkit#227 (X4) now refuses in `bundle --template` mode. Change the cells at the toolkit pin bump past #227.
+- **`wire_shape` snapshot:** `searched_count` moves 140 → 161 against mnemonic-toolkit#227's `xpub-search` (B1 adds the `bip87` and `bip45` candidate families). Re-capture at that pin bump.
+- **Bare `@N`:** toolkit#227 (B4) refuses a bare `@N` in `bundle --descriptor`; check the GUI's forms never send one (toolkit PR body, cross-repo follow-ups).
+- **Status:** open. **Tier:** `cross-repo`.
