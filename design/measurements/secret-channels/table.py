@@ -26,7 +26,7 @@ for label,c in cases.items():
     else:
         s=cell(r,"stdin `"); e=cell(r,"@env"); t=cell(r,"-stdin`"); f1=cell(r,"-file F"); f2=cell(r,"--in F")
         f = "OK (`-file`)" if f1=="OK" else ("OK (`--in`)" if f2=="OK" else ("—" if f1=="—" and f2 in("—","n/a") else f"{f1}/{f2}"))
-    valid = r.get("base_has_output", r["base_exit"] in (0,4)) and r["depends"]  # R12
+    valid = r.get("base_has_output", True) and 0 <= r["base_exit"] < 64 and r["base_exit"] & (1|2|8|32) == 0 and r["depends"]  # R12 + review M4: output AND no failure bit (old 0/4 too)
     rows.append((label, refused(c), s, e, t, f, "yes" if valid else f"NO (base exit {r['base_exit']}, depends={r['depends']})"))
 print("| input | argv w/o opt-in | `-` / positional `-` | `@env:VAR` | `--X-stdin` | file (`--X-file` / `--in`) | measurement valid |")
 print("|---|---|---|---|---|---|---|")

@@ -1298,21 +1298,27 @@ impl eframe::App for MnemonicGuiApp {
 ///
 /// Text and colour come from [`crate::exit_badge::classify`], which decodes
 /// the constellation's exit codes bit by bit (`SPEC_constellation_exit_codes.md`
-/// rev 5, R12) when the binary is at or above the exit-code floor, and shows
-/// the number undecoded otherwise (§7j). It never depends on which command
-/// ran, and says nothing about whether output exists.
+/// rev 5, R12) for a binary whose `--help` ends with the R11 legend, reads an
+/// older binary by the old per-command codes, and shows the number undecoded
+/// when the binary could not be asked (§7j). It says nothing about whether
+/// output exists. Amber also marks 130 (stopped).
 ///
 /// Amber (220, 165, 0) is the warning colour of archetype_form.rs /
 /// slot_editor.rs; red (220, 60, 60) the error red of the subprocess-error
 /// line; green (60, 180, 75) sits in the same chroma band.
 fn render_exit_badge(ui: &mut egui::Ui, result: &runner::RunResult) {
     use crate::exit_badge::{classify, BadgeKind};
-    let badge = classify(result.exit_code, result.signal, &result.exit_scheme);
+    let badge = classify(
+        &result.argv,
+        result.exit_code,
+        result.signal,
+        &result.exit_scheme,
+    );
     match badge.kind {
         BadgeKind::Plain => {
             ui.label(badge.text);
         }
-        BadgeKind::VerifyMe => {
+        BadgeKind::VerifyMe | BadgeKind::Stopped => {
             ui.colored_label(egui::Color32::from_rgb(220, 165, 0), badge.text);
         }
         BadgeKind::Repaired => {
@@ -1363,25 +1369,22 @@ fn spawn_and_capture(app: &mut MnemonicGuiApp, plan: crate::form::channels::RunP
     // binary that reports the pinned version or newer — an older CLI can take
     // `@env:MNEMONIC_GUI_S<i>` (or `-`) literally as the secret itself. The
     // gate never alters the plan; a refusal spawns nothing.
-    // Exit-code spec §7j: the same single probe runs before EVERY run and
-    // decides whether its exit status may be decoded bit by bit (a binary
-    // below the exit-code floor speaks the old codes). A run without a secret
-    // is never refused.
-    let exit_scheme = match crate::cli_version::gate_run(&plan, crate::cli_version::probe) {
-        Ok(scheme) => scheme,
-        Err(why) => {
-            app.last_run = None;
-            app.last_run_error = Some(format!("Run refused — {why}"));
-            return;
-        }
-    };
+    if let Err(why) =
+        crate::cli_version::gate_secret_run(&plan, crate::cli_version::probe)
+    {
+        app.last_run = None;
+        app.last_run_error = Some(format!("Run refused — {why}"));
+        return;
+    }
     // DESIGN (secret channels) §A4.4/§A6: the runner scrubs inherited
     // MNEMONIC_GUI_* variables, sets the plan's, writes stdin and the pipe
     // payloads (write ends closed before spawn). The result carries the
     // plan's display mask.
-    match runner::run_plan(&plan) {
-        Ok(mut result) => {
-            result.exit_scheme = exit_scheme;
+    // Exit-code spec §7j: the result carries the exit-code scheme the binary
+    // speaks (its `--help` ends with the R11 legend, or not), probed once per
+    // binary, so the badge never reads an old code as a new sum.
+    match runner::run_plan_decoded(&plan) {
+        Ok(result) => {
             app.last_run = Some(result);
             app.last_run_error = None;
         }

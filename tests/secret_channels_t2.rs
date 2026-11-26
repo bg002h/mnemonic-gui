@@ -97,6 +97,13 @@ fn run_argv(argv: &[String], stdin: Option<&str>) -> Out {
     }
 }
 
+/// A status with no failure bit: 0..=63 without 1, 2, 8 or 32. Under the old
+/// codes that admits exactly 0 and 4 of the codes a baseline exits with (old 5,
+/// 3, 2 and 1 all carry a failure bit).
+fn ok_code(code: Option<i32>) -> bool {
+    matches!(code, Some(c) if (0..64).contains(&c) && c & (1 | 2 | 8 | 32) == 0)
+}
+
 fn bin(cli: &str) -> String {
     bin_dir().join(cli).to_string_lossy().into_owned()
 }
@@ -324,9 +331,12 @@ fn t2_every_cell_equals_the_argv_baseline_with_dependence_and_byte_fidelity() {
                         .unwrap()
                         .push(format!("{key}: baseline does not depend on the secret"));
                 }
-                if base.stdout.trim().is_empty() {
+                // The baseline must have done its job: output, and no failure
+                // bit (review M4). `ok_code` holds under both schemes: old 0 or
+                // 4, new codes without 1, 2, 8 or 32.
+                if base.stdout.trim().is_empty() || !ok_code(base.code) {
                     bad.lock().unwrap().push(format!(
-                        "{key}: baseline produced no output (exit {:?})",
+                        "{key}: baseline did not succeed (exit {:?})",
                         base.code
                     ));
                 }

@@ -8,7 +8,7 @@
 //! the binary reports a version at least the pinned one, and never alters a
 //! plan it admits.
 
-use mnemonic_gui::cli_version::{gate_run, gate_secret_run, pinned_version_for};
+use mnemonic_gui::cli_version::{gate_secret_run, pinned_version_for};
 use mnemonic_gui::form::channels;
 use mnemonic_gui::schema::{self, FlagValue, FormState, SubcommandSchema};
 
@@ -95,8 +95,6 @@ fn g1_public_run_is_never_probed() {
 
 /// The app wires the gate into `spawn_and_capture`, the single choke point
 /// every Run (confirmed or not) passes through, before `runner::run_plan`.
-/// Since the exit-code spec (§7j) it is `gate_run`, which probes every run
-/// once and applies `gate_secret_run` to that one answer.
 #[test]
 fn g1_spawn_and_capture_calls_the_gate_before_spawning() {
     let src = include_str!("../src/app_window.rs");
@@ -105,9 +103,10 @@ fn g1_spawn_and_capture_calls_the_gate_before_spawning() {
         .expect("spawn_and_capture exists");
     let body = &src[f..];
     let gate = body
-        .find("cli_version::gate_run(")
+        .find("cli_version::gate_secret_run(")
         .expect("spawn_and_capture must call the version gate");
-    let spawn = body.find("runner::run_plan(").expect("spawn site");
+    // Exit-code spec §7j: the spawn site is `run_plan_decoded`.
+    let spawn = body.find("runner::run_plan_decoded(").expect("spawn site");
     assert!(gate < spawn, "the gate must run before the spawn");
 }
 
@@ -138,21 +137,4 @@ fn g1_refusal_text_matches_the_platform_path_and_warns_about_copy() {
             "{t}"
         );
     }
-}
-
-/// Exit-code spec §7j: `gate_run` (every run) keeps G1's refusal for a secret
-/// run, from the same single probe that picks the exit-code scheme.
-#[test]
-fn g1_gate_run_refuses_an_older_cli_for_a_secret_run_with_one_probe() {
-    let p = env_ref_plan();
-    let mut calls = 0;
-    let r = gate_run(&p, |_| {
-        calls += 1;
-        Ok("mnemonic 0.25.0\n".to_string())
-    });
-    assert_eq!(calls, 1);
-    let err = r.expect_err("an older CLI must be refused");
-    assert!(err.contains("older than the pinned mnemonic "), "{err}");
-    let pinned = pinned_version_for("mnemonic").unwrap().to_string();
-    assert!(gate_run(&p, |_| Ok(format!("{pinned}\n"))).is_ok());
 }

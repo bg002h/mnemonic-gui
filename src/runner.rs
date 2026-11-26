@@ -32,9 +32,9 @@ pub struct RunResult {
     /// Exit-code spec R12: a GUI shows "killed by signal N" from the
     /// platform's status, since such a child has no exit code.
     pub signal: Option<i32>,
-    /// How `exit_code` may be read (exit-code spec §7j). The runner does not
-    /// know the binary's version, so it leaves this undecoded; the GUI's
-    /// `spawn_and_capture` sets it from the version gate that ran first.
+    /// How `exit_code` may be read (exit-code spec §7j). [`run_plan_decoded`]
+    /// sets it from the binary's `--help`; the other entry points leave it
+    /// undecoded.
     pub exit_scheme: crate::exit_badge::CodeScheme,
     pub stdout: Vec<u8>,
     pub stderr: Vec<u8>,
@@ -99,7 +99,7 @@ impl Drop for PendingConfirm {
 
 /// The runner's scheme before the GUI's version gate has said otherwise.
 fn unchecked_scheme() -> crate::exit_badge::CodeScheme {
-    crate::exit_badge::CodeScheme::Undecoded("the binary's version was not checked".to_string())
+    crate::exit_badge::CodeScheme::Undecoded("the binary's exit codes were not checked".to_string())
 }
 
 /// The signal that ended the child, if any (Unix only).
@@ -386,6 +386,20 @@ pub fn run_plan_with_env_prefix(
         stdout: output.stdout,
         stderr: output.stderr,
     })
+}
+
+/// [`run_plan`], then stamp the result with the exit-code scheme the binary
+/// speaks (`cli_version::exit_scheme_cached`: its root `--help` ends with the
+/// R11 legend, probed once per binary), so the badge decodes it correctly
+/// (exit-code spec §7j, R12). The app's single run site.
+pub fn run_plan_decoded(plan: &crate::form::channels::RunPlan) -> io::Result<RunResult> {
+    let scheme = match plan.argv.first() {
+        Some(bin) => crate::cli_version::exit_scheme_cached(bin),
+        None => unchecked_scheme(),
+    };
+    let mut result = run_plan(plan)?;
+    result.exit_scheme = scheme;
+    Ok(result)
 }
 
 #[cfg(test)]

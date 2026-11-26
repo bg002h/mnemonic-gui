@@ -646,7 +646,8 @@ const SPLIT_FLAGS: &[FlagSchema] = &[
         required: false,
         repeating: false,
         help: "Write the canonical artifact to FILE, owner-only (0600), instead \
-               of stdout. REFUSES an existing file (exit 8, refused).",
+               of stdout. REFUSES an existing file (exit 8; 64 before the \
+               constellation exit codes).",
         secret: false,
         default_value: None,
         global: false,

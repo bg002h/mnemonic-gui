@@ -110,19 +110,20 @@ Run that carries a secret (a passphrase, phrase, ms1 card…), the GUI asks the
 CLI for `--version` and refuses the run unless it is the pinned version above
 or newer: an older CLI can read the GUI's `@env:`/stdin reference as the
 secret itself and derive the wrong wallet. The copied command has the same
-requirement. Runs without a secret are never refused.
+requirement. Runs without a secret are not checked.
 
 **Exit codes.** The output panel decodes each CLI's exit status by the
 constellation's exit codes: 0 done, 64 bad command line, 101 internal error,
 130 stopped by the operator, and otherwise a sum (1 to 63) of 1 a check said
 no, 2 an input is invalid, 4 verify the result before trusting it, 8 refused,
 16 a correction was applied, 32 a file, device or helper failed; the badge
-names each one. Every run first asks the CLI for `--version`: a CLI older
-than the first release that speaks these codes (`mnemonic` 0.108.0, `md`
-0.22.0, `ms` 0.22.0, `mk` 0.18.0) exits with the old numbers, which the badge
-then shows undecoded. The GUI's own exit status is 0, 32 (cannot start: no
-display), 64 (bad command line), 101 (internal error), or 130 when a
-signal's clean shutdown times out.
+names each one. A CLI speaks these codes when its `--help` ends with that
+legend; the GUI asks each binary once (cached until the file changes). A
+CLI released before the change is read by its old codes (for example `md
+descriptor --verify-against` 5 = NOT spend-equal, `ms repair` 4 = VERIFY-ME).
+The GUI's own exit status is 0, 32 (cannot start: no display), 64 (bad
+command line), 101 (internal error), or 130 when a signal's clean shutdown
+times out.
 
 Each of those CLIs also ships **man pages** — the [constellation installer](https://github.com/bg002h/mnemonic-toolkit) installs them automatically (`man mnemonic`, `man md`, `man ms`, `man mk`); the GUI itself has none.
 

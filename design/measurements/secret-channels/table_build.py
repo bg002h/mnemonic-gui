@@ -29,7 +29,7 @@ def main():
             rows[r["label"]]=r
     table={}
     for label,r in rows.items():
-        valid = r.get("base_has_output", r["base_exit"] in (0,4)) and r["depends"]  # R12
+        valid = r.get("base_has_output", True) and 0 <= r["base_exit"] < 64 and r["base_exit"] & (1|2|8|32) == 0 and r["depends"]  # R12 + review M4: output AND no failure bit (old 0/4 too)
         if not valid: continue
         if label=="ms combine <shares> (first)": continue   # superseded by the group row (measure_groups.py)
         ok=[kind(n) for n,v in r["channels"].items() if v=="OK"]

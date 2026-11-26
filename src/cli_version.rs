@@ -118,15 +118,11 @@ pub fn refusal_text(reason: &str, pinned: &str, interim: bool) -> String {
 }
 
 /// Ask `bin` for its version: stdout of `<bin> --version` on exit 0.
+/// Bounded by [`PROBE_TIMEOUT`] (review M2): a `--version` that hangs refuses
+/// the secret run instead of freezing the window.
 pub fn probe(bin: &str) -> Result<String, String> {
-    match crate::runner::run([bin, "--version"]) {
-        Ok(r) if r.exit_code == Some(0) => Ok(String::from_utf8_lossy(&r.stdout).into_owned()),
-        Ok(r) => Err(format!(
-            "`{bin} --version` failed (exit {:?}); cannot confirm the binary's version",
-            r.exit_code
-        )),
-        Err(e) => Err(format!("`{bin} --version` could not run: {e}")),
-    }
+    run_probe(bin, "--version", PROBE_TIMEOUT)
+        .map_err(|e| format!("{e}; cannot confirm the binary's version"))
 }
 
 /// The gate: a plan with no secret binding passes unprobed; a plan with one
@@ -147,80 +143,135 @@ pub fn gate_secret_run(
     check_reported(pinned, &reported).map_err(|e| refusal_text(&e, pinned, plan.interim))
 }
 
-/// The first version of each CLI that exits with the constellation's codes
-/// (`SPEC_constellation_exit_codes.md` rev 5, §3; floor per §7j and §9), in
-/// the `--version` form, or `None` for a binary the GUI does not run.
-///
-/// Every old code is a valid new sum with another meaning, so a status from a
-/// binary below its floor is never decoded bit by bit. These are the next
-/// releases after the pins of 2026-11-26 (`md 0.21.0`, `ms 0.21.0`,
-/// `mk 0.17.0`, `mnemonic 0.107.1`); the cutover release of each CLI must
-/// carry at least this version. A `-dev` build reports its numeric triple
-/// only, so a pre-cutover `mk 0.18.0-dev` would be taken as speaking the new
-/// codes.
-pub fn exit_bits_floor(cli_name: &str) -> Option<&'static str> {
-    match cli_name {
-        "mnemonic" => Some("mnemonic 0.108.0"),
-        "md" => Some("md 0.22.0"),
-        "ms" => Some("ms 0.22.0"),
-        "mk" => Some("mk 0.18.0"),
-        _ => None,
+/// How long a probe of a CLI (`--version`, `--help`) may take before the GUI
+/// gives up on it (review M2): the probes run in the Run-click frame.
+pub const PROBE_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(5);
+
+/// Run `<bin> <arg>` with no stdin and return its stdout if it exits 0 within
+/// `timeout`. A probe that runs over is killed and is an error; it never
+/// blocks longer than `timeout` (a grandchild that keeps the pipe open is left
+/// to its reader thread).
+pub fn run_probe(bin: &str, arg: &str, timeout: std::time::Duration) -> Result<String, String> {
+    use std::io::Read;
+    use std::process::{Command, Stdio};
+    let mut child = Command::new(bin)
+        .arg(arg)
+        .stdin(Stdio::null())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::null())
+        .spawn()
+        .map_err(|e| format!("`{bin} {arg}` could not run: {e}"))?;
+    let mut out = child.stdout.take().expect("stdout was requested piped");
+    let (tx, rx) = std::sync::mpsc::channel();
+    std::thread::spawn(move || {
+        let mut buf = Vec::new();
+        let _ = out.read_to_end(&mut buf);
+        let _ = tx.send(buf);
+    });
+    let deadline = std::time::Instant::now() + timeout;
+    let status = loop {
+        match child.try_wait() {
+            Ok(Some(status)) => break status,
+            Ok(None) if std::time::Instant::now() < deadline => {
+                std::thread::sleep(std::time::Duration::from_millis(5))
+            }
+            Ok(None) => {
+                let _ = child.kill();
+                let _ = child.wait();
+                return Err(format!(
+                    "`{bin} {arg}` did not finish within {}s",
+                    timeout.as_secs_f32()
+                ));
+            }
+            Err(e) => return Err(format!("`{bin} {arg}` could not be waited for: {e}")),
+        }
+    };
+    let stdout = rx
+        .recv_timeout(deadline.saturating_duration_since(std::time::Instant::now()))
+        .map_err(|_| {
+            format!(
+                "`{bin} {arg}` did not finish within {}s",
+                timeout.as_secs_f32()
+            )
+        })?;
+    if status.code() == Some(0) {
+        Ok(String::from_utf8_lossy(&stdout).into_owned())
+    } else {
+        Err(format!("`{bin} {arg}` failed (exit {:?})", status.code()))
     }
 }
 
-/// `argv[0]`'s file name without a `.exe` suffix.
-fn cli_name(bin: &str) -> &str {
-    let name = std::path::Path::new(bin)
-        .file_name()
-        .and_then(|n| n.to_str())
-        .unwrap_or(bin);
-    name.strip_suffix(".exe").unwrap_or(name)
+/// True iff a root `--help` text ENDS with the R11 legend
+/// ([`crate::exit_code::HELP_LEGEND`]), whitespace-normalised because clap
+/// may re-wrap it. Every CLI that speaks the constellation's exit codes
+/// prints it there (spec R11); no CLI before the renumber does.
+pub fn speaks_bits(help: &str) -> bool {
+    let norm = |t: &str| t.split_whitespace().collect::<Vec<_>>().join(" ");
+    norm(help).ends_with(&norm(crate::exit_code::HELP_LEGEND))
 }
 
-/// How to read the exit status of a run of `bin`, given its `--version`
-/// answer: decode the bits only when it names the same CLI at a version at or
-/// above [`exit_bits_floor`]; otherwise say why the status is not decoded.
-pub fn exit_scheme(bin: &str, reported: &Result<String, String>) -> CodeScheme {
-    let cli = cli_name(bin);
-    let Some(floor) = exit_bits_floor(cli) else {
-        return CodeScheme::Undecoded(format!("`{cli}` is not a CLI this GUI decodes"));
-    };
-    let (_, want) = parse_version_line(floor).expect("floors parse (unit-tested)");
-    let reported = match reported {
-        Ok(r) => r,
-        Err(e) => return CodeScheme::Undecoded(e.clone()),
-    };
-    let Some((got_name, got)) = parse_version_line(reported) else {
-        return CodeScheme::Undecoded(format!(
-            "`{cli} --version` did not name a version this GUI recognises"
-        ));
-    };
-    if got_name != cli {
-        return CodeScheme::Undecoded(format!(
-            "the `{cli}` this GUI runs reports itself as `{got_name}`"
-        ));
+/// Ask `bin --help` (within `timeout`) which exit codes it speaks:
+/// [`CodeScheme::Bits`] if its help ends with the legend,
+/// [`CodeScheme::Legacy`] if it answered without it, and
+/// [`CodeScheme::Undecoded`] if it could not be asked.
+pub fn probe_scheme(bin: &str, timeout: std::time::Duration) -> CodeScheme {
+    match run_probe(bin, "--help", timeout) {
+        Ok(help) if speaks_bits(&help) => CodeScheme::Bits,
+        Ok(_) => CodeScheme::Legacy,
+        Err(e) => CodeScheme::Undecoded(e),
     }
-    if got < want {
-        return CodeScheme::Undecoded(format!(
-            "`{cli} {}.{}.{}` predates the constellation exit codes, which start at {floor}",
-            got.0, got.1, got.2
-        ));
-    }
-    CodeScheme::Bits
 }
 
-/// The gate before EVERY run (exit-code spec §7j): ask the binary for its
-/// version once, refuse a secret-bearing run exactly as [`gate_secret_run`]
-/// does, and otherwise return how the run's exit status may be read. A run
-/// without a secret is never refused, whatever the probe says.
-pub fn gate_run(
-    plan: &RunPlan,
-    probe: impl FnOnce(&str) -> Result<String, String>,
-) -> Result<CodeScheme, String> {
-    let bin = plan.argv.first().map(String::as_str).unwrap_or("");
-    let reported = probe(bin);
-    gate_secret_run(plan, |_| reported.clone())?;
-    Ok(exit_scheme(bin, &reported))
+/// The file a run of `bin` executes: `bin` itself when it names a path,
+/// otherwise its `$PATH` match.
+fn resolve(bin: &str) -> Option<std::path::PathBuf> {
+    let p = std::path::Path::new(bin);
+    if p.components().count() > 1 {
+        return Some(p.to_path_buf());
+    }
+    match crate::path_detect::detect(bin) {
+        crate::path_detect::Detected::Found(found) => Some(found),
+        crate::path_detect::Detected::NotFound => None,
+    }
+}
+
+type SchemeKey = (std::path::PathBuf, Option<std::time::SystemTime>, u64);
+
+fn scheme_cache() -> &'static std::sync::Mutex<std::collections::HashMap<SchemeKey, CodeScheme>> {
+    static CACHE: std::sync::OnceLock<
+        std::sync::Mutex<std::collections::HashMap<SchemeKey, CodeScheme>>,
+    > = std::sync::OnceLock::new();
+    CACHE.get_or_init(Default::default)
+}
+
+/// [`probe_scheme`] for the binary a run of `bin` executes, probed once per
+/// (resolved path, mtime, size): an upgrade in place is probed again. Only a
+/// definite answer (Bits or Legacy) is cached; a failed probe is retried on
+/// the next run.
+pub fn exit_scheme_cached(bin: &str) -> CodeScheme {
+    let Some(path) = resolve(bin) else {
+        return CodeScheme::Undecoded(format!("`{bin}` not found on the search path"));
+    };
+    let meta = std::fs::metadata(&path).ok();
+    let key: SchemeKey = (
+        path.clone(),
+        meta.as_ref().and_then(|m| m.modified().ok()),
+        meta.as_ref().map(|m| m.len()).unwrap_or(0),
+    );
+    if let Some(s) = scheme_cache()
+        .lock()
+        .ok()
+        .and_then(|c| c.get(&key).cloned())
+    {
+        return s;
+    }
+    let scheme = probe_scheme(&path.to_string_lossy(), PROBE_TIMEOUT);
+    if !matches!(scheme, CodeScheme::Undecoded(_)) {
+        if let Ok(mut c) = scheme_cache().lock() {
+            c.insert(key, scheme.clone());
+        }
+    }
+    scheme
 }
 
 #[cfg(test)]
@@ -293,14 +344,6 @@ mod tests {
             );
             assert!(t.contains("Install ms 0.21.0 or newer"), "{t}");
             assert!(!t.contains("$PATH"), "{t}");
-        }
-    }
-
-    #[test]
-    fn exit_floors_parse_and_name_their_cli() {
-        for cli in ["mnemonic", "md", "ms", "mk"] {
-            let (name, _) = parse_version_line(exit_bits_floor(cli).unwrap()).unwrap();
-            assert_eq!(name, cli);
         }
     }
 

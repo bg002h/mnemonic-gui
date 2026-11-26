@@ -39,3 +39,29 @@ fn help_and_version_exit_0_and_help_states_the_codes() {
         "{text}"
     );
 }
+
+/// Review M5: a window that cannot open (no display at all) exits 32,
+/// "cannot start", with a message. Linux only: elsewhere a display backend
+/// does not depend on these variables.
+#[cfg(target_os = "linux")]
+#[test]
+fn no_display_exits_32_cannot_start() {
+    let home = std::env::temp_dir().join(format!("mnemonic-gui-own-exit-{}", std::process::id()));
+    std::fs::create_dir_all(&home).unwrap();
+    let o = Command::new(env!("CARGO_BIN_EXE_mnemonic-gui"))
+        .env_remove("DISPLAY")
+        .env_remove("WAYLAND_DISPLAY")
+        .env_remove("WAYLAND_SOCKET")
+        .env("HOME", &home)
+        .env("XDG_CONFIG_HOME", home.join("config"))
+        .env("XDG_DATA_HOME", home.join("data"))
+        .env("XDG_STATE_HOME", home.join("state"))
+        .env("XDG_RUNTIME_DIR", &home)
+        .output()
+        .expect("mnemonic-gui runs");
+    assert_eq!(o.status.code(), Some(32), "{o:?}");
+    assert!(
+        String::from_utf8_lossy(&o.stderr).contains("mnemonic-gui: cannot start:"),
+        "{o:?}"
+    );
+}

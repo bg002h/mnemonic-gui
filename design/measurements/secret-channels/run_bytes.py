@@ -191,8 +191,8 @@ def measure(label):
 
 # Exit-code spec R12 (SPEC_constellation_exit_codes.md): whether a run produced a result is read
 # from its output, never from its code. Rows recorded before the cutover carry no base_has_output.
-labels = [l for l in cases if l in rows and rows[l].get("base_has_output", rows[l]["base_exit"] in (0, 4))
-          and rows[l]["depends"]]
+labels = [l for l in cases if l in rows and rows[l].get("base_has_output", True)
+          and 0 <= rows[l]["base_exit"] < 64 and rows[l]["base_exit"] & (1 | 2 | 8 | 32) == 0 and rows[l]["depends"]]
 with ThreadPoolExecutor(20) as ex:
     res = list(ex.map(measure, labels))
 json.dump(res, open("bytes.json", "w"), indent=1)
