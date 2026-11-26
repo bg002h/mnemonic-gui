@@ -1,4 +1,5 @@
-//! Pinned schema for the `md` CLI (descriptor-mnemonic-md-cli-v0.7.0).
+//! Pinned schema for the `md` CLI (the tag is `pinned-upstream.toml`'s `[md].tag`;
+//! the version is `SCHEMA.pinned_version` below).
 //!
 //! v0.2 scope: `inspect` (from v0.1) plus `encode`, `decode`, `verify`,
 //! `bytecode`, `vectors`, `compile`, `address`. See Phase D.1 audit report
@@ -6,7 +7,8 @@
 //! provenance.
 //!
 //! NOTE: `pinned_version` is the literal `<bin> --version` output string
-//! that the runtime soft-check compares against (R1 I-1 fold). The
+//! that the runtime version gate (`cli_version`) uses as the minimum for a
+//! secret-bearing run (R1 I-1 fold; bug hunt 2026-11-25 G1). The
 //! `pinned-upstream.toml::[md].tag` field is the git tag for CI install
 //! commands (separate concern); both are bumped in lockstep when the GUI
 //! advances its md pin.

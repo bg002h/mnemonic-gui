@@ -1,4 +1,5 @@
-//! Pinned schema for the `ms` CLI (ms-cli-v0.8.0).
+//! Pinned schema for the `ms` CLI (the tag is `pinned-upstream.toml`'s `[ms].tag`;
+//! the version is `SCHEMA.pinned_version` below).
 //!
 //! Scope: `inspect`/`encode`/`decode`/`verify`/`vectors` plus `repair`
 //! (backfilled into the mirror at v0.5 — it shipped in v0.4 but was never

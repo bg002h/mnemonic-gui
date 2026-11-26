@@ -95,3 +95,17 @@ fn readme_install_tags_match_pins() {
         );
     }
 }
+
+/// Review F-M4 / r2-n2: README "Install" and the CHANGELOG G1 entry tell a
+/// GUI-only upgrader that secret-bearing Runs need the pinned CLI versions.
+#[test]
+fn readme_and_changelog_say_secret_runs_need_the_pinned_cli_versions() {
+    let readme = read("README.md");
+    let install =
+        &readme[readme.find("## Install").unwrap()..readme.find("## Screenshots").unwrap()];
+    assert!(install.contains("Upgrading the GUI alone is not enough for secret-bearing runs"));
+    assert!(install.contains("pinned version above\nor newer"));
+    let changelog = read("CHANGELOG.md");
+    let unreleased = &changelog[..changelog.find("## mnemonic-gui [").unwrap()];
+    assert!(unreleased.contains("Upgrading the GUI alone is not enough:"));
+}

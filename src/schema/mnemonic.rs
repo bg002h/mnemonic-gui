@@ -4839,11 +4839,11 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
 ];
 
 // `pinned_version` is rendered as a monospace label in the action-bar
-// `Pinned:` row at `src/main.rs:347`. There is NO runtime comparison
-// logic that consumes this field — `schema_check.rs` reads
-// `pinned-upstream.toml` + the `<cli> gui-schema` JSON, not this string.
-// Bump it in lockstep with the toolkit tag for human-display parity only;
-// drift here is a cosmetic banner mismatch, not a functional error.
+// `Pinned:` row (`src/app_window.rs`), AND since the bug hunt 2026-11-25 G1
+// fix it is FUNCTIONAL: `cli_version::gate_secret_run` refuses a
+// secret-bearing run unless `mnemonic --version` reports this version or
+// newer. Bump it in lockstep with the toolkit tag; a value ahead of the
+// installed binary refuses every secret-bearing run.
 pub const SCHEMA: Schema = Schema {
     cli_name: "mnemonic",
     pinned_version: "mnemonic 0.107.1",

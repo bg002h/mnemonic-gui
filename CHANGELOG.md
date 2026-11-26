@@ -5,6 +5,14 @@ All notable changes to `mnemonic-gui` are recorded here. Follows
 
 ## Unreleased
 
+Bug hunt 2026-11-25 fixes (G1–G5).
+
+- **G1 — version gate before a secret-bearing Run.** The GUI spawns whatever `mnemonic`/`md`/`ms`/`mk` is first on `$PATH`, and sends a secret as `@env:MNEMONIC_GUI_S<i>`, `-`/`--X-stdin` or `/dev/fd/N`, a table measured against the pinned binaries. An older CLI could take `@env:MNEMONIC_GUI_S0` literally as the passphrase and exit 0 with a different wallet. Now every Run that carries a secret first asks the binary for `--version` and is refused, with a message, unless the binary names itself as the expected CLI at the schema's `pinned_version` or newer (`src/cli_version.rs`, called from `spawn_and_capture`). An admitted run is unchanged; a run with no secret is not probed. `pinned_version` is therefore functional now: bump it with the tag. **Upgrading the GUI alone is not enough:** secret-bearing Runs need the CLI versions pinned in `pinned-upstream.toml` (or newer) installed too (README, "Install"). The refusal names the channel the OS's Run really uses (private channels on Linux, argv with `--allow-argv-secret` elsewhere) and warns that the copied command is not safe with that binary either; a secret-bearing Copy now starts with a comment line saying it needs the pinned version or newer (review m5, F-M1, r2-m1).
+- **G2 — Windows Copy and `cmd.exe`.** The Windows Copy quotes for `CommandLineToArgvW`, but it is pasted into `cmd.exe`, which does not know `\"` and expands `%NAME%` inside quotes. The Windows Copy button is now disabled (tooltip says why) for a value holding `"`, `%`, `!`, CR or LF; other shell metacharacters are inert inside cmd's quotes. The POSIX Copy and Run are unchanged.
+- **G3 — `state.json` is owner-only (0600) on Unix.** It holds descriptors, xpubs, fingerprints and paths (secrets are stripped). The temp file is created 0600, so the rename also replaces an older 0644 file.
+- **G4 — paste warning matches the OS's channel path.** On an OS in `private_channels_on` (Linux) the warning no longer says the pasted value goes on the command line.
+- **G5 — pin comments.** `pinned-upstream.toml`'s header no longer describes a runtime soft-check or banner that did not exist; the `[md]`/`[mk]` comments describe the current pins. No pin moved (md-cli v0.21.1 waits for the toolkit installer; mk has no newer tag).
+
 ## mnemonic-gui [0.64.0] — 2026-11-22
 
 **SemVer-MINOR — re-pin to the current CLIs: `mnemonic` 0.105.1 → 0.107.1, `md` 0.20.3 → 0.21.0, `ms` 0.20.1 → 0.21.0, `mk` 0.13.0 → 0.17.0.** The toolkit dependency tag moves the same way (`mnemonic-toolkit-v0.105.1 → v0.107.1`; 0.107.1 changes no `mnemonic` behaviour from 0.107.0), and CI installs the pinned release binaries with toolkit installer 5da5c780 (the commit of tag `mnemonic-toolkit-v0.107.1`).

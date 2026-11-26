@@ -219,24 +219,69 @@ pub fn text_holds_private_key(value: &str) -> bool {
         .any(crate::form::tree_model::is_xprv_like)
 }
 
-/// Paste-warn modal copy text (SPEC §9 — one-shot per session, per
-/// secret-class flag). Byte-exact per SPEC §9; the `(v0.2 deferred per
-/// FOLLOWUPS ...)` lines name the explicit non-mitigations.
-pub const PASTE_WARN_MODAL_TEXT: &str = "\
-You are pasting potentially secret material (BIP-39 phrase, entropy hex, WIF, xprv,
-ms1 share, BIP-38 ciphertext, or Electrum native seed).
-
-This GUI runs the binary with the value you pasted as a command-line argument.
-The OS may log this argument in process tables and shell history files. macOS
-and Windows now suppress OS screenshot APIs (App Switcher / Task View) for this
-window. Linux remains unmitigated; see FOLLOWUPS
+/// The shared tail of both paste-warn texts.
+macro_rules! paste_warn_tail {
+    () => {
+        "\
+macOS and Windows now suppress OS screenshot APIs (App Switcher / Task View) for
+this window. Linux remains unmitigated; see FOLLOWUPS
 `gui-os-snapshot-secret-occlusion`.
 
 The GUI holds the primary secret buffer in `Zeroizing<Vec<u8>>`, zeroed on drop.
 Transient `String` copies used for argv assembly are also wrapped in `Zeroizing`
 per call. egui's internal undo ring retains `String` snapshots that this scheme
 does not cover — a second-tier residue documented in FOLLOWUPS
-`gui-secret-buffer-allocator-residue`.";
+`gui-secret-buffer-allocator-residue`."
+    };
+}
+
+/// Paste-warn modal copy text (SPEC §9 — one-shot per session, per
+/// secret-class flag) for the INTERIM path (an OS outside the channel
+/// policy's `private_channels_on`: the secret goes on argv). The `(v0.2
+/// deferred per FOLLOWUPS ...)` lines name the explicit non-mitigations.
+/// Pick the text with [`paste_warn_modal_text`].
+pub const PASTE_WARN_MODAL_TEXT: &str = concat!(
+    "\
+You are pasting potentially secret material (BIP-39 phrase, entropy hex, WIF, xprv,
+ms1 share, BIP-38 ciphertext, or Electrum native seed).
+
+This GUI runs the binary with the value you pasted as a command-line argument.
+The OS may log this argument in process tables and shell history files. ",
+    paste_warn_tail!()
+);
+
+/// G4 (bug hunt 2026-11-25): the paste-warn text on the PRIVATE-channel path
+/// (an OS in `private_channels_on`, e.g. Linux), where Run sends a secret
+/// over an environment variable, stdin or a pipe and never on argv (a plan
+/// that cannot is refused, DESIGN §A8). Same tail as
+/// [`PASTE_WARN_MODAL_TEXT`].
+pub const PASTE_WARN_MODAL_TEXT_PRIVATE: &str = concat!(
+    "\
+You are pasting potentially secret material (BIP-39 phrase, entropy hex, WIF, xprv,
+ms1 share, BIP-38 ciphertext, or Electrum native seed).
+
+On this OS the GUI sends the value you pasted to the binary over a private
+channel (an environment variable, stdin or a pipe), not as a command-line
+argument, so it is not shown in process tables. ",
+    paste_warn_tail!()
+);
+
+
+/// The paste-warn text for `os` (`channels::current_os()`): the private-path
+/// text on an OS in the channel policy's `private_channels_on`, else the
+/// interim (argv) text — the same test the planner and the run-confirm
+/// dialog use.
+pub fn paste_warn_modal_text(os: &str) -> &'static str {
+    if crate::form::channels::policy()
+        .private_channels_on
+        .iter()
+        .any(|o| o == os)
+    {
+        PASTE_WARN_MODAL_TEXT_PRIVATE
+    } else {
+        PASTE_WARN_MODAL_TEXT
+    }
+}
 
 /// Run-confirm modal prefix for the INTERIM path (secrets on argv; DESIGN
 /// §A6). The full argv preview follows in body rendering at the call site.

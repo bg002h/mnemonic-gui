@@ -1006,7 +1006,13 @@ impl MnemonicGuiApp {
                 }
             };
             let (copy_windows_text, copy_windows_tip) = if tree_mode {
-                (Some(render_copy_command(&tree_argv, ShellFlavor::WindowsCmd)), None)
+                // G2: the tree-mode Windows copy is gated like the others.
+                match crate::form::invocation::windows_cmd_copy_blocker(
+                    tree_argv.iter().map(String::as_str),
+                ) {
+                    Some(t) => (None, Some(t.to_string())),
+                    None => (Some(render_copy_command(&tree_argv, ShellFlavor::WindowsCmd)), None),
+                }
             } else {
                 match &copy_windows_state {
                     crate::form::channels::copy::CopyState::Ready(t) => (Some(t.clone()), None),
@@ -1235,7 +1241,10 @@ impl MnemonicGuiApp {
                 .resizable(false)
                 .anchor(egui::Align2::CENTER_CENTER, [0.0, 0.0])
                 .show(ctx, |ui| {
-                    ui.label(secrets::PASTE_WARN_MODAL_TEXT);
+                    // G4: the text matches the channel path this OS's Run uses.
+                    ui.label(secrets::paste_warn_modal_text(
+                        crate::form::channels::current_os(),
+                    ));
                     ui.separator();
                     if ui.button("Dismiss").clicked() {
                         self.pending_paste_warn = false;
@@ -1352,6 +1361,17 @@ fn spawn_and_capture(app: &mut MnemonicGuiApp, plan: crate::form::channels::RunP
             "`{}` not found on $PATH",
             bin
         ));
+        return;
+    }
+    // G1 (bug hunt 2026-11-25): a run that carries a secret goes only to a
+    // binary that reports the pinned version or newer — an older CLI can take
+    // `@env:MNEMONIC_GUI_S<i>` (or `-`) literally as the secret itself. The
+    // gate never alters the plan; a refusal spawns nothing.
+    if let Err(why) =
+        crate::cli_version::gate_secret_run(&plan, crate::cli_version::probe)
+    {
+        app.last_run = None;
+        app.last_run_error = Some(format!("Run refused — {why}"));
         return;
     }
     // DESIGN (secret channels) §A4.4/§A6: the runner scrubs inherited
