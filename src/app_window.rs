@@ -458,7 +458,7 @@ impl MnemonicGuiApp {
                         )
                     ));
                 }
-                render_exit_badge(ui, &result.argv, result.exit_code);
+                render_exit_badge(ui, result);
                 if self.show_stdout && !result.stdout.is_empty() {
                     ui.label("stdout:");
                     egui::ScrollArea::vertical()
@@ -1296,22 +1296,18 @@ impl eframe::App for MnemonicGuiApp {
 
 /// Render the subprocess exit-code line in the output panel.
 ///
-/// The meaning of exit 4 and 5 depends on which command ran, so the text and
-/// colour come from [`crate::exit_badge::classify`]:
-/// - 4 → amber VERIFY-ME (the toolkit's project-wide class, SPEC §4; `ms
-///   repair`; `md` partial decode), except `mk verify` / `ms verify`, where 4
-///   is a MISMATCH (red).
-/// - 5 → green Repair Applied (v0.9.0, D26: `RepairShortCircuit
-///   { exit_code: 5 }`; `md`/`mk repair`), except `md descriptor
-///   --verify-against`, where 5 is NOT spend-equal (red).
-/// - any other code → plain `exit: <n>`; `None` → `exit: (killed)`.
+/// Text and colour come from [`crate::exit_badge::classify`], which decodes
+/// the constellation's exit codes bit by bit (`SPEC_constellation_exit_codes.md`
+/// rev 5, R12) when the binary is at or above the exit-code floor, and shows
+/// the number undecoded otherwise (§7j). It never depends on which command
+/// ran, and says nothing about whether output exists.
 ///
 /// Amber (220, 165, 0) is the warning colour of archetype_form.rs /
 /// slot_editor.rs; red (220, 60, 60) the error red of the subprocess-error
 /// line; green (60, 180, 75) sits in the same chroma band.
-fn render_exit_badge(ui: &mut egui::Ui, argv: &[String], exit_code: Option<i32>) {
+fn render_exit_badge(ui: &mut egui::Ui, result: &runner::RunResult) {
     use crate::exit_badge::{classify, BadgeKind};
-    let badge = classify(argv, exit_code);
+    let badge = classify(result.exit_code, result.signal, &result.exit_scheme);
     match badge.kind {
         BadgeKind::Plain => {
             ui.label(badge.text);
@@ -1319,10 +1315,10 @@ fn render_exit_badge(ui: &mut egui::Ui, argv: &[String], exit_code: Option<i32>)
         BadgeKind::VerifyMe => {
             ui.colored_label(egui::Color32::from_rgb(220, 165, 0), badge.text);
         }
-        BadgeKind::RepairApplied => {
+        BadgeKind::Repaired => {
             ui.colored_label(egui::Color32::from_rgb(60, 180, 75), badge.text);
         }
-        BadgeKind::No => {
+        BadgeKind::Failed => {
             ui.colored_label(egui::Color32::from_rgb(220, 60, 60), badge.text);
         }
     }
@@ -1367,19 +1363,25 @@ fn spawn_and_capture(app: &mut MnemonicGuiApp, plan: crate::form::channels::RunP
     // binary that reports the pinned version or newer — an older CLI can take
     // `@env:MNEMONIC_GUI_S<i>` (or `-`) literally as the secret itself. The
     // gate never alters the plan; a refusal spawns nothing.
-    if let Err(why) =
-        crate::cli_version::gate_secret_run(&plan, crate::cli_version::probe)
-    {
-        app.last_run = None;
-        app.last_run_error = Some(format!("Run refused — {why}"));
-        return;
-    }
+    // Exit-code spec §7j: the same single probe runs before EVERY run and
+    // decides whether its exit status may be decoded bit by bit (a binary
+    // below the exit-code floor speaks the old codes). A run without a secret
+    // is never refused.
+    let exit_scheme = match crate::cli_version::gate_run(&plan, crate::cli_version::probe) {
+        Ok(scheme) => scheme,
+        Err(why) => {
+            app.last_run = None;
+            app.last_run_error = Some(format!("Run refused — {why}"));
+            return;
+        }
+    };
     // DESIGN (secret channels) §A4.4/§A6: the runner scrubs inherited
     // MNEMONIC_GUI_* variables, sets the plan's, writes stdin and the pipe
     // payloads (write ends closed before spawn). The result carries the
     // plan's display mask.
     match runner::run_plan(&plan) {
-        Ok(result) => {
+        Ok(mut result) => {
+            result.exit_scheme = exit_scheme;
             app.last_run = Some(result);
             app.last_run_error = None;
         }

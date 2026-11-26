@@ -28,6 +28,14 @@ pub struct RunResult {
     pub mask: Vec<bool>,
     /// `Some(n)` for normal exit; `None` if killed by signal / no code.
     pub exit_code: Option<i32>,
+    /// The signal that killed the child (Unix), when `exit_code` is `None`.
+    /// Exit-code spec R12: a GUI shows "killed by signal N" from the
+    /// platform's status, since such a child has no exit code.
+    pub signal: Option<i32>,
+    /// How `exit_code` may be read (exit-code spec §7j). The runner does not
+    /// know the binary's version, so it leaves this undecoded; the GUI's
+    /// `spawn_and_capture` sets it from the version gate that ran first.
+    pub exit_scheme: crate::exit_badge::CodeScheme,
     pub stdout: Vec<u8>,
     pub stderr: Vec<u8>,
 }
@@ -86,6 +94,25 @@ impl Zeroize for PendingConfirm {
 impl Drop for PendingConfirm {
     fn drop(&mut self) {
         self.zeroize();
+    }
+}
+
+/// The runner's scheme before the GUI's version gate has said otherwise.
+fn unchecked_scheme() -> crate::exit_badge::CodeScheme {
+    crate::exit_badge::CodeScheme::Undecoded("the binary's version was not checked".to_string())
+}
+
+/// The signal that ended the child, if any (Unix only).
+fn signal_of(status: &std::process::ExitStatus) -> Option<i32> {
+    #[cfg(unix)]
+    {
+        use std::os::unix::process::ExitStatusExt;
+        status.signal()
+    }
+    #[cfg(not(unix))]
+    {
+        let _ = status;
+        None
     }
 }
 
@@ -226,6 +253,8 @@ where
         // (`spawn_and_capture`) overwrites this with the assembly-time mask.
         mask: Vec::new(),
         exit_code,
+        signal: signal_of(&output.status),
+        exit_scheme: unchecked_scheme(),
         stdout: output.stdout,
         stderr: output.stderr,
     };
@@ -352,6 +381,8 @@ pub fn run_plan_with_env_prefix(
         argv: argv.clone(),
         mask: plan.mask.clone(),
         exit_code,
+        signal: signal_of(&output.status),
+        exit_scheme: unchecked_scheme(),
         stdout: output.stdout,
         stderr: output.stderr,
     })
@@ -452,6 +483,36 @@ mod tests {
         assert_eq!(result.exit_code, Some(3));
         assert_eq!(result.stdout, b"out\n");
         assert_eq!(result.stderr, b"err\n");
+    }
+
+    /// Exit-code spec R12: a child killed by a signal has no exit code; the
+    /// runner keeps the signal so the badge can say "killed by signal N".
+    #[cfg(unix)]
+    #[test]
+    fn run_reports_the_signal_that_killed_the_child() {
+        if !have("/bin/sh") {
+            return;
+        }
+        let r = run([
+            "/bin/sh".to_string(),
+            "-c".to_string(),
+            "kill -9 $$".to_string(),
+        ])
+        .expect("sh spawns");
+        assert_eq!(r.exit_code, None);
+        assert_eq!(r.signal, Some(9));
+        let r = run([
+            "/bin/sh".to_string(),
+            "-c".to_string(),
+            "exit 20".to_string(),
+        ])
+        .expect("sh spawns");
+        assert_eq!((r.exit_code, r.signal), (Some(20), None));
+        // The runner never claims to know how to read the code.
+        assert!(matches!(
+            r.exit_scheme,
+            crate::exit_badge::CodeScheme::Undecoded(_)
+        ));
     }
 
     /// `run_with_stdin(.., None)` keeps the D23 spawn env (run() delegates

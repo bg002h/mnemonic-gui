@@ -14,6 +14,7 @@
 //! expected CLI at a version at least the pinned one. The gate never changes
 //! the plan: a run it admits is byte-identical to a run without it.
 
+use crate::exit_badge::CodeScheme;
 use crate::form::channels::RunPlan;
 
 /// A `major.minor.patch` version. Pre-release and build suffixes
@@ -146,6 +147,82 @@ pub fn gate_secret_run(
     check_reported(pinned, &reported).map_err(|e| refusal_text(&e, pinned, plan.interim))
 }
 
+/// The first version of each CLI that exits with the constellation's codes
+/// (`SPEC_constellation_exit_codes.md` rev 5, §3; floor per §7j and §9), in
+/// the `--version` form, or `None` for a binary the GUI does not run.
+///
+/// Every old code is a valid new sum with another meaning, so a status from a
+/// binary below its floor is never decoded bit by bit. These are the next
+/// releases after the pins of 2026-11-26 (`md 0.21.0`, `ms 0.21.0`,
+/// `mk 0.17.0`, `mnemonic 0.107.1`); the cutover release of each CLI must
+/// carry at least this version. A `-dev` build reports its numeric triple
+/// only, so a pre-cutover `mk 0.18.0-dev` would be taken as speaking the new
+/// codes.
+pub fn exit_bits_floor(cli_name: &str) -> Option<&'static str> {
+    match cli_name {
+        "mnemonic" => Some("mnemonic 0.108.0"),
+        "md" => Some("md 0.22.0"),
+        "ms" => Some("ms 0.22.0"),
+        "mk" => Some("mk 0.18.0"),
+        _ => None,
+    }
+}
+
+/// `argv[0]`'s file name without a `.exe` suffix.
+fn cli_name(bin: &str) -> &str {
+    let name = std::path::Path::new(bin)
+        .file_name()
+        .and_then(|n| n.to_str())
+        .unwrap_or(bin);
+    name.strip_suffix(".exe").unwrap_or(name)
+}
+
+/// How to read the exit status of a run of `bin`, given its `--version`
+/// answer: decode the bits only when it names the same CLI at a version at or
+/// above [`exit_bits_floor`]; otherwise say why the status is not decoded.
+pub fn exit_scheme(bin: &str, reported: &Result<String, String>) -> CodeScheme {
+    let cli = cli_name(bin);
+    let Some(floor) = exit_bits_floor(cli) else {
+        return CodeScheme::Undecoded(format!("`{cli}` is not a CLI this GUI decodes"));
+    };
+    let (_, want) = parse_version_line(floor).expect("floors parse (unit-tested)");
+    let reported = match reported {
+        Ok(r) => r,
+        Err(e) => return CodeScheme::Undecoded(e.clone()),
+    };
+    let Some((got_name, got)) = parse_version_line(reported) else {
+        return CodeScheme::Undecoded(format!(
+            "`{cli} --version` did not name a version this GUI recognises"
+        ));
+    };
+    if got_name != cli {
+        return CodeScheme::Undecoded(format!(
+            "the `{cli}` this GUI runs reports itself as `{got_name}`"
+        ));
+    }
+    if got < want {
+        return CodeScheme::Undecoded(format!(
+            "`{cli} {}.{}.{}` predates the constellation exit codes, which start at {floor}",
+            got.0, got.1, got.2
+        ));
+    }
+    CodeScheme::Bits
+}
+
+/// The gate before EVERY run (exit-code spec §7j): ask the binary for its
+/// version once, refuse a secret-bearing run exactly as [`gate_secret_run`]
+/// does, and otherwise return how the run's exit status may be read. A run
+/// without a secret is never refused, whatever the probe says.
+pub fn gate_run(
+    plan: &RunPlan,
+    probe: impl FnOnce(&str) -> Result<String, String>,
+) -> Result<CodeScheme, String> {
+    let bin = plan.argv.first().map(String::as_str).unwrap_or("");
+    let reported = probe(bin);
+    gate_secret_run(plan, |_| reported.clone())?;
+    Ok(exit_scheme(bin, &reported))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -216,6 +293,14 @@ mod tests {
             );
             assert!(t.contains("Install ms 0.21.0 or newer"), "{t}");
             assert!(!t.contains("$PATH"), "{t}");
+        }
+    }
+
+    #[test]
+    fn exit_floors_parse_and_name_their_cli() {
+        for cli in ["mnemonic", "md", "ms", "mk"] {
+            let (name, _) = parse_version_line(exit_bits_floor(cli).unwrap()).unwrap();
+            assert_eq!(name, cli);
         }
     }
 

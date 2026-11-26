@@ -31,6 +31,8 @@ fn secret_run_result() -> RunResult {
         ],
         mask: vec![false, false, true],
         exit_code: Some(0),
+        signal: None,
+        exit_scheme: mnemonic_gui::exit_badge::CodeScheme::Bits,
         stdout: b"secret-stdout".to_vec(),
         stderr: b"secret-stderr".to_vec(),
     }

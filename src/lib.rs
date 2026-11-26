@@ -12,6 +12,7 @@ pub mod cli_version;
 #[cfg(feature = "gui")]
 pub mod app_window;
 pub mod exit_badge;
+pub mod exit_code;
 pub mod form;
 pub mod help;
 pub mod path_detect;
