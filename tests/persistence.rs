@@ -25,7 +25,7 @@ use mnemonic_gui::secrets::{SECRET_FLAG_NAMES, SECRET_NODE_TYPES_ARGV, SECRET_SL
 fn watch_only_form() -> FormState {
     FormState::from_pairs(vec![
         ("--network", FlagValue::Dropdown("mainnet".into())),
-        ("--template", FlagValue::Dropdown("bip84".into())),
+        ("--scheme", FlagValue::Dropdown("bip84".into())),
         ("--account", FlagValue::Number(0)),
     ])
     .with_slots(SlotState {
@@ -47,7 +47,7 @@ fn watch_only_form() -> FormState {
 fn mixed_form_with_secrets() -> FormState {
     FormState::from_pairs(vec![
         ("--network", FlagValue::Dropdown("mainnet".into())),
-        ("--template", FlagValue::Dropdown("bip84".into())),
+        ("--scheme", FlagValue::Dropdown("bip84".into())),
         ("--passphrase", FlagValue::Text("hunter2".into())), // SECRET
         ("--bip38-passphrase", FlagValue::Text("scrypt".into())), // SECRET
         ("--passphrase-stdin", FlagValue::Boolean(true)), // SECRET
@@ -223,7 +223,7 @@ fn cell_3_watch_only_values_survive_redaction() {
     assert!(redacted
         .values
         .iter()
-        .any(|(k, _)| k == "--template"));
+        .any(|(k, _)| k == "--scheme"));
     // The --to NodeValueComposite with node="xpub" must survive.
     assert!(redacted.values.iter().any(|(k, v)| k == "--to"
         && matches!(v, FlagValue::NodeValueComposite { node, .. } if node == "xpub")));
@@ -614,4 +614,103 @@ fn g3_state_json_is_owner_only_on_unix() {
     // no temp left behind
     let left: Vec<_> = fs::read_dir(dir.path().join("sub")).unwrap().collect();
     assert_eq!(left.len(), 1);
+}
+
+// ─── 2026-11-26 flag renames: a pre-rename autosave keeps its choice ────────
+//
+// `--template` → `--scheme` (toolkit wallet-scheme verbs), `--archetype` →
+// `--scheme` (build-descriptor), `md compose --preset` → `--scheme`,
+// `ms derive --template` → `--origin-path`. The load-time pass moves the old
+// key to the new one; without it the old entry is an unknown flag that never
+// renders or emits, and the user's selection silently resets.
+
+fn schema_sub(form_key: &str) -> &'static mnemonic_gui::schema::SubcommandSchema {
+    let (cli, sub) = form_key.split_once(':').unwrap();
+    let sch = match cli {
+        "mnemonic" => &mnemonic_gui::schema::mnemonic::SCHEMA,
+        "md" => &mnemonic_gui::schema::md::SCHEMA,
+        "ms" => &mnemonic_gui::schema::ms::SCHEMA,
+        other => panic!("unexpected cli {other}"),
+    };
+    sch.subcommands.iter().find(|s| s.name == sub).unwrap()
+}
+
+#[test]
+fn legacy_flag_renames_name_real_schema_flags() {
+    use mnemonic_gui::persistence::LEGACY_FLAG_RENAMES;
+    assert_eq!(LEGACY_FLAG_RENAMES.len(), 8);
+    for (form_key, old, new) in LEGACY_FLAG_RENAMES {
+        let sub = schema_sub(form_key);
+        assert!(
+            sub.flags.iter().any(|f| f.name == *new),
+            "{form_key}: {new} must be a schema flag"
+        );
+        assert!(
+            !sub.flags.iter().any(|f| f.name == *old),
+            "{form_key}: {old} must no longer be a schema flag"
+        );
+    }
+}
+
+#[test]
+fn legacy_flag_rename_moves_a_pre_rename_value_on_load() {
+    use mnemonic_gui::persistence::LEGACY_FLAG_RENAMES;
+    for (form_key, old, new) in LEGACY_FLAG_RENAMES {
+        let dir = tempfile::TempDir::new().unwrap();
+        let path = dir.path().join("state.json");
+        let value = if *form_key == "md:compose" {
+            FlagValue::Text("kofn-recovery,2of3,older=26280".into())
+        } else if *form_key == "mnemonic:build-descriptor" {
+            FlagValue::Dropdown("decaying-multisig".into())
+        } else {
+            FlagValue::Dropdown("bip48".into())
+        };
+        let form = addr_form(vec![(old, value.clone()), ("--json", FlagValue::Boolean(true))]);
+        save(&persisted_with(form_key, form), &path).unwrap();
+
+        let loaded = load(&path).expect("load");
+        let form = loaded.form_state_per_subcommand.get(*form_key).unwrap();
+        assert!(
+            !form.values.iter().any(|(k, _)| k == old),
+            "{form_key}: the old {old} key must be gone"
+        );
+        let got: Vec<_> = form.values.iter().filter(|(k, _)| k == new).collect();
+        assert_eq!(got.len(), 1, "{form_key}: exactly one {new} entry");
+        assert_eq!(got[0].1, value, "{form_key}: the value moves verbatim");
+        assert!(
+            form.values.iter().any(|(k, _)| k == "--json"),
+            "{form_key}: unrelated values survive"
+        );
+    }
+}
+
+#[test]
+fn legacy_flag_rename_prefers_an_existing_new_key_and_is_idempotent() {
+    let dir = tempfile::TempDir::new().unwrap();
+    let path = dir.path().join("state.json");
+    let form = addr_form(vec![
+        ("--template", FlagValue::Dropdown("bip44".into())),
+        ("--scheme", FlagValue::Dropdown("bip86".into())),
+    ]);
+    save(&persisted_with("mnemonic:bundle", form), &path).unwrap();
+    let loaded = load(&path).expect("load");
+    save(&loaded, &path).unwrap();
+    let loaded = load(&path).expect("reload");
+    let form = loaded.form_state_per_subcommand.get("mnemonic:bundle").unwrap();
+    assert_eq!(dropdown_of(form, "--scheme"), Some("bip86".into()));
+    assert_eq!(dropdown_of(form, "--template"), None);
+    assert_eq!(form.values.len(), 1);
+}
+
+#[test]
+fn legacy_flag_rename_leaves_md_bip388_template_alone() {
+    // md's `--template` is BIP 388 template text and was NOT renamed.
+    let dir = tempfile::TempDir::new().unwrap();
+    let path = dir.path().join("state.json");
+    let form = addr_form(vec![("--template", FlagValue::Text("wpkh(@0/**)".into()))]);
+    save(&persisted_with("md:address", form), &path).unwrap();
+    let loaded = load(&path).expect("load");
+    let form = loaded.form_state_per_subcommand.get("md:address").unwrap();
+    assert!(form.values.iter().any(|(k, _)| k == "--template"));
+    assert!(!form.values.iter().any(|(k, _)| k == "--scheme"));
 }

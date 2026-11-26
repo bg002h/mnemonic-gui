@@ -1,15 +1,15 @@
-//! F1 — export-wallet `--template` UNSET affordance (gui_example P1.3).
+//! F1 — export-wallet `--scheme` UNSET affordance (gui_example P1.3).
 //!
 //! Ruling: the F1 pre-implementation mini-R0 (BINDING; persisted at
 //! `mnemonic-toolkit/docs/manual-gui/design/agent-reports/gui-example-f1-mini-r0.md`)
-//! chose **A1 with APPEND placement**: export-wallet's `--template` opts are
+//! chose **A1 with APPEND placement**: export-wallet's `--scheme` opts are
 //! the 10 shared `TEMPLATES` values IN ORDER plus a trailing `""` UNSET
 //! sentinel (a per-flag `EXPORT_WALLET_TEMPLATES` const — the shared
 //! `TEMPLATES` const stays 10 and keeps feeding bundle/verify-bundle + the
 //! SINGLE_SIG/MULTISIG partition consts).
 //!
 //! Pre-F1 the form was a trap: the form-loop materializes a virgin Dropdown
-//! to `opts[0]` (`flag_defaults.rs`), so `--template` was ALWAYS present →
+//! to `opts[0]` (`flag_defaults.rs`), so `--scheme` was ALWAYS present →
 //! the template/descriptor mutex (`conditional.rs::export_wallet`) kept
 //! `--descriptor` permanently Disabled — the descriptor arm was unreachable
 //! from the GUI. Selecting the appended `(none)` row writes `Dropdown("")`
@@ -25,7 +25,7 @@
 //!
 //! The mini-R0's 5 TDD cells (all always-run, not env-gated):
 //!   1. Reachability — (none) → type a descriptor → `--descriptor` enabled,
-//!      argv carries it, NO `--template` token (the F1 regression test).
+//!      argv carries it, NO `--scheme` token (the F1 regression test).
 //!   2. `(none)` never leaks `""` into argv or the masked copy-command;
 //!      re-selecting a real template re-emits + re-disables `--descriptor`.
 //!   3. Materialization/`has_value` — virgin true (bip44); after `(none)`
@@ -33,7 +33,7 @@
 //!   4. `(none)` display — the sentinel renders `(none)` in the OPEN popup
 //!      list AND the closed combo after selection, never a bare `""`.
 //!   5. Virgin-default stability (the append-pin) — virgin settled state
-//!      materializes `--template == "bip44"` and `--descriptor` Disabled on
+//!      materializes `--scheme == "bip44"` and `--descriptor` Disabled on
 //!      load; opts placement pinned first==bip44 / last=="" (the tripwire
 //!      against a future silent prepend).
 
@@ -58,7 +58,7 @@ use ui_harness::{
 const DESCRIPTOR: &str = "wsh(sortedmulti(2,@0,@1))";
 
 /// A settled virgin export-wallet whole-form harness: the construction frame
-/// materializes `--template` to `opts[0]` (the form-loop write-back), the two
+/// materializes `--scheme` to `opts[0]` (the form-loop write-back), the two
 /// follow-up frames let `conditional::export_wallet` re-evaluate against the
 /// materialized value (the on-load steady state the GUI shows).
 fn settled_virgin_form() -> Harness<'static, FormState> {
@@ -69,10 +69,10 @@ fn settled_virgin_form() -> Harness<'static, FormState> {
     h
 }
 
-/// Select `opt` in the export-wallet `--template` combo. The combo BUTTON
+/// Select `opt` in the export-wallet `--scheme` combo. The combo BUTTON
 /// exposes NO AccessKit label (egui paints the selected text without
 /// projecting it — verified against the node dump), so the handle is TREE
-/// ORDER: `--template` is the form's FIRST Dropdown flag (schema order,
+/// ORDER: `--scheme` is the form's FIRST Dropdown flag (schema order,
 /// byte-pinned by `gui_render_emit.rs`'s exact-ASCII render), hence the
 /// first ComboBox-role node. A mis-target fails loudly downstream — no
 /// other export-wallet combo lists template rows or a `(none)` row, so
@@ -84,7 +84,7 @@ fn select_template(h: &mut Harness<'static, FormState>, opt: &str) {
     if h.query_by_label(opt).is_none() {
         h.get_all_by_role(Role::ComboBox)
             .next()
-            .expect("export-wallet must render the --template ComboBox first")
+            .expect("export-wallet must render the --scheme ComboBox first")
             .click();
         h.run();
         h.run(); // settle: the popup's option nodes land in the AccessKit tree
@@ -121,7 +121,7 @@ fn template_value(h: &Harness<'static, FormState>) -> Option<FlagValue> {
     h.state()
         .values
         .iter()
-        .find(|(k, _)| k == "--template")
+        .find(|(k, _)| k == "--scheme")
         .map(|(_, v)| v.clone())
 }
 
@@ -153,8 +153,8 @@ fn none_sentinel_unlocks_descriptor_arm_and_argv_carries_it() {
         "argv must carry the typed descriptor; got {argv:?}"
     );
     assert!(
-        !argv.iter().any(|a| a == "--template"),
-        "argv must carry NO --template token after (none); got {argv:?}"
+        !argv.iter().any(|a| a == "--scheme"),
+        "argv must carry NO --scheme token after (none); got {argv:?}"
     );
 }
 
@@ -171,29 +171,29 @@ fn none_selection_never_leaks_empty_string_into_argv_or_copy_command() {
         h.state(),
     );
     assert!(
-        !argv.iter().any(|a| a == "--template"),
-        "empty Dropdown must be presence-suppressed (no --template); got {argv:?}"
+        !argv.iter().any(|a| a == "--scheme"),
+        "empty Dropdown must be presence-suppressed (no --scheme); got {argv:?}"
     );
     assert!(
         argv.iter().all(|t| !t.is_empty()),
         "no \"\" token may leak into the assembled argv; got {argv:?}"
     );
-    // Masked copy-command echo (both shell flavors): no --template, no
+    // Masked copy-command echo (both shell flavors): no --scheme, no
     // empty-string quoting artifact (posix `''` / windows `""`).
     let posix = render_copy_command_masked(&argv, &mask, ShellFlavor::Posix);
     assert!(
-        !posix.contains("--template") && !posix.contains("''"),
-        "posix copy-command must carry neither --template nor an empty-string \
+        !posix.contains("--scheme") && !posix.contains("''"),
+        "posix copy-command must carry neither --scheme nor an empty-string \
          artifact; got {posix:?}"
     );
     let windows = render_copy_command_masked(&argv, &mask, ShellFlavor::WindowsCmd);
     assert!(
-        !windows.contains("--template") && !windows.contains("\"\""),
-        "windows copy-command must carry neither --template nor an empty-string \
+        !windows.contains("--scheme") && !windows.contains("\"\""),
+        "windows copy-command must carry neither --scheme nor an empty-string \
          artifact; got {windows:?}"
     );
 
-    // Re-selecting a real template re-emits `--template <v>` and re-disables
+    // Re-selecting a real template re-emits `--scheme <v>` and re-disables
     // the descriptor arm (the mutex re-engages).
     select_template(&mut h, "bip49");
     assert_eq!(
@@ -203,8 +203,8 @@ fn none_selection_never_leaks_empty_string_into_argv_or_copy_command() {
     );
     let argv2 = argv_of(&h);
     assert!(
-        argv2.windows(2).any(|w| w[0] == "--template" && w[1] == "bip49"),
-        "re-selection must re-emit --template bip49; got {argv2:?}"
+        argv2.windows(2).any(|w| w[0] == "--scheme" && w[1] == "bip49"),
+        "re-selection must re-emit --scheme bip49; got {argv2:?}"
     );
 }
 
@@ -216,8 +216,8 @@ fn has_value_tracks_none_transitions_both_ways() {
     let mut h = settled_virgin_form();
     // Virgin: materialized opts[0] (= bip44) IS a present value.
     assert!(
-        h.state().has_value("--template"),
-        "virgin materialization must yield a present --template value"
+        h.state().has_value("--scheme"),
+        "virgin materialization must yield a present --scheme value"
     );
     assert_eq!(
         effect_of(sub, h.state(), "--descriptor"),
@@ -230,8 +230,8 @@ fn has_value_tracks_none_transitions_both_ways() {
     // runtime pre-check).
     select_template(&mut h, "(none)");
     assert!(
-        !h.state().has_value("--template"),
-        "(none) must clear --template presence (Dropdown(\"\") is not a value)"
+        !h.state().has_value("--scheme"),
+        "(none) must clear --scheme presence (Dropdown(\"\") is not a value)"
     );
     assert_eq!(
         effect_of(sub, h.state(), "--descriptor"),
@@ -242,7 +242,7 @@ fn has_value_tracks_none_transitions_both_ways() {
     // Back to a real value: presence + Disabled both re-engage.
     select_template(&mut h, "bip84");
     assert!(
-        h.state().has_value("--template"),
+        h.state().has_value("--scheme"),
         "re-selecting a real template must restore presence"
     );
     assert_eq!(
@@ -259,7 +259,7 @@ fn none_sentinel_displays_in_open_popup_and_closed_combo() {
     // Single-flag render (the P1 harness): exactly ONE ComboBox-role node, so
     // the combo button is uniquely targetable while its popup is open.
     let sub = sub_of(CliTab::Mnemonic, "export-wallet");
-    let flag = flag_of(sub, "--template");
+    let flag = flag_of(sub, "--scheme");
     let mut h = render_flag_harness(CliTab::Mnemonic, sub, flag, FormState::default());
     h.run();
     h.run();
@@ -308,7 +308,7 @@ fn none_sentinel_displays_in_open_popup_and_closed_combo() {
         h.state()
             .values
             .iter()
-            .find(|(k, _)| k == "--template")
+            .find(|(k, _)| k == "--scheme")
             .map(|(_, v)| v.clone()),
         Some(FlagValue::Dropdown(String::new())),
         "the stored value must be the raw \"\" sentinel (display-only mapping)"
@@ -342,9 +342,9 @@ fn virgin_default_stability_append_pin() {
     // Descriptor" flow — this cell is the tripwire (gui_render_emit.rs's
     // exact-ASCII pin is the redundant structural guard).
     let sub = sub_of(CliTab::Mnemonic, "export-wallet");
-    let flag = flag_of(sub, "--template");
+    let flag = flag_of(sub, "--scheme");
     let FlagKind::Dropdown(opts) = &flag.kind else {
-        panic!("export-wallet --template must be a Dropdown");
+        panic!("export-wallet --scheme must be a Dropdown");
     };
     assert_eq!(opts.len(), 11, "10 shared template values + the appended sentinel");
     assert_eq!(
@@ -361,14 +361,14 @@ fn virgin_default_stability_append_pin() {
     // The 10 real values are exactly bundle's shared TEMPLATES, in order.
     // bundle stays 10 — the 11-vs-10 asymmetry is INTENDED and scoped to
     // export-wallet (mini-R0 §5: do not \"fix\" bundle).
-    let bundle_flag = flag_of(sub_of(CliTab::Mnemonic, "bundle"), "--template");
+    let bundle_flag = flag_of(sub_of(CliTab::Mnemonic, "bundle"), "--scheme");
     let FlagKind::Dropdown(bundle_opts) = &bundle_flag.kind else {
-        panic!("bundle --template must be a Dropdown");
+        panic!("bundle --scheme must be a Dropdown");
     };
     assert_eq!(
         bundle_opts.len(),
         10,
-        "bundle --template must stay 10 values — the sentinel is export-wallet-ONLY"
+        "bundle --scheme must stay 10 values — the sentinel is export-wallet-ONLY"
     );
     assert_eq!(
         &opts[..opts.len() - 1],
@@ -376,16 +376,16 @@ fn virgin_default_stability_append_pin() {
         "export-wallet's real values must mirror the shared TEMPLATES in order"
     );
 
-    // Virgin settled form: --template materializes bip44 (NOT ""), presence
+    // Virgin settled form: --scheme materializes bip44 (NOT ""), presence
     // holds, and --descriptor is Disabled on load — byte-identical to the
     // pre-F1 steady state (the gallery PNG census cell).
     let h = settled_virgin_form();
     assert_eq!(
         template_value(&h),
         Some(FlagValue::Dropdown("bip44".into())),
-        "virgin settled state must materialize --template == \"bip44\""
+        "virgin settled state must materialize --scheme == \"bip44\""
     );
-    assert!(h.state().has_value("--template"));
+    assert!(h.state().has_value("--scheme"));
     assert_eq!(
         label_disabled(&h, "--descriptor"),
         Some(true),

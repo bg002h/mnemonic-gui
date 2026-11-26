@@ -69,10 +69,10 @@ pub struct MnemonicGuiApp {
     /// paste this frame (via the `secret_widget::paste_warn_id()` ctx-data
     /// bus); drives the informational paste-warn modal. Cleared on Dismiss.
     pending_paste_warn: bool,
-    /// v0.6.0 P4 — last-observed `--template` value per form key, used by
+    /// v0.6.0 P4 — last-observed `--scheme` value per form key, used by
     /// the per-frame template-aware-seed hook in `update()`. None means
     /// "no template was selected last frame" (either the form is new or
-    /// the user cleared --template). On every frame, if the current
+    /// the user cleared --scheme). On every frame, if the current
     /// template differs from this value, the hook seeds template-specific
     /// defaults for any Unset/absent flags via
     /// `form::conditional::template_defaults_for`. Seed-on-empty
@@ -257,7 +257,7 @@ impl MnemonicGuiApp {
         // user-emptied form).
         //
         // v0.16.0 P5: REMOVED the unconditional `--multisig-path-family =
-        // bip87` seed. With the default `--template = bip84` (single-sig),
+        // bip87` seed. With the default `--scheme = bip84` (single-sig),
         // the new SPEC §6.10.7 rule "single-sig template disables
         // --multisig-path-family" would render the flag widget Disabled
         // anyway. Pre-v0.16.0 the seeded value emitted into argv and
@@ -271,7 +271,7 @@ impl MnemonicGuiApp {
                 "mnemonic:bundle".into(),
                 FormState::from_pairs(vec![
                     ("--network", FlagValue::Dropdown("mainnet".into())),
-                    ("--template", FlagValue::Dropdown("bip84".into())),
+                    ("--scheme", FlagValue::Dropdown("bip84".into())),
                     ("--account", FlagValue::Number(0)),
                 ])
                 .with_slots(SlotState {
@@ -549,7 +549,7 @@ impl MnemonicGuiApp {
             // the field context — force-mask any latched secret reveal on the
             // form we just left (before the new form's widgets render).
             crate::form::secret_widget::clear_reveal_on_form_change(ctx, &key);
-            // v0.6.0 P4: snapshot last-frame's --template BEFORE the
+            // v0.6.0 P4: snapshot last-frame's --scheme BEFORE the
             // `form_state` mutable borrow, so the post-render hook can
             // compare without a second `self.last_template` borrow conflict.
             let last_template_for_key = self.last_template.get(&key).cloned().flatten();
@@ -583,11 +583,11 @@ impl MnemonicGuiApp {
                     && crate::form::tree_form::tree_enabled(state);
 
                 // v0.31.0 (archetype forms SPEC §3): when build-descriptor's
-                // --archetype holds a non-empty ARCHETYPE_SPECS id, the 9 param
+                // --scheme holds a non-empty ARCHETYPE_SPECS id, the 9 param
                 // flags + --spec are skipped in the generic loop by NAME-SET (a
                 // `continue` — NOT Visibility::Hidden, which suppresses argv;
                 // declared params must emit) and the schema-driven archetype
-                // param form renders directly under the --archetype dropdown
+                // param form renders directly under the --scheme dropdown
                 // (the SlotEditor bespoke-surface precedent below). The
                 // mode-independent flags keep their generic widgets.
                 // v0.32.0: tree mode trumps — the archetype form never
@@ -609,7 +609,7 @@ impl MnemonicGuiApp {
                         continue;
                     }
                     // v0.32.0 (node-tree SPEC §0): in tree mode neither
-                    // the --spec row nor --archetype (nor the 10
+                    // the --spec row nor --scheme (nor the 10
                     // requires=archetype flags) renders — the tree form
                     // replaces them. Argv suppression is the conditional's
                     // (Disabled/Hidden); this name-set continue is the
@@ -669,8 +669,8 @@ impl MnemonicGuiApp {
                     );
                     // v0.31.0: the archetype param form (summary line +
                     // schema-ordered params) renders directly under the
-                    // --archetype dropdown's generic widget (SPEC §3).
-                    if flag.name == "--archetype" {
+                    // --scheme dropdown's generic widget (SPEC §3).
+                    if flag.name == "--scheme" {
                         if let Some(spec) = archetype_spec {
                             crate::form::archetype_form::render(
                                 ui,
@@ -788,10 +788,10 @@ impl MnemonicGuiApp {
                     // template/slot_count mismatch warning (Option A
                     // pattern, mirrors row-8 contiguity warning inside
                     // the slot grid). Renders inline orange banner when
-                    // the chosen --template is incompatible with the
+                    // the chosen --scheme is incompatible with the
                     // current slot_count; suggests both directions of
                     // fix. CLI rows 10/11 remain the authoritative gate.
-                    let template = state.dropdown_value("--template");
+                    let template = state.dropdown_value("--scheme");
                     let slot_count = state.slot_count();
                     if let Some(warning) =
                         crate::form::conditional::template_slot_count_warning(
@@ -893,7 +893,16 @@ impl MnemonicGuiApp {
             // The visibility gate handles the opposite direction
             // (single-sig template → Disabled threshold/path-family); this
             // hook handles the "fresh form ergonomics" direction.
-            let current_template = state.dropdown_value("--template").map(String::from);
+            // Scoped to the toolkit wallet-scheme consumers: since the
+            // 2026-11-26 rename `build-descriptor --scheme` (ex-`--archetype`)
+            // shares the flag name but is not a `CliTemplate`, and seeding
+            // `--threshold` there would change its argv.
+            let current_template = crate::form::conditional::scheme_seed_value(
+                active_tab.bin_name(),
+                sub.name,
+                state,
+            )
+            .map(String::from);
             let template_changed = current_template != last_template_for_key;
             if template_changed {
                 if let Some(new_template) = &current_template {
@@ -929,7 +938,7 @@ impl MnemonicGuiApp {
             let (masked_argv, masked_mask) = assemble_argv_with_secret_mask(sch, sub, state);
             // v0.32.0 (node-tree SPEC §2.2 Run leg): in tree mode the host
             // appends `--spec -` (the conditional suppressed any stale
-            // --spec/--archetype/param emission) and pipes the generated
+            // --spec/--scheme/param emission) and pipes the generated
             // spec JSON via stdin. Copy-spec + Run are completeness-gated
             // (spec_stdin/spec_copy are None while the tree is incomplete
             // — R0-r1 M4). `--spec -` is a PRE-BOUND stdin (DESIGN §A4.5):

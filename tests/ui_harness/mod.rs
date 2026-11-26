@@ -752,7 +752,7 @@ pub fn sweep_candidate_bases(tab: CliTab, sub_name: &str) -> Vec<FormState> {
     let extra: Vec<FormState> = match (tab, sub_name) {
         (CliTab::Mnemonic, "bundle") => vec![
             base_from(sub, &[("--descriptor", "wpkh(@0)")]), // canonical → account pin
-            base_from(sub, &[("--template", "bip84")]),      // single-sig
+            base_from(sub, &[("--scheme", "bip84")]),      // single-sig
         ],
         (CliTab::Mnemonic, "verify-bundle") => {
             vec![base_from(sub, &[("--bundle-json", "{}")])]
@@ -763,7 +763,7 @@ pub fn sweep_candidate_bases(tab: CliTab, sub_name: &str) -> Vec<FormState> {
                 let mut st = FormState::default();
                 seed_composite(&mut st, "--from", "phrase", "x");
                 seed(&mut st, sub, "--to", "address");
-                seed(&mut st, sub, "--template", "");
+                seed(&mut st, sub, "--scheme", "");
                 st
             },
             {
@@ -773,7 +773,7 @@ pub fn sweep_candidate_bases(tab: CliTab, sub_name: &str) -> Vec<FormState> {
                 st
             },
             {
-                // --to xpub: exposes --xpub-prefix (+ --template via xpub deriv).
+                // --to xpub: exposes --xpub-prefix (+ --scheme via xpub deriv).
                 let mut st = FormState::default();
                 seed_composite(&mut st, "--from", "phrase", "x");
                 seed(&mut st, sub, "--to", "xpub");
@@ -787,9 +787,9 @@ pub fn sweep_candidate_bases(tab: CliTab, sub_name: &str) -> Vec<FormState> {
             },
         ],
         (CliTab::Mnemonic, "export-wallet") => vec![
-            base_from(sub, &[("--descriptor", "wsh(sortedmulti(2,@0,@1))"), ("--template", "")]),
-            base_from(sub, &[("--template", "tr-multi-a")]),
-            base_from(sub, &[("--template", "bip84")]),
+            base_from(sub, &[("--descriptor", "wsh(sortedmulti(2,@0,@1))"), ("--scheme", "")]),
+            base_from(sub, &[("--scheme", "tr-multi-a")]),
+            base_from(sub, &[("--scheme", "bip84")]),
         ],
         (CliTab::Mnemonic, "restore") => {
             vec![base_from(sub, &[("--md1", "md1xyz")])]

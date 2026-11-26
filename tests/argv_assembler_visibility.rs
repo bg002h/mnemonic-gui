@@ -41,7 +41,7 @@ fn contains_pair(argv: &[String], flag: &str, value: &str) -> bool {
 #[test]
 fn bundle_threshold_suppressed_when_single_sig_template() {
     let state = FormState::from_pairs(vec![
-        ("--template", FlagValue::Dropdown("bip84".into())),
+        ("--scheme", FlagValue::Dropdown("bip84".into())),
         ("--threshold", FlagValue::Number(2)),
     ]);
     let argv = argv_for("bundle", &state);
@@ -50,14 +50,14 @@ fn bundle_threshold_suppressed_when_single_sig_template() {
         "argv must NOT contain --threshold when template is single-sig; \
          got {argv:?}"
     );
-    // Sanity: --template DOES emit.
-    assert!(contains_pair(&argv, "--template", "bip84"));
+    // Sanity: --scheme DOES emit.
+    assert!(contains_pair(&argv, "--scheme", "bip84"));
 }
 
 #[test]
 fn bundle_multisig_path_family_suppressed_when_single_sig_template() {
     let state = FormState::from_pairs(vec![
-        ("--template", FlagValue::Dropdown("bip49".into())),
+        ("--scheme", FlagValue::Dropdown("bip49".into())),
         (
             "--multisig-path-family",
             FlagValue::Dropdown("bip48".into()),
@@ -71,7 +71,7 @@ fn bundle_multisig_path_family_suppressed_when_single_sig_template() {
 fn bundle_template_threshold_path_family_all_suppressed_when_descriptor() {
     let state = FormState::from_pairs(vec![
         ("--descriptor", FlagValue::Text("wpkh(@0/**)".into())),
-        ("--template", FlagValue::Dropdown("wsh-sortedmulti".into())),
+        ("--scheme", FlagValue::Dropdown("wsh-sortedmulti".into())),
         ("--threshold", FlagValue::Number(2)),
         (
             "--multisig-path-family",
@@ -81,7 +81,7 @@ fn bundle_template_threshold_path_family_all_suppressed_when_descriptor() {
     let argv = argv_for("bundle", &state);
     // --descriptor emits; the three others are suppressed by visibility gate.
     assert!(argv.iter().any(|a| a == "--descriptor"));
-    assert!(!argv.iter().any(|a| a == "--template"));
+    assert!(!argv.iter().any(|a| a == "--scheme"));
     assert!(!argv.iter().any(|a| a == "--threshold"));
     assert!(!argv.iter().any(|a| a == "--multisig-path-family"));
 }
@@ -95,7 +95,7 @@ fn bundle_compose_descriptor_and_single_sig_template_both_suppress() {
     // didn't match this.
     let state = FormState::from_pairs(vec![
         ("--descriptor", FlagValue::Text("wpkh(@0/**)".into())),
-        ("--template", FlagValue::Dropdown("bip84".into())),
+        ("--scheme", FlagValue::Dropdown("bip84".into())),
         ("--threshold", FlagValue::Number(1)),
     ]);
     let argv = argv_for("bundle", &state);
@@ -108,7 +108,7 @@ fn bundle_compose_descriptor_and_single_sig_template_both_suppress() {
 fn export_wallet_taproot_internal_key_suppressed_when_non_taproot_template() {
     use mnemonic_gui::schema::TaggedOrIndexedValue;
     let state = FormState::from_pairs(vec![
-        ("--template", FlagValue::Dropdown("bip84".into())),
+        ("--scheme", FlagValue::Dropdown("bip84".into())),
         (
             "--taproot-internal-key",
             FlagValue::TaggedOrIndexed(TaggedOrIndexedValue::Tag("nums".into())),
@@ -122,7 +122,7 @@ fn export_wallet_taproot_internal_key_suppressed_when_non_taproot_template() {
 fn export_wallet_taproot_internal_key_emits_for_taproot_template() {
     use mnemonic_gui::schema::TaggedOrIndexedValue;
     let state = FormState::from_pairs(vec![
-        ("--template", FlagValue::Dropdown("tr-sortedmulti-a".into())),
+        ("--scheme", FlagValue::Dropdown("tr-sortedmulti-a".into())),
         (
             "--taproot-internal-key",
             FlagValue::TaggedOrIndexed(TaggedOrIndexedValue::Tag("nums".into())),
@@ -135,7 +135,7 @@ fn export_wallet_taproot_internal_key_emits_for_taproot_template() {
 #[test]
 fn export_wallet_threshold_suppressed_when_single_sig() {
     let state = FormState::from_pairs(vec![
-        ("--template", FlagValue::Dropdown("bip86".into())),
+        ("--scheme", FlagValue::Dropdown("bip86".into())),
         ("--threshold", FlagValue::Number(2)),
     ]);
     let argv = argv_for("export-wallet", &state);
@@ -151,7 +151,7 @@ fn required_decoration_does_not_suppress_emission() {
     // MUST NOT suppress emission — the user just hasn't supplied a value
     // yet. With a value present, it MUST emit.
     let state = FormState::from_pairs(vec![
-        ("--template", FlagValue::Dropdown("bip84".into())),
+        ("--scheme", FlagValue::Dropdown("bip84".into())),
         ("--mk1", FlagValue::Text("mk1abc".into())),
     ]);
     let argv = argv_for("verify-bundle", &state);
@@ -189,7 +189,7 @@ fn passphrase_typed_then_stdin_set_does_not_emit_typed_value() {
     // code path orthogonal to this fix; this test scope is the
     // --passphrase suppression only.)
     let mut state = FormState::from_pairs(vec![
-        ("--template", FlagValue::Dropdown("bip84".into())),
+        ("--scheme", FlagValue::Dropdown("bip84".into())),
         ("--passphrase-stdin", FlagValue::Boolean(true)),
     ]);
     // Simulate the user having typed a value into --passphrase BEFORE
@@ -305,7 +305,7 @@ fn threshold_widget_stale_value_above_slot_count_emits_argv_unchanged() {
     state.values.push(("--threshold".into(), FlagValue::Number(5)));
     // Add a multisig template so --threshold isn't suppressed by the
     // pre-existing v0.16.0 "single-sig disables threshold" rule.
-    state.values.push(("--template".into(), FlagValue::Dropdown("wsh-multi".into())));
+    state.values.push(("--scheme".into(), FlagValue::Dropdown("wsh-multi".into())));
     let argv = argv_for("bundle", &state);
     assert!(
         contains_pair(&argv, "--threshold", "5"),

@@ -251,7 +251,7 @@ fn gui_schema_conditional_rules_match_hand_coded_conditionals() {
             // v0.7.0: search for an entry MATCHING the expected visibility
             // rather than the first entry for the flag. Multiple rules can
             // emit entries for the same flag with orthogonal effects (e.g.,
-            // --template can be both Required AND have DisableOptions). The
+            // --scheme can be both Required AND have DisableOptions). The
             // runtime render loop handles composition by consuming the
             // primary first-rule-wins visibility + extracting DisableOptions
             // separately; the drift gate verifies the GUI EMITS the rule's
@@ -344,11 +344,11 @@ fn synthesize_satisfying_flag_present_pushes_text() {
 #[test]
 fn synthesize_satisfying_dropdown_value_in_picks_first() {
     let predicate = Predicate::DropdownValueIn {
-        flag: "--template".into(),
+        flag: "--scheme".into(),
         values: vec!["bip44".into(), "bip49".into(), "bip84".into(), "bip86".into()],
     };
     let state = synthesize_satisfying(&predicate, FormState::default());
-    assert_eq!(state.dropdown_value("--template"), Some("bip44"));
+    assert_eq!(state.dropdown_value("--scheme"), Some("bip44"));
 }
 
 #[test]

@@ -1,6 +1,6 @@
 //! v0.31.0 (SPEC §3/§4) — the data-driven archetype param form.
 //!
-//! When the build-descriptor form's `--archetype` dropdown holds a
+//! When the build-descriptor form's `--scheme` dropdown holds a
 //! non-empty `ARCHETYPE_SPECS` id, the generic flag grid is REPLACED (for
 //! the 9 param flags + `--spec`) by this schema-driven form: only the
 //! selected archetype's params render, in schema order, each with a
@@ -66,7 +66,7 @@ fn static_flag(name: &str) -> &'static FlagSchema {
 }
 
 /// Render the archetype param form for `spec`: the summary line (directly
-/// under the `--archetype` dropdown — the host calls this right after the
+/// under the `--scheme` dropdown — the host calls this right after the
 /// dropdown's generic widget) followed by every declared param in schema
 /// order via the §4 ParamKind → widget map.
 pub fn render(
@@ -252,7 +252,7 @@ mod tests {
             independent,
             [
                 "--spec-schema",
-                "--archetype",
+                "--scheme",
                 "--emit-spec",
                 "--allow",
                 "--format",

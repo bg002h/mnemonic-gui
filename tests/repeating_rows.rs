@@ -157,7 +157,7 @@ fn cell_build_descriptor_default_form_seeds_no_rows_and_no_archetype() {
     // (SPEC §6 cell e) the default build-descriptor form:
     //   - OPTIONAL repeating flags (--key/--recovery-key/--allow) seed
     //     ZERO rows (never auto-emit an allowance);
-    //   - --archetype seeds the "" sentinel (default_value Some("")) and
+    //   - --scheme seeds the "" sentinel (default_value Some("")) and
     //     is suppressed from argv (R0-r1 C1).
     let mut harness = full_form_harness("build-descriptor");
     harness.run();
@@ -173,12 +173,12 @@ fn cell_build_descriptor_default_form_seeds_no_rows_and_no_archetype() {
         state
             .values
             .iter()
-            .any(|(k, v)| k == "--archetype" && *v == FlagValue::Dropdown(String::new())),
-        "--archetype must seed the \"\" UNSET sentinel"
+            .any(|(k, v)| k == "--scheme" && *v == FlagValue::Dropdown(String::new())),
+        "--scheme must seed the \"\" UNSET sentinel"
     );
 
     let argv = assemble_argv(&schema::mnemonic::SCHEMA, subcommand("build-descriptor"), state);
-    for name in ["--archetype", "--key", "--recovery-key", "--allow", "--spec"] {
+    for name in ["--scheme", "--key", "--recovery-key", "--allow", "--spec"] {
         assert!(
             !argv.contains(&name.to_string()),
             "default build-descriptor form must not emit {name}: {argv:?}"
@@ -363,7 +363,7 @@ fn cell_archetype_unset_sentinel_displays_as_none_label() {
     // text. Both display sites (selected_text + popup row) share the same
     // mapping in the Dropdown render arm; the stored value staying "" is
     // pinned by cell_build_descriptor_default_form_seeds_no_rows_and_no_archetype.
-    let flag = flag_named("build-descriptor", "--archetype");
+    let flag = flag_named("build-descriptor", "--scheme");
     let mut harness = Harness::new_ui_state(
         |ui, state: &mut FormState| {
             widget::render_with_dispatch(

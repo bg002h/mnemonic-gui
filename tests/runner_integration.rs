@@ -83,7 +83,7 @@ fn cell_1_mnemonic_export_wallet_byte_exact() {
         ],
     };
     let state = FormState::from_pairs(vec![
-        ("--template", FlagValue::Dropdown("bip84".into())),
+        ("--scheme", FlagValue::Dropdown("bip84".into())),
         ("--network", FlagValue::Dropdown("mainnet".into())),
         ("--format", FlagValue::Dropdown("coldcard".into())),
         ("--output", FlagValue::Path("-".into())),

@@ -58,7 +58,7 @@ const GREEN: egui::Color32 = egui::Color32::from_rgb(60, 180, 75);
 
 /// Selector labels (the §2.2 three-way row).
 pub const MODE_GENERIC_LABEL: &str = "Generic / spec file";
-pub const MODE_ARCHETYPE_LABEL: &str = "Archetype";
+pub const MODE_ARCHETYPE_LABEL: &str = "Scheme";
 pub const MODE_TREE_LABEL: &str = "Tree builder";
 
 /// Structural completeness gaps for the CURRENT tree mode. Empty when not
@@ -120,7 +120,7 @@ pub fn posix_pipeline_command(state: &FormState, argv: &[String]) -> Option<Stri
 
 /// v0.32.0 P3 (SPEC §3) — the `--emit-spec` argv for the CURRENTLY
 /// selected archetype + its param rows: `["mnemonic", "build-descriptor",
-/// "--archetype", <id>, <declared param rows in schema order>,
+/// "--scheme", <id>, <declared param rows in schema order>,
 /// "--emit-spec"]` (`argv[0]` = the CLI binary name, the runner contract).
 ///
 /// PURPOSE-BUILT rather than `assemble_argv` reuse: `--emit-spec` is
@@ -137,7 +137,7 @@ pub fn emit_spec_argv(state: &FormState, spec: &'static ArchetypeSpec) -> Vec<St
     let mut argv: Vec<String> = vec![
         "mnemonic".to_string(),
         "build-descriptor".to_string(),
-        "--archetype".to_string(),
+        "--scheme".to_string(),
         spec.id.to_string(),
     ];
     for param in spec.params {
@@ -225,7 +225,7 @@ pub fn render_edit_as_tree(ui: &mut egui::Ui, state: &mut FormState, bin: &str) 
     let clicked = ui
         .button("Edit as tree…")
         .on_hover_text(
-            "runs `build-descriptor --archetype … --emit-spec` and loads the \
+            "runs `build-descriptor --scheme … --emit-spec` and loads the \
              lowered spec into the tree builder (your archetype params are \
              kept; switch back anytime)",
         )
@@ -362,7 +362,7 @@ fn cost_note(cost: &serde_json::Value) -> String {
 
 /// The §2.2 three-way mode-selector row. View-state only (R0-r1 I4):
 /// Tree sets `TreeState.enabled`; Generic/Archetype clear `enabled`
-/// FIRST; Generic also resets the `--archetype` dropdown to the `""`
+/// FIRST; Generic also resets the `--scheme` dropdown to the `""`
 /// "(none)" sentinel (the v0.31.0-native gesture). Values, archetype
 /// params, and tree nodes are never destroyed by mode switches.
 pub fn render_mode_selector(ui: &mut egui::Ui, state: &mut FormState) {
@@ -378,7 +378,7 @@ pub fn render_mode_selector(ui: &mut egui::Ui, state: &mut FormState) {
             if let Some(t) = state.tree.as_mut() {
                 t.enabled = false;
             }
-            if let Some(row) = state.values.iter_mut().find(|(k, _)| k == "--archetype") {
+            if let Some(row) = state.values.iter_mut().find(|(k, _)| k == "--scheme") {
                 row.1 = FlagValue::Dropdown(String::new());
             }
         }

@@ -57,7 +57,7 @@ fn exact_render_mode_form_shows_subsurface_placeholder() {
   [ build-descriptor mode selector: generic ]
   --spec                path(stdio)  -> <empty>
   --spec-schema         checkbox  -> [ ] off
-  --archetype           dropdown[(none),decaying-multisig,hashlock-gated,kofn-recovery,simple-timelocked-inheritance,tiered-recovery]  -> <empty>
+  --scheme              dropdown[(none),decaying-multisig,hashlock-gated,kofn-recovery,simple-timelocked-inheritance,tiered-recovery]  -> <empty>
   --key                 text  (repeating) -> <empty>
   --threshold           number  -> <unset>
   --recovery-key        text  (repeating) -> <empty>
@@ -85,15 +85,15 @@ fn exact_render_mode_form_shows_subsurface_placeholder() {
 fn exact_render_seeded_conditional_form_disables_multisig_only_flags() {
     // `mnemonic export-wallet`: the emit seeds flag defaults BEFORE evaluating
     // `conditional` (P3 R0 ruling A — the on-load steady state the GUI shows).
-    // With `--template` auto-seeded to its single-sig default `bip44`, the
+    // With `--scheme` auto-seeded to its single-sig default `bip44`, the
     // conditional (a) DISABLES `--descriptor` (template/descriptor mutex) and
     // the multisig-only `--threshold` / `--multisig-path-family`, and (b) DROPS
-    // the spurious `(required)` markers on `--template` / `--descriptor` (the
+    // the spurious `(required)` markers on `--scheme` / `--descriptor` (the
     // "either template or descriptor" pre-check is already satisfied by the
     // seeded template). Pristine-fixture emit would falsely show all of these
     // enabled + the pair Required — a screen the user never sees.
     //
-    // gui_example P1.3 (F1, mini-R0 A1-APPEND): the `--template` opts carry a
+    // gui_example P1.3 (F1, mini-R0 A1-APPEND): the `--scheme` opts carry a
     // trailing `(none)` — the `""` UNSET sentinel APPENDED to the per-flag
     // `EXPORT_WALLET_TEMPLATES` const. This exact-ASCII pin doubles as the
     // PLACEMENT guard: a prepend would read `dropdown[(none),bip44,…]` and
@@ -105,7 +105,7 @@ fn exact_render_seeded_conditional_form_disables_multisig_only_flags() {
     // `--count` are new rows. `--allow-argv-secret` is GUI-managed: no row.
     let expected = "\
 [ mnemonic > export-wallet ]
-  --template                dropdown[bip44,bip49,bip84,bip86,wsh-multi,wsh-sortedmulti,sh-wsh-multi,sh-wsh-sortedmulti,tr-multi-a,tr-sortedmulti-a,(none)]  -> bip44
+  --scheme                  dropdown[bip44,bip49,bip84,bip86,wsh-multi,wsh-sortedmulti,sh-wsh-multi,sh-wsh-sortedmulti,tr-multi-a,tr-sortedmulti-a,(none)]  -> bip44
   --descriptor              text  -> <empty> [disabled]
   --threshold               number  -> <unset> [disabled]
   --multisig-path-family    dropdown[bip48,bip87]  -> bip48 [disabled]
@@ -186,7 +186,7 @@ fn slot_form_renders_slot_editor_placeholder() {
         "{out}"
     );
     // Seeded-conditional faithfulness (P3 R0 ruling A): the canonical fixture
-    // auto-seeds `--template -> bip44` (single-sig), so the conditional greys
+    // auto-seeds `--scheme -> bip44` (single-sig), so the conditional greys
     // the multisig-only flags on load — exactly what the GUI shows.
     assert!(
         out.contains("--multisig-path-family  dropdown[bip48,bip87]  -> bip48 [disabled]"),

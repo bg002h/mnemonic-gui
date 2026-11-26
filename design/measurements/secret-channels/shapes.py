@@ -54,20 +54,20 @@ def shape(name, cli, sub, pre, sources, post=(), symmetric=(), expect="run"):
 XS = "mnemonic xpub-search "
 shape("addresses phrase+passphrase", m, ["addresses"], ["--address-type", "p2wpkh", "--count", "1"],
       [node("mnemonic addresses --from phrase=", "--from", "phrase=", P), val("mnemonic addresses --passphrase", "--passphrase", PW)])
-shape("restore phrase+passphrase", m, ["restore"], ["--template", "bip84"],
+shape("restore phrase+passphrase", m, ["restore"], ["--scheme", "bip84"],
       [node("mnemonic restore --from phrase=", "--from", "phrase=", P), val("mnemonic restore --passphrase", "--passphrase", PW)])
-shape("restore ms1+passphrase", m, ["restore"], ["--template", "bip84"],
+shape("restore ms1+passphrase", m, ["restore"], ["--scheme", "bip84"],
       [node("mnemonic restore --from ms1=", "--from", "ms1=", MS1), val("mnemonic restore --passphrase", "--passphrase", PW)])
 shape("derive-child phrase+passphrase", m, ["derive-child"], ["--application", "bip39", "--length", "12", "--index", "0"],
       [node("mnemonic derive-child --from phrase=", "--from", "phrase=", P), val("mnemonic derive-child --passphrase", "--passphrase", PW)])
-shape("bundle slot+passphrase", m, ["bundle"], ["--network", "mainnet", "--template", "bip84"],
+shape("bundle slot+passphrase", m, ["bundle"], ["--network", "mainnet", "--scheme", "bip84"],
       [val("mnemonic bundle --passphrase", "--passphrase", PW), node("mnemonic bundle --slot @N.phrase=", "--slot", "@0.phrase=", P)])
-shape("bundle wsh-multi 2 slots", m, ["bundle"], ["--network", "mainnet", "--template", "wsh-multi", "--threshold", "2"],
+shape("bundle wsh-multi 2 slots", m, ["bundle"], ["--network", "mainnet", "--scheme", "wsh-multi", "--threshold", "2"],
       [node("mnemonic bundle --slot @N.phrase=", "--slot", "@0.phrase=", P), node("mnemonic bundle --slot @N.phrase=", "--slot", "@1.phrase=", P2)])
-shape("bundle wsh-multi 2 slots+passphrase", m, ["bundle"], ["--network", "mainnet", "--template", "wsh-multi", "--threshold", "2"],
+shape("bundle wsh-multi 2 slots+passphrase", m, ["bundle"], ["--network", "mainnet", "--scheme", "wsh-multi", "--threshold", "2"],
       [val("mnemonic bundle --passphrase", "--passphrase", PW),
        node("mnemonic bundle --slot @N.phrase=", "--slot", "@0.phrase=", P), node("mnemonic bundle --slot @N.ms1=", "--slot", "@1.ms1=", T24_MS1)])
-shape("convert phrase+passphrase", m, ["convert"], ["--to", "xpub", "--template", "bip84"],
+shape("convert phrase+passphrase", m, ["convert"], ["--to", "xpub", "--scheme", "bip84"],
       [node("mnemonic convert --from phrase=", "--from", "phrase=", P), val("mnemonic convert --passphrase", "--passphrase", PW)])
 shape("convert wif+bip38-passphrase", m, ["convert"], ["--to", "bip38"],
       [node("mnemonic convert --from wif=", "--from", "wif=", WIF), val("mnemonic convert --bip38-passphrase", "--bip38-passphrase", PW)])
@@ -96,7 +96,7 @@ shape("ms-shares combine 2 shares", m, ["ms-shares", "combine"], ["--to", "phras
 shape("import-wallet 2 cosigner ms1", m, ["import-wallet"], ["--blob", os.path.join(FX, "blob-2of2.bsms"), "--format", "bsms", "--json"],
       [val("mnemonic import-wallet --ms1", "--ms1", T24_MS1), val("mnemonic import-wallet --ms1", "--ms1", MS1)])
 shape("verify-bundle ms1+slot+passphrase", m, ["verify-bundle"],
-      ["--network", "mainnet", "--template", "bip84", "--mk1"] + BPJ["mk1"] + ["--md1"] + BPJ["md1"],
+      ["--network", "mainnet", "--scheme", "bip84", "--mk1"] + BPJ["mk1"] + ["--md1"] + BPJ["md1"],
       [val("mnemonic verify-bundle --passphrase", "--passphrase", PW),
        val("mnemonic verify-bundle --ms1", "--ms1", BPJ["ms1"][0]), node("mnemonic verify-bundle --slot @N.phrase=", "--slot", "@0.phrase=", P)])
 shape("ms combine share group", ms, ["combine"], [], [group("ms combine <shares>", MSPLIT)])

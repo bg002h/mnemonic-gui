@@ -26,7 +26,7 @@
 //! bundle→restore all agree — see SPEC_test_hardening_T5_gui.md §T5-S3).
 //!
 //! ## Scope guard
-//! Scoped to `--template bip84` only (matches the eval's literal text). A
+//! Scoped to `--scheme bip84` only (matches the eval's literal text). A
 //! `--descriptor`-mode variant would exercise Cycle-A's C1 use-site-collapse
 //! fix end-to-end but needs the GUI's toolkit pin bumped to >= v0.76.0
 //! (currently v0.75.0, pre-C1) — out of scope for this NO-BUMP-parallel
@@ -149,10 +149,10 @@ fn bundle_bip84_all_zero_then_restore_matches_external_oracles() {
         return;
     };
 
-    // ── leg 1: bundle --template bip84 (single-sig, no --descriptor) ────
+    // ── leg 1: bundle --scheme bip84 (single-sig, no --descriptor) ────
     let bundle_state = FormState::from_pairs(vec![
         ("--network", FlagValue::Dropdown("mainnet".into())),
-        ("--template", FlagValue::Dropdown("bip84".into())),
+        ("--scheme", FlagValue::Dropdown("bip84".into())),
         ("--json", FlagValue::Boolean(true)),
     ])
     .with_slots(SlotState {
@@ -191,7 +191,7 @@ fn bundle_bip84_all_zero_then_restore_matches_external_oracles() {
         .collect();
     assert!(
         !md1_chunks.is_empty(),
-        "bundle --template bip84 must emit at least one md1 chunk"
+        "bundle --scheme bip84 must emit at least one md1 chunk"
     );
 
     // ── leg 2: restore --from ms1=<emitted> --md1 <c1> --md1 <c2> … ─────

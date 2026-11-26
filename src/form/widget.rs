@@ -523,7 +523,7 @@ fn render_row(
                 // label via Required/PinValue/etc and is consumed upstream
                 // in main.rs's `add_enabled_ui` gate for Disabled). A flag
                 // can simultaneously be Required (red asterisk on label) AND
-                // have invalid Dropdown options greyed out (e.g., --template
+                // have invalid Dropdown options greyed out (e.g., --scheme
                 // when slot_count>=2 and no descriptor).
                 //
                 // v0.30.0 R0-r1 I4: repeating rows salt the row index in —

@@ -7,6 +7,13 @@ mirrors it.
 
 ## Active
 
+### `scheme-origin-path-rename-pin-bump` — move the pins to the first releases carrying `--scheme` / `--origin-path`
+
+- **Surfaced:** 2026-11-26, the `--scheme` / `--origin-path` flag rename (brief `cli-review/scheme-origin-path-plan-2026-11-26.md`). The GUI schema, conditionals, persistence migration and tests use the new spellings, but no release of the toolkit, `md` or `ms` carries them yet, so `pinned-upstream.toml` (`[mnemonic]`, `[md]`, `[ms]` tags) and `Cargo.toml`'s `mnemonic-toolkit` tag were left alone (no tags invented). Until they move, the `schema-mirror` CI gate fails: the pinned binaries still name `--template` / `--archetype` / `--preset`. Verified locally instead against binaries built from the sibling branches `claude/project-thread-0jg5n7`.
+- **Owed at the bump:** `pinned-upstream.toml` tags + Cargo.toml toolkit tag (+ `Cargo.lock`) + each schema's `pinned_version` (the `src/cli_version.rs` floor; a secret-bearing Run against a pre-rename binary would otherwise be admitted and fail on the unknown flag), the CI installer commit, the secret-channels re-measure (`measured_with.json`), and the tutorial shots that show `--template`/`Archetype`. The GUI manual (`docs/manual-gui` in the toolkit) still anchors `#mnemonic-bundle-template` etc.; its anchors must move to `-scheme` / `-origin-path` for the help links and `manual_anchor_coverage` (ignored by default) to resolve.
+- **Not renamed (contract):** JSON keys named `template` / `archetype` in toolkit output; the GUI reads them unchanged.
+- **Status:** OPEN. **Owning phase:** the pin bump after the toolkit, md and ms releases.
+
 ### `restore-from-secret-node-unmasked-and-persisted` — `restore --from ms1=<card>` is a plain Text field: unmasked, unconfirmed, and PERSISTED
 
 - **Surfaced:** 2026-09-24, F-679 (the toolkit v0.104.0 argv-secret refusal made it visible: the Run path's secret mask never marked `restore --from ms1=…`, so the toolkit refused the GUI's own restore-from-ms1 run). `restore --from` is `FlagKind::Text`, `secret: false` (upstream `gui-schema` agrees — its secrecy depends on the NODE the user types). Measured on the F-679 tree with `FormState{--from: Text("ms1=…")}`: `redact_for_persistence` KEEPS `--from` (the ms1 reaches the autosave file), `should_confirm_run` is `false` (no run-confirm modal), and `assemble_argv_with_secret_mask` marks nothing (the Preview shows the ms1 in cleartext). Same for any `SECRET_NODE_TYPES_ARGV` node (`phrase=`, `wif=`, `xprv=`, …).

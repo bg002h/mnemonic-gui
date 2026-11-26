@@ -42,7 +42,7 @@ fn cell_1_bundle_3_slot_phrase_argv() {
     };
     let state = FormState::from_pairs(vec![
         ("--network", FlagValue::Dropdown("mainnet".into())),
-        ("--template", FlagValue::Dropdown("wsh-sortedmulti".into())),
+        ("--scheme", FlagValue::Dropdown("wsh-sortedmulti".into())),
         ("--threshold", FlagValue::Number(2)),
     ])
     .with_slots(slots);
@@ -54,7 +54,7 @@ fn cell_1_bundle_3_slot_phrase_argv() {
             "bundle",
             "--network",
             "mainnet",
-            "--template",
+            "--scheme",
             "wsh-sortedmulti",
             "--threshold",
             "2",

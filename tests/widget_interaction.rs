@@ -15,7 +15,7 @@
 //!    matches the expected byte-exact argv emission.
 //! 2. `cell_2_conditional_visibility_toggle` — drives the
 //!    `mnemonic export-wallet` form; mutates `FormState` to toggle
-//!    `--template`; asserts `conditional::export_wallet()` returns the
+//!    `--scheme`; asserts `conditional::export_wallet()` returns the
 //!    `FlagVisibility` map specified by SPEC §5 (mutual exclusion +
 //!    runtime-pre-check Required).
 //!
@@ -110,13 +110,13 @@ fn cell_2_conditional_visibility_toggle() {
     let mut harness = Harness::new_ui_state(
         |ui, state| {
             // Minimal probe: a button labeled "set-template-bip84" that,
-            // when clicked, mutates the FormState to set --template.
+            // when clicked, mutates the FormState to set --scheme.
             // A real form renderer is unnecessary for the visibility
             // query — the assertion is on the conditional fn output,
             // not on rendered geometry.
             if ui.button("set-template-bip84").clicked() {
                 state.values.push((
-                    "--template".to_string(),
+                    "--scheme".to_string(),
                     FlagValue::Dropdown("bip84".to_string()),
                 ));
             }
@@ -137,9 +137,9 @@ fn cell_2_conditional_visibility_toggle() {
     // Required (export_wallet runtime pre-check, conditional.rs:120-126).
     let vis = conditional::export_wallet(harness.state());
     assert_eq!(
-        vis_for(&vis, "--template"),
+        vis_for(&vis, "--scheme"),
         Some(Visibility::Required),
-        "with neither template nor descriptor, --template should be Required"
+        "with neither template nor descriptor, --scheme should be Required"
     );
     assert_eq!(
         vis_for(&vis, "--descriptor"),
@@ -157,9 +157,9 @@ fn cell_2_conditional_visibility_toggle() {
         "with template set, --descriptor should be Disabled (mutual exclusion)"
     );
     assert_ne!(
-        vis_for(&vis, "--template"),
+        vis_for(&vis, "--scheme"),
         Some(Visibility::Required),
-        "with template set, --template should no longer be Required"
+        "with template set, --scheme should no longer be Required"
     );
 
     // Clear and re-test the descriptor path.
@@ -169,9 +169,9 @@ fn cell_2_conditional_visibility_toggle() {
     harness.run();
     let vis = conditional::export_wallet(harness.state());
     assert_eq!(
-        vis_for(&vis, "--template"),
+        vis_for(&vis, "--scheme"),
         Some(Visibility::Disabled),
-        "with descriptor set, --template should be Disabled (mutual exclusion)"
+        "with descriptor set, --scheme should be Disabled (mutual exclusion)"
     );
 }
 

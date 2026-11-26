@@ -75,7 +75,7 @@ pub fn render_form(tab: CliTab, sub: &SubcommandSchema) -> String {
 /// The GUI auto-seeds every CURRENTLY-RENDERED non-secret flag's schema default
 /// into `state.values` on each frame and re-evaluates `conditional` at the top
 /// of the next frame, so the screen the user sees on load is the FIXED POINT of
-/// that loop — e.g. `bundle` seeds `--template -> bip44` (single-sig), and the
+/// that loop — e.g. `bundle` seeds `--scheme -> bip44` (single-sig), and the
 /// conditional then greys the multisig-only `--threshold`/`--multisig-path-family`.
 /// The emit MUST evaluate `conditional` over THIS seeded state, not the unseeded
 /// blank form, or the depicted `[disabled]` column contradicts the value column.
@@ -271,8 +271,8 @@ fn form_elements(sub: &SubcommandSchema, state: &FormState) -> Vec<FormElement> 
         }
         els.push(FormElement::Flag { flag, vis: v });
         // The archetype param sub-form renders inline directly under the
-        // `--archetype` dropdown (main.rs:690), as a single placeholder line.
-        if flag.name == "--archetype" && archetype_mode {
+        // `--scheme` dropdown (main.rs:690), as a single placeholder line.
+        if flag.name == "--scheme" && archetype_mode {
             els.push(FormElement::Raw("[ archetype param form ]".to_string()));
         }
     }

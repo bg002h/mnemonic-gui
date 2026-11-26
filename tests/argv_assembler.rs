@@ -32,7 +32,7 @@ fn cell_1_bundle_phrase_minimal_argv() {
     // own defaults. To force emission, use a non-default value (`1` etc).
     let mut state = FormState::from_pairs(vec![
         ("--network", FlagValue::Dropdown("mainnet".into())),
-        ("--template", FlagValue::Dropdown("bip84".into())),
+        ("--scheme", FlagValue::Dropdown("bip84".into())),
         ("--account", FlagValue::Number(0)),
         ("--json", FlagValue::Boolean(true)),
         ("--privacy-preserving", FlagValue::Boolean(false)), // omit
@@ -44,7 +44,7 @@ fn cell_1_bundle_phrase_minimal_argv() {
     assert_eq!(
         argv,
         vec![
-            "mnemonic", "bundle", "--network", "mainnet", "--template", "bip84",
+            "mnemonic", "bundle", "--network", "mainnet", "--scheme", "bip84",
             "--passphrase", "hunter2", "--json",
         ]
     );
@@ -97,7 +97,7 @@ fn cell_3_export_wallet_range_timestamp_argv() {
     // emits regardless of the schema default (which is `0` since v0.28.0 /
     // toolkit v0.47.3).
     let state = FormState::from_pairs(vec![
-        ("--template", FlagValue::Dropdown("bip84".into())),
+        ("--scheme", FlagValue::Dropdown("bip84".into())),
         ("--range", FlagValue::Range(0, 999)),
         ("--timestamp", FlagValue::Timestamp(TimestampValue::Unix(1_700_000_000))),
         ("--format", FlagValue::Dropdown("bitcoin-core".into())),
@@ -107,7 +107,7 @@ fn cell_3_export_wallet_range_timestamp_argv() {
         subcommand("export-wallet"),
         &state,
     );
-    // Schema declares: --template, ..., --format, --output, --range,
+    // Schema declares: --scheme, ..., --format, --output, --range,
     // --timestamp, ... — so --format precedes --range / --timestamp per
     // SPEC §6.3. Default-suppression drops --range + --format.
     assert_eq!(
@@ -115,7 +115,7 @@ fn cell_3_export_wallet_range_timestamp_argv() {
         vec![
             "mnemonic",
             "export-wallet",
-            "--template",
+            "--scheme",
             "bip84",
             "--timestamp",
             "1700000000",
@@ -151,11 +151,11 @@ fn cell_3b_export_wallet_timestamp_now_argv() {
 fn cell_4_export_wallet_tr_multi_a_argv() {
     // Covers TaggedOrIndexed (Tag arm + Indexed arm in two cells).
     // v0.16.0 SPEC §6.10.7: --taproot-internal-key is gated by template ∈
-    // {tr-multi-a, tr-sortedmulti-a}; without a matching --template, the
+    // {tr-multi-a, tr-sortedmulti-a}; without a matching --scheme, the
     // new P3 visibility gate suppresses emission. The test now supplies
-    // --template = tr-multi-a explicitly (matches the cell name).
+    // --scheme = tr-multi-a explicitly (matches the cell name).
     let tag_state = FormState::from_pairs(vec![
-        ("--template", FlagValue::Dropdown("tr-multi-a".into())),
+        ("--scheme", FlagValue::Dropdown("tr-multi-a".into())),
         (
             "--taproot-internal-key",
             FlagValue::TaggedOrIndexed(TaggedOrIndexedValue::Tag("nums".into())),
@@ -167,13 +167,13 @@ fn cell_4_export_wallet_tr_multi_a_argv() {
         &tag_state,
     );
     // Emission order = schema declaration order per SPEC §6 invariant 3.
-    // --template precedes --taproot-internal-key in the schema.
+    // --scheme precedes --taproot-internal-key in the schema.
     assert_eq!(
         tag_argv,
         vec![
             "mnemonic",
             "export-wallet",
-            "--template",
+            "--scheme",
             "tr-multi-a",
             "--taproot-internal-key",
             "nums",
@@ -181,7 +181,7 @@ fn cell_4_export_wallet_tr_multi_a_argv() {
     );
 
     let indexed_state = FormState::from_pairs(vec![
-        ("--template", FlagValue::Dropdown("tr-sortedmulti-a".into())),
+        ("--scheme", FlagValue::Dropdown("tr-sortedmulti-a".into())),
         (
             "--taproot-internal-key",
             FlagValue::TaggedOrIndexed(TaggedOrIndexedValue::Indexed(2)),
@@ -197,7 +197,7 @@ fn cell_4_export_wallet_tr_multi_a_argv() {
         vec![
             "mnemonic",
             "export-wallet",
-            "--template",
+            "--scheme",
             "tr-sortedmulti-a",
             "--taproot-internal-key",
             "@2",
@@ -275,7 +275,7 @@ fn cell_7_emission_order_follows_schema_declaration() {
     let mut state = FormState::from_pairs(vec![
         // Insert in REVERSE schema order.
         ("--account", FlagValue::Number(1)),
-        ("--template", FlagValue::Dropdown("bip84".into())),
+        ("--scheme", FlagValue::Dropdown("bip84".into())),
         ("--network", FlagValue::Dropdown("signet".into())),
     ]);
     state
@@ -286,9 +286,9 @@ fn cell_7_emission_order_follows_schema_declaration() {
         argv,
         vec![
             "mnemonic", "bundle",
-            // Schema order: --network, --template, ..., --passphrase, --account
+            // Schema order: --network, --scheme, ..., --passphrase, --account
             "--network", "signet",
-            "--template", "bip84",
+            "--scheme", "bip84",
             "--passphrase", "p",
             "--account", "1",
         ]

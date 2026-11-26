@@ -181,7 +181,7 @@ fn run_confirm_fires_when_passphrase_in_secret_widgets() {
 fn run_confirm_silent_with_no_secret_fields() {
     let state = FormState::from_pairs(vec![
         ("--network", FlagValue::Dropdown("mainnet".into())),
-        ("--template", FlagValue::Dropdown("bip84".into())),
+        ("--scheme", FlagValue::Dropdown("bip84".into())),
     ]);
     assert!(!should_confirm_run(subcommand("bundle"), &state));
 }

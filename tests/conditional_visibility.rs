@@ -4,10 +4,10 @@
 //! 11 cells, one per constraint as enumerated below:
 //!
 //!   bundle:
-//!     1. --template required_unless_present_any [--descriptor, --descriptor-file]
+//!     1. --scheme required_unless_present_any [--descriptor, --descriptor-file]
 //!     2. --descriptor conflicts_with --descriptor-file
 //!   verify-bundle:
-//!     3. --template required_unless_present_any [--descriptor, --descriptor-file]
+//!     3. --scheme required_unless_present_any [--descriptor, --descriptor-file]
 //!     4. --descriptor conflicts_with --descriptor-file
 //!     5. --ms1 conflicts_with --bundle-json
 //!     6. --mk1 required_unless_present --bundle-json
@@ -17,10 +17,10 @@
 //!   convert:
 //!    10. --passphrase-stdin conflicts_with --passphrase
 //!   export-wallet:
-//!    11. --template conflicts_with --descriptor
+//!    11. --scheme conflicts_with --descriptor
 //!   build-descriptor (v0.30.0):
 //!    16-19 (fn names cell_12..cell_15 — header renumbered, impl-review M1).
-//!    --archetype conflicts_with --spec (incl. the "" UNSET-sentinel
+//!    --scheme conflicts_with --spec (incl. the "" UNSET-sentinel
 //!           and "(none)" round-trip cells — see the cells at file end)
 
 use mnemonic_gui::schema::{self, FlagValue, FormState, Visibility};
@@ -76,30 +76,30 @@ fn vis_of(vis: &[(&'static str, Visibility)], flag: &str) -> Visibility {
 
 #[test]
 fn cell_01_bundle_template_required_unless_any_descriptor() {
-    // Empty form state → --template Required.
+    // Empty form state → --scheme Required.
     let empty = FormState::default();
     assert_eq!(
-        vis_of(&run_conditional("bundle", &empty), "--template"),
+        vis_of(&run_conditional("bundle", &empty), "--scheme"),
         Visibility::Required
     );
     // v0.16.0 SPEC §6.10.7 / bundle.rs::mode_text::DESCRIPTOR_AND_TEMPLATE:
     // populating --descriptor BOTH relaxes the requirement AND makes
-    // --template Disabled (descriptor mode is mutually exclusive with
+    // --scheme Disabled (descriptor mode is mutually exclusive with
     // template mode). Prior pre-v0.16.0 behaviour was Visible.
     let with_desc = FormState::from_pairs(vec![(
         "--descriptor",
         FlagValue::Text("wpkh(@0/**)".into()),
     )]);
     assert_eq!(
-        vis_of(&run_conditional("bundle", &with_desc), "--template"),
+        vis_of(&run_conditional("bundle", &with_desc), "--scheme"),
         Visibility::Disabled,
-        "v0.16.0: --template Disabled when --descriptor present \
+        "v0.16.0: --scheme Disabled when --descriptor present \
          (SPEC §6.10.7; DESCRIPTOR_AND_TEMPLATE)"
     );
     // Populating --descriptor-file relaxes Required but does NOT disable
-    // --template (the mutex is between --descriptor and --template-or-
+    // --scheme (the mutex is between --descriptor and --scheme-or-
     // --descriptor-file). v0.16.0 cycle did not add a rule disabling
-    // --template when --descriptor-file is set (the existing GUI rule
+    // --scheme when --descriptor-file is set (the existing GUI rule
     // already disables --descriptor when --descriptor-file is set,
     // which is symmetric).
     let with_desc_file = FormState::from_pairs(vec![(
@@ -107,7 +107,7 @@ fn cell_01_bundle_template_required_unless_any_descriptor() {
         FlagValue::Path("/tmp/d.txt".into()),
     )]);
     assert_eq!(
-        vis_of(&run_conditional("bundle", &with_desc_file), "--template"),
+        vis_of(&run_conditional("bundle", &with_desc_file), "--scheme"),
         Visibility::Visible
     );
 }
@@ -135,19 +135,19 @@ fn cell_02_bundle_descriptor_conflicts_descriptor_file() {
 fn cell_03_verify_bundle_template_required_unless_any_descriptor() {
     let empty = FormState::default();
     assert_eq!(
-        vis_of(&run_conditional("verify-bundle", &empty), "--template"),
+        vis_of(&run_conditional("verify-bundle", &empty), "--scheme"),
         Visibility::Required
     );
-    // v0.16.0 SPEC §6.10.7 (verify-bundle mirror): --template Disabled when
+    // v0.16.0 SPEC §6.10.7 (verify-bundle mirror): --scheme Disabled when
     // --descriptor present. Prior pre-v0.16.0 behaviour was Visible.
     let with_desc = FormState::from_pairs(vec![(
         "--descriptor",
         FlagValue::Text("wpkh(@0/**)".into()),
     )]);
     assert_eq!(
-        vis_of(&run_conditional("verify-bundle", &with_desc), "--template"),
+        vis_of(&run_conditional("verify-bundle", &with_desc), "--scheme"),
         Visibility::Disabled,
-        "v0.16.0: --template Disabled when --descriptor present"
+        "v0.16.0: --scheme Disabled when --descriptor present"
     );
 }
 
@@ -272,7 +272,7 @@ fn cell_10_convert_passphrase_stdin_conflicts_passphrase() {
 #[test]
 fn cell_11_export_wallet_template_conflicts_descriptor() {
     let with_template = FormState::from_pairs(vec![(
-        "--template",
+        "--scheme",
         FlagValue::Dropdown("bip84".into()),
     )]);
     assert_eq!(
@@ -284,14 +284,14 @@ fn cell_11_export_wallet_template_conflicts_descriptor() {
         FlagValue::Text("wpkh(@0/**)".into()),
     )]);
     assert_eq!(
-        vis_of(&run_conditional("export-wallet", &with_desc), "--template"),
+        vis_of(&run_conditional("export-wallet", &with_desc), "--scheme"),
         Visibility::Disabled
     );
 }
 
 /// Phase 5 R1 I-1 fold: export-wallet runtime pre-check at
 /// `export_wallet.rs:215-219` rejects with BadInput when neither
-/// `--template` nor `--descriptor` is supplied. The GUI conditional marks
+/// `--scheme` nor `--descriptor` is supplied. The GUI conditional marks
 /// both as Required to surface this pre-Run rather than after a
 /// surprise non-zero exit. This is the only runtime-pre-check constraint
 /// folded into Phase 5; if more similar pre-checks surface in future
@@ -300,16 +300,16 @@ fn cell_11_export_wallet_template_conflicts_descriptor() {
 fn cell_12_export_wallet_template_or_descriptor_required_when_neither_set() {
     let empty = FormState::default();
     let vis = run_conditional("export-wallet", &empty);
-    assert_eq!(vis_of(&vis, "--template"), Visibility::Required);
+    assert_eq!(vis_of(&vis, "--scheme"), Visibility::Required);
     assert_eq!(vis_of(&vis, "--descriptor"), Visibility::Required);
 
     // With either populated, neither is Required (the runtime check passes).
     let with_template = FormState::from_pairs(vec![(
-        "--template",
+        "--scheme",
         FlagValue::Dropdown("bip84".into()),
     )]);
     let vis = run_conditional("export-wallet", &with_template);
-    assert_ne!(vis_of(&vis, "--template"), Visibility::Required);
+    assert_ne!(vis_of(&vis, "--scheme"), Visibility::Required);
     // --descriptor is Disabled (via cell_11 path), not Required.
     assert_eq!(vis_of(&vis, "--descriptor"), Visibility::Disabled);
 }
@@ -716,7 +716,7 @@ fn cell_v0_3_slip39_combine_language_hidden_when_to_entropy() {
 #[test]
 fn cell_v0_16_bundle_threshold_disabled_when_single_sig_template() {
     let state = FormState::from_pairs(vec![
-        ("--template", FlagValue::Dropdown("bip84".into())),
+        ("--scheme", FlagValue::Dropdown("bip84".into())),
     ]);
     let vis = run_conditional("bundle", &state);
     assert_eq!(vis_of(&vis, "--threshold"), Visibility::Disabled);
@@ -726,7 +726,7 @@ fn cell_v0_16_bundle_threshold_disabled_when_single_sig_template() {
 #[test]
 fn cell_v0_16_bundle_threshold_visible_when_multisig_template() {
     let state = FormState::from_pairs(vec![
-        ("--template", FlagValue::Dropdown("wsh-sortedmulti".into())),
+        ("--scheme", FlagValue::Dropdown("wsh-sortedmulti".into())),
     ]);
     let vis = run_conditional("bundle", &state);
     assert_eq!(vis_of(&vis, "--threshold"), Visibility::Visible);
@@ -739,7 +739,7 @@ fn cell_v0_16_bundle_descriptor_disables_template_and_threshold_family() {
         ("--descriptor", FlagValue::Text("wpkh(@0/**)".into())),
     ]);
     let vis = run_conditional("bundle", &state);
-    assert_eq!(vis_of(&vis, "--template"), Visibility::Disabled);
+    assert_eq!(vis_of(&vis, "--scheme"), Visibility::Disabled);
     assert_eq!(vis_of(&vis, "--threshold"), Visibility::Disabled);
     assert_eq!(vis_of(&vis, "--multisig-path-family"), Visibility::Disabled);
 }
@@ -747,11 +747,11 @@ fn cell_v0_16_bundle_descriptor_disables_template_and_threshold_family() {
 #[test]
 fn cell_v0_16_bundle_compose_descriptor_first_rule_wins_over_template() {
     // First-rule-wins (SPEC §6.10.4 / `main.rs:391-394`): even if
-    // --template were independently single-sig-typed, the descriptor-mode
+    // --scheme were independently single-sig-typed, the descriptor-mode
     // rule fires FIRST and dictates Disabled.
     let state = FormState::from_pairs(vec![
         ("--descriptor", FlagValue::Text("wpkh(@0/**)".into())),
-        ("--template", FlagValue::Dropdown("bip84".into())),
+        ("--scheme", FlagValue::Dropdown("bip84".into())),
     ]);
     let vis = run_conditional("bundle", &state);
     // Both rules produce Disabled, so observable effect is the same.
@@ -772,7 +772,7 @@ fn cell_v0_16_bundle_compose_descriptor_first_rule_wins_over_template() {
 #[test]
 fn cell_v0_16_verify_bundle_threshold_disabled_when_single_sig() {
     let state = FormState::from_pairs(vec![
-        ("--template", FlagValue::Dropdown("bip49".into())),
+        ("--scheme", FlagValue::Dropdown("bip49".into())),
     ]);
     let vis = run_conditional("verify-bundle", &state);
     assert_eq!(vis_of(&vis, "--threshold"), Visibility::Disabled);
@@ -784,13 +784,13 @@ fn cell_v0_16_verify_bundle_template_disabled_when_descriptor() {
         ("--descriptor", FlagValue::Text("wpkh(@0/**)".into())),
     ]);
     let vis = run_conditional("verify-bundle", &state);
-    assert_eq!(vis_of(&vis, "--template"), Visibility::Disabled);
+    assert_eq!(vis_of(&vis, "--scheme"), Visibility::Disabled);
 }
 
 #[test]
 fn cell_v0_16_export_wallet_taproot_internal_key_required_for_taproot_multi() {
     let state = FormState::from_pairs(vec![
-        ("--template", FlagValue::Dropdown("tr-sortedmulti-a".into())),
+        ("--scheme", FlagValue::Dropdown("tr-sortedmulti-a".into())),
     ]);
     let vis = run_conditional("export-wallet", &state);
     assert_eq!(
@@ -802,7 +802,7 @@ fn cell_v0_16_export_wallet_taproot_internal_key_required_for_taproot_multi() {
 #[test]
 fn cell_v0_16_export_wallet_taproot_internal_key_disabled_for_non_taproot() {
     let state = FormState::from_pairs(vec![
-        ("--template", FlagValue::Dropdown("bip84".into())),
+        ("--scheme", FlagValue::Dropdown("bip84".into())),
     ]);
     let vis = run_conditional("export-wallet", &state);
     assert_eq!(
@@ -814,7 +814,7 @@ fn cell_v0_16_export_wallet_taproot_internal_key_disabled_for_non_taproot() {
 #[test]
 fn cell_v0_16_export_wallet_threshold_disabled_for_single_sig() {
     let state = FormState::from_pairs(vec![
-        ("--template", FlagValue::Dropdown("bip86".into())),
+        ("--scheme", FlagValue::Dropdown("bip86".into())),
     ]);
     let vis = run_conditional("export-wallet", &state);
     assert_eq!(vis_of(&vis, "--threshold"), Visibility::Disabled);
@@ -953,7 +953,7 @@ fn cell_v0_18_1_bundle_emits_no_disable_options_after_row_10_11_rollback() {
     // template/slot_count mismatch UX migrated to a GUI-internal
     // warning banner via `template_slot_count_warning` (rendered
     // adjacent to the slot grid in main.rs). bundle()'s conditional
-    // fn must NOT push any DisableOptions entries for --template
+    // fn must NOT push any DisableOptions entries for --scheme
     // (or any other flag) at any slot_count.
     for slot_count in [0_usize, 1, 2, 5] {
         let state = state_with_slot_count(slot_count);
@@ -1249,9 +1249,9 @@ fn cell_v0_10_convert_electrum_language_visible_when_to_electrum() {
 }
 
 // Gap 3: --script-type rules.
-//   - Required when --to contains "address" AND no --template.
+//   - Required when --to contains "address" AND no --scheme.
 //   - Disabled when --to NOT contains "address".
-//   - Visible (no override) when --to contains "address" AND --template set.
+//   - Visible (no override) when --to contains "address" AND --scheme set.
 #[test]
 fn cell_v0_10_convert_script_type_required_when_to_address_and_no_template() {
     let state = convert_state(Some("xpub"), &["address"]);
@@ -1261,12 +1261,12 @@ fn cell_v0_10_convert_script_type_required_when_to_address_and_no_template() {
 
 #[test]
 fn cell_v0_10_convert_script_type_visible_when_to_address_and_template_set() {
-    // --template supplies script-type via inference, so --script-type is
+    // --scheme supplies script-type via inference, so --script-type is
     // no longer Required. Not Disabled either (--to=address keeps it
     // relevant). Falls through to Visible.
     let state = FormState::from_pairs(vec![
         ("--to", FlagValue::Dropdown("address".into())),
-        ("--template", FlagValue::Dropdown("bip84".into())),
+        ("--scheme", FlagValue::Dropdown("bip84".into())),
     ]);
     let vis = run_conditional("convert", &state);
     assert_eq!(vis_of(&vis, "--script-type"), Visibility::Visible);
@@ -1279,32 +1279,32 @@ fn cell_v0_10_convert_script_type_disabled_when_to_not_address() {
     assert_eq!(vis_of(&vis, "--script-type"), Visibility::Disabled);
 }
 
-// Gap 4: --template Disabled when --to has none of {address, xpub, xprv,
-// fingerprint}. (Toolkit consumes --template for phrase|entropy→{xpub,
+// Gap 4: --scheme Disabled when --to has none of {address, xpub, xprv,
+// fingerprint}. (Toolkit consumes --scheme for phrase|entropy→{xpub,
 // xprv, fingerprint} derivation AND for *→address script-type inference;
 // we widen the recon's "address-only" predicate to match.)
 #[test]
 fn cell_v0_10_convert_template_disabled_when_to_unrelated() {
     let state = convert_state(Some("phrase"), &["entropy", "wif"]);
     let vis = run_conditional("convert", &state);
-    assert_eq!(vis_of(&vis, "--template"), Visibility::Disabled);
+    assert_eq!(vis_of(&vis, "--scheme"), Visibility::Disabled);
 }
 
 #[test]
 fn cell_v0_10_convert_template_visible_when_to_address() {
     let state = convert_state(Some("phrase"), &["address"]);
     let vis = run_conditional("convert", &state);
-    assert_eq!(vis_of(&vis, "--template"), Visibility::Visible);
+    assert_eq!(vis_of(&vis, "--scheme"), Visibility::Visible);
 }
 
 #[test]
 fn cell_v0_10_convert_template_visible_when_to_xpub() {
-    // Toolkit-ground: phrase→xpub uses --template for BIP-32 derivation
+    // Toolkit-ground: phrase→xpub uses --scheme for BIP-32 derivation
     // (convert.rs:1053). Recon's narrower "address-only" rule was wrong;
     // this cell locks the widened predicate.
     let state = convert_state(Some("phrase"), &["xpub"]);
     let vis = run_conditional("convert", &state);
-    assert_eq!(vis_of(&vis, "--template"), Visibility::Visible);
+    assert_eq!(vis_of(&vis, "--scheme"), Visibility::Visible);
 }
 
 // Gap 5: --path rules.
@@ -1320,10 +1320,10 @@ fn cell_v0_10_convert_path_required_when_to_wif() {
 #[test]
 fn cell_v0_10_convert_path_required_when_to_address() {
     // Toolkit-ground: --path is required for any →address edge regardless
-    // of --template (template feeds script-type, not path inference).
+    // of --scheme (template feeds script-type, not path inference).
     let state = FormState::from_pairs(vec![
         ("--to", FlagValue::Dropdown("address".into())),
-        ("--template", FlagValue::Dropdown("bip84".into())),
+        ("--scheme", FlagValue::Dropdown("bip84".into())),
     ]);
     let vis = run_conditional("convert", &state);
     assert_eq!(vis_of(&vis, "--path"), Visibility::Required);
@@ -1362,7 +1362,7 @@ fn cell_v0_10_convert_xpub_prefix_visible_when_to_xpub() {
 
 // ─── v0.30.0: build-descriptor archetype↔spec mutex (cells 12+) ──────────
 //
-// Upstream (toolkit v0.51.0/v0.52.0 presets): `--archetype` conflicts_with
+// Upstream (toolkit v0.51.0/v0.52.0 presets): `--scheme` conflicts_with
 // `--spec`. The GUI projects ONLY this edge (`conditional::build_descriptor`);
 // the 10 `requires = "archetype"` parameter edges + `--emit-spec`
 // conflicts_with_all stay deliberately UN-projected (SPEC §4 recorded
@@ -1380,10 +1380,10 @@ fn build_descriptor_argv(state: &FormState) -> Vec<String> {
 #[test]
 fn cell_12_build_descriptor_unset_archetype_leaves_spec_enabled() {
     // The "" UNSET sentinel (R0-r1 C1): the seeded default form carries
-    // `--archetype` = Dropdown("") — has_value is false, so NEITHER side
-    // of the mutex fires and no --archetype reaches argv.
+    // `--scheme` = Dropdown("") — has_value is false, so NEITHER side
+    // of the mutex fires and no --scheme reaches argv.
     let seeded = FormState::from_pairs(vec![(
-        "--archetype",
+        "--scheme",
         FlagValue::Dropdown(String::new()),
     )]);
     let vis = run_conditional("build-descriptor", &seeded);
@@ -1392,10 +1392,10 @@ fn cell_12_build_descriptor_unset_archetype_leaves_spec_enabled() {
         Visibility::Visible,
         "unset (\"\") archetype must leave --spec enabled"
     );
-    assert_eq!(vis_of(&vis, "--archetype"), Visibility::Visible);
+    assert_eq!(vis_of(&vis, "--scheme"), Visibility::Visible);
     let argv = build_descriptor_argv(&seeded);
     assert!(
-        !argv.contains(&"--archetype".to_string()),
+        !argv.contains(&"--scheme".to_string()),
         "the \"\" sentinel must never reach argv: {argv:?}"
     );
 }
@@ -1403,7 +1403,7 @@ fn cell_12_build_descriptor_unset_archetype_leaves_spec_enabled() {
 #[test]
 fn cell_13_build_descriptor_archetype_selected_disables_spec() {
     let state = FormState::from_pairs(vec![(
-        "--archetype",
+        "--scheme",
         FlagValue::Dropdown("kofn-recovery".into()),
     )]);
     let vis = run_conditional("build-descriptor", &state);
@@ -1414,7 +1414,7 @@ fn cell_13_build_descriptor_archetype_selected_disables_spec() {
     );
     let argv = build_descriptor_argv(&state);
     assert!(
-        argv.windows(2).any(|w| w[0] == "--archetype" && w[1] == "kofn-recovery"),
+        argv.windows(2).any(|w| w[0] == "--scheme" && w[1] == "kofn-recovery"),
         "a selected archetype must emit: {argv:?}"
     );
 }
@@ -1423,12 +1423,12 @@ fn cell_13_build_descriptor_archetype_selected_disables_spec() {
 fn cell_14_build_descriptor_archetype_round_trip_reselect_none() {
     // R0-r2 I-1 round-trip: select an archetype → --spec Disabled;
     // re-select the "(none)" row (stored value back to "") → --spec
-    // re-enabled AND --archetype gone from argv. (FormState persists per
+    // re-enabled AND --scheme gone from argv. (FormState persists per
     // subcommand with no reset affordance — without the display-mapped
     // "(none)" escape row the user would be near-permanently trapped out
     // of --spec.)
     let mut state = FormState::from_pairs(vec![(
-        "--archetype",
+        "--scheme",
         FlagValue::Dropdown("tiered-recovery".into()),
     )]);
     assert_eq!(
@@ -1445,8 +1445,8 @@ fn cell_14_build_descriptor_archetype_round_trip_reselect_none() {
     );
     let argv = build_descriptor_argv(&state);
     assert!(
-        !argv.contains(&"--archetype".to_string()),
-        "--archetype must vanish from argv after re-selecting \"(none)\": {argv:?}"
+        !argv.contains(&"--scheme".to_string()),
+        "--scheme must vanish from argv after re-selecting \"(none)\": {argv:?}"
     );
 }
 
@@ -1458,9 +1458,9 @@ fn cell_15_build_descriptor_spec_disables_archetype() {
     )]);
     let vis = run_conditional("build-descriptor", &state);
     assert_eq!(
-        vis_of(&vis, "--archetype"),
+        vis_of(&vis, "--scheme"),
         Visibility::Disabled,
-        "a non-empty --spec must disable --archetype"
+        "a non-empty --spec must disable --scheme"
     );
     assert_eq!(
         vis_of(&vis, "--spec"),

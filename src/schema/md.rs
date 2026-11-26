@@ -746,7 +746,8 @@ const GEN_MAN_POSITIONALS: &[PositionalArgSchema] = &[];
 
 // `md compose` (md-cli v0.20.3): the Wallet Policy composer's CLI. No secret
 // input. `--wrapper` is clap-required; `--path` (repeating, ORDER MEANINGFUL)
-// XOR `--preset`; `--unspendable` only with `--wrapper tr`. Conditional fn at
+// XOR `--scheme` (`--preset` before the 2026-11-26 rename, now a hidden
+// alias); `--unspendable` only with `--wrapper tr`. Conditional fn at
 // `form::conditional::md_compose`.
 pub const COMPOSE_WRAPPERS: &[&str] = &["tr", "wsh", "sh-wsh", "sh"];
 /// `--unspendable`: the leading `""` is the GUI-side "(none)" sentinel (never
@@ -772,17 +773,17 @@ const COMPOSE_FLAGS: &[FlagSchema] = &[
         help: "One spend path, in listed order (order is meaningful): \
                `<k>of<n>[,older=N|older=Nu|after=H|after=Tt][,<hash>=HEX][,unsorted]` \
                or `keyless,<hash>=HEX[,older=..|after=..]`. Repeatable. Mutually \
-               exclusive with --preset.",
+               exclusive with --scheme.",
         secret: false,
         default_value: None,
         global: false,
     },
     FlagSchema {
-        name: "--preset",
+        name: "--scheme",
         kind: FlagKind::Text,
         required: false,
         repeating: false,
-        help: "One of the six named archetypes: `<name>[,<k>of<n>]*[,<param>=<value>]*`, \
+        help: "One of the six named wallet schemes: `<name>[,<k>of<n>]*[,<param>=<value>]*`, \
                e.g. `kofn-recovery,2of3,older=26280`. Mutually exclusive with --path.",
         secret: false,
         default_value: None,

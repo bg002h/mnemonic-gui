@@ -142,7 +142,7 @@ fn b1_compose_path_xor_preset_and_unspendable_only_with_tr() {
     let c = sub(&schema::md::SCHEMA, "compose");
     let st = FormState::from_pairs(vec![("--wrapper", FlagValue::Dropdown("wsh".into()))]);
     assert_eq!(vis(c, &st, "--path"), Visibility::Required);
-    assert_eq!(vis(c, &st, "--preset"), Visibility::Required);
+    assert_eq!(vis(c, &st, "--scheme"), Visibility::Required);
     assert_eq!(vis(c, &st, "--unspendable"), Visibility::Disabled);
     let st = FormState::from_pairs(vec![
         ("--wrapper", FlagValue::Dropdown("tr".into())),
@@ -150,7 +150,7 @@ fn b1_compose_path_xor_preset_and_unspendable_only_with_tr() {
         ("--path", FlagValue::Text("1of1,older=100".into())),
         ("--unspendable", FlagValue::Dropdown("liana".into())),
     ]);
-    assert_eq!(vis(c, &st, "--preset"), Visibility::Disabled);
+    assert_eq!(vis(c, &st, "--scheme"), Visibility::Disabled);
     assert_eq!(vis(c, &st, "--unspendable"), Visibility::Visible);
     let argv = assemble_argv(&schema::md::SCHEMA, c, &st);
     let joined = argv.join(" ");
@@ -160,7 +160,7 @@ fn b1_compose_path_xor_preset_and_unspendable_only_with_tr() {
     );
     assert!(joined.contains("--unspendable liana"));
     let st = FormState::from_pairs(vec![(
-        "--preset",
+        "--scheme",
         FlagValue::Text("kofn-recovery,2of3".into()),
     )]);
     assert_eq!(vis(c, &st, "--path"), Visibility::Disabled);
