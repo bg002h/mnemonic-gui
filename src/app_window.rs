@@ -458,7 +458,7 @@ impl MnemonicGuiApp {
                         )
                     ));
                 }
-                render_exit_badge(ui, result.exit_code);
+                render_exit_badge(ui, &result.argv, result.exit_code);
                 if self.show_stdout && !result.stdout.is_empty() {
                     ui.label("stdout:");
                     egui::ScrollArea::vertical()
@@ -1287,59 +1287,34 @@ impl eframe::App for MnemonicGuiApp {
 
 /// Render the subprocess exit-code line in the output panel.
 ///
-/// v0.9.0 (D26 cross-CLI parity): exit 5 means the toolkit auto-fired BCH
-/// repair and the corrected card is on stdout (`ToolkitError::
-/// RepairShortCircuit { exit_code: 5 }`). Render it as a green badge so
-/// users see the success at a glance; all other exit codes (including 0)
-/// render in the default label colour.
+/// The meaning of exit 4 and 5 depends on which command ran, so the text and
+/// colour come from [`crate::exit_badge::classify`]:
+/// - 4 → amber VERIFY-ME (the toolkit's project-wide class, SPEC §4; `ms
+///   repair`; `md` partial decode), except `mk verify` / `ms verify`, where 4
+///   is a MISMATCH (red).
+/// - 5 → green Repair Applied (v0.9.0, D26: `RepairShortCircuit
+///   { exit_code: 5 }`; `md`/`mk repair`), except `md descriptor
+///   --verify-against`, where 5 is NOT spend-equal (red).
+/// - any other code → plain `exit: <n>`; `None` → `exit: (killed)`.
 ///
-/// Cases:
-/// - `Some(0)` → plain `exit: 0` label.
-/// - `Some(4)` → amber VERIFY-ME badge. Exit 4 is the toolkit's project-wide
-///   VERIFY-ME class (SPEC §4): a result with no self-oracle the user must
-///   confirm out-of-band — a bundle/seed mismatch, a bounded-distance BCH
-///   repair candidate, or (v0.88.0) a pathless/dead-card PARTIAL decode whose
-///   origin is unspecified. The specific verdict renders verbatim below.
-/// - `Some(5)` → green badge with explanatory message.
-/// - `Some(n)` for `n != 0 && n != 4 && n != 5` → plain `exit: <n>` label
-///   (subprocess error path; stderr already renders below).
-/// - `None` → plain `exit: (killed)` label (signal / no exit code).
-fn render_exit_badge(ui: &mut egui::Ui, exit_code: Option<i32>) {
-    match exit_code {
-        Some(4) => {
-            // exit 4 is the toolkit's project-wide VERIFY-ME class (SPEC §4): a
-            // result with NO self-oracle that the user MUST confirm out-of-band
-            // before trusting — a bundle/seed mismatch, a bounded-distance BCH
-            // repair candidate, or (v0.88.0) a pathless/dead-card PARTIAL decode
-            // whose origin is unspecified. Amber (220, 165, 0) — the warning
-            // colour already used at archetype_form.rs:186 / slot_editor.rs:103
-            // — distinguishes it from success (default label) and exit-5
-            // Repair-Applied (green). The specific verdict (`result: partial`
-            // vs `mismatch`, or the "origin unspecified — VERIFY-ME" note)
-            // renders verbatim in the stdout/stderr panes below.
-            ui.colored_label(
-                egui::Color32::from_rgb(220, 165, 0),
-                "exit: 4 — VERIFY-ME (confirm the result out-of-band before \
-                 trusting; see stdout/stderr below)",
-            );
+/// Amber (220, 165, 0) is the warning colour of archetype_form.rs /
+/// slot_editor.rs; red (220, 60, 60) the error red of the subprocess-error
+/// line; green (60, 180, 75) sits in the same chroma band.
+fn render_exit_badge(ui: &mut egui::Ui, argv: &[String], exit_code: Option<i32>) {
+    use crate::exit_badge::{classify, BadgeKind};
+    let badge = classify(argv, exit_code);
+    match badge.kind {
+        BadgeKind::Plain => {
+            ui.label(badge.text);
         }
-        Some(5) => {
-            // Saturated green chosen to match the project's existing colour
-            // palette (warning amber at form/slot_editor.rs:233 uses (220,
-            // 165, 0); error red at main.rs:304 uses (220, 60, 60)). Green
-            // (60, 180, 75) sits in the same chroma band and stays readable
-            // on egui's default dark/light themes.
-            ui.colored_label(
-                egui::Color32::from_rgb(60, 180, 75),
-                "exit: 5 — Repair Applied (BCH auto-fire succeeded; \
-                 corrected chunk on stdout)",
-            );
+        BadgeKind::VerifyMe => {
+            ui.colored_label(egui::Color32::from_rgb(220, 165, 0), badge.text);
         }
-        Some(n) => {
-            ui.label(format!("exit: {}", n));
+        BadgeKind::RepairApplied => {
+            ui.colored_label(egui::Color32::from_rgb(60, 180, 75), badge.text);
         }
-        None => {
-            ui.label("exit: (killed)");
+        BadgeKind::No => {
+            ui.colored_label(egui::Color32::from_rgb(220, 60, 60), badge.text);
         }
     }
 }
