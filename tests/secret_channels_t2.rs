@@ -104,7 +104,9 @@ fn bin(cli: &str) -> String {
 /// The measurement's `check` normalisers for randomised outputs, by label.
 /// A case with a check and no normaliser here fails the test (no silent gap).
 fn normalise(label: &str, value: &str, o: &Out) -> String {
-    if !matches!(o.code, Some(0) | Some(4)) {
+    // Exit-code spec R12: whether a result exists is read from the output,
+    // never from the code.
+    if o.stdout.trim().is_empty() {
         return String::new();
     }
     let lines = |pred: &dyn Fn(&str) -> bool| -> Vec<String> {
@@ -322,10 +324,11 @@ fn t2_every_cell_equals_the_argv_baseline_with_dependence_and_byte_fidelity() {
                         .unwrap()
                         .push(format!("{key}: baseline does not depend on the secret"));
                 }
-                if !matches!(base.code, Some(0) | Some(4)) {
-                    bad.lock()
-                        .unwrap()
-                        .push(format!("{key}: baseline exit {:?}", base.code));
+                if base.stdout.trim().is_empty() {
+                    bad.lock().unwrap().push(format!(
+                        "{key}: baseline produced no output (exit {:?})",
+                        base.code
+                    ));
                 }
                 for cell in &entry.channels {
                     let got = via_cell(case, cell, &case.s);

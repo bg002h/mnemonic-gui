@@ -1048,7 +1048,8 @@ const DESCRIPTOR_FLAGS: &[FlagSchema] = &[
         required: false,
         repeating: false,
         help: "SPEND-EQUAL comparison target: an md1 string or a FILE holding one or \
-               more. Exit 0 = spend-equal, 5 = NOT spend-equal. Any input mode.",
+               more. Exit 0 = spend-equal, 1 = NOT spend-equal (a check said no). \
+               Any input mode.",
         secret: false,
         default_value: None,
         global: false,

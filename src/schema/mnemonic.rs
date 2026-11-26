@@ -146,7 +146,8 @@ const EXPORT_WALLET_TEMPLATES: &[&str] = &[
 //   - single-sig `(none)` → the CLI emits all four `bip44/49/84/86`
 //     (`crates/mnemonic-toolkit` restore emit-all default);
 //   - `--md1` mode `(none)` → DROPS the single-sig template the CLI REFUSES in
-//     `--md1` mode (exit 2) — the clean md1 restore the tutorial teaches
+//     `--md1` mode (a flag clash: exit 64 under the constellation exit
+//     codes, 2 before them) — the clean md1 restore the tutorial teaches
 //     (closes `restore-form-single-sig-template-leaks-in-md1-mode`).
 //
 // DISTINCT from the shared `TEMPLATES` const (10 values), which keeps feeding
@@ -323,7 +324,8 @@ const NO_AUTO_REPAIR_FLAG: FlagSchema = FlagSchema {
 
 // F-679 (toolkit v0.104.0, P3 rows 14-15): `--allow-argv-secret` is a clap
 // GLOBAL on every `mnemonic` subcommand. The toolkit now REFUSES secret
-// material on argv at exit 2 unless this flag is present. GUI decision:
+// material on argv (exit 8, refused, under the constellation exit codes; 2
+// before them) unless this flag is present. GUI decision:
 // mirrored here for schema parity, but GUI-MANAGED — never rendered as a
 // widget (see `form::invocation::is_gui_managed_flag`) and never emitted from
 // form state. Since the secret-channel design (Part A) the GUI's Run path
@@ -816,7 +818,7 @@ const RESTORE_FLAGS: &[FlagSchema] = &[
         repeating: true,
         help: "Cross-check assertion (multisig mode): `@N=<mk1-chunk|xpub>` \
                — cosigner at position N is this public key. A mismatch is a \
-               hard error (exit 4) unless --allow-mismatch. Watch-only \
+               hard error (exit 1, a check said no) unless --allow-mismatch. Watch-only \
                (non-secret).",
         secret: false,
         default_value: None,
@@ -2355,7 +2357,8 @@ const SEEDQR_ENCODE_FLAGS: &[FlagSchema] = &[
 // `--from seedqr=<VALUE|->` (only the `seedqr` node type is accepted).
 // The original `--digits` flag is preserved as a DEPRECATED alias
 // (toolkit emits a stderr notice; mutually exclusive with `--from` via
-// clap `conflicts_with`, exit 64). Both carry secret material (BIP-39
+// clap `conflicts_with`, exit 64; with a secret on argv the argv guard fires
+// first, exit 8 under the constellation exit codes, 2 before them). Both carry secret material (BIP-39
 // entropy). See toolkit FOLLOWUP `seedqr-digits-from-input-unification`.
 
 const SEEDQR_DECODE_FROM_NODES: &[&str] = &["seedqr"];
@@ -2604,7 +2607,8 @@ const REPAIR_FLAGS: &[FlagSchema] = &[
     // toolkit v0.37.3: tolerate up to E substitution (wrong-but-in-place)
     // errors alongside the indels. Integer 0..=4; 0 = pure indel (default).
     // A recovery that consumed a substitution is a VERIFY-ME candidate
-    // (exit 4), not a confident correction. Applies to ms1/mk1/md1.
+    // (bit 4, "verify the result before trusting it": exit 20 = 4 + 16 with
+    // the correction), not a confident correction. Applies to ms1/mk1/md1.
     FlagSchema {
         name: "--max-subst",
         kind: FlagKind::Number {
@@ -2805,7 +2809,8 @@ const IMPORT_WALLET_FLAGS: &[FlagSchema] = &[
         help: "v0.31.0 — BIP-129 encryption-envelope Round-2 decrypt; \
                reads session TOKEN from PATH (or `-` for stdin). \
                16-hex STANDARD or 32-hex EXTENDED width. Combine with \
-               --format bsms. MAC verify failure → exit 2 (typed BsmsMacMismatch).",
+               --format bsms. MAC verify failure → exit 1, a check said no \
+               (typed BsmsMacMismatch).",
         secret: false,
         default_value: None,
         global: false,
@@ -2828,7 +2833,7 @@ const IMPORT_WALLET_FLAGS: &[FlagSchema] = &[
         required: false,
         repeating: false,
         help: "v0.27.0 — make BIP-129 Round-1 SIG verification failures fatal \
-               (exit 2). Without this flag, mismatches emit a stderr NOTICE.",
+               (exit 1, a check said no). Without this flag, mismatches emit a stderr NOTICE.",
         secret: false,
         default_value: None,
         global: false,

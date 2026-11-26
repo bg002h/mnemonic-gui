@@ -1122,7 +1122,7 @@ pub fn ms_combine(state: &FormState) -> FlagVisibility {
 
 /// B1 `md compose`: `--path` (repeating) XOR `--preset` (clap "cannot be used
 /// with"; one of them is needed), and `--unspendable` only with `--wrapper
-/// tr` (md refuses it with `wsh`, exit 1) — greyed otherwise.
+/// tr` (md refuses it with `wsh`: an invalid input, exit 2) — greyed otherwise.
 pub fn md_compose(state: &FormState) -> FlagVisibility {
     let mut vis = Vec::new();
     let has_path = state.has_value("--path");
@@ -1161,10 +1161,11 @@ pub fn md_shape_key(state: &FormState) -> FlagVisibility {
 /// B3 `md descriptor`: three input modes.
 /// - A: md1 phrases — `--key` / `--fingerprint` cannot be used with them;
 /// - B: `--template` (requires ≥1 `--key`, "--key @i=<XPUB> required when
-///   --template is supplied", exit 2) with `--key`/`--fingerprint`;
+///   --template is supplied", a usage error, exit 64) with `--key`/`--fingerprint`;
 /// - C: `--from-mk1`/`--from-mk1-file` with the KEYLESS phrases (+ `--seat`).
 ///
-/// `--emit md1` only with mode C (md refuses otherwise, exit 2); `--out`,
+/// `--emit md1` only with mode C (md refuses otherwise, a usage
+/// error, exit 64); `--out`,
 /// `--group-size` and `--separator` are meaningful only with `--emit md1`;
 /// `--chain` XOR `--change` (clap).
 pub fn md_descriptor(state: &FormState) -> FlagVisibility {

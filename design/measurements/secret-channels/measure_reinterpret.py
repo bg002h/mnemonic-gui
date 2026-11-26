@@ -37,7 +37,7 @@ def measure(label):
     chk = c.get("check", lambda o: o)
     def out(argv, **kw):
         rc, so = run(argv, **kw)
-        return rc, chk(so.decode("utf-8", "surrogateescape")) if rc in (0, 4) else ""
+        return rc, chk(so.decode("utf-8", "surrogateescape")) if so.strip() else ""  # R12
     base = out([a.replace("{S}", c["S"]) for a in c["argv"]])
     hits = {}
     for sp in CHANNEL_VARIANTS:
@@ -47,7 +47,10 @@ def measure(label):
     return {"label": label, "cli": label.split()[0], "hits": hits}
 
 
-labels = [l for l in cases if l in rows and rows[l]["base_exit"] in (0, 4) and rows[l]["depends"]]
+# Exit-code spec R12 (SPEC_constellation_exit_codes.md): whether a run produced a result is read
+# from its output, never from its code. Rows recorded before the cutover carry no base_has_output.
+labels = [l for l in cases if l in rows and rows[l].get("base_has_output", rows[l]["base_exit"] in (0, 4))
+          and rows[l]["depends"]]
 with ThreadPoolExecutor(20) as ex:
     res = list(ex.map(measure, labels))
 ver = {}
