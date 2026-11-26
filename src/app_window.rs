@@ -894,16 +894,15 @@ impl MnemonicGuiApp {
             // (single-sig template → Disabled threshold/path-family); this
             // hook handles the "fresh form ergonomics" direction.
             // Scoped to the toolkit wallet-scheme consumers: since the
-            // 2026-11-26 rename `build-descriptor --scheme` (ex-`--scheme`)
+            // 2026-11-26 rename `build-descriptor --scheme` (ex-`--archetype`)
             // shares the flag name but is not a `CliTemplate`, and seeding
             // `--threshold` there would change its argv.
-            let current_template = if active_tab == CliTab::Mnemonic
-                && crate::form::conditional::SCHEME_TEMPLATE_SUBCOMMANDS.contains(&sub.name)
-            {
-                state.dropdown_value("--scheme").map(String::from)
-            } else {
-                None
-            };
+            let current_template = crate::form::conditional::scheme_seed_value(
+                active_tab.bin_name(),
+                sub.name,
+                state,
+            )
+            .map(String::from);
             let template_changed = current_template != last_template_for_key;
             if template_changed {
                 if let Some(new_template) = &current_template {

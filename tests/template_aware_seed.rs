@@ -174,3 +174,54 @@ fn template_round_trip_multisig_to_single_sig_preserves_seeded_values() {
     );
     assert!(state.has_value("--multisig-path-family"));
 }
+
+// ─── 2026-11-26 rename: the seed hook's scoping ─────────────────────────────
+//
+// `build-descriptor --scheme` (ex-`--archetype`) shares the flag name with the
+// five toolkit wallet-scheme forms but not their value set; `md compose
+// --scheme` and `ms derive --origin-path` are other CLIs. The hook must read a
+// scheme on exactly the five, or picking e.g. `decaying-multisig` would seed
+// `--threshold 2` into build-descriptor's argv.
+
+#[test]
+fn scheme_seed_value_fires_for_exactly_the_five_toolkit_scheme_forms() {
+    use mnemonic_gui::form::conditional::{scheme_seed_value, SCHEME_TEMPLATE_SUBCOMMANDS};
+    use mnemonic_gui::schema;
+
+    let st = FormState::from_pairs(vec![
+        ("--scheme", FlagValue::Dropdown("wsh-multi".into())),
+        ("--origin-path", FlagValue::Dropdown("bip48".into())),
+    ]);
+    assert_eq!(
+        SCHEME_TEMPLATE_SUBCOMMANDS,
+        ["bundle", "verify-bundle", "convert", "export-wallet", "restore"]
+    );
+    for sub in SCHEME_TEMPLATE_SUBCOMMANDS {
+        assert_eq!(scheme_seed_value("mnemonic", sub, &st), Some("wsh-multi"), "{sub}");
+    }
+    let bd = FormState::from_pairs(vec![(
+        "--scheme",
+        FlagValue::Dropdown("decaying-multisig".into()),
+    )]);
+    assert_eq!(scheme_seed_value("mnemonic", "build-descriptor", &bd), None);
+    assert_eq!(scheme_seed_value("md", "compose", &st), None);
+    assert_eq!(scheme_seed_value("ms", "derive", &st), None);
+
+    // Every mnemonic form with a `--scheme` Dropdown is either one of the
+    // five or build-descriptor: a new consumer must be classified here.
+    let with_scheme: Vec<&str> = schema::mnemonic::SCHEMA
+        .subcommands
+        .iter()
+        .filter(|s| s.flags.iter().any(|f| f.name == "--scheme"))
+        .map(|s| s.name)
+        .collect();
+    for name in &with_scheme {
+        assert!(
+            SCHEME_TEMPLATE_SUBCOMMANDS.contains(name) || *name == "build-descriptor",
+            "unclassified --scheme consumer {name}"
+        );
+        let fires = scheme_seed_value("mnemonic", name, &bd).is_some();
+        assert_eq!(fires, *name != "build-descriptor", "{name}");
+    }
+    assert_eq!(with_scheme.len(), 6, "{with_scheme:?}");
+}

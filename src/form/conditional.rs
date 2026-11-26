@@ -57,6 +57,18 @@ pub const MULTISIG_TEMPLATES: &[&str] = &[
 pub const SCHEME_TEMPLATE_SUBCOMMANDS: &[&str] =
     &["bundle", "verify-bundle", "convert", "export-wallet", "restore"];
 
+/// The `--scheme` value the template-aware seed hook reacts to: `Some` only
+/// on a `mnemonic` form in [`SCHEME_TEMPLATE_SUBCOMMANDS`], so
+/// `build-descriptor --scheme`, `md compose --scheme` and `ms derive
+/// --origin-path` never seed `--threshold` / `--multisig-path-family`.
+pub fn scheme_seed_value<'a>(cli: &str, sub: &str, state: &'a FormState) -> Option<&'a str> {
+    if cli == "mnemonic" && SCHEME_TEMPLATE_SUBCOMMANDS.contains(&sub) {
+        state.dropdown_value("--scheme")
+    } else {
+        None
+    }
+}
+
 /// SPEC §6.10.7 taproot-multi-leaf template set (templates that require an
 /// explicit internal key). Same source-of-truth + drift-gate posture as
 /// `SINGLE_SIG_TEMPLATES`.
@@ -642,7 +654,7 @@ pub fn export_wallet(state: &FormState) -> FlagVisibility {
 /// leaves `--spec` enabled; selecting an archetype disables `--spec`;
 /// re-selecting the "(none)" row re-enables it (R0-r2 I-1 round-trip).
 ///
-/// The OTHER preset clap edges (10 `requires = "archetype"` parameter
+/// The OTHER preset clap edges (10 `requires = "scheme"` parameter
 /// edges + `--emit-spec` `conflicts_with_all = [--format, --json]`) stay
 /// deliberately UN-projected — recorded decision (SPEC §4): the CLI is the
 /// gate, and the A2 archetype-forms wizard supersedes the generic form as
@@ -654,7 +666,7 @@ pub fn export_wallet(state: &FormState) -> FlagVisibility {
 ///
 /// v0.32.0 adds the TREE-mode arm (node-tree SPEC §0 mode mutex): tree
 /// enabled ⇒ `--spec` + `--scheme` `Disabled` AND ALL TEN
-/// `requires = "archetype"` flags `Hidden` (the 9 params + `--emit-spec` —
+/// `requires = "scheme"` flags `Hidden` (the 9 params + `--emit-spec` —
 /// a stale checked `--emit-spec` would emit the bare flag with
 /// `--scheme` suppressed and clap-fail every tree-mode run; brainstorm
 /// R0-r2 I-1). Both Disabled and Hidden suppress argv, so stale-populated

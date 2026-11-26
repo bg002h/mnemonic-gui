@@ -19,7 +19,7 @@ pub fn tree_enabled(state: &FormState) -> bool {
 /// mode (SPEC §0 mode mutex render leg): `--spec` + `--scheme` (their
 /// argv suppression is the conditional's `Disabled`; their ROWS don't
 /// render — the mode selector + tree form replace them) + the 10
-/// `requires = "archetype"` flags (9 params + `--emit-spec`; argv-
+/// `requires = "scheme"` flags (9 params + `--emit-spec`; argv-
 /// suppressed via the conditional's `Hidden`, listed here for the render
 /// dispatch). The 6 mode-independent flags (`--spec-schema`, `--allow`,
 /// `--format`, `--network`, `--json`, `--no-auto-repair`) render normally.
