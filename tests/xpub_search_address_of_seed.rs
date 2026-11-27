@@ -6,9 +6,11 @@
 //!   argv-secret;
 //! - the argv mask covers `--phrase`, `--passphrase` and every `--from`
 //!   value, and each is a planner source;
-//! - Run and Copy fail closed (`no-table-entry`) on every OS until the
-//!   channel table is re-measured against a toolkit release that ships the
-//!   verb (FOLLOWUP `address-of-seed-gui-lockstep`);
+//! - Run and Copy plan every source through a measured private channel
+//!   (Linux: no secret byte on argv; macOS/Windows: the interim path, with
+//!   every secret token masked), and `-` refuses (`C1-dash`). The table was
+//!   measured on a local build of toolkit PR #230 and is re-derived at the
+//!   release tag (FOLLOWUP `address-of-seed-gui-lockstep`);
 //! - no seed, ms1, entropy, SeedQR digits or passphrase typed into the form
 //!   reaches `state.json`.
 
@@ -159,40 +161,57 @@ fn aos_argv_masks_every_secret_and_lists_it_as_a_source() {
         .any(|t| t == "--phrase-stdin" || t == "--passphrase-stdin"));
 }
 
-#[test]
-fn aos_run_and_copy_fail_closed_until_measured() {
-    // The channel table is measured against the pinned toolkit, which has
-    // no address-of-seed; a secret-bearing Run must refuse on every OS
-    // rather than guess a channel (DESIGN §A0).
-    let none = |_: &str| None;
-    for os in ["linux", "macos", "windows"] {
-        for state in [
-            filled_form(),
-            FormState::from_pairs(vec![
-                ("--target-address", FlagValue::Text(TARGET.into())),
-                (
-                    "--from",
-                    FlagValue::NodeValueComposite {
-                        node: "phrase".into(),
-                        value: PHRASE.into(),
-                    },
-                ),
-            ]),
-        ] {
-            let r = plan(&schema::mnemonic::SCHEMA, sub(), &state, &none, os);
-            assert_eq!(
-                r.err().map(|e| e.code),
-                Some("no-table-entry"),
-                "{os}: a secret-bearing address-of-seed run must refuse until the \
-                 channel table measures the verb"
+/// Every secret the given state carries, as typed.
+const SECRETS: &[&str] = &[PHRASE, PHRASE2, MS1, ENTROPY, SEEDQR, PASSPHRASE];
+
+fn assert_private(label: &str, os: &str, p: &mnemonic_gui::form::channels::RunPlan) {
+    if os == "linux" {
+        assert!(!p.interim, "{label} {os}: Linux plans the private path");
+        for t in &p.argv {
+            assert!(
+                !SECRETS.iter().any(|s| t.contains(s)),
+                "{label} {os}: a secret byte on argv: {t:?}"
             );
         }
+    } else {
+        assert!(p.interim, "{label} {os}: the interim path (DESIGN §A6)");
+        for (t, m) in p.argv.iter().zip(&p.mask) {
+            if SECRETS.iter().any(|s| t.contains(s)) {
+                assert!(*m, "{label} {os}: secret token not masked: {t:?}");
+            }
+        }
     }
-    let (posix, windows) = copy_commands(&schema::mnemonic::SCHEMA, sub(), &filled_form(), &none);
-    for c in [posix, windows] {
+}
+
+#[test]
+fn aos_run_and_copy_plan_private_channels() {
+    // The channel table measures all seven sources (toolkit PR #230 build);
+    // a secret-bearing Run plans on every OS and never puts a secret on the
+    // private path's argv (DESIGN §A0).
+    let none = |_: &str| None;
+    let from_only = FormState::from_pairs(vec![
+        ("--target-address", FlagValue::Text(TARGET.into())),
+        (
+            "--from",
+            FlagValue::NodeValueComposite {
+                node: "phrase".into(),
+                value: PHRASE.into(),
+            },
+        ),
+    ]);
+    for (label, state) in [("filled", filled_form()), ("--from only", from_only)] {
+        for os in ["linux", "macos", "windows"] {
+            let p = plan(&schema::mnemonic::SCHEMA, sub(), &state, &none, os)
+                .unwrap_or_else(|e| panic!("{label} {os}: refused {}", e.code));
+            assert_private(label, os, &p);
+        }
+        let (posix, _windows) = copy_commands(&schema::mnemonic::SCHEMA, sub(), &state, &none);
+        let text = posix
+            .text()
+            .unwrap_or_else(|| panic!("{label}: Copy must be ready: {posix:?}"));
         assert!(
-            matches!(c, CopyState::Disabled(_)),
-            "Copy must be disabled: {c:?}"
+            !SECRETS.iter().any(|s| text.contains(s)),
+            "{label}: Copy text carries a secret"
         );
     }
 }
@@ -591,12 +610,13 @@ fn xpub_search_sibling_key_fields_mask_private_keys() {
     }
 }
 
-/// Review r1 M1: every seed/passphrase source refuses on its own, in each
-/// of its spellings (literal, `@env:` set, `-`).
+/// Review r1 M1: every seed/passphrase source on its own, in each of its
+/// spellings: the literal and `@env:` set plan on every OS; `-` refuses
+/// (`C1-dash`: the GUI has no stdin of its own to forward).
 #[test]
-fn aos_each_source_alone_fails_closed() {
+fn aos_each_source_alone_plans_or_refuses_dash() {
     let env = |n: &str| (n == "AOS_SET").then(|| "value".to_string());
-    let mut states: Vec<(String, FormState)> = Vec::new();
+    let mut states: Vec<(String, bool, FormState)> = Vec::new();
     for (flag_name, literal) in [
         ("--phrase", PHRASE),
         ("--ms1", MS1),
@@ -607,7 +627,7 @@ fn aos_each_source_alone_fails_closed() {
                 FormState::from_pairs(vec![("--target-address", FlagValue::Text(TARGET.into()))]);
             s.secret_widgets
                 .insert(flag_name.into(), vec![SecretLineEdit::from_text(v)]);
-            states.push((format!("{flag_name} {v}"), s));
+            states.push((format!("{flag_name} {v}"), v == "-", s));
         }
     }
     for (node, literal) in [
@@ -620,22 +640,36 @@ fn aos_each_source_alone_fails_closed() {
             let mut s =
                 FormState::from_pairs(vec![("--target-address", FlagValue::Text(TARGET.into()))]);
             s.values.push(composite(node, v));
-            states.push((format!("--from {node}={v}"), s));
+            states.push((format!("--from {node}={v}"), v == "-", s));
         }
     }
-    for (label, state) in &states {
+    for (label, dash, state) in &states {
         for os in ["linux", "macos", "windows"] {
-            let code = plan(&schema::mnemonic::SCHEMA, sub(), state, &env, os)
-                .err()
-                .map(|e| e.code);
-            assert!(
-                matches!(code, Some(c) if c == "no-table-entry" || c.starts_with("C1-")),
-                "{os} {label}: must refuse, got {code:?}"
-            );
+            match plan(&schema::mnemonic::SCHEMA, sub(), state, &env, os) {
+                Ok(p) => {
+                    assert!(!dash, "{os} {label}: `-` must refuse");
+                    assert_private(label, os, &p);
+                }
+                Err(e) => assert!(
+                    *dash && e.code == "C1-dash",
+                    "{os} {label}: refused {}",
+                    e.code
+                ),
+            }
         }
         let (posix, windows) = copy_commands(&schema::mnemonic::SCHEMA, sub(), state, &env);
-        for c in [posix, windows] {
-            assert!(matches!(c, CopyState::Disabled(_)), "{label}: Copy {c:?}");
+        if *dash {
+            for c in [posix, windows] {
+                assert!(matches!(c, CopyState::Disabled(_)), "{label}: Copy {c:?}");
+            }
+        } else {
+            let t = posix
+                .text()
+                .unwrap_or_else(|| panic!("{label}: Copy {posix:?}"));
+            assert!(
+                !SECRETS.iter().any(|s| t.contains(s)),
+                "{label}: Copy leaks"
+            );
         }
     }
 }

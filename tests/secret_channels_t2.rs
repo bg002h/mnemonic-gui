@@ -101,6 +101,27 @@ fn bin(cli: &str) -> String {
     bin_dir().join(cli).to_string_lossy().into_owned()
 }
 
+/// `aos.py`'s `AOS_CHECK`: address-of-seed prints the `bundle` command that
+/// mints the wallet it found, and that line repeats the channel spelling the
+/// run used (`-`, `@env:VAR`). The wallet found does not depend on it, so the
+/// seed and passphrase values on that line are masked.
+fn aos_mask(stdout: &str) -> String {
+    let slot = regex::Regex::new(r"(--slot @\d+\.[a-z0-9-]+=)\S+").unwrap();
+    let pass = regex::Regex::new(r"(--passphrase )\S+").unwrap();
+    stdout
+        .lines()
+        .map(|l| {
+            if l.trim().starts_with("mnemonic bundle ") {
+                pass.replace_all(&slot.replace_all(l, "${1}<S>"), "${1}<S>")
+                    .into_owned()
+            } else {
+                l.to_string()
+            }
+        })
+        .collect::<Vec<_>>()
+        .join("\n")
+}
+
 /// The measurement's `check` normalisers for randomised outputs, by label.
 /// A case with a check and no normaliser here fails the test (no silent gap).
 fn normalise(label: &str, value: &str, o: &Out) -> String {
@@ -185,6 +206,7 @@ fn normalise(label: &str, value: &str, o: &Out) -> String {
             a.extend(sh);
             run_argv(&a, None).stdout
         }
+        l if l.starts_with("mnemonic xpub-search address-of-seed ") => aos_mask(&o.stdout),
         _ => o.stdout.clone(),
     }
 }
@@ -197,6 +219,13 @@ const NORMALISED: &[&str] = &[
     "mnemonic ms-shares split --from entropy=",
     "ms split --phrase",
     "ms split --hex",
+    "mnemonic xpub-search address-of-seed --phrase",
+    "mnemonic xpub-search address-of-seed --ms1",
+    "mnemonic xpub-search address-of-seed --passphrase",
+    "mnemonic xpub-search address-of-seed --from phrase=",
+    "mnemonic xpub-search address-of-seed --from ms1=",
+    "mnemonic xpub-search address-of-seed --from entropy=",
+    "mnemonic xpub-search address-of-seed --from seedqr=",
 ];
 
 fn result(label: &str, value: &str, o: &Out) -> (Option<i32>, String) {

@@ -220,7 +220,7 @@ fn t1_c1_refusals_on_every_source_and_os() {
             }
         }
     }
-    assert_eq!(n, 1260, "the design pins 1260 C1 legs");
+    assert_eq!(n, 1386, "the design pins 1386 C1 legs");
 }
 
 fn pw_source(v: &str) -> Vec<PlanSource> {
@@ -503,7 +503,7 @@ fn t1_ni8_every_lookalike_refused_on_every_path() {
             }
         }
     }
-    assert_eq!(n, 3717, "the design pins 3717 NI8 legs");
+    assert_eq!(n, 4095, "the design pins 4095 NI8 legs");
     // consistency with the MEASUREMENT: every re-read spelling is refused
     for (cli, row) in mnemonic_gui::form::channels::data::reinterpret() {
         for sp in row.spellings {
