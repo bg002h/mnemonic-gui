@@ -3621,8 +3621,8 @@ const XPUB_SEARCH_ADDRESS_OF_SEED_FLAGS: &[FlagSchema] = &[
         kind: FlagKind::Text,
         required: false,
         repeating: false,
-        help: "One seed: master BIP-39 phrase (inline, or `@env:VAR`). Inline \
-               is refused by the argv guard unless --allow-argv-secret.",
+        help: "One seed: master BIP-39 phrase. Type the value, or `@env:VAR` (read by the GUI; a value that is `-` \
+               or starts with `@env` is refused).",
         secret: true,
         default_value: None,
         global: false,
@@ -3642,7 +3642,8 @@ const XPUB_SEARCH_ADDRESS_OF_SEED_FLAGS: &[FlagSchema] = &[
         kind: FlagKind::Text,
         required: false,
         repeating: false,
-        help: "One seed: ms1 card carrying BIP-39 entropy (inline).",
+        help: "One seed: ms1 card carrying BIP-39 entropy. Type the value, or `@env:VAR` (read by the GUI; a value that is `-` \
+               or starts with `@env` is refused).",
         secret: true,
         default_value: None,
         global: false,
@@ -3675,8 +3676,8 @@ const XPUB_SEARCH_ADDRESS_OF_SEED_FLAGS: &[FlagSchema] = &[
         kind: FlagKind::Text,
         required: false,
         repeating: false,
-        help: "BIP-39 passphrase, applied to every seed. `-` reads stdin; \
-               `@env:VAR` reads an environment variable.",
+        help: "BIP-39 passphrase, applied to every seed. Type the value, or `@env:VAR` (read by the GUI; a value that is `-` \
+               or starts with `@env` is refused).",
         secret: true,
         default_value: None,
         global: false,

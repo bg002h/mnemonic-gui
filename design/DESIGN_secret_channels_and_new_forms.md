@@ -322,6 +322,13 @@ Legend:
 | `mnemonic import-wallet --slot @N.ms1=` | exit 1: error: import-wallet: --slot @0.ms1=: only the `phrase` subkey is supported by import-wallet | CLI rejects this input itself |
 | `mnemonic import-wallet --slot @N.xprv=` | exit 1: error: import-wallet: --slot @0.xprv=: only the `phrase` subkey is supported by import-wallet | CLI rejects this input itself |
 | `mnemonic import-wallet --slot @N.wif=` | exit 1: error: import-wallet: --slot @0.wif=: only the `phrase` subkey is supported by import-wallet | CLI rejects this input itself |
+| `mnemonic xpub-search address-of-seed --phrase` | exit 64: error: unrecognized subcommand 'address-of-seed' | **unmeasured** |
+| `mnemonic xpub-search address-of-seed --ms1` | exit 64: error: unrecognized subcommand 'address-of-seed' | **unmeasured** |
+| `mnemonic xpub-search address-of-seed --from phrase=` | exit 64: error: unrecognized subcommand 'address-of-seed' | **unmeasured** |
+| `mnemonic xpub-search address-of-seed --from ms1=` | exit 64: error: unrecognized subcommand 'address-of-seed' | **unmeasured** |
+| `mnemonic xpub-search address-of-seed --from entropy=` | exit 64: error: unrecognized subcommand 'address-of-seed' | **unmeasured** |
+| `mnemonic xpub-search address-of-seed --from seedqr=` | exit 64: error: unrecognized subcommand 'address-of-seed' | **unmeasured** |
+| `mnemonic xpub-search address-of-seed --passphrase` | exit 64: error: unrecognized subcommand 'address-of-seed' | **unmeasured** |
 | `mnemonic word-card --from phrase=` | exit 2: error: positional argument 'phrase=aband…' does not begin with a recognized HRP prefix (expected one of: mk1, md1) | CLI rejects this input itself |
 | `mnemonic word-card --from entropy=` | exit 2: error: positional argument 'entropy=0000…' does not begin with a recognized HRP prefix (expected one of: mk1, md1) | CLI rejects this input itself |
 | `mnemonic word-card --from xprv=` | exit 2: error: positional argument 'xprv=xprv9s2…' does not begin with a recognized HRP prefix (expected one of: mk1, md1) | CLI rejects this input itself |
@@ -333,7 +340,7 @@ Legend:
 | `mnemonic word-card --from minikey=` | exit 2: error: positional argument 'minikey=S6c5…' does not begin with a recognized HRP prefix (expected one of: mk1, md1) | CLI rejects this input itself |
 
 - **The 32 "CLI rejects" rows** cost nothing to refuse.
-- **The 10 unmeasured rows** are verify-bundle's keyless-template completion (`--from`, which needs a fixture with a ≥5-byte `--expect-wallet-id`) and `--slot @N.wif=`. **They refuse on every OS until measured** (§A6: the interim path refuses `no-table-entry` too). The owning phase is the implementation cycle.
+- **The 17 unmeasured rows** are verify-bundle's keyless-template completion (`--from`, which needs a fixture with a ≥5-byte `--expect-wallet-id`), `--slot @N.wif=`, and the seven sources of `xpub-search address-of-seed` (toolkit PR #230; the pinned binary has no such verb, so probe_missing.py records exit 64; FOLLOWUP `address-of-seed-gui-lockstep` owes their measurement). **They refuse on every OS until measured** (§A6: the interim path refuses `no-table-entry` too). The owning phase is the implementation cycle.
 
 ### A3. Findings that shape the design
 

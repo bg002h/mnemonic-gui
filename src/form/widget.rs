@@ -596,9 +596,9 @@ fn render_row(
                 FlagKind::NodeValueComposite(opts),
                 FlagValue::NodeValueComposite { node, value },
             ) => {
-                // v0.30.0 R0-r1 I4: row-salted for repeating rows (no
-                // NodeValueComposite flag repeats today; defensive parity
-                // with the Dropdown arm).
+                // v0.30.0 R0-r1 I4: row-salted for repeating rows
+                // (`seed-xor-combine --from`, `xpub-search address-of-seed
+                // --from`); parity with the Dropdown arm.
                 let combo = match row {
                     Some(row_idx) => egui::ComboBox::from_id_salt((
                         "flag_nodevalue",
