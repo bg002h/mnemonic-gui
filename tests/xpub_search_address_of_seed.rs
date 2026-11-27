@@ -162,7 +162,10 @@ fn aos_argv_masks_every_secret_and_lists_it_as_a_source() {
 }
 
 /// Every secret the given state carries, as typed.
-const SECRETS: &[&str] = &[PHRASE, PHRASE2, MS1, ENTROPY, SEEDQR, PASSPHRASE];
+/// What the user's `AOS_SET` variable holds in these tests (distinctive, so a
+/// leak of the resolved value is caught too).
+const ENV_VALUE: &str = "aos-env-secret-value-7c1";
+const SECRETS: &[&str] = &[PHRASE, PHRASE2, MS1, ENTROPY, SEEDQR, PASSPHRASE, ENV_VALUE];
 
 fn assert_private(label: &str, os: &str, p: &mnemonic_gui::form::channels::RunPlan) {
     if os == "linux" {
@@ -175,6 +178,7 @@ fn assert_private(label: &str, os: &str, p: &mnemonic_gui::form::channels::RunPl
         }
     } else {
         assert!(p.interim, "{label} {os}: the interim path (DESIGN §A6)");
+        assert_eq!(p.argv.len(), p.mask.len(), "{label} {os}: mask length");
         for (t, m) in p.argv.iter().zip(&p.mask) {
             if SECRETS.iter().any(|s| t.contains(s)) {
                 assert!(*m, "{label} {os}: secret token not masked: {t:?}");
@@ -205,14 +209,20 @@ fn aos_run_and_copy_plan_private_channels() {
                 .unwrap_or_else(|e| panic!("{label} {os}: refused {}", e.code));
             assert_private(label, os, &p);
         }
-        let (posix, _windows) = copy_commands(&schema::mnemonic::SCHEMA, sub(), &state, &none);
-        let text = posix
-            .text()
-            .unwrap_or_else(|| panic!("{label}: Copy must be ready: {posix:?}"));
+        let (posix, windows) = copy_commands(&schema::mnemonic::SCHEMA, sub(), &state, &none);
         assert!(
-            !SECRETS.iter().any(|s| text.contains(s)),
-            "{label}: Copy text carries a secret"
+            posix.text().is_some(),
+            "{label}: Copy must be ready: {posix:?}"
         );
+        for c in [&posix, &windows] {
+            let text = match c {
+                CopyState::Ready(t) | CopyState::Disabled(t) => t,
+            };
+            assert!(
+                !SECRETS.iter().any(|s| text.contains(s)),
+                "{label}: Copy text carries a secret: {c:?}"
+            );
+        }
     }
 }
 
@@ -615,7 +625,7 @@ fn xpub_search_sibling_key_fields_mask_private_keys() {
 /// (`C1-dash`: the GUI has no stdin of its own to forward).
 #[test]
 fn aos_each_source_alone_plans_or_refuses_dash() {
-    let env = |n: &str| (n == "AOS_SET").then(|| "value".to_string());
+    let env = |n: &str| (n == "AOS_SET").then(|| ENV_VALUE.to_string());
     let mut states: Vec<(String, bool, FormState)> = Vec::new();
     for (flag_name, literal) in [
         ("--phrase", PHRASE),
@@ -663,13 +673,16 @@ fn aos_each_source_alone_plans_or_refuses_dash() {
                 assert!(matches!(c, CopyState::Disabled(_)), "{label}: Copy {c:?}");
             }
         } else {
-            let t = posix
-                .text()
-                .unwrap_or_else(|| panic!("{label}: Copy {posix:?}"));
-            assert!(
-                !SECRETS.iter().any(|s| t.contains(s)),
-                "{label}: Copy leaks"
-            );
+            assert!(posix.text().is_some(), "{label}: Copy {posix:?}");
+            for c in [&posix, &windows] {
+                let t = match c {
+                    CopyState::Ready(t) | CopyState::Disabled(t) => t,
+                };
+                assert!(
+                    !SECRETS.iter().any(|s| t.contains(s)),
+                    "{label}: Copy leaks: {c:?}"
+                );
+            }
         }
     }
 }

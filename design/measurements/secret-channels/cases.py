@@ -90,7 +90,8 @@ for mode,extra in [("path-of-xpub",["--target-xpub",XPUB84]),("account-of-descri
 c("mnemonic xpub-search passphrase-of-xpub --passphrase",[m,"xpub-search","passphrase-of-xpub",A,"--target-xpub",XPUB84_PW,"--phrase",P,"--passphrase","{S}"],"value","hunter2-passphrase",PW2,multi=True)
 c("mnemonic xpub-search passphrase-of-xpub --phrase",[m,"xpub-search","passphrase-of-xpub",A,"--target-xpub",XPUB84_PW,"--passphrase","hunter2-passphrase","--phrase","{S}"],"value",P,P2,multi=True)
 # xpub-search address-of-seed (toolkit PR #230). TA is the abandon seed's first bip84 receive
-# address, TA_PW the same under PW; the contrast value finds no wallet (exit 4).
+# address, TA_PW the same under PW. The contrast value finds no wallet (exit 4), or, for --ms1,
+# fails its checksum (exit 1); either way the row depends on the secret.
 from aos import AOS_CHECK
 TA="bc1qcr8te4kr609gcawutmrza0j4xv80jy8z306fyu"; TA_PW="bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv"
 AOS=[m,"xpub-search","address-of-seed",A]

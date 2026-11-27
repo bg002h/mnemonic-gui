@@ -81,8 +81,8 @@ for mode, extra in [("path-of-xpub", ["--target-xpub", XPUB84_PW]), ("passphrase
           [val(XS + mode + " --ms1", "--ms1", MS1), val(XS + mode + " --passphrase", "--passphrase", PW)])
 # xpub-search address-of-seed (toolkit PR #230). TA_PW: the abandon seed's first bip84 receive
 # address under PW. The 2-of-2 shape names two receive addresses (M1, M1_IDX1), which no
-# multi/sortedmulti twin shares, and needs a second channel for its second `--from` (SPEC §2: one
-# stdin reader per run). Swapping the two seeds changes the printed slot map, so it is not symmetric.
+# multi/sortedmulti twin shares; with two `--from` seeds at most one can use stdin (SPEC §2: one
+# stdin reader per run), and on Linux the planner binds both to `@env:` (MNEMONIC_GUI_S0, S1). Swapping the two seeds changes the printed slot map, so it is not symmetric.
 AOS = "address-of-seed"
 TA_PW = "bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv"
 AOS_M1 = ["bc1qkpcfs6lhqh3rx63we7435nf3hqpghkdtmmmvln0yrssv0ulhmngs92dens",

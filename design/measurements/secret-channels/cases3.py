@@ -36,6 +36,7 @@ c3("mnemonic addresses --from electrum-phrase=",[m,"addresses",A,"--address-type
    "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about")
 for sk,v,alt in [("entropy",ENT,ENT2),("seedqr",SQR,"000100000000000000000000000000000000000000000003"),("ms1",MS1,MS1_ALT)]:
     c3(f"mnemonic verify-bundle --slot @0.{sk}=",[m,"verify-bundle",A,"--network","mainnet","--template","bip84","--ms1",BJ["ms1"][0],"--slot",f"@0.{sk}={{S}}"]+vb_cards(BJ),"node",v,alt,multi=True)
-# xpub-search address-of-seed --from (toolkit PR #230): one seed per row; the contrast seed finds no wallet.
+# xpub-search address-of-seed --from (toolkit PR #230): one seed per row; the contrast seed finds no
+# wallet (phrase, entropy: exit 4) or is refused (ms1 checksum, seedqr: exit 1).
 for n_,v_,alt_ in [("phrase",P,P2),("ms1",MS1,MS1_ALT),("entropy",ENT,ENT2),("seedqr",SQR,"000100000000000000000000000000000000000000000003")]:
     c3(f"mnemonic xpub-search address-of-seed --from {n_}=",AOS+["--target-address",TA,"--from",f"{n_}={{S}}"],"node",v_,alt_,check=AOS_CHECK)
