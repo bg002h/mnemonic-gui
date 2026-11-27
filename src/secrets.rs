@@ -190,33 +190,71 @@ pub fn text_value_is_secret_source(value: &str) -> bool {
     crate::form::channels::text_value_names_secret_node(value).is_some()
 }
 
-/// DESIGN §B2–B4 (`*`): PUBLIC md fields where a pasted private descriptor or
-/// key (`xprv…`) is masked on screen and never persisted, by content — the
-/// way Phase 1a treats `restore --from ms1=…`. md itself refuses the value
-/// ("public keys must be …", exit 1), but by then it would have shown and
-/// persisted. Keyed `"<cli> <subcommand>"` × field (`positional:<name>` for a
-/// positional).
+/// DESIGN §B2–B4 (`*`): PUBLIC key/descriptor fields where a pasted private
+/// descriptor or key (`xprv…`, WIF) is masked on screen and never persisted,
+/// by content — the way Phase 1a treats `restore --from ms1=…`. The CLI
+/// itself refuses the value (md: "public keys must be …", exit 1; toolkit
+/// xpub-search: intake refusal, exit 2), but by then it would have shown and
+/// persisted. Keyed `"<cli> <subcommand argv tokens>"` × field
+/// (`positional:<name>` for a positional); [`field_masks_private_key_content`]
+/// also accepts the schema name (`mnemonic xpub-search-address-of-seed`).
 pub const PRIVATE_KEY_CONTENT_FIELDS: &[(&str, &str)] = &[
     ("md shape-key", "--descriptor"),
     ("md descriptor", "--key"),
     ("md decompose", "positional:descriptors"),
+    ("mnemonic xpub-search address-of-seed", "--descriptor"),
+    ("mnemonic xpub-search address-of-seed", "--cosigner"),
+    ("mnemonic xpub-search account-of-descriptor", "--descriptor"),
+    ("mnemonic xpub-search address-of-xpub", "--xpub"),
+    ("mnemonic xpub-search path-of-xpub", "--target-xpub"),
+    ("mnemonic xpub-search passphrase-of-xpub", "--target-xpub"),
 ];
 
 /// True iff `field` of `"<cli> <subcommand>"` is one of
-/// [`PRIVATE_KEY_CONTENT_FIELDS`].
+/// [`PRIVATE_KEY_CONTENT_FIELDS`]. `base` may name the subcommand by its argv
+/// tokens (`mnemonic xpub-search address-of-seed`, as the argv assembler
+/// does) or by its schema name (`mnemonic xpub-search-address-of-seed`, as
+/// the widgets do).
 pub fn field_masks_private_key_content(base: &str, field: &str) -> bool {
+    let canonical = match base.split_once(' ') {
+        Some((cli, sub)) => {
+            let mut s = cli.to_string();
+            for t in crate::form::invocation::subcommand_tokens(sub) {
+                s.push(' ');
+                s.push_str(t);
+            }
+            s
+        }
+        None => base.to_string(),
+    };
     PRIVATE_KEY_CONTENT_FIELDS
         .iter()
-        .any(|(b, f)| *b == base && *f == field)
+        .any(|(b, f)| *b == canonical && *f == field)
 }
 
 /// True iff any key-shaped token of `value` (split on everything that is not
 /// ASCII alphanumeric: `(`, `,`, `=`, `[`, `]`, `/`, …) is xprv-like by the
-/// tree form's own classifier (`tree_model::is_xprv_like`: `?prv` prefix).
+/// tree form's own classifier (`tree_model::is_xprv_like`: `?prv` prefix) or
+/// is a WIF private key ([`is_wif`]).
 pub fn text_holds_private_key(value: &str) -> bool {
     value
         .split(|c: char| !c.is_ascii_alphanumeric())
-        .any(crate::form::tree_model::is_xprv_like)
+        .any(|t| crate::form::tree_model::is_xprv_like(t) || is_wif(t))
+}
+
+/// True iff `token` is a WIF private key: base58check whose payload is a
+/// version byte 0x80 (mainnet) or 0xEF (testnet) and 32 key bytes, plus an
+/// optional compression byte (33 or 34 bytes). That is 51 or 52 characters,
+/// so the decode runs only on tokens of that length; xpubs (111), addresses
+/// and md1/mk1 cards do not decode to that payload.
+pub fn is_wif(token: &str) -> bool {
+    if !(51..=52).contains(&token.len()) {
+        return false;
+    }
+    match bitcoin::base58::decode_check(token) {
+        Ok(p) => (p.len() == 33 || p.len() == 34) && (p[0] == 0x80 || p[0] == 0xEF),
+        Err(_) => false,
+    }
 }
 
 /// The shared tail of both paste-warn texts.

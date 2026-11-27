@@ -241,3 +241,192 @@ fn aos_no_secret_reaches_state_json() {
     assert!(!form.values.iter().any(|(k, _)| k == "--from"));
     assert!(form.secret_widgets.is_empty());
 }
+
+const XPRV: &str = "xprv9s21ZrQH143K3QTDL4LXw2F7HEK3wJUD2nW2nRk4stbPy6cq3jPPqjiChkVvvNKmPGJxWUtg6LnF5kejMRNNU3TGtRBeJgk33yuGBxrMPHi";
+const TPRV: &str = "tprv8ZgxMBicQKsPeDgjzdC36fs6bMjGApWDNLR9erAXMs5skhMv36j9MV5ecvfavji5khqjWaWSFhN3YcCUUdiKH6isR4Pwy3U5y5egddBr16m";
+/// One private key (BIP-0013 test key 0C28FC…AA1D) in all four WIF forms:
+/// mainnet/testnet × uncompressed (33-byte payload) / compressed (34).
+const WIFS: [&str; 4] = [
+    "5HueCGU8rMjxEXxiPuD5BDku4MkFqeZyd4dZ1jvhTVqvbTLvyTJ",
+    "KwdMAjGmerYanjeui5SHS7JkmpZvVipYvB2LJGU1ZxJwYvP98617",
+    "91gGn1HgSap6CbU12F6z3pJri26xzp7Ay1VW6NHCoEayNXwRpu2",
+    "cMzLdeGd5vEqxB8B6VFQoRopQ3sLAAvEzDAoQgvX54xwofSWj1fx",
+];
+
+fn private_keys() -> Vec<&'static str> {
+    let mut v = vec![XPRV, TPRV];
+    v.extend(WIFS);
+    v
+}
+
+#[test]
+fn text_holds_private_key_recognises_wif_without_false_positives() {
+    use mnemonic_gui::secrets::text_holds_private_key;
+    for k in private_keys() {
+        assert!(text_holds_private_key(k), "{k} is a private key");
+        assert!(
+            text_holds_private_key(&format!("wpkh({k})")),
+            "{k} inside a descriptor"
+        );
+        assert!(text_holds_private_key(&format!("@1={k}")), "{k} as @N=");
+    }
+    for public in [
+        "xpub6CatWdiZiodmUeTDp8LT5or8nmbKNcuyvz7WyksVFkKB4RHwCD3XyuvPEbvqAQY3rAPshWcMLoP2fMFMKHPJ4ZeZXYVUhLv1VMrjPC7PW6V",
+        "tpubD6NzVbkrYhZ4XgiXtGrdW5XDAPFCL9h7we1vwNCpn8tGbBcgfVYjXyhWo4E1xkh56hjod1RhGjxbaTLV3X4FyWuejifB9jusQ46QzG87VKp",
+        TARGET,
+        "1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2",
+        "3J98t1WpEZ73CNmQviecrnyiWrnqRhWNLy",
+        "tb1qw508d6qejxtdg4y5r3zarvary0c5xw7kxpjzsx",
+        "mipcBbFg9gMiCh81Kj8tqqdgoZub1ZJRfn",
+        // A base58check string of WIF length whose version is not 0x80/0xEF.
+        "L6Cyjtdfq1TimFfgG9qBEHQF2FmaL96H5ceTrip74S4eqFapbcDJ",
+        // A WIF with its checksum broken (last char changed).
+        "KwdMAjGmerYanjeui5SHS7JkmpZvVipYvB2LJGU1ZxJwYvP98618",
+        "md1qqpqqxqxkceprx7rap4t",
+        "mk1qpzry9x8gf2tvdw0s3jn54khce6mua7l",
+        "wpkh([d34db33f/84h/0h/0h]@0/<0;1>/*)",
+    ] {
+        assert!(!text_holds_private_key(public), "{public} is not a private key");
+    }
+}
+
+/// Review r1 I1: an xprv/tprv/WIF in `--cosigner` or `--descriptor` is
+/// masked in the command, flagged on Copy and never persisted.
+#[test]
+fn aos_private_key_in_cosigner_or_descriptor_is_masked_flagged_and_not_saved() {
+    use mnemonic_gui::form::channels::copy::copy_reveals_secret;
+    use mnemonic_gui::form::invocation::assemble_argv_with_secret_mask;
+    use mnemonic_gui::persistence::redact_for_persistence;
+    use mnemonic_gui::secrets::field_masks_private_key_content;
+    // The widget keys on the schema name, the argv on its tokens.
+    for base in [
+        "mnemonic xpub-search address-of-seed",
+        "mnemonic xpub-search-address-of-seed",
+    ] {
+        for f in ["--descriptor", "--cosigner"] {
+            assert!(field_masks_private_key_content(base, f), "{base} {f}");
+        }
+    }
+    let none = |_: &str| None;
+    for k in private_keys() {
+        for (field, value) in [
+            ("--cosigner", format!("@1={k}")),
+            ("--descriptor", format!("wpkh({k}/<0;1>/*)")),
+        ] {
+            let state = FormState::from_pairs(vec![
+                ("--target-address", FlagValue::Text(TARGET.into())),
+                (field, FlagValue::Text(value.clone())),
+            ]);
+            let (argv, mask) =
+                assemble_argv_with_secret_mask(&schema::mnemonic::SCHEMA, sub(), &state);
+            let i = argv.iter().position(|t| *t == value).expect("emitted");
+            assert!(mask[i], "{field} {value} must be masked");
+            assert!(
+                copy_reveals_secret(&schema::mnemonic::SCHEMA, sub(), &state, &none),
+                "Copy must say it reveals {field} {value}"
+            );
+            let saved = redact_for_persistence(&state);
+            assert!(
+                !saved.values.iter().any(|(n, _)| n == field),
+                "{field} {value} must not persist"
+            );
+            assert!(saved.values.iter().any(|(n, _)| n == "--target-address"));
+        }
+    }
+    // A public cosigner stays readable and persists.
+    let state = FormState::from_pairs(vec![("--cosigner", FlagValue::Text(COSIGNER.into()))]);
+    let (argv, mask) = assemble_argv_with_secret_mask(&schema::mnemonic::SCHEMA, sub(), &state);
+    let i = argv.iter().position(|t| t == COSIGNER).unwrap();
+    assert!(!mask[i]);
+    assert!(redact_for_persistence(&state)
+        .values
+        .iter()
+        .any(|(n, _)| n == "--cosigner"));
+}
+
+/// Review r1 I1, sibling verbs: the public key fields of the other
+/// xpub-search verbs had the same gap.
+#[test]
+fn xpub_search_sibling_key_fields_mask_private_keys() {
+    use mnemonic_gui::form::invocation::assemble_argv_with_secret_mask;
+    use mnemonic_gui::persistence::redact_for_persistence;
+    for (sub_name, field, wrap) in [
+        (
+            "xpub-search-account-of-descriptor",
+            "--descriptor",
+            "wpkh({})",
+        ),
+        ("xpub-search-address-of-xpub", "--xpub", "{}"),
+        ("xpub-search-path-of-xpub", "--target-xpub", "{}"),
+        ("xpub-search-passphrase-of-xpub", "--target-xpub", "{}"),
+    ] {
+        let s = schema::mnemonic::SCHEMA
+            .subcommands
+            .iter()
+            .find(|s| s.name == sub_name)
+            .unwrap();
+        for k in private_keys() {
+            let value = wrap.replace("{}", k);
+            let state = FormState::from_pairs(vec![(field, FlagValue::Text(value.clone()))]);
+            let (argv, mask) = assemble_argv_with_secret_mask(&schema::mnemonic::SCHEMA, s, &state);
+            let i = argv.iter().position(|t| *t == value).expect("emitted");
+            assert!(mask[i], "{sub_name} {field} {value} must be masked");
+            assert!(
+                !redact_for_persistence(&state)
+                    .values
+                    .iter()
+                    .any(|(n, _)| n == field),
+                "{sub_name} {field} {value} must not persist"
+            );
+        }
+    }
+}
+
+/// Review r1 M1: every seed/passphrase source refuses on its own, in each
+/// of its spellings (literal, `@env:` set, `-`).
+#[test]
+fn aos_each_source_alone_fails_closed() {
+    let env = |n: &str| (n == "AOS_SET").then(|| "value".to_string());
+    let mut states: Vec<(String, FormState)> = Vec::new();
+    for (flag_name, literal) in [
+        ("--phrase", PHRASE),
+        ("--ms1", MS1),
+        ("--passphrase", PASSPHRASE),
+    ] {
+        for v in [literal, "@env:AOS_SET", "-"] {
+            let mut s =
+                FormState::from_pairs(vec![("--target-address", FlagValue::Text(TARGET.into()))]);
+            s.secret_widgets
+                .insert(flag_name.into(), vec![SecretLineEdit::from_text(v)]);
+            states.push((format!("{flag_name} {v}"), s));
+        }
+    }
+    for (node, literal) in [
+        ("phrase", PHRASE),
+        ("ms1", MS1),
+        ("entropy", ENTROPY),
+        ("seedqr", SEEDQR),
+    ] {
+        for v in [literal, "@env:AOS_SET", "-"] {
+            let mut s =
+                FormState::from_pairs(vec![("--target-address", FlagValue::Text(TARGET.into()))]);
+            s.values.push(composite(node, v));
+            states.push((format!("--from {node}={v}"), s));
+        }
+    }
+    for (label, state) in &states {
+        for os in ["linux", "macos", "windows"] {
+            let code = plan(&schema::mnemonic::SCHEMA, sub(), state, &env, os)
+                .err()
+                .map(|e| e.code);
+            assert!(
+                matches!(code, Some(c) if c == "no-table-entry" || c.starts_with("C1-")),
+                "{os} {label}: must refuse, got {code:?}"
+            );
+        }
+        let (posix, windows) = copy_commands(&schema::mnemonic::SCHEMA, sub(), state, &env);
+        for c in [posix, windows] {
+            assert!(matches!(c, CopyState::Disabled(_)), "{label}: Copy {c:?}");
+        }
+    }
+}
