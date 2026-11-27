@@ -57,7 +57,7 @@ pub const TAPROOT_INTERNAL_KEY_TEMPLATES: &[&str] = &["tr-multi-a", "tr-sortedmu
 
 /// v0.8.0 Phase 6 — descriptor canonicity classification (SPEC §4.12.a).
 ///
-/// `Canonical` means the descriptor matches one of the 5 wrapper shapes in
+/// `Canonical` means the descriptor matches one of the 6 wrapper shapes in
 /// md-codec's `canonical_origin` table (`canonical_origin.rs:45-79`). For
 /// canonical descriptors, the toolkit's `gui-schema`-emitted
 /// `DESCRIPTOR_WITH_NONZERO_ACCOUNT` rule (pin `--account` to 0) applies
@@ -66,7 +66,7 @@ pub const TAPROOT_INTERNAL_KEY_TEMPLATES: &[&str] = &["tr-multi-a", "tr-sortedmu
 /// toolkit (which consumes it per SPEC §4.12.b default-path inference).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Canonicity {
-    /// Descriptor matches a canonical wrapper shape (pkh/wpkh/tr-keypath/
+    /// Descriptor matches a canonical wrapper shape (pkh/wpkh/sh-wpkh/tr-keypath/
     /// wsh-multi-sortedmulti/sh-wsh-multi-sortedmulti); canonical_origin
     /// table supplies the per-shape default origin path.
     Canonical,
@@ -98,7 +98,7 @@ pub enum Canonicity {
 /// matches the toolkit's (R2 #2 fold from V4 plan-doc).
 pub fn classify_descriptor_canonicity(desc: &str) -> Canonicity {
     use std::sync::OnceLock;
-    static RES: OnceLock<[regex::Regex; 5]> = OnceLock::new();
+    static RES: OnceLock<[regex::Regex; 6]> = OnceLock::new();
     let res = RES.get_or_init(|| {
         [
             // pkh(@N) single-key — pkh( + optional PREFIX [fp/...] + @<digit>+
@@ -116,6 +116,9 @@ pub fn classify_descriptor_canonicity(desc: &str) -> Canonicity {
             regex::Regex::new(r"^wsh\((?:multi|sortedmulti)\(").expect("static regex"),
             // sh(wsh(multi(...))) or sh(wsh(sortedmulti(...)))
             regex::Regex::new(r"^sh\(wsh\((?:multi|sortedmulti)\(").expect("static regex"),
+            // sh(wpkh(@N)) single-key (BIP-49): canonical since md-codec
+            // 0.41.0 (toolkit v0.87.0); same key grammar as the wpkh arm.
+            regex::Regex::new(r"^sh\(wpkh\((?:\[[0-9a-fA-F]{8}(?:/\d+'?h?)*\])?@\d+(?:\[[0-9a-fA-F]{8}(?:/\d+'?h?)*\])?(?:/<[0-9;]+>)?(?:/\*+'?h?)?\)\)$").expect("static regex"),
         ]
     });
     if desc.is_empty() {

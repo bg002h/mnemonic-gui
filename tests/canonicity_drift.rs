@@ -140,6 +140,14 @@ const FIXTURES: &[(&str, Expect)] = &[
     ("wsh(sortedmulti(2,@0,@1))", Expect::Canonical),
     ("sh(wsh(multi(2,@0,@1)))", Expect::Canonical),
     ("sh(wsh(sortedmulti(2,@0,@1)))", Expect::Canonical),
+    // sh(wpkh) single-key (BIP-49): canonical since md-codec 0.41.0's F-A1
+    // (toolkit v0.87.0); FOLLOWUP `canonical-origin-sh-wpkh-toolkit-mirror-divergence`.
+    // Verdicts captured with `mnemonic gui-schema --classify-descriptor` at 0.107.1.
+    ("sh(wpkh(@0))", Expect::Canonical),
+    ("sh(wpkh(@0/<0;1>/*))", Expect::Canonical),
+    ("sh(wpkh(@0/**))", Expect::Canonical),
+    ("sh(wpkh([deadbeef/49h/0h/0h]@0/<0;1>/*))", Expect::Canonical),
+    ("sh(wpkh(@0[deadbeef/49'/0'/0']/<0;1>/*))", Expect::Canonical),
     // Non-canonical: tr with taptree.
     ("tr(NUMS,and_v(v:pk(@0),after(12000000)))", Expect::NonCanonical),
     // Non-canonical: wsh(andor(...)) — user's flagship v0.19.0 invocation.
@@ -187,7 +195,7 @@ const FIXTURES: &[(&str, Expect)] = &[
         Expect::Canonical,
     ),
 ];
-// 18 Canonical + 4 NonCanonical + 4 ParseFails = 26 (22 classify, 4 parse-fail).
+// 23 Canonical + 4 NonCanonical + 4 ParseFails = 31 (27 classify, 4 parse-fail).
 
 #[test]
 fn gui_classifier_matches_toolkit_for_all_fixtures() {
