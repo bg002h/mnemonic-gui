@@ -3588,6 +3588,293 @@ const XPUB_SEARCH_PASSPHRASE_OF_XPUB_FLAGS: &[FlagSchema] = &[
     ALLOW_ARGV_SECRET_FLAG,
 ];
 
+// ─── xpub-search address-of-seed (toolkit PR #230; unreleased) ─────────────
+// Find the wallet(s) of one or more seeds from one or more of their
+// addresses. Mirrors `mnemonic gui-schema`'s `xpub-search-address-of-seed`
+// entry (toolkit branch `claude/address-of-seed`, SPEC
+// `design/SPEC_xpub_search_address_of_seed.md` §2). `secret: true` exactly
+// where gui-schema says so (`schema_mirror_secret_drift`): the six seed and
+// passphrase inputs. `--from` is `secret: false` upstream, as on `convert`:
+// its nodes (`phrase`/`ms1`/`entropy`/`seedqr`) are ALL argv-secret, and the
+// composite's argv mask, run plan, paste-warn, on-screen mask and
+// persistence redaction key on the node (`node_type_is_argv_secret`).
+// Positional `MS1` is not surfaced (the sibling verbs' NO_POSITIONALS
+// policy; the GUI routes an ms1 through `--ms1`).
+/// `--from` nodes of `xpub-search address-of-seed` (toolkit
+/// `address_of_seed.rs`: `<phrase|ms1|entropy|seedqr>=<value>`).
+const XPUB_SEARCH_ADDRESS_OF_SEED_FROM_NODES: &[&str] = &["phrase", "ms1", "entropy", "seedqr"];
+
+const XPUB_SEARCH_ADDRESS_OF_SEED_FLAGS: &[FlagSchema] = &[
+    FlagSchema {
+        name: "--target-address",
+        kind: FlagKind::Text,
+        required: true,
+        repeating: true,
+        help: "Target address. Repeatable; at least one. Classified by its \
+               decoded scriptPubKey; it must belong to --network.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--phrase",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "One seed: master BIP-39 phrase (inline, or `@env:VAR`). Inline \
+               is refused by the argv guard unless --allow-argv-secret.",
+        secret: true,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--phrase-stdin",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "One seed: read the BIP-39 phrase from stdin.",
+        secret: true,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--ms1",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "One seed: ms1 card carrying BIP-39 entropy (inline).",
+        secret: true,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--ms1-stdin",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "One seed: read the ms1 card from stdin.",
+        secret: true,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--from",
+        kind: FlagKind::NodeValueComposite(XPUB_SEARCH_ADDRESS_OF_SEED_FROM_NODES),
+        required: false,
+        repeating: true,
+        help: "Two or more seeds: <phrase|ms1|entropy|seedqr>=<value>. \
+               Repeatable; seeds are numbered from 0 in the order given. Type \
+               the value, or `@env:VAR` (read by the GUI; a value that is `-` \
+               or starts with `@env` is refused).",
+        secret: false, // every node is secret; the composite keys on node_type_is_argv_secret
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--passphrase",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "BIP-39 passphrase, applied to every seed. `-` reads stdin; \
+               `@env:VAR` reads an environment variable.",
+        secret: true,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--passphrase-stdin",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Read the BIP-39 passphrase from stdin.",
+        secret: true,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--language",
+        kind: FlagKind::Dropdown(LANGUAGES),
+        required: false,
+        repeating: false,
+        help: "BIP-39 wordlist language. Defaults to english.",
+        secret: false,
+        default_value: Some("english"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--descriptor",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: false,
+        help: "Descriptor: a `@N` template, a keyed descriptor, or a BIP-388 \
+               policy JSON. Without one the search is single-sig (pkh, \
+               sh(wpkh), wpkh, tr). XOR with --descriptor-file and \
+               --descriptor-from.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--descriptor-file",
+        kind: FlagKind::Path {
+            stdio_sentinel: false,
+        },
+        required: false,
+        repeating: false,
+        help: "Read the descriptor from a file.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--descriptor-from",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: true,
+        help: "A keyless md1 template: `md1=<chunk>` (repeat per chunk). Its \
+               recorded origin paths pin the search.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--cosigner",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: true,
+        help: "A key that is not a seed: `@N=<xpub|[fp/path]xpub|mk1>` (slot \
+               stated) or `<xpub|[fp/path]xpub|mk1>` (slot searched). \
+               Repeatable.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--min-account",
+        kind: FlagKind::Number {
+            min: 0,
+            max: NumberMax::Static(2_147_483_647),
+        },
+        required: false,
+        repeating: false,
+        help: "Lower bound of the account window (inclusive). Default 0.",
+        secret: false,
+        default_value: Some("0"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--number-of-accounts",
+        kind: FlagKind::Number {
+            min: 0,
+            max: NumberMax::Static(2_147_483_647),
+        },
+        required: false,
+        repeating: false,
+        help: "Accounts in the window starting at --min-account (default 20).",
+        secret: false,
+        default_value: Some("20"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--max-account",
+        kind: FlagKind::Number {
+            min: 0,
+            max: NumberMax::Static(2_147_483_647),
+        },
+        required: false,
+        repeating: false,
+        help: "Optional upper bound; the window ends at \
+               max(min_account + number_of_accounts, max_account + 1).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--add-path",
+        kind: FlagKind::Text,
+        required: false,
+        repeating: true,
+        help: "Additional path template (`account'` substituted per account). \
+               Repeatable. Hardened steps take `'` or `h`; a template that is \
+               not a path is refused (exit 2). One that repeats a searched \
+               path is dropped.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--gap-limit",
+        kind: FlagKind::Number {
+            min: 0,
+            max: NumberMax::Static(2_147_483_648),
+        },
+        required: false,
+        repeating: false,
+        help: "The index window [0, N) searched on each chain (not BIP-44's \
+               \"N consecutive unused addresses\" rule). At most 2^31; a run \
+               whose child-key cache or estimated memory is too large is \
+               refused.",
+        secret: false,
+        default_value: Some("20"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--external-only",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Search use-site alternative 0 only (the receive chain under \
+               `<0;1>`).",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--independent-paths",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Multisig: let each seed sit at its own path (C^k path tuples) \
+               instead of every seed at the same path.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--refugium-seats",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Add the Refugium seat paths m/270028'/coin'/n': all 256 for one \
+               key, the 8 rounds of its seat per slot for multisig.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    FlagSchema {
+        name: "--network",
+        kind: FlagKind::Dropdown(NETWORKS),
+        required: false,
+        repeating: false,
+        help: "Network. Defaults to mainnet.",
+        secret: false,
+        default_value: Some("mainnet"),
+        global: false,
+    },
+    FlagSchema {
+        name: "--json",
+        kind: FlagKind::Boolean,
+        required: false,
+        repeating: false,
+        help: "Emit a JSON envelope on stdout instead of the text report.",
+        secret: false,
+        default_value: None,
+        global: false,
+    },
+    NO_AUTO_REPAIR_FLAG,
+    ALLOW_ARGV_SECRET_FLAG,
+];
+
 // ─── electrum-decrypt ──────────────────────────────────────────────────────
 // toolkit v0.33.0: decrypt an Electrum field-encrypted secret
 // (base64(iv ‖ aes-256-cbc(plaintext + PKCS7)), key = sha256d(password)) →
@@ -4797,6 +5084,15 @@ const SUBCOMMANDS: &[SubcommandSchema] = &[
         name: "xpub-search-passphrase-of-xpub",
         human_name: "xpub-search: Passphrase of xpub (locate passphrase from candidates)",
         flags: XPUB_SEARCH_PASSPHRASE_OF_XPUB_FLAGS,
+        positional_args: NO_POSITIONALS,
+        allows_slots: false,
+        conditional: None,
+    },
+    // toolkit PR #230 (unreleased): seed(s) + address(es) -> wallet(s).
+    SubcommandSchema {
+        name: "xpub-search-address-of-seed",
+        human_name: "xpub-search: Address of seed (find a seed's wallet from its addresses)",
+        flags: XPUB_SEARCH_ADDRESS_OF_SEED_FLAGS,
         positional_args: NO_POSITIONALS,
         allows_slots: false,
         conditional: None,

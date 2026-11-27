@@ -322,7 +322,7 @@ fn sweep_census() {
 
     eprintln!("\n──────── P5 I1 WIRING SWEEP CENSUS ────────");
     eprintln!(
-        "subcommands: {n_subs}/66 | with ≥1 round-tripped identity flag: {subs_with_cover}"
+        "subcommands: {n_subs}/67 | with ≥1 round-tripped identity flag: {subs_with_cover}"
     );
     eprintln!(
         "identity round-trips: checked={} skipped(suppressed)={} narrowed={} self-gated={} findings={}",
@@ -342,7 +342,7 @@ fn sweep_census() {
 
     // DESIGN secret channels Part B: + md compose/shape-key/descriptor/
     // decompose and ms hashlock, 61 -> 66.
-    assert_eq!(n_subs, 66, "expected exactly 66 subcommands across the 4 CLIs");
+    assert_eq!(n_subs, 67, "expected exactly 67 subcommands across the 4 CLIs");
     // The 4 CLIs each surface ≥1 round-trippable subcommand (coverage floor).
     assert!(
         subs_with_cover >= 40,

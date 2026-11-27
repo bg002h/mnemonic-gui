@@ -35,6 +35,7 @@ const XPUB_SEARCH_MODES: &[&str] = &[
     "xpub-search-path-of-xpub",
     "xpub-search-account-of-descriptor",
     "xpub-search-passphrase-of-xpub",
+    "xpub-search-address-of-seed",
 ];
 
 /// T1 — the ms.rs override pin.

@@ -46,6 +46,7 @@ const XPUB_SEARCH_SUBCOMMANDS: &[&str] = &[
     "xpub-search-account-of-descriptor",
     "xpub-search-address-of-xpub",
     "xpub-search-passphrase-of-xpub",
+    "xpub-search-address-of-seed",
 ];
 
 fn find_subcommand(name: &str) -> Option<&'static schema::SubcommandSchema> {
@@ -266,7 +267,48 @@ fn umbrella_flag_names_match_toolkit_gui_schema_json() {
         checked += 1;
     }
     eprintln!(
-        "xpub_search_schema_mirror: {checked}/4 subcommands checked, \
-         {skipped} skipped (toolkit binary not at v0.26.0)"
+        "xpub_search_schema_mirror: {checked}/{} subcommands checked, \
+         {skipped} skipped (toolkit binary lacks the subcommand)",
+        XPUB_SEARCH_SUBCOMMANDS.len()
     );
+}
+
+#[test]
+fn address_of_seed_target_address_required_and_seed_inputs_secret() {
+    let sub = find_subcommand("xpub-search-address-of-seed").expect("subcommand present");
+    let target = sub
+        .flags
+        .iter()
+        .find(|f| f.name == "--target-address")
+        .expect("--target-address flag present");
+    assert!(
+        target.required && target.repeating,
+        "xpub-search-address-of-seed: --target-address must be required=true \
+         and repeating=true (toolkit `required = true`, Vec<String>)"
+    );
+    for flag_name in [
+        "--phrase",
+        "--phrase-stdin",
+        "--ms1",
+        "--ms1-stdin",
+        "--passphrase",
+        "--passphrase-stdin",
+    ] {
+        let flag = sub
+            .flags
+            .iter()
+            .find(|f| f.name == flag_name)
+            .unwrap_or_else(|| panic!("{flag_name} present"));
+        assert!(
+            flag.secret,
+            "xpub-search-address-of-seed: {flag_name} must be secret=true \
+             (toolkit gui-schema ground truth)"
+        );
+    }
+    let from = sub
+        .flags
+        .iter()
+        .find(|f| f.name == "--from")
+        .expect("--from flag present");
+    assert!(from.repeating, "--from is repeatable (one row per seed)");
 }
