@@ -747,6 +747,83 @@
  },
  {
   "cli": "mnemonic",
+  "sub": "xpub-search address-of-seed",
+  "input": "--phrase",
+  "exit": 2,
+  "refused": true,
+  "channels": [
+   "--phrase-stdin"
+  ],
+  "first": "mnemonic: argument 3 on ARGV (--phrase) is a BIP-39 phrase -- 93 characters. Nothing about it is printed here."
+ },
+ {
+  "cli": "mnemonic",
+  "sub": "xpub-search address-of-seed",
+  "input": "--ms1",
+  "exit": 2,
+  "refused": true,
+  "channels": [
+   "--ms1-stdin"
+  ],
+  "first": "mnemonic: argument 3 on ARGV (--ms1) is a codex32 (ms1) card -- seed-equivalent -- 50 characters. Nothing about it is printed here."
+ },
+ {
+  "cli": "mnemonic",
+  "sub": "xpub-search address-of-seed",
+  "input": "--passphrase",
+  "exit": 2,
+  "refused": true,
+  "channels": [
+   "--passphrase -   (stdin; or --passphrase-stdin, or --passphrase @env:VAR)"
+  ],
+  "first": "mnemonic: argument 3 on ARGV (--passphrase) is a BIP-39 passphrase -- 18 characters. Nothing about it is printed here."
+ },
+ {
+  "cli": "mnemonic",
+  "sub": "xpub-search address-of-seed",
+  "input": "--from phrase=",
+  "exit": 2,
+  "refused": true,
+  "channels": [
+   "--from phrase=-"
+  ],
+  "first": "mnemonic: argument 3 on ARGV (--from phrase=) is a BIP-39 phrase -- 93 characters. Nothing about it is printed here."
+ },
+ {
+  "cli": "mnemonic",
+  "sub": "xpub-search address-of-seed",
+  "input": "--from ms1=",
+  "exit": 2,
+  "refused": true,
+  "channels": [
+   "--from ms1=-"
+  ],
+  "first": "mnemonic: argument 3 on ARGV (--from ms1=) is a codex32 (ms1) card -- seed-equivalent -- 50 characters. Nothing about it is printed here."
+ },
+ {
+  "cli": "mnemonic",
+  "sub": "xpub-search address-of-seed",
+  "input": "--from entropy=",
+  "exit": 2,
+  "refused": true,
+  "channels": [
+   "--from entropy=-"
+  ],
+  "first": "mnemonic: argument 3 on ARGV (--from entropy=) is raw seed entropy -- 32 characters. Nothing about it is printed here."
+ },
+ {
+  "cli": "mnemonic",
+  "sub": "xpub-search address-of-seed",
+  "input": "--from seedqr=",
+  "exit": 2,
+  "refused": true,
+  "channels": [
+   "--from seedqr=-"
+  ],
+  "first": "mnemonic: argument 3 on ARGV (--from seedqr=) is a SeedQR digit string -- 48 characters. Nothing about it is printed here."
+ },
+ {
+  "cli": "mnemonic",
   "sub": "word-card",
   "input": "--from ms1=",
   "exit": 2,

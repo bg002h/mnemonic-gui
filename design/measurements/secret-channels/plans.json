@@ -6088,8 +6088,8 @@
    }
   },
   "t1_problems": [],
-  "base_exit": 0,
-  "plan_exit": 0,
+  "base_exit": 4,
+  "plan_exit": 4,
   "base_effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5",
   "equal": true,
   "plan_err": "",
@@ -6726,7 +6726,7 @@
     ],
     "same_as_baseline": false,
     "expected_same": false,
-    "exit": 0
+    "exit": 4
    }
   ],
   "env_endings": [
@@ -6738,7 +6738,7 @@
     ],
     "channel": "EnvRef",
     "provenance": "$USER_SECRET",
-    "exit": 0,
+    "exit": 4,
     "effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5",
     "eq_oracle": true,
     "no_oracle": false
@@ -6831,7 +6831,7 @@
     ],
     "channel": "EnvRef",
     "provenance": "$USER_SECRET",
-    "exit": 0,
+    "exit": 4,
     "effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5",
     "eq_oracle": true,
     "no_oracle": false
@@ -6868,7 +6868,7 @@
     ],
     "channel": "EnvRef",
     "provenance": "$USER_SECRET",
-    "exit": 0,
+    "exit": 4,
     "effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5",
     "eq_oracle": true,
     "no_oracle": false
@@ -6894,7 +6894,7 @@
     ],
     "channel": "EnvRef",
     "provenance": "$USER_SECRET",
-    "exit": 0,
+    "exit": 4,
     "effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5",
     "eq_oracle": true,
     "no_oracle": false
@@ -6907,7 +6907,7 @@
     ],
     "channel": "EnvRef",
     "provenance": "$USER_SECRET",
-    "exit": 0,
+    "exit": 4,
     "effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5",
     "eq_oracle": true,
     "no_oracle": false
@@ -6920,7 +6920,7 @@
     ],
     "channel": "EnvRef",
     "provenance": "$USER_SECRET",
-    "exit": 0,
+    "exit": 4,
     "effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5",
     "eq_oracle": true,
     "no_oracle": false
@@ -6933,7 +6933,7 @@
     ],
     "channel": "EnvRef",
     "provenance": "$USER_SECRET",
-    "exit": 0,
+    "exit": 4,
     "effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5",
     "eq_oracle": true,
     "no_oracle": false
@@ -6946,7 +6946,7 @@
     ],
     "channel": "EnvRef",
     "provenance": "$USER_SECRET",
-    "exit": 0,
+    "exit": 4,
     "effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5",
     "eq_oracle": true,
     "no_oracle": false
@@ -7039,7 +7039,7 @@
     ],
     "channel": "EnvRef",
     "provenance": "$USER_SECRET",
-    "exit": 0,
+    "exit": 4,
     "effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5",
     "eq_oracle": true,
     "no_oracle": false
@@ -7076,7 +7076,7 @@
     ],
     "channel": "EnvRef",
     "provenance": "$USER_SECRET",
-    "exit": 0,
+    "exit": 4,
     "effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5",
     "eq_oracle": true,
     "no_oracle": false
@@ -7102,7 +7102,7 @@
     ],
     "channel": "EnvRef",
     "provenance": "$USER_SECRET",
-    "exit": 0,
+    "exit": 4,
     "effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5",
     "eq_oracle": true,
     "no_oracle": false
@@ -7115,7 +7115,7 @@
     ],
     "channel": "EnvRef",
     "provenance": "$USER_SECRET",
-    "exit": 0,
+    "exit": 4,
     "effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5",
     "eq_oracle": true,
     "no_oracle": false
@@ -7128,7 +7128,7 @@
     ],
     "channel": "EnvRef",
     "provenance": "$USER_SECRET",
-    "exit": 0,
+    "exit": 4,
     "effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5",
     "eq_oracle": true,
     "no_oracle": false
@@ -7141,7 +7141,7 @@
     ],
     "channel": "EnvRef",
     "provenance": "$USER_SECRET",
-    "exit": 0,
+    "exit": 4,
     "effect": "mk1qpm6gzpqqspdayp9s00fqfvrw0za5zs8qjyty8kskx54hpzzjwjpds9j69su6hyzpkdq32t74e44wnhpg9dj4y5",
     "eq_oracle": true,
     "no_oracle": false
@@ -7255,8 +7255,8 @@
    }
   },
   "t1_problems": [],
-  "base_exit": 0,
-  "plan_exit": 0,
+  "base_exit": 4,
+  "plan_exit": 4,
   "base_effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq",
   "equal": true,
   "plan_err": "",
@@ -8209,27 +8209,27 @@
     "source": 0,
     "value": "-leading",
     "oracle": true,
-    "linux": 0,
+    "linux": 4,
     "linux_eq_oracle": true,
-    "macos": 0,
+    "macos": 4,
     "macos_eq_oracle": true
    },
    {
     "source": 0,
     "value": "--help",
     "oracle": true,
-    "linux": 0,
+    "linux": 4,
     "linux_eq_oracle": true,
-    "macos": 0,
+    "macos": 4,
     "macos_eq_oracle": true
    },
    {
     "source": 0,
     "value": "-lead  ",
     "oracle": true,
-    "linux": 0,
+    "linux": 4,
     "linux_eq_oracle": true,
-    "macos": 0,
+    "macos": 4,
     "macos_eq_oracle": true
    }
   ],
@@ -8271,7 +8271,7 @@
     ],
     "channel": "StdinToggle",
     "provenance": "$USER_SECRET",
-    "exit": 0,
+    "exit": 4,
     "effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq",
     "eq_oracle": true,
     "no_oracle": false
@@ -8284,7 +8284,7 @@
     ],
     "channel": "StdinToggle",
     "provenance": "$USER_SECRET",
-    "exit": 0,
+    "exit": 4,
     "effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq",
     "eq_oracle": true,
     "no_oracle": false
@@ -8297,7 +8297,7 @@
     ],
     "channel": "StdinToggle",
     "provenance": "$USER_SECRET",
-    "exit": 0,
+    "exit": 4,
     "effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq",
     "eq_oracle": true,
     "no_oracle": false
@@ -8374,7 +8374,7 @@
     ],
     "channel": "StdinToggle",
     "provenance": "$USER_SECRET",
-    "exit": 0,
+    "exit": 4,
     "effect": "mk1qpal20pqqspwl48anmhaflv7ygr30vc8qjyty8sd0p6dcpcldwzere3p6tld8mlck2hk9thad8st9wgqy6kals5",
     "eq_oracle": true,
     "no_oracle": false
@@ -8387,7 +8387,7 @@
     ],
     "channel": "StdinToggle",
     "provenance": "$USER_SECRET",
-    "exit": 0,
+    "exit": 4,
     "effect": "mk1qpxqtmpqqsprq9aj5ucp0v48ecj53qg8qjyty85c7w79l6ymxsfyls5dwrhdlpeardfchuql3tj5tx2cj2lssgw",
     "eq_oracle": true,
     "no_oracle": false
@@ -8400,7 +8400,7 @@
     ],
     "channel": "StdinToggle",
     "provenance": "$USER_SECRET",
-    "exit": 0,
+    "exit": 4,
     "effect": "mk1qpal20pqqspwl48anmhaflv7ygr30vc8qjyty8sd0p6dcpcldwzere3p6tld8mlck2hk9thad8st9wgqy6kals5",
     "eq_oracle": true,
     "no_oracle": false
@@ -8413,7 +8413,7 @@
     ],
     "channel": "StdinToggle",
     "provenance": "$USER_SECRET",
-    "exit": 0,
+    "exit": 4,
     "effect": "mk1qpnjw7pqqspfe80f4jwfm6dvp6xw5jq8qjyty8ne6fpl7z8lpasn6rw4ycr9vttrdggs92xcr2tnd69u6e0qeck",
     "eq_oracle": true,
     "no_oracle": false
@@ -8426,7 +8426,7 @@
     ],
     "channel": "StdinToggle",
     "provenance": "$USER_SECRET",
-    "exit": 0,
+    "exit": 4,
     "effect": "mk1qpnjw7pqqspfe80f4jwfm6dvp6xw5jq8qjyty8ne6fpl7z8lpasn6rw4ycr9vttrdggs92xcr2tnd69u6e0qeck",
     "eq_oracle": true,
     "no_oracle": false
@@ -8439,7 +8439,7 @@
     ],
     "channel": "StdinToggle",
     "provenance": "$USER_SECRET",
-    "exit": 0,
+    "exit": 4,
     "effect": "mk1qpxvrhpqqsprxpmkh5eswa4aam86rfc8qjyty8h95xnwfzzzet6dkfsw7ugv3g5x4kdmues907rwg4f82rmeap6",
     "eq_oracle": true,
     "no_oracle": false
@@ -8452,7 +8452,7 @@
     ],
     "channel": "StdinToggle",
     "provenance": "$USER_SECRET",
-    "exit": 0,
+    "exit": 4,
     "effect": "mk1qps20zpqqspg983gnwpfu2ym80samzs8qjyty84lenuypkufkrkj5apypwrlvs8rwpmk4j074ahjftyljt5xt8j",
     "eq_oracle": true,
     "no_oracle": false
@@ -8465,7 +8465,7 @@
     ],
     "channel": "StdinToggle",
     "provenance": "$USER_SECRET",
-    "exit": 0,
+    "exit": 4,
     "effect": "mk1qpz2rdpqqspp9pk6dcfgdknwz5er6yq8qjyty85tqk7wph3kjhu0vj6yrjarfp3gr27zchpaj6ejqh5vhz8ym75",
     "eq_oracle": true,
     "no_oracle": false
@@ -8478,7 +8478,7 @@
     ],
     "channel": "StdinToggle",
     "provenance": "$USER_SECRET",
-    "exit": 0,
+    "exit": 4,
     "effect": "mk1qp44cnpqqsp26ufuajkhz08vyujh4zs8qjyty839877r6f0vek6n9rfff6725lcqqvl74ya8as2gp99xkqfwjmd",
     "eq_oracle": true,
     "no_oracle": false
@@ -8491,7 +8491,7 @@
     ],
     "channel": "StdinToggle",
     "provenance": "$USER_SECRET",
-    "exit": 0,
+    "exit": 4,
     "effect": "mk1qpaprqpqqspws3s2z85yvzs3crm8ces8qjyty8ss4up3jdppkv6ren49nv2e9pxxu9sghkr9nxe46s8e4g58jcc",
     "eq_oracle": true,
     "no_oracle": false
@@ -8504,7 +8504,7 @@
     ],
     "channel": "EnvRef",
     "provenance": "$USER_SECRET",
-    "exit": 0,
+    "exit": 4,
     "effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq",
     "eq_oracle": true,
     "no_oracle": false
@@ -8597,7 +8597,7 @@
     ],
     "channel": "EnvRef",
     "provenance": "$USER_SECRET",
-    "exit": 0,
+    "exit": 4,
     "effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq",
     "eq_oracle": true,
     "no_oracle": false
@@ -8634,7 +8634,7 @@
     ],
     "channel": "EnvRef",
     "provenance": "$USER_SECRET",
-    "exit": 0,
+    "exit": 4,
     "effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq",
     "eq_oracle": true,
     "no_oracle": false
@@ -8660,7 +8660,7 @@
     ],
     "channel": "EnvRef",
     "provenance": "$USER_SECRET",
-    "exit": 0,
+    "exit": 4,
     "effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq",
     "eq_oracle": true,
     "no_oracle": false
@@ -8673,7 +8673,7 @@
     ],
     "channel": "EnvRef",
     "provenance": "$USER_SECRET",
-    "exit": 0,
+    "exit": 4,
     "effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq",
     "eq_oracle": true,
     "no_oracle": false
@@ -8686,7 +8686,7 @@
     ],
     "channel": "EnvRef",
     "provenance": "$USER_SECRET",
-    "exit": 0,
+    "exit": 4,
     "effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq",
     "eq_oracle": true,
     "no_oracle": false
@@ -8699,7 +8699,7 @@
     ],
     "channel": "EnvRef",
     "provenance": "$USER_SECRET",
-    "exit": 0,
+    "exit": 4,
     "effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq",
     "eq_oracle": true,
     "no_oracle": false
@@ -8712,7 +8712,7 @@
     ],
     "channel": "EnvRef",
     "provenance": "$USER_SECRET",
-    "exit": 0,
+    "exit": 4,
     "effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq",
     "eq_oracle": true,
     "no_oracle": false
@@ -8805,7 +8805,7 @@
     ],
     "channel": "EnvRef",
     "provenance": "$USER_SECRET",
-    "exit": 0,
+    "exit": 4,
     "effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq",
     "eq_oracle": true,
     "no_oracle": false
@@ -8842,7 +8842,7 @@
     ],
     "channel": "EnvRef",
     "provenance": "$USER_SECRET",
-    "exit": 0,
+    "exit": 4,
     "effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq",
     "eq_oracle": true,
     "no_oracle": false
@@ -8868,7 +8868,7 @@
     ],
     "channel": "EnvRef",
     "provenance": "$USER_SECRET",
-    "exit": 0,
+    "exit": 4,
     "effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq",
     "eq_oracle": true,
     "no_oracle": false
@@ -8881,7 +8881,7 @@
     ],
     "channel": "EnvRef",
     "provenance": "$USER_SECRET",
-    "exit": 0,
+    "exit": 4,
     "effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq",
     "eq_oracle": true,
     "no_oracle": false
@@ -8894,7 +8894,7 @@
     ],
     "channel": "EnvRef",
     "provenance": "$USER_SECRET",
-    "exit": 0,
+    "exit": 4,
     "effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq",
     "eq_oracle": true,
     "no_oracle": false
@@ -8907,7 +8907,7 @@
     ],
     "channel": "EnvRef",
     "provenance": "$USER_SECRET",
-    "exit": 0,
+    "exit": 4,
     "effect": "mk1qpgaqcpqqspywsvg03r5rzrughalhes8qjyty83nr0wscquatny8cq3ctkcnc7w7lklfeq66dhl2ml4aacj89mq",
     "eq_oracle": true,
     "no_oracle": false
@@ -19630,6 +19630,3516 @@
      "\t"
     ],
     "refused": "two-stdin"
+   }
+  ]
+ },
+ {
+  "name": "xpub-search address-of-seed phrase+passphrase",
+  "symmetric": [],
+  "expect": "run",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search address-of-seed --phrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--phrase-stdin"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search address-of-seed --passphrase",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search address-of-seed --phrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search address-of-seed --passphrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search address-of-seed --phrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search address-of-seed --passphrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search address-of-seed --phrase",
+      "kind": "StdinToggle",
+      "terminator": "\r\n",
+      "flag": "--phrase-stdin"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search address-of-seed --passphrase",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   }
+  },
+  "t1_problems": [],
+  "base_exit": 0,
+  "plan_exit": 0,
+  "base_effect": "match: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv",
+  "equal": true,
+  "plan_err": "",
+  "interim": [
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     ""
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": "match: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\r\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\r"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\n\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\r\n\r\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\n\r\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\r\r\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\n\r"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\r\r"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\n\n\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "  "
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": "match: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     " \n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "  \r\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\t\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\t"
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": "match: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\nX"
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": ""
+   },
+   {
+    "source": 0,
+    "ending": [
+     "prefix",
+     "\n"
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": "match: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "prefix",
+     "\r\n"
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": "match: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "prefix",
+     " "
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": "match: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "prefix",
+     "\t"
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": "match: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     ""
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": "match: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\n"
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": "match: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\r\n"
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": "match: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\r"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\n\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\r\n\r\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\n\r\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\r\r\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\n\r"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\r\r"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\n\n\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "  "
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": "unmatched: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv (not found in the searched set)"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     " \n"
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": "unmatched: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv (not found in the searched set)"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "  \r\n"
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": "unmatched: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv (not found in the searched set)"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\t\n"
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": "unmatched: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv (not found in the searched set)"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\t"
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": "unmatched: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv (not found in the searched set)"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\nX"
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": "unmatched: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv (not found in the searched set)"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "prefix",
+     "\n"
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": "unmatched: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv (not found in the searched set)"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "prefix",
+     "\r\n"
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": "unmatched: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv (not found in the searched set)"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "prefix",
+     " "
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": "unmatched: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv (not found in the searched set)"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "prefix",
+     "\t"
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": "unmatched: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv (not found in the searched set)"
+   }
+  ],
+  "nc1": [
+   {
+    "source": 0,
+    "content": "-",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": " -",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": "- ",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": "-\n",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": "\t-",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": "-\r\n",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": "\u00a0-",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": "@env:OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": " @env:OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": "@env:OTHER ",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": "\t@env:OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": "\n@env:OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": "@env:OTHER\n",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": "@env:OTHER\r\n",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": "@ENV:OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": "@Env:OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": "@env: OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": "\u00a0@env:OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": "\u200b@env:OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": "\uff20env:OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": "@envOTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": "-",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": " -",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": "- ",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": "-\n",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": "\t-",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": "-\r\n",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": "\u00a0-",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": "@env:OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": " @env:OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": "@env:OTHER ",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": "\t@env:OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": "\n@env:OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": "@env:OTHER\n",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": "@env:OTHER\r\n",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": "@ENV:OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": "@Env:OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": "@env: OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": "\u00a0@env:OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": "\u200b@env:OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": "\uff20env:OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": "@envOTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   }
+  ],
+  "dash": [
+   {
+    "source": 0,
+    "value": "-leading",
+    "oracle": true,
+    "linux": 1,
+    "linux_eq_oracle": true,
+    "macos": 1,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 0,
+    "value": "--help",
+    "oracle": true,
+    "linux": 1,
+    "linux_eq_oracle": true,
+    "macos": 1,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 0,
+    "value": "-lead  ",
+    "oracle": true,
+    "linux": 1,
+    "linux_eq_oracle": true,
+    "macos": 1,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 1,
+    "value": "-leading",
+    "oracle": true,
+    "linux": 4,
+    "linux_eq_oracle": true,
+    "macos": 4,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 1,
+    "value": "--help",
+    "oracle": true,
+    "linux": 4,
+    "linux_eq_oracle": true,
+    "macos": 4,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 1,
+    "value": "-lead  ",
+    "oracle": true,
+    "linux": 4,
+    "linux_eq_oracle": true,
+    "macos": 4,
+    "macos_eq_oracle": true
+   }
+  ],
+  "swaps": [
+   {
+    "pair": [
+     0,
+     1
+    ],
+    "same_as_baseline": false,
+    "expected_same": false,
+    "exit": 1
+   }
+  ],
+  "env_endings": [
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     ""
+    ],
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "match: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv",
+    "eq_oracle": true,
+    "no_oracle": false
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\r\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\r"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\n\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\r\n\r\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\n\r\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\r\r\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\n\r"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\r\r"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\n\n\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "  "
+    ],
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "match: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv",
+    "eq_oracle": true,
+    "no_oracle": false
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     " \n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "  \r\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\t\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\t"
+    ],
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "match: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv",
+    "eq_oracle": true,
+    "no_oracle": false
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\nX"
+    ],
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 1,
+    "effect": "",
+    "eq_oracle": true,
+    "no_oracle": false
+   },
+   {
+    "source": 0,
+    "ending": [
+     "prefix",
+     "\n"
+    ],
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "match: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv",
+    "eq_oracle": true,
+    "no_oracle": false
+   },
+   {
+    "source": 0,
+    "ending": [
+     "prefix",
+     "\r\n"
+    ],
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "match: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv",
+    "eq_oracle": true,
+    "no_oracle": false
+   },
+   {
+    "source": 0,
+    "ending": [
+     "prefix",
+     " "
+    ],
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "match: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv",
+    "eq_oracle": true,
+    "no_oracle": false
+   },
+   {
+    "source": 0,
+    "ending": [
+     "prefix",
+     "\t"
+    ],
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "match: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv",
+    "eq_oracle": true,
+    "no_oracle": false
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     ""
+    ],
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "match: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv",
+    "eq_oracle": true,
+    "no_oracle": false
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\n"
+    ],
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "match: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv",
+    "eq_oracle": true,
+    "no_oracle": false
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\r\n"
+    ],
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "match: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv",
+    "eq_oracle": true,
+    "no_oracle": false
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\r"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\n\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\r\n\r\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\n\r\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\r\r\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\n\r"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\r\r"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\n\n\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "  "
+    ],
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 4,
+    "effect": "unmatched: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv (not found in the searched set)",
+    "eq_oracle": true,
+    "no_oracle": false
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     " \n"
+    ],
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 4,
+    "effect": "unmatched: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv (not found in the searched set)",
+    "eq_oracle": true,
+    "no_oracle": false
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "  \r\n"
+    ],
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 4,
+    "effect": "unmatched: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv (not found in the searched set)",
+    "eq_oracle": true,
+    "no_oracle": false
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\t\n"
+    ],
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 4,
+    "effect": "unmatched: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv (not found in the searched set)",
+    "eq_oracle": true,
+    "no_oracle": false
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\t"
+    ],
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 4,
+    "effect": "unmatched: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv (not found in the searched set)",
+    "eq_oracle": true,
+    "no_oracle": false
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\nX"
+    ],
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 4,
+    "effect": "unmatched: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv (not found in the searched set)",
+    "eq_oracle": true,
+    "no_oracle": false
+   },
+   {
+    "source": 1,
+    "ending": [
+     "prefix",
+     "\n"
+    ],
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 4,
+    "effect": "unmatched: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv (not found in the searched set)",
+    "eq_oracle": true,
+    "no_oracle": false
+   },
+   {
+    "source": 1,
+    "ending": [
+     "prefix",
+     "\r\n"
+    ],
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 4,
+    "effect": "unmatched: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv (not found in the searched set)",
+    "eq_oracle": true,
+    "no_oracle": false
+   },
+   {
+    "source": 1,
+    "ending": [
+     "prefix",
+     " "
+    ],
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 4,
+    "effect": "unmatched: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv (not found in the searched set)",
+    "eq_oracle": true,
+    "no_oracle": false
+   },
+   {
+    "source": 1,
+    "ending": [
+     "prefix",
+     "\t"
+    ],
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 4,
+    "effect": "unmatched: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv (not found in the searched set)",
+    "eq_oracle": true,
+    "no_oracle": false
+   }
+  ]
+ },
+ {
+  "name": "xpub-search address-of-seed ms1+passphrase",
+  "symmetric": [],
+  "expect": "run",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search address-of-seed --ms1",
+      "kind": "StdinToggle",
+      "terminator": "",
+      "flag": "--ms1-stdin"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search address-of-seed --passphrase",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search address-of-seed --ms1",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search address-of-seed --passphrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search address-of-seed --ms1",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search address-of-seed --passphrase",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search address-of-seed --ms1",
+      "kind": "StdinToggle",
+      "terminator": "",
+      "flag": "--ms1-stdin"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search address-of-seed --passphrase",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   }
+  },
+  "t1_problems": [],
+  "base_exit": 0,
+  "plan_exit": 0,
+  "base_effect": "match: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv",
+  "equal": true,
+  "plan_err": "",
+  "interim": [
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     ""
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": "match: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\r\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\r"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\n\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\r\n\r\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\n\r\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\r\r\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\n\r"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\r\r"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\n\n\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "  "
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": ""
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     " \n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "  \r\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\t\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\t"
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": ""
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\nX"
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": ""
+   },
+   {
+    "source": 0,
+    "ending": [
+     "prefix",
+     "\n"
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": ""
+   },
+   {
+    "source": 0,
+    "ending": [
+     "prefix",
+     "\r\n"
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": ""
+   },
+   {
+    "source": 0,
+    "ending": [
+     "prefix",
+     " "
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": ""
+   },
+   {
+    "source": 0,
+    "ending": [
+     "prefix",
+     "\t"
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": ""
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     ""
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": "match: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\n"
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": "match: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\r\n"
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": "match: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\r"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\n\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\r\n\r\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\n\r\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\r\r\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\n\r"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\r\r"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\n\n\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "  "
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": "unmatched: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv (not found in the searched set)"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     " \n"
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": "unmatched: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv (not found in the searched set)"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "  \r\n"
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": "unmatched: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv (not found in the searched set)"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\t\n"
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": "unmatched: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv (not found in the searched set)"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\t"
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": "unmatched: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv (not found in the searched set)"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\nX"
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": "unmatched: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv (not found in the searched set)"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "prefix",
+     "\n"
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": "unmatched: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv (not found in the searched set)"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "prefix",
+     "\r\n"
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": "unmatched: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv (not found in the searched set)"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "prefix",
+     " "
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": "unmatched: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv (not found in the searched set)"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "prefix",
+     "\t"
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": "unmatched: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv (not found in the searched set)"
+   }
+  ],
+  "nc1": [
+   {
+    "source": 0,
+    "content": "-",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": " -",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": "- ",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": "-\n",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": "\t-",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": "-\r\n",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": "\u00a0-",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": "@env:OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": " @env:OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": "@env:OTHER ",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": "\t@env:OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": "\n@env:OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": "@env:OTHER\n",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": "@env:OTHER\r\n",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": "@ENV:OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": "@Env:OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": "@env: OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": "\u00a0@env:OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": "\u200b@env:OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": "\uff20env:OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": "@envOTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": "-",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": " -",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": "- ",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": "-\n",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": "\t-",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": "-\r\n",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": "\u00a0-",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": "@env:OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": " @env:OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": "@env:OTHER ",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": "\t@env:OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": "\n@env:OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": "@env:OTHER\n",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": "@env:OTHER\r\n",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": "@ENV:OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": "@Env:OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": "@env: OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": "\u00a0@env:OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": "\u200b@env:OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": "\uff20env:OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": "@envOTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   }
+  ],
+  "dash": [
+   {
+    "source": 0,
+    "value": "-leading",
+    "oracle": false,
+    "linux": 2,
+    "linux_closed_or_eqform": true,
+    "macos": 2,
+    "macos_closed_or_eqform": true
+   },
+   {
+    "source": 0,
+    "value": "--help",
+    "oracle": false,
+    "linux": 2,
+    "linux_closed_or_eqform": true,
+    "macos": 2,
+    "macos_closed_or_eqform": true
+   },
+   {
+    "source": 0,
+    "value": "-lead  ",
+    "oracle": false,
+    "linux": "value-not-byte-exact",
+    "macos": 2,
+    "macos_closed_or_eqform": true
+   },
+   {
+    "source": 1,
+    "value": "-leading",
+    "oracle": true,
+    "linux": 4,
+    "linux_eq_oracle": true,
+    "macos": 4,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 1,
+    "value": "--help",
+    "oracle": true,
+    "linux": 4,
+    "linux_eq_oracle": true,
+    "macos": 4,
+    "macos_eq_oracle": true
+   },
+   {
+    "source": 1,
+    "value": "-lead  ",
+    "oracle": true,
+    "linux": "two-stdin",
+    "macos": 4,
+    "macos_eq_oracle": true
+   }
+  ],
+  "swaps": [
+   {
+    "pair": [
+     0,
+     1
+    ],
+    "same_as_baseline": false,
+    "expected_same": false,
+    "exit": 2
+   }
+  ],
+  "env_endings": [
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     ""
+    ],
+    "channel": "StdinToggle",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "match: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv",
+    "eq_oracle": true,
+    "no_oracle": false
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\r\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\r"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\n\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\r\n\r\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\n\r\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\r\r\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\n\r"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\r\r"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\n\n\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "  "
+    ],
+    "refused": "value-not-byte-exact"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     " \n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "  \r\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\t\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\t"
+    ],
+    "refused": "value-not-byte-exact"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\nX"
+    ],
+    "refused": "value-not-byte-exact"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "prefix",
+     "\n"
+    ],
+    "refused": "value-not-byte-exact"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "prefix",
+     "\r\n"
+    ],
+    "refused": "value-not-byte-exact"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "prefix",
+     " "
+    ],
+    "refused": "value-not-byte-exact"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "prefix",
+     "\t"
+    ],
+    "refused": "value-not-byte-exact"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     ""
+    ],
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "match: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv",
+    "eq_oracle": true,
+    "no_oracle": false
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\n"
+    ],
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "match: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv",
+    "eq_oracle": true,
+    "no_oracle": false
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\r\n"
+    ],
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "match: bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv",
+    "eq_oracle": true,
+    "no_oracle": false
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\r"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\n\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\r\n\r\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\n\r\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\r\r\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\n\r"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\r\r"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\n\n\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "  "
+    ],
+    "refused": "two-stdin"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     " \n"
+    ],
+    "refused": "two-stdin"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "  \r\n"
+    ],
+    "refused": "two-stdin"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\t\n"
+    ],
+    "refused": "two-stdin"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\t"
+    ],
+    "refused": "two-stdin"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\nX"
+    ],
+    "refused": "two-stdin"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "prefix",
+     "\n"
+    ],
+    "refused": "two-stdin"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "prefix",
+     "\r\n"
+    ],
+    "refused": "two-stdin"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "prefix",
+     " "
+    ],
+    "refused": "two-stdin"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "prefix",
+     "\t"
+    ],
+    "refused": "two-stdin"
+   }
+  ]
+ },
+ {
+  "name": "xpub-search address-of-seed 2 seeds wsh-sortedmulti",
+  "symmetric": [],
+  "expect": "run",
+  "plans": {
+   "linux": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search address-of-seed --from phrase=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search address-of-seed --from phrase=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   },
+   "macos": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search address-of-seed --from phrase=",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search address-of-seed --from phrase=",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "windows": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search address-of-seed --from phrase=",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search address-of-seed --from phrase=",
+      "kind": "Argv",
+      "terminator": "",
+      "argv_form": "sep"
+     }
+    ]
+   },
+   "other_once_enabled": {
+    "bindings": [
+     {
+      "source": 0,
+      "key": "mnemonic xpub-search address-of-seed --from phrase=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S0"
+     },
+     {
+      "source": 1,
+      "key": "mnemonic xpub-search address-of-seed --from phrase=",
+      "kind": "EnvRef",
+      "terminator": "",
+      "env": "MNEMONIC_GUI_S1"
+     }
+    ]
+   }
+  },
+  "t1_problems": [],
+  "base_exit": 0,
+  "plan_exit": 0,
+  "base_effect": "match: wsh(sortedmulti(2,@0/<0;1>/*,@1/<0;1>/*))   script type: p2wsh",
+  "equal": true,
+  "plan_err": "",
+  "interim": [
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     ""
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": "match: wsh(sortedmulti(2,@0/<0;1>/*,@1/<0;1>/*))   script type: p2wsh"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\r\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\r"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\n\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\r\n\r\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\n\r\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\r\r\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\n\r"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\r\r"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\n\n\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "  "
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": "match: wsh(sortedmulti(2,@0/<0;1>/*,@1/<0;1>/*))   script type: p2wsh"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     " \n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "  \r\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\t\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\t"
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": "match: wsh(sortedmulti(2,@0/<0;1>/*,@1/<0;1>/*))   script type: p2wsh"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\nX"
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": ""
+   },
+   {
+    "source": 0,
+    "ending": [
+     "prefix",
+     "\n"
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": "match: wsh(sortedmulti(2,@0/<0;1>/*,@1/<0;1>/*))   script type: p2wsh"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "prefix",
+     "\r\n"
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": "match: wsh(sortedmulti(2,@0/<0;1>/*,@1/<0;1>/*))   script type: p2wsh"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "prefix",
+     " "
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": "match: wsh(sortedmulti(2,@0/<0;1>/*,@1/<0;1>/*))   script type: p2wsh"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "prefix",
+     "\t"
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": "match: wsh(sortedmulti(2,@0/<0;1>/*,@1/<0;1>/*))   script type: p2wsh"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     ""
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": "match: wsh(sortedmulti(2,@0/<0;1>/*,@1/<0;1>/*))   script type: p2wsh"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\r\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\r"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\n\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\r\n\r\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\n\r\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\r\r\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\n\r"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\r\r"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\n\n\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "  "
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": "match: wsh(sortedmulti(2,@0/<0;1>/*,@1/<0;1>/*))   script type: p2wsh"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     " \n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "  \r\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\t\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\t"
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": "match: wsh(sortedmulti(2,@0/<0;1>/*,@1/<0;1>/*))   script type: p2wsh"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\nX"
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": ""
+   },
+   {
+    "source": 1,
+    "ending": [
+     "prefix",
+     "\n"
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": "match: wsh(sortedmulti(2,@0/<0;1>/*,@1/<0;1>/*))   script type: p2wsh"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "prefix",
+     "\r\n"
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": "match: wsh(sortedmulti(2,@0/<0;1>/*,@1/<0;1>/*))   script type: p2wsh"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "prefix",
+     " "
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": "match: wsh(sortedmulti(2,@0/<0;1>/*,@1/<0;1>/*))   script type: p2wsh"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "prefix",
+     "\t"
+    ],
+    "equal": true,
+    "no_oracle": false,
+    "effect": "match: wsh(sortedmulti(2,@0/<0;1>/*,@1/<0;1>/*))   script type: p2wsh"
+   }
+  ],
+  "nc1": [
+   {
+    "source": 0,
+    "content": "-",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": " -",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": "- ",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": "-\n",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": "\t-",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": "-\r\n",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": "\u00a0-",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": "@env:OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": " @env:OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": "@env:OTHER ",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": "\t@env:OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": "\n@env:OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": "@env:OTHER\n",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": "@env:OTHER\r\n",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": "@ENV:OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": "@Env:OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": "@env: OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": "\u00a0@env:OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": "\u200b@env:OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": "\uff20env:OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 0,
+    "content": "@envOTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": "-",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": " -",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": "- ",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": "-\n",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": "\t-",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": "-\r\n",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": "\u00a0-",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": "@env:OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": " @env:OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": "@env:OTHER ",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": "\t@env:OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": "\n@env:OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": "@env:OTHER\n",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": "@env:OTHER\r\n",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": "@ENV:OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": "@Env:OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": "@env: OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": "\u00a0@env:OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": "\u200b@env:OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": "\uff20env:OTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   },
+   {
+    "source": 1,
+    "content": "@envOTHER",
+    "linux": "value-looks-like-a-channel",
+    "macos": "value-looks-like-a-channel"
+   }
+  ],
+  "dash": [],
+  "swaps": [
+   {
+    "pair": [
+     0,
+     1
+    ],
+    "same_as_baseline": false,
+    "expected_same": false,
+    "exit": 0
+   }
+  ],
+  "env_endings": [
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     ""
+    ],
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "match: wsh(sortedmulti(2,@0/<0;1>/*,@1/<0;1>/*))   script type: p2wsh",
+    "eq_oracle": true,
+    "no_oracle": false
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\r\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\r"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\n\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\r\n\r\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\n\r\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\r\r\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\n\r"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\r\r"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\n\n\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "  "
+    ],
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "match: wsh(sortedmulti(2,@0/<0;1>/*,@1/<0;1>/*))   script type: p2wsh",
+    "eq_oracle": true,
+    "no_oracle": false
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     " \n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "  \r\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\t\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\t"
+    ],
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "match: wsh(sortedmulti(2,@0/<0;1>/*,@1/<0;1>/*))   script type: p2wsh",
+    "eq_oracle": true,
+    "no_oracle": false
+   },
+   {
+    "source": 0,
+    "ending": [
+     "suffix",
+     "\nX"
+    ],
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 1,
+    "effect": "",
+    "eq_oracle": true,
+    "no_oracle": false
+   },
+   {
+    "source": 0,
+    "ending": [
+     "prefix",
+     "\n"
+    ],
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "match: wsh(sortedmulti(2,@0/<0;1>/*,@1/<0;1>/*))   script type: p2wsh",
+    "eq_oracle": true,
+    "no_oracle": false
+   },
+   {
+    "source": 0,
+    "ending": [
+     "prefix",
+     "\r\n"
+    ],
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "match: wsh(sortedmulti(2,@0/<0;1>/*,@1/<0;1>/*))   script type: p2wsh",
+    "eq_oracle": true,
+    "no_oracle": false
+   },
+   {
+    "source": 0,
+    "ending": [
+     "prefix",
+     " "
+    ],
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "match: wsh(sortedmulti(2,@0/<0;1>/*,@1/<0;1>/*))   script type: p2wsh",
+    "eq_oracle": true,
+    "no_oracle": false
+   },
+   {
+    "source": 0,
+    "ending": [
+     "prefix",
+     "\t"
+    ],
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "match: wsh(sortedmulti(2,@0/<0;1>/*,@1/<0;1>/*))   script type: p2wsh",
+    "eq_oracle": true,
+    "no_oracle": false
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     ""
+    ],
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "match: wsh(sortedmulti(2,@0/<0;1>/*,@1/<0;1>/*))   script type: p2wsh",
+    "eq_oracle": true,
+    "no_oracle": false
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\r\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\r"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\n\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\r\n\r\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\n\r\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\r\r\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\n\r"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\r\r"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\n\n\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "  "
+    ],
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "match: wsh(sortedmulti(2,@0/<0;1>/*,@1/<0;1>/*))   script type: p2wsh",
+    "eq_oracle": true,
+    "no_oracle": false
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     " \n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "  \r\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\t\n"
+    ],
+    "refused": "value-ends-in-newline"
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\t"
+    ],
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "match: wsh(sortedmulti(2,@0/<0;1>/*,@1/<0;1>/*))   script type: p2wsh",
+    "eq_oracle": true,
+    "no_oracle": false
+   },
+   {
+    "source": 1,
+    "ending": [
+     "suffix",
+     "\nX"
+    ],
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 1,
+    "effect": "",
+    "eq_oracle": true,
+    "no_oracle": false
+   },
+   {
+    "source": 1,
+    "ending": [
+     "prefix",
+     "\n"
+    ],
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "match: wsh(sortedmulti(2,@0/<0;1>/*,@1/<0;1>/*))   script type: p2wsh",
+    "eq_oracle": true,
+    "no_oracle": false
+   },
+   {
+    "source": 1,
+    "ending": [
+     "prefix",
+     "\r\n"
+    ],
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "match: wsh(sortedmulti(2,@0/<0;1>/*,@1/<0;1>/*))   script type: p2wsh",
+    "eq_oracle": true,
+    "no_oracle": false
+   },
+   {
+    "source": 1,
+    "ending": [
+     "prefix",
+     " "
+    ],
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "match: wsh(sortedmulti(2,@0/<0;1>/*,@1/<0;1>/*))   script type: p2wsh",
+    "eq_oracle": true,
+    "no_oracle": false
+   },
+   {
+    "source": 1,
+    "ending": [
+     "prefix",
+     "\t"
+    ],
+    "channel": "EnvRef",
+    "provenance": "$USER_SECRET",
+    "exit": 0,
+    "effect": "match: wsh(sortedmulti(2,@0/<0;1>/*,@1/<0;1>/*))   script type: p2wsh",
+    "eq_oracle": true,
+    "no_oracle": false
    }
   ]
  },

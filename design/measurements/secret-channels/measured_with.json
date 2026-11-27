@@ -2,12 +2,12 @@
  "mnemonic": {
   "pinned_tag": "mnemonic-toolkit-v0.107.1",
   "version": "0.107.1",
-  "sha256": "6b13825b4824bdd3a893178fb2e8f6112a2fc9347c785fbddeaa46f5d0feacfc"
+  "sha256": "5e744fef12a9dd1a98fee7a7ddd2c0c1b926a7739b4285137068a7f709206520"
  },
  "md": {
   "pinned_tag": "descriptor-mnemonic-md-cli-v0.21.0",
   "version": "0.21.0",
-  "sha256": "52c462aa64da9f6126d24bc699781eba126b846ca32c082a91f89ece720af973"
+  "sha256": "ef04e9161939c20313bc574c38088a647fbab3e92ea66a3e03f025396f4a9284"
  },
  "ms": {
   "pinned_tag": "ms-cli-v0.21.0",

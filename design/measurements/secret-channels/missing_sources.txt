@@ -4,6 +4,7 @@ mnemonic addresses --from ms1=	exit 1	error: --from Ms1 is not supported by `add
 mnemonic addresses --from bip38=	exit 1	error: --from Bip38 is not supported by `addresses` (use xpub/phrase/entropy/seedqr/electrum-phrase)
 mnemonic addresses --from minikey=	exit 1	error: --from MiniKey is not supported by `addresses` (use xpub/phrase/entropy/seedqr/electrum-phrase)
 mnemonic bundle --slot @N.xprv=	exit 1	error: --slot @0.xprv not supported in v0.4.2; deferred to v0.5+ pending ms-codec XPRV-tag extension. See FOLLOWUP `unified-slot-xprv-resolution-needs
+mnemonic bundle --slot @N.wif=	exit 1	error: --slot @0.wif is refused: a WIF is a single private key with no chain code, but every --template derives ranged child addresses (/<0;1>/*), so 
 mnemonic verify-bundle --from phrase=	exit 1	error: slot count 0 out of range 1..=16
 mnemonic verify-bundle --from entropy=	exit 1	error: slot count 0 out of range 1..=16
 mnemonic verify-bundle --from xprv=	exit 1	error: slot count 0 out of range 1..=16
@@ -31,13 +32,6 @@ mnemonic import-wallet --slot @N.entropy=	exit 1	error: import-wallet: --slot @0
 mnemonic import-wallet --slot @N.ms1=	exit 1	error: import-wallet: --slot @0.ms1=: only the `phrase` subkey is supported by import-wallet
 mnemonic import-wallet --slot @N.xprv=	exit 1	error: import-wallet: --slot @0.xprv=: only the `phrase` subkey is supported by import-wallet
 mnemonic import-wallet --slot @N.wif=	exit 1	error: import-wallet: --slot @0.wif=: only the `phrase` subkey is supported by import-wallet
-mnemonic xpub-search address-of-seed --phrase	exit 64	error: unrecognized subcommand 'address-of-seed'
-mnemonic xpub-search address-of-seed --ms1	exit 64	error: unrecognized subcommand 'address-of-seed'
-mnemonic xpub-search address-of-seed --from phrase=	exit 64	error: unrecognized subcommand 'address-of-seed'
-mnemonic xpub-search address-of-seed --from ms1=	exit 64	error: unrecognized subcommand 'address-of-seed'
-mnemonic xpub-search address-of-seed --from entropy=	exit 64	error: unrecognized subcommand 'address-of-seed'
-mnemonic xpub-search address-of-seed --from seedqr=	exit 64	error: unrecognized subcommand 'address-of-seed'
-mnemonic xpub-search address-of-seed --passphrase	exit 64	error: unrecognized subcommand 'address-of-seed'
 mnemonic word-card --from phrase=	exit 2	error: positional argument 'phrase=aband…' does not begin with a recognized HRP prefix (expected one of: mk1, md1)
 mnemonic word-card --from entropy=	exit 2	error: positional argument 'entropy=0000…' does not begin with a recognized HRP prefix (expected one of: mk1, md1)
 mnemonic word-card --from xprv=	exit 2	error: positional argument 'xprv=xprv9s2…' does not begin with a recognized HRP prefix (expected one of: mk1, md1)

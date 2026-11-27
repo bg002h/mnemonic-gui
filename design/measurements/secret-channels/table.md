@@ -61,6 +61,9 @@
 | `mnemonic xpub-search account-of-descriptor --passphrase` | refused | OK | OK | OK | — | yes |
 | `mnemonic xpub-search passphrase-of-xpub --passphrase` | refused | OK | OK | OK | — | yes |
 | `mnemonic xpub-search passphrase-of-xpub --phrase` | refused | fails closed | OK | OK | — | yes |
+| `mnemonic xpub-search address-of-seed --phrase` | refused | fails closed | OK | OK | — | yes |
+| `mnemonic xpub-search address-of-seed --ms1` | refused | fails closed | fails closed | OK | — | yes |
+| `mnemonic xpub-search address-of-seed --passphrase` | refused | OK | OK | OK | — | yes |
 | `mnemonic slip39 split --from phrase=` | refused | OK | OK | n/a | n/a | yes |
 | `mnemonic slip39 split --passphrase` | refused | OK | OK | OK | — | yes |
 | `mnemonic slip39 combine --share` | refused | OK | OK | — | — | yes |
@@ -77,10 +80,14 @@
 | `mnemonic xpub-search passphrase-of-xpub --ms1` | refused | fails closed | fails closed | OK | — | yes |
 | `ms hashlock <ms1>` | refused | OK | fails closed | n/a | OK | yes |
 | `mnemonic bundle --slot @0.ms1=` | refused | OK | OK | n/a | n/a | yes |
-| `mnemonic bundle --slot @0.wif=` | refused | OK | OK | n/a | n/a | yes |
+| `mnemonic bundle --slot @0.wif=` | refused | n/a | n/a | n/a | n/a | NO (base exit 1, depends=False) |
 | `mnemonic addresses --from seedqr=` | refused | OK | OK | n/a | n/a | yes |
 | `mnemonic import-wallet --decrypt-password` | refused | OK | OK | OK | OK (`-file`) | yes |
 | `mnemonic addresses --from electrum-phrase=` | refused | OK | OK | n/a | n/a | yes |
 | `mnemonic verify-bundle --slot @0.entropy=` | refused | OK | OK | n/a | n/a | yes |
 | `mnemonic verify-bundle --slot @0.seedqr=` | refused | OK | OK | n/a | n/a | yes |
 | `mnemonic verify-bundle --slot @0.ms1=` | refused | OK | OK | n/a | n/a | yes |
+| `mnemonic xpub-search address-of-seed --from phrase=` | refused | OK | OK | n/a | n/a | yes |
+| `mnemonic xpub-search address-of-seed --from ms1=` | refused | OK | OK | n/a | n/a | yes |
+| `mnemonic xpub-search address-of-seed --from entropy=` | refused | OK | OK | n/a | n/a | yes |
+| `mnemonic xpub-search address-of-seed --from seedqr=` | refused | OK | OK | n/a | n/a | yes |

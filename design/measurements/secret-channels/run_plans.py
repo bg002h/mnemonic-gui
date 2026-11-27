@@ -21,6 +21,7 @@ import json, os, subprocess, sys
 from concurrent.futures import ThreadPoolExecutor
 from plan import plan, Refusal, ENV_PREFIX, POLICY
 from shapes import SHAPES, effect, PW
+from aos import AOS_CHECK
 import gen_plans
 
 B = os.environ["BIN_DIR"].rstrip("/") + "/"
@@ -122,7 +123,10 @@ def run(argv, env=None, stdin=None, fds=()):
 
 
 def normalise(sh, r, pw=PW):
-    """slip39 split is randomised: compare what the shares recover, not the shares."""
+    """slip39 split is randomised: compare what the shares recover, not the shares.
+    address-of-seed repeats the channel spelling in its printed `bundle` line: masked (cases.py AOS_CHECK)."""
+    if sh["name"].startswith("xpub-search address-of-seed"):
+        return AOS_CHECK(r.stdout)
     if not sh["name"].startswith("slip39 split") or r.returncode != 0:
         return r.stdout
     shares = [l for l in r.stdout.splitlines() if l.strip() and not l.startswith("#")][:2]

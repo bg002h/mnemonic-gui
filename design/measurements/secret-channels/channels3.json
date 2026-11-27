@@ -65,13 +65,10 @@
  },
  {
   "label": "mnemonic bundle --slot @0.wif=",
-  "base_exit": 0,
-  "base_err": "",
-  "depends": true,
-  "channels": {
-   "stdin `@0.wif=-`": "OK",
-   "`@0.wif=@env:VAR`": "OK"
-  }
+  "base_exit": 1,
+  "base_err": "error: --slot @0.wif is refused: a WIF is a single private key with no chain code, but every --template derives ranged child addresses (/<0;1>/*), so ",
+  "depends": false,
+  "channels": {}
  },
  {
   "label": "mnemonic addresses --from seedqr=",
@@ -170,6 +167,46 @@
   "channels": {
    "stdin `@0.ms1=-`": "OK",
    "`@0.ms1=@env:VAR`": "OK"
+  }
+ },
+ {
+  "label": "mnemonic xpub-search address-of-seed --from phrase=",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `phrase=-`": "OK",
+   "`phrase=@env:VAR`": "OK"
+  }
+ },
+ {
+  "label": "mnemonic xpub-search address-of-seed --from ms1=",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `ms1=-`": "OK",
+   "`ms1=@env:VAR`": "OK"
+  }
+ },
+ {
+  "label": "mnemonic xpub-search address-of-seed --from entropy=",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `entropy=-`": "OK",
+   "`entropy=@env:VAR`": "OK"
+  }
+ },
+ {
+  "label": "mnemonic xpub-search address-of-seed --from seedqr=",
+  "base_exit": 0,
+  "base_err": "",
+  "depends": true,
+  "channels": {
+   "stdin `seedqr=-`": "OK",
+   "`seedqr=@env:VAR`": "OK"
   }
  }
 ]
