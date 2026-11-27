@@ -114,7 +114,8 @@ pub fn redact_for_persistence(state: &FormState) -> FormState {
                 // public key / descriptor field never persists. This layer
                 // has no subcommand context, so it keys on the fields' NAMES
                 // (`--descriptor`, `--key`, `--cosigner`, `--xpub`,
-                // `--target-xpub`) wherever they occur — fail-closed.
+                // `--target-xpub`, `--target-address`, `--add-path`,
+                // `--descriptor-from`) wherever they occur — fail-closed.
                 let named = crate::secrets::PRIVATE_KEY_CONTENT_FIELDS
                     .iter()
                     .any(|(_, f)| *f == k.as_str());

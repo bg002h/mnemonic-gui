@@ -204,6 +204,11 @@ pub const PRIVATE_KEY_CONTENT_FIELDS: &[(&str, &str)] = &[
     ("md decompose", "positional:descriptors"),
     ("mnemonic xpub-search address-of-seed", "--descriptor"),
     ("mnemonic xpub-search address-of-seed", "--cosigner"),
+    // Final review M2: free-text fields of the form that take no private
+    // key (an address, a path template, an md1 template).
+    ("mnemonic xpub-search address-of-seed", "--target-address"),
+    ("mnemonic xpub-search address-of-seed", "--add-path"),
+    ("mnemonic xpub-search address-of-seed", "--descriptor-from"),
     ("mnemonic xpub-search account-of-descriptor", "--descriptor"),
     ("mnemonic xpub-search address-of-xpub", "--xpub"),
     ("mnemonic xpub-search path-of-xpub", "--target-xpub"),
@@ -232,28 +237,68 @@ pub fn field_masks_private_key_content(base: &str, field: &str) -> bool {
         .any(|(b, f)| *b == canonical && *f == field)
 }
 
-/// True iff any key-shaped token of `value` (split on everything that is not
-/// ASCII alphanumeric: `(`, `,`, `=`, `[`, `]`, `/`, …) is xprv-like by the
-/// tree form's own classifier (`tree_model::is_xprv_like`: `?prv` prefix) or
-/// is a WIF private key ([`is_wif`]).
+/// True iff `value` holds private-key or seed material by SHAPE (never by
+/// checksum: a mistyped key is still a key, and the toolkit refuses it as
+/// one — `address_of_seed.rs` `private_key_re`). Per word (split on
+/// everything that is not ASCII alphanumeric: `(`, `,`, `=`, `[`, `]`, `/`,
+/// …), any of:
+/// - xprv-like by the tree form's classifier (`tree_model::is_xprv_like`:
+///   `?prv` at the word's start);
+/// - an `ms1` card (any case; the seed's entropy, final review I2);
+/// - a WIF by shape ([`word_holds_wif_shape`]).
 pub fn text_holds_private_key(value: &str) -> bool {
-    value
-        .split(|c: char| !c.is_ascii_alphanumeric())
-        .any(|t| crate::form::tree_model::is_xprv_like(t) || is_wif(t))
+    value.split(|c: char| !c.is_ascii_alphanumeric()).any(|w| {
+        crate::form::tree_model::is_xprv_like(w)
+            || w.get(..3).is_some_and(|p| p.eq_ignore_ascii_case("ms1"))
+            || word_holds_wif_shape(w)
+    })
 }
 
-/// True iff `token` is a WIF private key: base58check whose payload is a
-/// version byte 0x80 (mainnet) or 0xEF (testnet) and 32 key bytes, plus an
-/// optional compression byte (33 or 34 bytes). That is 51 or 52 characters,
-/// so the decode runs only on tokens of that length; xpubs (111), addresses
-/// and md1/mk1 cards do not decode to that payload.
-pub fn is_wif(token: &str) -> bool {
-    if !(51..=52).contains(&token.len()) {
+/// Shortest base58 run that counts as a WIF being typed: one longer than
+/// the longest legacy address (35, P2SH testnet). A full WIF is 51
+/// (uncompressed) or 52 (compressed) characters.
+const WIF_SHAPE_MIN: usize = 36;
+
+/// True iff the alphanumeric `word` holds a base58 run (bounded by the
+/// non-base58 `0`, `O`, `I`, `l`, as the toolkit's pattern is) that starts
+/// with a WIF's first character (`5`, `K`, `L` mainnet; `9`, `c` testnet)
+/// and is at least [`WIF_SHAPE_MIN`] long — a full WIF with any checksum,
+/// one being typed, or two glued. Legacy addresses start `1`/`3`/`m`/`n`/`2`
+/// and stop at 35; extended keys start with a letter outside the set. Two
+/// word kinds are skipped because their `0`/`l` split can leave such a run:
+/// a bech32/bech32m string (addresses, md1/mk1 cards; single case, data part
+/// in the bech32 charset) and raw hex (pubkeys). A WIF is neither (it is
+/// mixed-case base58, and `I`, `O`, `b`, `i`, `o` are outside both sets).
+pub fn word_holds_wif_shape(word: &str) -> bool {
+    if word.len() < WIF_SHAPE_MIN
+        || is_bech32_shaped(word)
+        || word.bytes().all(|b| b.is_ascii_hexdigit())
+    {
         return false;
     }
-    match bitcoin::base58::decode_check(token) {
-        Ok(p) => (p.len() == 33 || p.len() == 34) && (p[0] == 0x80 || p[0] == 0xEF),
-        Err(_) => false,
+    word.split(|c: char| !is_base58_char(c)).any(|run| {
+        run.len() >= WIF_SHAPE_MIN && matches!(run.as_bytes()[0], b'5' | b'K' | b'L' | b'9' | b'c')
+    })
+}
+
+fn is_base58_char(c: char) -> bool {
+    c.is_ascii_alphanumeric() && !matches!(c, '0' | 'O' | 'I' | 'l')
+}
+
+/// BIP-173 shape only (no checksum): one case throughout, a non-empty HRP
+/// before the last `1`, and a data part in the bech32 charset.
+fn is_bech32_shaped(word: &str) -> bool {
+    const CHARSET: &str = "qpzry9x8gf2tvdw0s3jn54khce6mua7l";
+    let lower = word.bytes().all(|b| !b.is_ascii_uppercase());
+    let upper = word.bytes().all(|b| !b.is_ascii_lowercase());
+    if !(lower || upper) {
+        return false;
+    }
+    match word.rfind('1') {
+        Some(i) if i > 0 => word[i + 1..]
+            .chars()
+            .all(|c| CHARSET.contains(c.to_ascii_lowercase())),
+        _ => false,
     }
 }
 

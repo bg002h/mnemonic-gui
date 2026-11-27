@@ -597,7 +597,7 @@ fn render_row(
                 FlagValue::NodeValueComposite { node, value },
             ) => {
                 // v0.30.0 R0-r1 I4: row-salted for repeating rows
-                // (`seed-xor-combine --from`, `xpub-search address-of-seed
+                // (`seed-xor-combine --share`, `xpub-search address-of-seed
                 // --from`); parity with the Dropdown arm.
                 let combo = match row {
                     Some(row_idx) => egui::ComboBox::from_id_salt((
