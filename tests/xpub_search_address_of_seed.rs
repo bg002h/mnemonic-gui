@@ -63,6 +63,9 @@ fn composite(node: &str, value: &str) -> (String, FlagValue) {
 
 /// The form as the live widgets hold it: secret Text flags in
 /// `secret_widgets`, `--from` rows as composites in `values`.
+/// Deliberately unrunnable: it fills every intake at once, which the CLI
+/// refuses at clap (exit 64, flag names only); it exercises the planner and
+/// masks. `aos_form_built_plans_run_against_the_binary` runs real forms.
 fn filled_form() -> FormState {
     let mut state = FormState::default();
     state
@@ -161,7 +164,6 @@ fn aos_argv_masks_every_secret_and_lists_it_as_a_source() {
         .any(|t| t == "--phrase-stdin" || t == "--passphrase-stdin"));
 }
 
-/// Every secret the given state carries, as typed.
 /// What the user's `AOS_SET` variable holds in these tests (distinctive, so a
 /// leak of the resolved value is caught too).
 const ENV_VALUE: &str = "aos-env-secret-value-7c1";
@@ -683,6 +685,117 @@ fn aos_each_source_alone_plans_or_refuses_dash() {
                     "{label}: Copy leaks: {c:?}"
                 );
             }
+        }
+    }
+}
+
+fn mnemonic_bin() -> Option<String> {
+    if let Ok(b) = std::env::var("MNEMONIC_BIN") {
+        return Some(b);
+    }
+    std::process::Command::new("mnemonic")
+        .arg("--version")
+        .output()
+        .ok()
+        .map(|_| "mnemonic".into())
+}
+
+/// Review fable M4: build each runnable intake from a `FormState`, plan it
+/// for Linux and EXECUTE the plan (argv, env, stdin) against the binary; the
+/// fingerprint the CLI reports proves the secret arrived intact on its
+/// private channel. Skipped when no `mnemonic` binary is reachable.
+#[test]
+fn aos_form_built_plans_run_against_the_binary() {
+    use std::io::Write;
+    use std::process::{Command, Stdio};
+    let Some(bin) = mnemonic_bin() else {
+        eprintln!("skip: no mnemonic binary");
+        return;
+    };
+    const MS1_ABANDON: &str = "ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7f";
+    const ZOO: &str = "zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong";
+    const PW: &str = "hunter2-passphrase";
+    const TARGET_PW: &str = "bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv";
+    const M1: &str = "bc1qkpcfs6lhqh3rx63we7435nf3hqpghkdtmmmvln0yrssv0ulhmngs92dens";
+    const M1_IDX1: &str = "bc1qp3z0f9m2yzgax82hw88jaqznsca2gtktnyuvmh4uwzlsg4736y8s2qes5n";
+    let target = |t: &str| ("--target-address".to_string(), FlagValue::Text(t.into()));
+    let secret = |s: &mut FormState, f: &str, v: &str| {
+        s.secret_widgets
+            .insert(f.into(), vec![SecretLineEdit::from_text(v)]);
+    };
+    let mut cases: Vec<(&str, FormState, Vec<&str>)> = Vec::new();
+    let mut s = FormState::default();
+    s.values.push(target(TARGET));
+    secret(&mut s, "--phrase", PHRASE);
+    cases.push(("--phrase", s, vec!["73c5da0a"]));
+    let mut s = FormState::default();
+    s.values.push(target(TARGET));
+    secret(&mut s, "--ms1", MS1_ABANDON);
+    cases.push(("--ms1", s, vec!["73c5da0a"]));
+    let mut s = FormState::default();
+    s.values.push(target(TARGET_PW));
+    secret(&mut s, "--phrase", PHRASE);
+    secret(&mut s, "--passphrase", PW);
+    cases.push(("--phrase + --passphrase", s, vec!["45fbfbe6"]));
+    let mut s = FormState::default();
+    s.values.push(target(TARGET_PW));
+    secret(&mut s, "--ms1", MS1_ABANDON);
+    secret(&mut s, "--passphrase", PW);
+    cases.push(("--ms1 + --passphrase", s, vec!["45fbfbe6"]));
+    let mut s = FormState::default();
+    s.values.push(target(M1));
+    s.values.push(target(M1_IDX1));
+    s.values.push((
+        "--descriptor".into(),
+        FlagValue::Text("wsh(sortedmulti(2,@0/<0;1>/*,@1/<0;1>/*))".into()),
+    ));
+    s.values.push(composite("phrase", PHRASE));
+    s.values.push(composite("phrase", ZOO));
+    cases.push((
+        "two --from",
+        s,
+        vec!["seed 0 (73c5da0a)", "seed 1 (3f635a63)"],
+    ));
+    for (label, state, expect) in &cases {
+        let p = plan(
+            &schema::mnemonic::SCHEMA,
+            sub(),
+            state,
+            &|_: &str| None,
+            "linux",
+        )
+        .unwrap_or_else(|e| panic!("{label}: refused {}", e.code));
+        assert!(
+            !p.interim && p.fds.is_empty(),
+            "{label}: stdin/env plan expected"
+        );
+        let mut cmd = Command::new(&bin);
+        cmd.args(&p.argv[1..])
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped());
+        for (k, v) in &p.env {
+            cmd.env(k, v.as_str());
+        }
+        let mut child = cmd.spawn().expect("spawn mnemonic");
+        {
+            let mut stdin = child.stdin.take().unwrap();
+            if let Some(b) = &p.stdin {
+                stdin.write_all(b).unwrap();
+            }
+        }
+        let out = child.wait_with_output().unwrap();
+        let stdout = String::from_utf8_lossy(&out.stdout);
+        let stderr = String::from_utf8_lossy(&out.stderr);
+        assert_eq!(out.status.code(), Some(0), "{label}: {stderr}");
+        for e in expect {
+            assert!(stdout.contains(e), "{label}: expected {e:?} in\n{stdout}");
+        }
+        for sec in [PHRASE, ZOO, MS1_ABANDON, PW] {
+            assert!(
+                !stdout.contains(sec) && !stderr.contains(sec),
+                "{label}: the CLI echoed a secret"
+            );
         }
     }
 }
