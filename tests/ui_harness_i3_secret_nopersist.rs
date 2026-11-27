@@ -275,7 +275,9 @@ fn i3_classified_secret_partition_census() {
         (value_bearing, narrowed_boolean, total),
         // DESIGN secret channels Part B (ms hashlock): + --hashlock-phrase and
         // --hex (value-bearing), + --hashlock-phrase-stdin (toggle).
-        (42, 25, 67),
+        // xpub-search address-of-seed (toolkit PR #230): + --phrase, --ms1,
+        // --passphrase (value-bearing), + their three *-stdin toggles.
+        (45, 28, 73),
         "classified-secret partition drifted (value-bearing Text/Composite, \
          narrowed Boolean *-stdin toggles, total)"
     );
@@ -372,12 +374,12 @@ fn i3_value_bearing_secret_flags_never_leak() {
         covered += 1;
     }
 
-    assert_eq!(covered, 42, "expected to drive all 42 value-bearing secrets");
+    assert_eq!(covered, 45, "expected to drive all 45 value-bearing secrets");
     // The masking path was genuinely exercised (most secrets emit + mask in a
     // bare state). A regression that stopped masking would crater this.
     assert!(
         reached_argv_masked >= 35,
-        "the masked-argv path was under-exercised ({reached_argv_masked}/42 reached \
+        "the masked-argv path was under-exercised ({reached_argv_masked}/45 reached \
          argv with a mask bit) — investigate conditional suppression drift"
     );
 }
@@ -437,7 +439,7 @@ fn i3_narrowed_boolean_stdin_toggles() {
 
         narrowed += 1;
     }
-    assert_eq!(narrowed, 25, "expected exactly 25 narrowed secret-Boolean toggles");
+    assert_eq!(narrowed, 28, "expected exactly 28 narrowed secret-Boolean toggles");
 }
 
 // ════════════════════════════════════════════════════════════════════════

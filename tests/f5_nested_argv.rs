@@ -8,7 +8,7 @@
 //! into the `[parent, child]` token pair for the 5 nested parents while passing
 //! flat subcommands (`import-wallet`/`export-wallet`/…) through unsplit.
 //!
-//! These cells assert the assembler emits the nested PAIR for all 12 nested
+//! These cells assert the assembler emits the nested PAIR for all 13 nested
 //! subcommands (`argv[1]` a bare parent, `argv[2]` the child, never the
 //! hyphen-flattened token) and that flat subcommands pass through unsplit. A
 //! copy-command cell confirms the human-facing "Copy command" string starts
@@ -26,7 +26,7 @@ fn subcommand(name: &str) -> &'static SubcommandSchema {
         .unwrap_or_else(|| panic!("subcommand {name} not in schema"))
 }
 
-/// The 12 nested subcommands and their expected `[parent, child]` argv pair.
+/// The 13 nested subcommands and their expected `[parent, child]` argv pair.
 const NESTED: &[(&str, [&str; 2])] = &[
     ("seed-xor-split", ["seed-xor", "split"]),
     ("seed-xor-combine", ["seed-xor", "combine"]),
@@ -45,6 +45,10 @@ const NESTED: &[(&str, [&str; 2])] = &[
     (
         "xpub-search-passphrase-of-xpub",
         ["xpub-search", "passphrase-of-xpub"],
+    ),
+    (
+        "xpub-search-address-of-seed",
+        ["xpub-search", "address-of-seed"],
     ),
 ];
 

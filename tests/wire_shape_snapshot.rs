@@ -232,7 +232,9 @@ fn wireshape_path_of_xpub_match() {
     assert_eq!(v["path"], "m/84'/0'/0'");
     assert_eq!(v["template"], "bip84");
     assert_eq!(v["account"], 0);
-    assert_eq!(v["searched_count"], 140);
+    // 140 -> 161 with toolkit #227 (f89d7167, review r2 I-A): path-of-xpub
+    // also searches the paths `bundle` now mints.
+    assert_eq!(v["searched_count"], 161);
 }
 
 #[test]

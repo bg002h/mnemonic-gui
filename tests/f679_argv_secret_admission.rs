@@ -160,9 +160,10 @@ fn every_declaring_subcommand_is_mnemonic_or_ms_and_the_flag_is_gui_managed() {
             }
         }
     }
-    // 32 mnemonic subcommands + the 9 ms material verbs this GUI mirrors
-    // (DESIGN secret channels §B5 adds `hashlock`).
-    assert_eq!(declaring, 41);
+    // 33 mnemonic subcommands + the 9 ms material verbs this GUI mirrors
+    // (DESIGN secret channels §B5 adds `hashlock`; toolkit PR #230 adds
+    // `xpub-search address-of-seed`).
+    assert_eq!(declaring, 42);
 }
 
 // ─── real-CLI cells (EARLY-RETURN-SKIP when the pinned binary env is unset,

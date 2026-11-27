@@ -159,21 +159,6 @@
   "cli_env_rule": "verbatim",
   "argv_eq_exact": null
  },
- "mnemonic bundle --slot @N.wif=": {
-  "channels": [
-   {
-    "kind": "DashValue",
-    "terminator": "\r\n"
-   },
-   {
-    "kind": "EnvRef",
-    "terminator": ""
-   }
-  ],
-  "measured_in": "single-input harness",
-  "cli_env_rule": "verbatim",
-  "argv_eq_exact": null
- },
  "mnemonic convert --bip38-passphrase": {
   "channels": [
    {
@@ -955,6 +940,114 @@
   "argv_eq_exact": true
  },
  "mnemonic xpub-search account-of-descriptor --phrase": {
+  "channels": [
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   },
+   {
+    "kind": "StdinToggle",
+    "flag": "--phrase-stdin",
+    "terminator": "\r\n"
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": true
+ },
+ "mnemonic xpub-search address-of-seed --from entropy=": {
+  "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
+ },
+ "mnemonic xpub-search address-of-seed --from ms1=": {
+  "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
+ },
+ "mnemonic xpub-search address-of-seed --from phrase=": {
+  "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
+ },
+ "mnemonic xpub-search address-of-seed --from seedqr=": {
+  "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": ""
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "verbatim",
+  "argv_eq_exact": null
+ },
+ "mnemonic xpub-search address-of-seed --ms1": {
+  "channels": [
+   {
+    "kind": "StdinToggle",
+    "flag": "--ms1-stdin",
+    "terminator": null
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": null,
+  "argv_eq_exact": true
+ },
+ "mnemonic xpub-search address-of-seed --passphrase": {
+  "channels": [
+   {
+    "kind": "DashValue",
+    "terminator": "\r\n"
+   },
+   {
+    "kind": "EnvRef",
+    "terminator": null
+   },
+   {
+    "kind": "StdinToggle",
+    "flag": "--passphrase-stdin",
+    "terminator": "\r\n"
+   }
+  ],
+  "measured_in": "single-input harness",
+  "cli_env_rule": "strip-one-trailing-newline",
+  "argv_eq_exact": true
+ },
+ "mnemonic xpub-search address-of-seed --phrase": {
   "channels": [
    {
     "kind": "EnvRef",

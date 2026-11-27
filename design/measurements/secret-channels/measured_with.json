@@ -2,7 +2,7 @@
  "mnemonic": {
   "pinned_tag": "mnemonic-toolkit-v0.107.1",
   "version": "0.107.1",
-  "sha256": "6b13825b4824bdd3a893178fb2e8f6112a2fc9347c785fbddeaa46f5d0feacfc"
+  "sha256": "5e744fef12a9dd1a98fee7a7ddd2c0c1b926a7739b4285137068a7f709206520"
  },
  "md": {
   "pinned_tag": "descriptor-mnemonic-md-cli-v0.21.0",

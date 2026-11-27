@@ -12,15 +12,26 @@ V = {"phrase": P, "entropy": "00000000000000000000000000000000", "ms1": MS1, "wi
 CTX = {"addresses": ["--address-type", "p2wpkh", "--count", "1"], "restore": ["--template", "bip84"],
        "bundle": ["--network", "mainnet", "--template", "bip84"], "export-wallet": ["--network", "mainnet", "--template", "bip84"],
        "verify-bundle": ["--network", "mainnet", "--template", "bip84", "--mk1"] + BPJ["mk1"] + ["--md1"] + BPJ["md1"],
-       "import-wallet": ["--blob", os.path.join(FX, "blob-2of2.bsms"), "--format", "bsms", "--json"], "word-card": []}
+       "import-wallet": ["--blob", os.path.join(FX, "blob-2of2.bsms"), "--format", "bsms", "--json"], "word-card": [],
+       # toolkit PR #230; the abandon seed's first BIP-84 receive address.
+       "xpub-search address-of-seed": ["--target-address", "bc1qcr8te4kr609gcawutmrza0j4xv80jy8z306fyu"]}
+FLAG_V = {"--phrase": P, "--ms1": MS1, "--passphrase": "hunter2-passphrase"}
+FLAG_CTX = {"--passphrase": ["--phrase", P]}
 rows = []
 for key in [l.strip().replace(" [group]", "") for l in open("secret_sources.txt") if l.strip()]:
     if key in T:
         continue
-    m = re.fullmatch(r"mnemonic (\S+) (--from|--slot) (?:@N\.)?(\S+)=", key)
-    sub, flag, node = m.groups()
-    tok = f"@0.{node}={V[node]}" if flag == "--slot" else f"{node}={V[node]}"
-    r = subprocess.run([B + "mnemonic", sub, "--allow-argv-secret"] + CTX[sub] + [flag, tok], capture_output=True, text=True)
+    m = re.fullmatch(r"mnemonic (\S+(?: \S+)?) (--from|--slot) (?:@N\.)?(\S+)=", key)
+    if m:
+        sub, flag, node = m.groups()
+        arg = [flag, f"@0.{node}={V[node]}" if flag == "--slot" else f"{node}={V[node]}"]
+    else:
+        # A secret Text flag (`mnemonic xpub-search address-of-seed --phrase`); a nested
+        # subcommand is two tokens.
+        sub, flag = re.fullmatch(r"mnemonic (\S+(?: \S+)?) (--\S+)", key).groups()
+        arg = FLAG_CTX.get(flag, []) + [flag, FLAG_V[flag]]
+    r = subprocess.run([B + "mnemonic"] + sub.split() + ["--allow-argv-secret"] + CTX[sub] + arg,
+                       capture_output=True, text=True)
     err = next((l.strip() for l in r.stderr.splitlines() if l.strip().startswith("error")), "")
     rows.append((key, r.returncode, err[:150]))
 with open("missing_sources.txt", "w") as f:

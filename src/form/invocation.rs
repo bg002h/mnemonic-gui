@@ -875,7 +875,7 @@ mod nested_argv_tests {
     /// registered in `NESTED_PARENTS`.
     #[test]
     fn nested_parents_split_flat_subcommands_pass_through() {
-        // All 12 nested subcommands → the exact nested pair.
+        // All 13 nested subcommands → the exact nested pair.
         let nested: &[(&str, [&str; 2])] = &[
             ("seed-xor-split", ["seed-xor", "split"]),
             ("seed-xor-combine", ["seed-xor", "combine"]),
@@ -894,6 +894,10 @@ mod nested_argv_tests {
             (
                 "xpub-search-passphrase-of-xpub",
                 ["xpub-search", "passphrase-of-xpub"],
+            ),
+            (
+                "xpub-search-address-of-seed",
+                ["xpub-search", "address-of-seed"],
             ),
         ];
         for (flat, pair) in nested {

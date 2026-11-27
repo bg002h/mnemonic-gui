@@ -67,7 +67,11 @@ XPUB84_PW="xpub6CPUCVp94gpNs3bS1eGiwSWwZMLNmfr2Uo1t5v8YtY4XVoxhUraBH7sRyVfgwSNCx
 XPRV2="xprv9yZC9RZoFia6XiN4rFcyb3KJUxMrq8NWmzytjjmLa8aSZgnxHnYc9vzBaquLEJXXA5UzU8epwCiHcagwhwpzu3kHPXXLYPR9oRS4Lr8brMC"
 # fix-ups of earlier broken baselines
 C[:]=[x for x in C if x["label"] not in ("mnemonic derive-child --from xprv=","mnemonic convert --from wif=")]
-c("mnemonic derive-child --from xprv=",[m,"derive-child",A,"--from","xprv={S}","--application","bip39","--length","12","--index","0"],"node",XPRV,XPRV2)
+# toolkit #227 (bug hunt 2026-11-25): derive-child refuses a non-master xprv (XPRV/XPRV2 are depth 3),
+# so this row uses the abandon and zoo seeds' master xprvs.
+XPRV_M="xprv9s21ZrQH143K3GJpoapnV8SFfukcVBSfeCficPSGfubmSFDxo1kuHnLisriDvSnRRuL2Qrg5ggqHKNVpxR86QEC8w35uxmGoggxtQTPvfUu"
+XPRV_M2="xprv9s21ZrQH143K2PfMvkNViFc1fgumGqBew45JD8SxA59Jc5M66n3diqb92JjvaR61zT9P89Grys12kdtV4EFVo6tMwER7U2hcUmZ9VfMYPLC"
+c("mnemonic derive-child --from xprv=",[m,"derive-child",A,"--from","xprv={S}","--application","bip39","--length","12","--index","0"],"node",XPRV_M,XPRV_M2)
 c("mnemonic convert --from wif=",[m,"convert",A,"--from","wif={S}","--to","xpub"],"node",WIF,"5JPy8Zg7z4P7RSLsiqcqyeAF1935zjNUdMxcDeVrtU1oarrgnB7")
 # verify-bundle
 c("mnemonic verify-bundle --slot @0.phrase=",[m,"verify-bundle",A,"--network","mainnet","--template","bip84","--slot","@0.phrase={S}","--"]+MKMD,"node",P,P2)
@@ -85,6 +89,15 @@ for mode,extra in [("path-of-xpub",["--target-xpub",XPUB84]),("account-of-descri
     c(f"mnemonic xpub-search {mode} --passphrase",[m,"xpub-search",mode,A]+extra+["--phrase",P,"--passphrase","{S}"],"value","hunter2-passphrase",PW2,multi=True)
 c("mnemonic xpub-search passphrase-of-xpub --passphrase",[m,"xpub-search","passphrase-of-xpub",A,"--target-xpub",XPUB84_PW,"--phrase",P,"--passphrase","{S}"],"value","hunter2-passphrase",PW2,multi=True)
 c("mnemonic xpub-search passphrase-of-xpub --phrase",[m,"xpub-search","passphrase-of-xpub",A,"--target-xpub",XPUB84_PW,"--passphrase","hunter2-passphrase","--phrase","{S}"],"value",P,P2,multi=True)
+# xpub-search address-of-seed (toolkit PR #230). TA is the abandon seed's first bip84 receive
+# address, TA_PW the same under PW. The contrast value finds no wallet (exit 4), or, for --ms1,
+# fails its checksum (exit 1); either way the row depends on the secret.
+from aos import AOS_CHECK
+TA="bc1qcr8te4kr609gcawutmrza0j4xv80jy8z306fyu"; TA_PW="bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv"
+AOS=[m,"xpub-search","address-of-seed",A]
+c("mnemonic xpub-search address-of-seed --phrase",AOS+["--target-address",TA,"--phrase","{S}"],"value",P,P2); C[-1]["check"]=AOS_CHECK
+c("mnemonic xpub-search address-of-seed --ms1",AOS+["--target-address",TA,"--ms1","{S}"],"value",MS1,"ms10entrsqqqqqqqqqqqqqqqqqqqqqqqqqqqqcj9sxraq34v7g"); C[-1]["check"]=AOS_CHECK
+c("mnemonic xpub-search address-of-seed --passphrase",AOS+["--target-address",TA_PW,"--phrase",P,"--passphrase","{S}"],"value",PW,PW2,multi=True); C[-1]["check"]=AOS_CHECK
 # slip39
 def split_check_slip39(o):
     shares=[l for l in o.splitlines() if l.strip() and not l.startswith("#")][:2]

@@ -50,6 +50,9 @@ add(m,["import-wallet"],"--ms1",MS1); add(m,["import-wallet"],"--decrypt-passwor
 add(m,["import-wallet"],"--slot",f"@0.phrase={P}","--slot @0.phrase=")
 for mode in ["path-of-xpub","account-of-descriptor","passphrase-of-xpub"]:
     add(m,["xpub-search",mode],"--phrase",P); add(m,["xpub-search",mode],"--ms1",MS1); add(m,["xpub-search",mode],"--passphrase",PW)
+add(m,["xpub-search","address-of-seed"],"--phrase",P); add(m,["xpub-search","address-of-seed"],"--ms1",MS1)
+add(m,["xpub-search","address-of-seed"],"--passphrase",PW)
+for n in ["phrase","ms1","entropy","seedqr"]: add(m,["xpub-search","address-of-seed"],"--from",f"{n}={nodes[n]}",f"--from {n}=")
 add(m,["word-card"],"--from",f"ms1={MS1}","--from ms1=")
 add(m,["word-card"],"--from",f"phrase={P}","--from phrase=")
 s="ms"

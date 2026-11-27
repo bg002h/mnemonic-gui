@@ -110,10 +110,12 @@ pub fn redact_for_persistence(state: &FormState) -> FormState {
                 if crate::secrets::text_value_is_secret_source(s) {
                     return false;
                 }
-                // DESIGN §B2–B4: a private key pasted into a public md key /
-                // descriptor field never persists. This layer has no
-                // subcommand context, so it keys on the fields' NAMES
-                // (`--descriptor`, `--key`) wherever they occur — fail-closed.
+                // DESIGN §B2–B4: a private key (xprv or WIF) pasted into a
+                // public key / descriptor field never persists. This layer
+                // has no subcommand context, so it keys on the fields' NAMES
+                // (`--descriptor`, `--key`, `--cosigner`, `--xpub`,
+                // `--target-xpub`, `--target-address`, `--add-path`,
+                // `--descriptor-from`) wherever they occur — fail-closed.
                 let named = crate::secrets::PRIVATE_KEY_CONTENT_FIELDS
                     .iter()
                     .any(|(_, f)| *f == k.as_str());

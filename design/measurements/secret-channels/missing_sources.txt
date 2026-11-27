@@ -4,6 +4,7 @@ mnemonic addresses --from ms1=	exit 1	error: --from Ms1 is not supported by `add
 mnemonic addresses --from bip38=	exit 1	error: --from Bip38 is not supported by `addresses` (use xpub/phrase/entropy/seedqr/electrum-phrase)
 mnemonic addresses --from minikey=	exit 1	error: --from MiniKey is not supported by `addresses` (use xpub/phrase/entropy/seedqr/electrum-phrase)
 mnemonic bundle --slot @N.xprv=	exit 1	error: --slot @0.xprv not supported in v0.4.2; deferred to v0.5+ pending ms-codec XPRV-tag extension. See FOLLOWUP `unified-slot-xprv-resolution-needs
+mnemonic bundle --slot @N.wif=	exit 1	error: --slot @0.wif is refused: a WIF is a single private key with no chain code, but every --template derives ranged child addresses (/<0;1>/*), so 
 mnemonic verify-bundle --from phrase=	exit 1	error: slot count 0 out of range 1..=16
 mnemonic verify-bundle --from entropy=	exit 1	error: slot count 0 out of range 1..=16
 mnemonic verify-bundle --from xprv=	exit 1	error: slot count 0 out of range 1..=16

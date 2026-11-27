@@ -79,6 +79,21 @@ for mode, extra in [("path-of-xpub", ["--target-xpub", XPUB84_PW]), ("passphrase
           [val(XS + mode + " --phrase", "--phrase", P), val(XS + mode + " --passphrase", "--passphrase", PW)])
     shape(f"xpub-search {mode} ms1+passphrase", m, ["xpub-search", mode], extra,
           [val(XS + mode + " --ms1", "--ms1", MS1), val(XS + mode + " --passphrase", "--passphrase", PW)])
+# xpub-search address-of-seed (toolkit PR #230). TA_PW: the abandon seed's first bip84 receive
+# address under PW. The 2-of-2 shape names two receive addresses (M1, M1_IDX1), which no
+# multi/sortedmulti twin shares; with two `--from` seeds at most one can use stdin (SPEC §2: one
+# stdin reader per run), and on Linux the planner binds both to `@env:` (MNEMONIC_GUI_S0, S1). Swapping the two seeds changes the printed slot map, so it is not symmetric.
+AOS = "address-of-seed"
+TA_PW = "bc1qrm3qju2002wmwly8x2ee7ghdaunexsndwgedwv"
+AOS_M1 = ["bc1qkpcfs6lhqh3rx63we7435nf3hqpghkdtmmmvln0yrssv0ulhmngs92dens",
+          "bc1qp3z0f9m2yzgax82hw88jaqznsca2gtktnyuvmh4uwzlsg4736y8s2qes5n"]
+shape(f"xpub-search {AOS} phrase+passphrase", m, ["xpub-search", AOS], ["--target-address", TA_PW],
+      [val(XS + AOS + " --phrase", "--phrase", P), val(XS + AOS + " --passphrase", "--passphrase", PW)])
+shape(f"xpub-search {AOS} ms1+passphrase", m, ["xpub-search", AOS], ["--target-address", TA_PW],
+      [val(XS + AOS + " --ms1", "--ms1", MS1), val(XS + AOS + " --passphrase", "--passphrase", PW)])
+shape(f"xpub-search {AOS} 2 seeds wsh-sortedmulti", m, ["xpub-search", AOS],
+      ["--target-address", AOS_M1[0], "--target-address", AOS_M1[1], "--descriptor", "wsh(sortedmulti(2,@0/<0;1>/*,@1/<0;1>/*))"],
+      [node(XS + AOS + " --from phrase=", "--from", "phrase=", P), node(XS + AOS + " --from phrase=", "--from", "phrase=", P2)])
 shape("silent-payment secret+passphrase", m, ["silent-payment"], [],
       [val("mnemonic silent-payment --passphrase", "--passphrase", PW), val("mnemonic silent-payment --secret", "--secret", P)])
 shape("slip39 split phrase+passphrase", m, ["slip39", "split"], ["--group-threshold", "1", "--group", "3,2"],

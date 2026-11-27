@@ -150,9 +150,33 @@ fn baseline_argv(
     argv
 }
 
+/// `aos.py`'s `AOS_CHECK`: address-of-seed prints the `bundle` command that
+/// mints the wallet it found, and that line repeats the channel spelling the
+/// run used (`-`, `@env:VAR`). The wallet found does not depend on it, so the
+/// seed and passphrase values on that line are masked.
+fn aos_mask(stdout: &str) -> String {
+    let slot = regex::Regex::new(r"(--slot @\d+\.[a-z0-9-]+=)\S+").unwrap();
+    let pass = regex::Regex::new(r"(--passphrase )\S+").unwrap();
+    stdout
+        .lines()
+        .map(|l| {
+            if l.trim().starts_with("mnemonic bundle ") {
+                pass.replace_all(&slot.replace_all(l, "${1}<S>"), "${1}<S>")
+                    .into_owned()
+            } else {
+                l.to_string()
+            }
+        })
+        .collect::<Vec<_>>()
+        .join("\n")
+}
+
 /// `run_plans.normalise`: slip39 split is randomised — compare what the shares
-/// recover (with the passphrase actually delivered).
+/// recover (with the passphrase actually delivered). address-of-seed: `aos_mask`.
 fn normalise(sh: &Shape, o: &Out, pw: &str) -> String {
+    if sh.name.starts_with("xpub-search address-of-seed") {
+        return aos_mask(&o.stdout);
+    }
     if !sh.name.starts_with("slip39 split") || o.code != Some(0) {
         return o.stdout.clone();
     }

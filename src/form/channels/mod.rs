@@ -1113,7 +1113,44 @@ pub fn plan(
     user_env: &dyn Fn(&str) -> Option<String>,
     os: &str,
 ) -> Result<RunPlan, ChannelRefusal> {
+    refuse_private_key_in_public_field(schema, sub, state)?;
     plan_with(schema, sub, state, user_env, os, channel_table(), policy())
+}
+
+/// Final review M1 (address-of-seed): a toolkit field listed in
+/// `secrets::PRIVATE_KEY_CONTENT_FIELDS` that holds private-key content
+/// (masked on screen, never saved) refuses the RUN plan, fail-closed: the
+/// value is not a planner source, so it would reach the child on argv, and
+/// the toolkit refuses it at intake anyway. Copy keeps its "reveals secret"
+/// label (it plans with [`plan_with`]). md's listed fields keep DESIGN
+/// §B2–B4's confirm-then-run (FOLLOWUP `private-key-content-fields-other-verbs`).
+fn refuse_private_key_in_public_field(
+    schema: &Schema,
+    sub: &SubcommandSchema,
+    state: &FormState,
+) -> Result<(), ChannelRefusal> {
+    if schema.cli_name != "mnemonic" {
+        return Ok(());
+    }
+    let base = key_base(schema, sub);
+    for (name, v) in &state.values {
+        let crate::schema::FlagValue::Text(s) = v else {
+            continue;
+        };
+        if sub.flags.iter().any(|f| f.name == name.as_str())
+            && crate::secrets::field_masks_private_key_content(&base, name)
+            && crate::secrets::text_holds_private_key(s)
+        {
+            return Err(Refusal::new(
+                "private-key-in-public-field",
+                format!("{base} {name}"),
+                "this field takes public values only; it holds a private key \
+                 or an ms1 card, which would go to the CLI on its command \
+                 line (and the CLI refuses it). Remove it",
+            ));
+        }
+    }
+    Ok(())
 }
 
 /// [`plan`] under an explicit table and policy (tests; the Copy plan).
