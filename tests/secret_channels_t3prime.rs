@@ -41,8 +41,11 @@ struct Out {
     stdout: String,
 }
 
+/// The run produced a result. Exit-code spec R12: read from the output,
+/// never from the code (under the constellation's codes a result can come
+/// with 16 or 20, and old 4 means something else per CLI).
 fn ok(o: &Out) -> bool {
-    matches!(o.code, Some(0) | Some(4))
+    !o.stdout.trim().is_empty()
 }
 
 /// An ORACLE run: plain `Command`, the test's own spelling, never the GUI's.

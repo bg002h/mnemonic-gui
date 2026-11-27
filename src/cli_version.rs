@@ -14,6 +14,7 @@
 //! expected CLI at a version at least the pinned one. The gate never changes
 //! the plan: a run it admits is byte-identical to a run without it.
 
+use crate::exit_badge::CodeScheme;
 use crate::form::channels::RunPlan;
 
 /// A `major.minor.patch` version. Pre-release and build suffixes
@@ -117,15 +118,11 @@ pub fn refusal_text(reason: &str, pinned: &str, interim: bool) -> String {
 }
 
 /// Ask `bin` for its version: stdout of `<bin> --version` on exit 0.
+/// Bounded by [`PROBE_TIMEOUT`] (review M2): a `--version` that hangs refuses
+/// the secret run instead of freezing the window.
 pub fn probe(bin: &str) -> Result<String, String> {
-    match crate::runner::run([bin, "--version"]) {
-        Ok(r) if r.exit_code == Some(0) => Ok(String::from_utf8_lossy(&r.stdout).into_owned()),
-        Ok(r) => Err(format!(
-            "`{bin} --version` failed (exit {:?}); cannot confirm the binary's version",
-            r.exit_code
-        )),
-        Err(e) => Err(format!("`{bin} --version` could not run: {e}")),
-    }
+    run_probe(bin, "--version", PROBE_TIMEOUT)
+        .map_err(|e| format!("{e}; cannot confirm the binary's version"))
 }
 
 /// The gate: a plan with no secret binding passes unprobed; a plan with one
@@ -144,6 +141,168 @@ pub fn gate_secret_run(
         .ok_or_else(|| format!("refusing a secret-bearing run of unknown binary `{bin}`"))?;
     let reported = probe(bin).map_err(|e| refusal_text(&e, pinned, plan.interim))?;
     check_reported(pinned, &reported).map_err(|e| refusal_text(&e, pinned, plan.interim))
+}
+
+/// How long a probe of a CLI (`--version`, `--help`) may take before the GUI
+/// gives up on it (review M2): the probes run in the Run-click frame.
+pub const PROBE_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(5);
+
+/// Run `<bin> <arg>` with no stdin and return its stdout if it exits 0 within
+/// `timeout`. A probe that runs over is killed and is an error; it never
+/// blocks longer than `timeout` (a grandchild that keeps the pipe open is left
+/// to its reader thread).
+pub fn run_probe(bin: &str, arg: &str, timeout: std::time::Duration) -> Result<String, String> {
+    use std::io::Read;
+    use std::process::{Command, Stdio};
+    let mut child = Command::new(bin)
+        .arg(arg)
+        .stdin(Stdio::null())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::null())
+        .spawn()
+        .map_err(|e| format!("`{bin} {arg}` could not run: {e}"))?;
+    let mut out = child.stdout.take().expect("stdout was requested piped");
+    let (tx, rx) = std::sync::mpsc::channel();
+    std::thread::spawn(move || {
+        let mut buf = Vec::new();
+        let _ = out.read_to_end(&mut buf);
+        let _ = tx.send(buf);
+    });
+    let deadline = std::time::Instant::now() + timeout;
+    let status = loop {
+        match child.try_wait() {
+            Ok(Some(status)) => break status,
+            Ok(None) if std::time::Instant::now() < deadline => {
+                std::thread::sleep(std::time::Duration::from_millis(5))
+            }
+            Ok(None) => {
+                let _ = child.kill();
+                let _ = child.wait();
+                return Err(format!(
+                    "`{bin} {arg}` did not finish within {}s",
+                    timeout.as_secs_f32()
+                ));
+            }
+            Err(e) => return Err(format!("`{bin} {arg}` could not be waited for: {e}")),
+        }
+    };
+    let stdout = rx
+        .recv_timeout(deadline.saturating_duration_since(std::time::Instant::now()))
+        .map_err(|_| {
+            format!(
+                "`{bin} {arg}` did not finish within {}s",
+                timeout.as_secs_f32()
+            )
+        })?;
+    if status.code() == Some(0) {
+        Ok(String::from_utf8_lossy(&stdout).into_owned())
+    } else {
+        Err(format!("`{bin} {arg}` failed (exit {:?})", status.code()))
+    }
+}
+
+/// Which exit codes a CLI speaks, read from its root `--help` (spec R11;
+/// final review I4), three-way on content:
+/// - its last paragraph is exactly the R11 legend
+///   ([`crate::exit_code::HELP_LEGEND`], whitespace-normalised because clap
+///   may re-wrap it): [`CodeScheme::Bits`];
+/// - no paragraph begins `Exit status:`: [`CodeScheme::Legacy`] (no CLI
+///   printed one before the renumber);
+/// - a paragraph begins `Exit status:` but the last paragraph is not the
+///   exact legend (a drifted copy, or text after it):
+///   [`CodeScheme::Undecoded`]. Reading such a CLI as Legacy would be the more
+///   reassuring misreading (old 5 green, new 1/2/8 uncoloured).
+pub fn scheme_from_help(help: &str) -> CodeScheme {
+    let norm = |t: &str| t.split_whitespace().collect::<Vec<_>>().join(" ");
+    let mut paragraphs: Vec<String> = Vec::new();
+    let mut current = String::new();
+    for line in help.lines() {
+        if line.trim().is_empty() {
+            if !current.is_empty() {
+                paragraphs.push(norm(&current));
+                current.clear();
+            }
+        } else {
+            current.push_str(line);
+            current.push('\n');
+        }
+    }
+    if !current.is_empty() {
+        paragraphs.push(norm(&current));
+    }
+    let legend = norm(crate::exit_code::HELP_LEGEND);
+    if paragraphs.last() == Some(&legend) {
+        return CodeScheme::Bits;
+    }
+    if paragraphs.iter().any(|p| p.starts_with("Exit status:")) {
+        return CodeScheme::Undecoded(
+            "its `--help` has an `Exit status:` paragraph that is not the exact \
+             exit-code legend at its end"
+                .to_string(),
+        );
+    }
+    CodeScheme::Legacy
+}
+
+/// Ask `bin --help` (within `timeout`) which exit codes it speaks
+/// ([`scheme_from_help`]); [`CodeScheme::Undecoded`] if it could not be asked.
+pub fn probe_scheme(bin: &str, timeout: std::time::Duration) -> CodeScheme {
+    match run_probe(bin, "--help", timeout) {
+        Ok(help) => scheme_from_help(&help),
+        Err(e) => CodeScheme::Undecoded(e),
+    }
+}
+
+/// The file a run of `bin` executes: `bin` itself when it names a path,
+/// otherwise its `$PATH` match.
+fn resolve(bin: &str) -> Option<std::path::PathBuf> {
+    let p = std::path::Path::new(bin);
+    if p.components().count() > 1 {
+        return Some(p.to_path_buf());
+    }
+    match crate::path_detect::detect(bin) {
+        crate::path_detect::Detected::Found(found) => Some(found),
+        crate::path_detect::Detected::NotFound => None,
+    }
+}
+
+type SchemeKey = (std::path::PathBuf, Option<std::time::SystemTime>, u64);
+
+fn scheme_cache() -> &'static std::sync::Mutex<std::collections::HashMap<SchemeKey, CodeScheme>> {
+    static CACHE: std::sync::OnceLock<
+        std::sync::Mutex<std::collections::HashMap<SchemeKey, CodeScheme>>,
+    > = std::sync::OnceLock::new();
+    CACHE.get_or_init(Default::default)
+}
+
+/// [`probe_scheme`] for the binary a run of `bin` executes, probed once per
+/// (resolved path, mtime, size): an upgrade in place is probed again. Only a
+/// definite answer (Bits or Legacy) is cached; a failed probe or a drifted
+/// legend is retried on the next run.
+pub fn exit_scheme_cached(bin: &str) -> CodeScheme {
+    let Some(path) = resolve(bin) else {
+        return CodeScheme::Undecoded(format!("`{bin}` not found on the search path"));
+    };
+    let meta = std::fs::metadata(&path).ok();
+    let key: SchemeKey = (
+        path.clone(),
+        meta.as_ref().and_then(|m| m.modified().ok()),
+        meta.as_ref().map(|m| m.len()).unwrap_or(0),
+    );
+    if let Some(s) = scheme_cache()
+        .lock()
+        .ok()
+        .and_then(|c| c.get(&key).cloned())
+    {
+        return s;
+    }
+    let scheme = probe_scheme(&path.to_string_lossy(), PROBE_TIMEOUT);
+    if !matches!(scheme, CodeScheme::Undecoded(_)) {
+        if let Ok(mut c) = scheme_cache().lock() {
+            c.insert(key, scheme.clone());
+        }
+    }
+    scheme
 }
 
 #[cfg(test)]

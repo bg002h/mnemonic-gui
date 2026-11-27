@@ -193,7 +193,7 @@ pub fn text_value_is_secret_source(value: &str) -> bool {
 /// DESIGN §B2–B4 (`*`): PUBLIC md fields where a pasted private descriptor or
 /// key (`xprv…`) is masked on screen and never persisted, by content — the
 /// way Phase 1a treats `restore --from ms1=…`. md itself refuses the value
-/// ("public keys must be …", exit 1), but by then it would have shown and
+/// ("public keys must be …", an invalid input, exit 2), but by then it would have shown and
 /// persisted. Keyed `"<cli> <subcommand>"` × field (`positional:<name>` for a
 /// positional).
 pub const PRIVATE_KEY_CONTENT_FIELDS: &[(&str, &str)] = &[

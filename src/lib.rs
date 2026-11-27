@@ -11,6 +11,8 @@ pub mod cli_version;
 // modules — `--no-default-features` builds must not pull the egui stack.
 #[cfg(feature = "gui")]
 pub mod app_window;
+pub mod exit_badge;
+pub mod exit_code;
 pub mod form;
 pub mod help;
 pub mod path_detect;

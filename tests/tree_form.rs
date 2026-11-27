@@ -148,6 +148,8 @@ fn run_result(stdout: &str, stderr: &str, exit: i32) -> RunResult {
         argv: vec!["mnemonic".into()],
         mask: Vec::new(),
         exit_code: Some(exit),
+        signal: None,
+        exit_scheme: mnemonic_gui::exit_badge::CodeScheme::Bits,
         stdout: stdout.as_bytes().to_vec(),
         stderr: stderr.as_bytes().to_vec(),
     }

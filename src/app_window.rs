@@ -458,7 +458,7 @@ impl MnemonicGuiApp {
                         )
                     ));
                 }
-                render_exit_badge(ui, result.exit_code);
+                render_exit_badge(ui, result);
                 if self.show_stdout && !result.stdout.is_empty() {
                     ui.label("stdout:");
                     egui::ScrollArea::vertical()
@@ -1296,59 +1296,36 @@ impl eframe::App for MnemonicGuiApp {
 
 /// Render the subprocess exit-code line in the output panel.
 ///
-/// v0.9.0 (D26 cross-CLI parity): exit 5 means the toolkit auto-fired BCH
-/// repair and the corrected card is on stdout (`ToolkitError::
-/// RepairShortCircuit { exit_code: 5 }`). Render it as a green badge so
-/// users see the success at a glance; all other exit codes (including 0)
-/// render in the default label colour.
+/// Text and colour come from [`crate::exit_badge::classify`], which decodes
+/// the constellation's exit codes bit by bit (`SPEC_constellation_exit_codes.md`
+/// rev 5, R12) for a binary whose `--help` ends with the R11 legend, reads an
+/// older binary by the old per-command codes, and shows the number undecoded
+/// when the binary could not be asked (§7j). It says nothing about whether
+/// output exists. Amber also marks 130 (stopped).
 ///
-/// Cases:
-/// - `Some(0)` → plain `exit: 0` label.
-/// - `Some(4)` → amber VERIFY-ME badge. Exit 4 is the toolkit's project-wide
-///   VERIFY-ME class (SPEC §4): a result with no self-oracle the user must
-///   confirm out-of-band — a bundle/seed mismatch, a bounded-distance BCH
-///   repair candidate, or (v0.88.0) a pathless/dead-card PARTIAL decode whose
-///   origin is unspecified. The specific verdict renders verbatim below.
-/// - `Some(5)` → green badge with explanatory message.
-/// - `Some(n)` for `n != 0 && n != 4 && n != 5` → plain `exit: <n>` label
-///   (subprocess error path; stderr already renders below).
-/// - `None` → plain `exit: (killed)` label (signal / no exit code).
-fn render_exit_badge(ui: &mut egui::Ui, exit_code: Option<i32>) {
-    match exit_code {
-        Some(4) => {
-            // exit 4 is the toolkit's project-wide VERIFY-ME class (SPEC §4): a
-            // result with NO self-oracle that the user MUST confirm out-of-band
-            // before trusting — a bundle/seed mismatch, a bounded-distance BCH
-            // repair candidate, or (v0.88.0) a pathless/dead-card PARTIAL decode
-            // whose origin is unspecified. Amber (220, 165, 0) — the warning
-            // colour already used at archetype_form.rs:186 / slot_editor.rs:103
-            // — distinguishes it from success (default label) and exit-5
-            // Repair-Applied (green). The specific verdict (`result: partial`
-            // vs `mismatch`, or the "origin unspecified — VERIFY-ME" note)
-            // renders verbatim in the stdout/stderr panes below.
-            ui.colored_label(
-                egui::Color32::from_rgb(220, 165, 0),
-                "exit: 4 — VERIFY-ME (confirm the result out-of-band before \
-                 trusting; see stdout/stderr below)",
-            );
+/// Amber (220, 165, 0) is the warning colour of archetype_form.rs /
+/// slot_editor.rs; red (220, 60, 60) the error red of the subprocess-error
+/// line; green (60, 180, 75) sits in the same chroma band.
+fn render_exit_badge(ui: &mut egui::Ui, result: &runner::RunResult) {
+    use crate::exit_badge::{classify, BadgeKind};
+    let badge = classify(
+        &result.argv,
+        result.exit_code,
+        result.signal,
+        &result.exit_scheme,
+    );
+    match badge.kind {
+        BadgeKind::Plain => {
+            ui.label(badge.text);
         }
-        Some(5) => {
-            // Saturated green chosen to match the project's existing colour
-            // palette (warning amber at form/slot_editor.rs:233 uses (220,
-            // 165, 0); error red at main.rs:304 uses (220, 60, 60)). Green
-            // (60, 180, 75) sits in the same chroma band and stays readable
-            // on egui's default dark/light themes.
-            ui.colored_label(
-                egui::Color32::from_rgb(60, 180, 75),
-                "exit: 5 — Repair Applied (BCH auto-fire succeeded; \
-                 corrected chunk on stdout)",
-            );
+        BadgeKind::VerifyMe | BadgeKind::Stopped | BadgeKind::Corrected => {
+            ui.colored_label(egui::Color32::from_rgb(220, 165, 0), badge.text);
         }
-        Some(n) => {
-            ui.label(format!("exit: {}", n));
+        BadgeKind::Repaired => {
+            ui.colored_label(egui::Color32::from_rgb(60, 180, 75), badge.text);
         }
-        None => {
-            ui.label("exit: (killed)");
+        BadgeKind::Failed => {
+            ui.colored_label(egui::Color32::from_rgb(220, 60, 60), badge.text);
         }
     }
 }
@@ -1376,24 +1353,26 @@ fn spawn_and_capture(app: &mut MnemonicGuiApp, plan: crate::form::channels::RunP
     }
     // SPEC §B.8 class 1: detect-missing-binary path — surface a friendly
     // error rather than crashing.
+    // Final review M12: resolve the binary ONCE; the G1 `--version` probe,
+    // the exit-code scheme probe and the run all use this one file, so no
+    // platform lookup rule (e.g. Windows' application directory first) can
+    // make them read different binaries.
     let bin = &plan.argv[0];
-    if !matches!(
-        crate::path_detect::detect(bin),
-        Detected::Found(_)
-    ) {
-        app.last_run = None;
-        app.last_run_error = Some(format!(
-            "`{}` not found on $PATH",
-            bin
-        ));
-        return;
-    }
+    let program = match crate::path_detect::detect(bin) {
+        Detected::Found(path) => path,
+        Detected::NotFound => {
+            app.last_run = None;
+            app.last_run_error = Some(format!("`{}` not found on $PATH", bin));
+            return;
+        }
+    };
+    let program_str = program.to_string_lossy().into_owned();
     // G1 (bug hunt 2026-11-25): a run that carries a secret goes only to a
     // binary that reports the pinned version or newer — an older CLI can take
     // `@env:MNEMONIC_GUI_S<i>` (or `-`) literally as the secret itself. The
     // gate never alters the plan; a refusal spawns nothing.
     if let Err(why) =
-        crate::cli_version::gate_secret_run(&plan, crate::cli_version::probe)
+        crate::cli_version::gate_secret_run(&plan, |_| crate::cli_version::probe(&program_str))
     {
         app.last_run = None;
         app.last_run_error = Some(format!("Run refused — {why}"));
@@ -1403,7 +1382,10 @@ fn spawn_and_capture(app: &mut MnemonicGuiApp, plan: crate::form::channels::RunP
     // MNEMONIC_GUI_* variables, sets the plan's, writes stdin and the pipe
     // payloads (write ends closed before spawn). The result carries the
     // plan's display mask.
-    match runner::run_plan(&plan) {
+    // Exit-code spec §7j: the result carries the exit-code scheme the binary
+    // speaks (its `--help` ends with the R11 legend, or not), probed once per
+    // binary, so the badge never reads an old code as a new sum.
+    match runner::run_plan_decoded(&plan, &program) {
         Ok(result) => {
             app.last_run = Some(result);
             app.last_run_error = None;

@@ -11,6 +11,8 @@
 //! so the tutorial harness can drive the real window headlessly. This file
 //! is now only `fn main()` + the eframe bootstrap + tracing init.
 
+use std::process::ExitCode;
+
 use clap::Parser;
 use eframe::egui;
 use tracing_subscriber::EnvFilter;
@@ -18,9 +20,18 @@ use tracing_subscriber::EnvFilter;
 use mnemonic_gui::app_window::MnemonicGuiApp;
 use mnemonic_gui::persistence;
 
+/// The GUI's own exit statuses (`SPEC_constellation_exit_codes.md` rev 5,
+/// R12): 0, 64, 32 (cannot start) or 101, plus the deliberate 130 when a
+/// clean shutdown after a signal does not finish in time
+/// (`app_window.rs`). The codes the CLIs it runs exit with are decoded in the
+/// output panel, not here.
+const EXIT_LEGEND: &str = "Exit status: 0 = closed normally. 32 = cannot start (no display, \
+graphics initialisation failed). 64 = bad command line. 101 = internal error. 130 = \
+stopped by a signal and the clean shutdown did not finish.";
+
 /// Cross-platform GUI overlay for the m-format constellation CLIs.
 #[derive(Parser, Debug)]
-#[command(version, about, long_about = None)]
+#[command(version, about, long_about = None, after_help = EXIT_LEGEND)]
 struct Cli {
     /// Enable debug-level tracing output to stderr (default: WARN).
     /// `RUST_LOG=<filter>` env var overrides this when set.
@@ -28,8 +39,27 @@ struct Cli {
     debug: bool,
 }
 
-fn main() -> eframe::Result<()> {
-    let cli = Cli::parse();
+fn main() -> ExitCode {
+    // Exit-code spec R12: a bad command line is 64 (clap's own 2 is a bit
+    // under the constellation's scheme); `--help` / `--version` stay 0.
+    let cli = match Cli::try_parse() {
+        Ok(cli) => cli,
+        Err(e) => {
+            // R8: `--help`/`--version` whose stdout cannot be written (a full
+            // disk, a closed stdout) is an IO failure, 32; EPIPE (the reader
+            // went away) keeps the code. A usage error stays 64 whether or
+            // not its message reached stderr.
+            let printed = e.print();
+            let io_failed = printed.is_err_and(|err| err.kind() != std::io::ErrorKind::BrokenPipe);
+            return ExitCode::from(if e.exit_code() != 0 {
+                mnemonic_gui::exit_code::USAGE
+            } else if io_failed {
+                mnemonic_gui::exit_code::IO
+            } else {
+                mnemonic_gui::exit_code::OK
+            });
+        }
+    };
     init_tracing(cli.debug);
     tracing::debug!(target: "mnemonic_gui::main", "tracing initialized");
 
@@ -57,11 +87,20 @@ fn main() -> eframe::Result<()> {
         viewport,
         ..Default::default()
     };
-    eframe::run_native(
+    let run = eframe::run_native(
         "mnemonic-gui",
         native_options,
         Box::new(move |cc| Ok(Box::new(MnemonicGuiApp::new(cc, loaded_state, state_path)))),
-    )
+    );
+    match run {
+        Ok(()) => ExitCode::SUCCESS,
+        // R12: the window could not open (no display, graphics init failed):
+        // 32, "cannot start", not Rust's generic 1.
+        Err(e) => {
+            eprintln!("mnemonic-gui: cannot start: {e}");
+            ExitCode::from(mnemonic_gui::exit_code::IO)
+        }
+    }
 }
 
 fn init_tracing(debug_flag: bool) {

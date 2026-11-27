@@ -244,7 +244,7 @@ def measure(pair):
                 else:
                     g5 = run(interim_argv(sh, b5, res5), {"OTHER": s["value"], "USER_SECRET": content})
                 rec[path] = "ran"
-                rec[path + "_is_other_wallet"] = g5.returncode in (0, 4) and same(sh, g5, base, PW)
+                rec[path + "_is_other_wallet"] = bool(g5.stdout.strip()) and same(sh, g5, base, PW)  # R12: output, not code
                 if orc is not None:
                     rec[path + "_eq_oracle"] = same(sh, g5, orc, pw5)
             row["nc1"].append(rec)
@@ -274,7 +274,7 @@ def measure(pair):
                     g6 = run(interim_argv(sh, b6, res6))
                 rec[path] = g6.returncode
                 if orc is None:
-                    rec[path + "_closed_or_eqform"] = g6.returncode not in (0, 4) or same(sh, g6, eqform)
+                    rec[path + "_closed_or_eqform"] = not g6.stdout.strip() or same(sh, g6, eqform)  # R12: output, not code
                 else:
                     rec[path + "_eq_oracle"] = same(sh, g6, orc, v if sh["name"].startswith("slip39 split") and i == 1 else PW)
             row["dash"].append(rec)

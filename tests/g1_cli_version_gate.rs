@@ -105,7 +105,8 @@ fn g1_spawn_and_capture_calls_the_gate_before_spawning() {
     let gate = body
         .find("cli_version::gate_secret_run(")
         .expect("spawn_and_capture must call the version gate");
-    let spawn = body.find("runner::run_plan(").expect("spawn site");
+    // Exit-code spec §7j: the spawn site is `run_plan_decoded`.
+    let spawn = body.find("runner::run_plan_decoded(").expect("spawn site");
     assert!(gate < spawn, "the gate must run before the spawn");
 }
 

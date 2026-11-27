@@ -78,10 +78,10 @@ def invocation(case, ch, value, term):
 
 def classify(base, got):
     """How a channel result differs from argv-exact. Only BOTH-OK-DIFFERENT is dangerous
-    (a different wallet at exit 0/4); the other two fail closed on one side."""
+    (a different wallet, both runs with output); the other two fail closed on one side."""
     if got == base:
         return None
-    bok, gok = base[0] in (0, 4), got[0] in (0, 4)
+    bok, gok = base[1] != "", got[1] != ""  # R12: a result, read from the output
     if bok and gok:
         return "BOTH-OK-DIFFERENT"
     return "argv-fails/channel-ok" if gok else ("argv-ok/channel-fails" if bok else "both-fail-differently")
@@ -112,7 +112,7 @@ def measure(label):
     for e in ENDINGS:
         chk = chk_for(apply(case["S"], e))
         b = run([a.replace("{S}", apply(case["S"], e)) for a in case["argv"]])
-        base[e] = (b.returncode, chk(b.stdout) if b.returncode in (0, 4) else "")
+        base[e] = (b.returncode, chk(b.stdout) if b.stdout.strip() else "")
     out["base_exits"] = {repr(e): base[e][0] for e in ENDINGS}
     # R3 NI7: the CLI's own `@env:` value rule, PER INPUT, derived here (never hand-kept). Where
     # the input has an OK EnvRef cell: run the CLI's `@env:VAR` with VAR = S + ending and find the
@@ -130,8 +130,8 @@ def measure(label):
             sep = run([a.replace("{S}", v) for a in case["argv"]])
             eqa = case["argv"][:i_ - 1] + [case["argv"][i_ - 1] + "=" + v] + case["argv"][i_ + 1:]
             eqr = run(eqa)
-            if (sep.returncode, chk(sep.stdout) if sep.returncode in (0, 4) else "") != \
-               (eqr.returncode, chk(eqr.stdout) if eqr.returncode in (0, 4) else ""):
+            if (sep.returncode, chk(sep.stdout) if sep.stdout.strip() else "") != \
+               (eqr.returncode, chk(eqr.stdout) if eqr.stdout.strip() else ""):
                 eq_ok = False
                 break
         out["argv_eq_exact"] = eq_ok
@@ -146,8 +146,8 @@ def measure(label):
                 argv, stdin, env_val, fds = invocation(case, env_ch, raw, "")
                 g = run(argv, stdin, env_val, fds)
                 b = run([a.replace("{S}", f(raw)) for a in case["argv"]])
-                if (g.returncode, chk(g.stdout) if g.returncode in (0, 4) else "") != \
-                   (b.returncode, chk(b.stdout) if b.returncode in (0, 4) else ""):
+                if (g.returncode, chk(g.stdout) if g.stdout.strip() else "") != \
+                   (b.returncode, chk(b.stdout) if b.stdout.strip() else ""):
                     rule_ok = False
                     break
             if rule_ok:
@@ -166,7 +166,7 @@ def measure(label):
                 chk = chk_for(apply(case["S"], e))
                 argv, stdin, env_val, fds = invocation(case, ch, apply(case["S"], e), t)
                 g = run(argv, stdin, env_val, fds)
-                got = (g.returncode, chk(g.stdout) if g.returncode in (0, 4) else "")
+                got = (g.returncode, chk(g.stdout) if g.stdout.strip() else "")
                 how = classify(base[e], got)
                 if how:
                     bad.append(f"{e!r}:{how}")
@@ -182,14 +182,17 @@ def measure(label):
                 chk = chk_for(apply(case["S"], e))
                 argv, stdin, env_val, fds = invocation(case, ch, apply(case["S"], e), "")
                 g = run(argv, stdin, env_val, fds)
-                how = classify(base[e], (g.returncode, chk(g.stdout) if g.returncode in (0, 4) else ""))
+                how = classify(base[e], (g.returncode, chk(g.stdout) if g.stdout.strip() else ""))
                 if how:
                     naive.append(f"{e!r}:{how}")
         out["channels"].append({**ch, "terminator": found, "mismatches": detail, "naive_no_terminator": naive})
     return out
 
 
-labels = [l for l in cases if l in rows and rows[l]["base_exit"] in (0, 4) and rows[l]["depends"]]
+# Exit-code spec R12 (SPEC_constellation_exit_codes.md): whether a run produced a result is read
+# from its output, never from its code. Rows recorded before the cutover carry no base_has_output.
+labels = [l for l in cases if l in rows and rows[l].get("base_has_output", True)
+          and 0 <= rows[l]["base_exit"] < 64 and rows[l]["base_exit"] & (1 | 2 | 8 | 32) == 0 and rows[l]["depends"]]
 with ThreadPoolExecutor(20) as ex:
     res = list(ex.map(measure, labels))
 json.dump(res, open("bytes.json", "w"), indent=1)

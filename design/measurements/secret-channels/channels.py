@@ -58,17 +58,18 @@ def measure(case):
     chk=case.get("check",lambda o:o)
     rc,so,se=run(sub(base,S))
     rc2,so2,se2=run(sub(base,C))
+    has_out=bool(so.strip())  # exit-code spec R12: a result is read from the output, not the code
     so,so2=chk(so),chk(so2)
-    r={"label":case["label"],"base_exit":rc,"base_err":first_err(se) if rc else "","depends":(so!=so2) or (rc!=rc2),"channels":{}}
-    if rc not in (0,4): return r
+    r={"label":case["label"],"base_exit":rc,"base_err":first_err(se) if rc else "","depends":(so!=so2) or (rc!=rc2),"base_has_output":has_out,"channels":{}}
+    if not has_out or not (0 <= rc < 64 and rc & (1|2|8|32) == 0): return r  # output and no failure bit (old 0/4 too)
     for name,argv,stdin,env in variants(case):
         f=tempfile.mktemp(dir=TMP,suffix=".txt"); open(f,"w").write(S+"\n")
         a=[x.replace("{FILE}",f) for x in argv]
         if not case.get("multi"): a=[x for x in a if x!="--allow-argv-secret"]
         crc,cso,cse=run(a, stdin=(S+NL) if stdin else None, env_val=S if env else None)
-        cso=chk(cso) if crc in (0,4) else cso
+        cso=chk(cso) if cso.strip() else cso
         if crc==rc and cso==so: v="OK"
-        elif crc in (0,4): v=f"exit {crc} but DIFFERENT output"
+        elif cso.strip(): v=f"exit {crc} but DIFFERENT output"
         else: v=f"no (exit {crc}: {first_err(cse)})"
         r["channels"][name]=v
     return r

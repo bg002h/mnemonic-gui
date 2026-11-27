@@ -28,6 +28,14 @@ pub struct RunResult {
     pub mask: Vec<bool>,
     /// `Some(n)` for normal exit; `None` if killed by signal / no code.
     pub exit_code: Option<i32>,
+    /// The signal that killed the child (Unix), when `exit_code` is `None`.
+    /// Exit-code spec R12: a GUI shows "killed by signal N" from the
+    /// platform's status, since such a child has no exit code.
+    pub signal: Option<i32>,
+    /// How `exit_code` may be read (exit-code spec §7j). [`run_plan_decoded`]
+    /// sets it from the binary's `--help`; the other entry points leave it
+    /// undecoded.
+    pub exit_scheme: crate::exit_badge::CodeScheme,
     pub stdout: Vec<u8>,
     pub stderr: Vec<u8>,
 }
@@ -86,6 +94,25 @@ impl Zeroize for PendingConfirm {
 impl Drop for PendingConfirm {
     fn drop(&mut self) {
         self.zeroize();
+    }
+}
+
+/// The runner's scheme before the GUI's version gate has said otherwise.
+fn unchecked_scheme() -> crate::exit_badge::CodeScheme {
+    crate::exit_badge::CodeScheme::Undecoded("the binary's exit codes were not checked".to_string())
+}
+
+/// The signal that ended the child, if any (Unix only).
+fn signal_of(status: &std::process::ExitStatus) -> Option<i32> {
+    #[cfg(unix)]
+    {
+        use std::os::unix::process::ExitStatusExt;
+        status.signal()
+    }
+    #[cfg(not(unix))]
+    {
+        let _ = status;
+        None
     }
 }
 
@@ -226,6 +253,8 @@ where
         // (`spawn_and_capture`) overwrites this with the assembly-time mask.
         mask: Vec::new(),
         exit_code,
+        signal: signal_of(&output.status),
+        exit_scheme: unchecked_scheme(),
         stdout: output.stdout,
         stderr: output.stderr,
     };
@@ -263,6 +292,22 @@ pub fn run_plan_with_env_prefix(
     plan: &crate::form::channels::RunPlan,
     reserved_prefix: &str,
 ) -> io::Result<RunResult> {
+    match plan.argv.first() {
+        Some(bin) => run_plan_program(plan, OsStr::new(bin), reserved_prefix),
+        None => Err(io::Error::new(
+            io::ErrorKind::InvalidInput,
+            "runner::run_plan: argv must contain at least the binary name",
+        )),
+    }
+}
+
+/// [`run_plan_with_env_prefix`], executing `program` in place of the lookup
+/// of `plan.argv[0]` (whose text is kept for display).
+fn run_plan_program(
+    plan: &crate::form::channels::RunPlan,
+    program: &OsStr,
+    reserved_prefix: &str,
+) -> io::Result<RunResult> {
     let argv = &plan.argv;
     if argv.is_empty() {
         return Err(io::Error::new(
@@ -279,7 +324,7 @@ pub fn run_plan_with_env_prefix(
         fds = plan.fds.len(),
         "subprocess spawn (planned channels)",
     );
-    let mut cmd = Command::new(OsStr::new(&argv[0]));
+    let mut cmd = Command::new(program);
     cmd.env("MNEMONIC_FORCE_TTY", "1").args(&argv[1..]);
     for (k, _) in std::env::vars_os() {
         if k.as_encoded_bytes().starts_with(reserved_prefix.as_bytes()) {
@@ -352,9 +397,31 @@ pub fn run_plan_with_env_prefix(
         argv: argv.clone(),
         mask: plan.mask.clone(),
         exit_code,
+        signal: signal_of(&output.status),
+        exit_scheme: unchecked_scheme(),
         stdout: output.stdout,
         stderr: output.stderr,
     })
+}
+
+/// Run `plan` by executing `program` (the file `plan.argv[0]` resolved to)
+/// and stamp the result with the exit-code scheme that same file speaks
+/// (`cli_version::exit_scheme_cached`: three-way on its root `--help`,
+/// probed once per binary), so the badge decodes it correctly (exit-code
+/// spec §7j, R12; final review M12: one file for probe and run). The result's
+/// `argv` is the plan's. The app's single run site.
+pub fn run_plan_decoded(
+    plan: &crate::form::channels::RunPlan,
+    program: &std::path::Path,
+) -> io::Result<RunResult> {
+    let scheme = crate::cli_version::exit_scheme_cached(&program.to_string_lossy());
+    let mut result = run_plan_program(
+        plan,
+        program.as_os_str(),
+        &crate::form::channels::policy().reserved_env_prefix,
+    )?;
+    result.exit_scheme = scheme;
+    Ok(result)
 }
 
 #[cfg(test)]
@@ -452,6 +519,36 @@ mod tests {
         assert_eq!(result.exit_code, Some(3));
         assert_eq!(result.stdout, b"out\n");
         assert_eq!(result.stderr, b"err\n");
+    }
+
+    /// Exit-code spec R12: a child killed by a signal has no exit code; the
+    /// runner keeps the signal so the badge can say "killed by signal N".
+    #[cfg(unix)]
+    #[test]
+    fn run_reports_the_signal_that_killed_the_child() {
+        if !have("/bin/sh") {
+            return;
+        }
+        let r = run([
+            "/bin/sh".to_string(),
+            "-c".to_string(),
+            "kill -9 $$".to_string(),
+        ])
+        .expect("sh spawns");
+        assert_eq!(r.exit_code, None);
+        assert_eq!(r.signal, Some(9));
+        let r = run([
+            "/bin/sh".to_string(),
+            "-c".to_string(),
+            "exit 20".to_string(),
+        ])
+        .expect("sh spawns");
+        assert_eq!((r.exit_code, r.signal), (Some(20), None));
+        // The runner never claims to know how to read the code.
+        assert!(matches!(
+            r.exit_scheme,
+            crate::exit_badge::CodeScheme::Undecoded(_)
+        ));
     }
 
     /// `run_with_stdin(.., None)` keeps the D23 spawn env (run() delegates
