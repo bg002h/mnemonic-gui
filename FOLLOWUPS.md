@@ -1242,3 +1242,9 @@ Consequences on this repo:
 - **`wire_shape` snapshot:** `searched_count` moves 140 → 161 against mnemonic-toolkit#227's `xpub-search` (B1 adds the `bip87` and `bip45` candidate families). Re-capture at that pin bump.
 - **Bare `@N`:** toolkit#227 (B4) refuses a bare `@N` in `bundle --descriptor`; check the GUI's forms never send one (toolkit PR body, cross-repo follow-ups).
 - **Status:** open. **Tier:** `cross-repo`.
+
+### `canonicity-checksum-suffix-divergence` — a descriptor with a valid `#checksum` is canonical in the toolkit and NonCanonical in the GUI
+
+- **Surfaced:** 2026-11-26, review of the `sh(wpkh)` arm (mnemonic-engrave `design/agent-reports/exit-codes-2026-11-26/review-rulings-and-fixes.md`). `mnemonic gui-schema --classify-descriptor 'sh(wpkh(@0))#209apqrz'` says `canonical`; `classify_descriptor_canonicity()`'s single-key arms (pkh, wpkh, sh(wpkh), tr) end in `\)$`, so a `#checksum` suffix classes NonCanonical. Older than the `sh(wpkh)` arm; `tests/canonicity_drift.rs` has no checksum fixture.
+- **Fix:** strip a trailing `#[a-z0-9]{8}` before matching (or allow it in each arm), and add checksum fixtures to the drift test.
+- **Status:** open. **Severity:** LOW (a UI banner; the toolkit is the authoritative gate).
